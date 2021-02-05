@@ -42,6 +42,8 @@ devtools::install_github("agoutsmedt/networkflow")
 
 ## The workflow for networks
 
+### First step: creating the network and keeping the main component
+
 As soon as you have a nodes and a edges file (see the [biblionetwork](https://github.com/agoutsmedt/biblionetwork) package for creating such files), you can create a graph, using tidygraph and the [tbl_graph()](https://rdrr.io/cran/tidygraph/man/tbl_graph.html) function. The next step, as it is recurrent in many network analyses, notably in bibliometric netwoks like bibliographic coupling networks would be to keep only the [main component](https://en.wikipedia.org/wiki/Component_(graph_theory)) of your network. This could be done in one step using the `tbl_main_component()` function of `networkflow`. 
 
 ```{r creating graph}
@@ -68,3 +70,36 @@ print(graph)
 
 ```
 
+### Second step: finding communities
+
+Once you have you tidygraph graph, an important step is to run community detection algorithms to group the nodes depending on their links. This package uses the [leidenAlg](https://cran.r-project.org/web/packages/leidenAlg/index.html) package, and its `find_partition()` function, to implement the Leiden algorithm [@traag2019]. The `leiden_workflow()` function of our package runs the Leiden algorithm and attributes a community number to each node in the `Com_ID` column, but also to each edge (depending if the `from` and `to` nodes are within the same community). 
+
+```{r leiden}
+library(networkflow)
+
+# creating again the graph
+graph <- tbl_main_component(nodes = Nodes_coupling, edges = Edges_coupling, directed = FALSE, node_key = "ItemID_Ref", nb_components = 1)
+
+# finding communities
+graph <- leiden_workflow(graph)
+print(graph)
+
+```
+
+You can observe that the function also gives the size of the community, by calculating the share of total nodes that are in each community.
+
+The function also allows to play with the `resolution` parameter of leidenAlg [`find_partition()`]() function. Varying the resolution of the algorithm results in a different partition and different number of communities. A lower resolution means less communities, and conversely. The basic resolution of the `leiden_workflow()` is set by `res_1` and equals 1 by default. You can vary this parameter, but also try a second resolution with `res_2` and a third one with `res_3`:
+
+```{r resolution}
+library(networkflow)
+
+# creating again the graph
+graph <- tbl_main_component(nodes = Nodes_coupling, edges = Edges_coupling, directed = FALSE, node_key = "ItemID_Ref", nb_components = 1)
+
+# finding communities
+graph <- leiden_workflow(graph, res_1 = 0.5, res_2 = 2, res_3 = 3)
+print(graph)
+
+```
+
+## References
