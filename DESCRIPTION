@@ -28,7 +28,9 @@ Imports:
     tidygraph,
     dplyr,
     Rdpack (>= 0.7),
-    leidenAlg
+    leidenAlg,
+    data.table,
+    DescTools
 Depends: 
     R (>= 2.10)
 RdMacros:

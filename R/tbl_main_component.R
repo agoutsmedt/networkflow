@@ -1,4 +1,4 @@
-tbl_main_component  <- function(edges, nodes, nb_components = 1, threshold_alert = 0.05, ...){
+tbl_main_component <- function(edges, nodes, nb_components = 1, threshold_alert = 0.05, ...) {
   #' Creating Graph And Keeping Main Component With Tidygraph From Edges And Nodes
   #'
   #' A function which i) creates a [tidygraph](https://tidygraph.data-imaginist.com/index.html) graph using [tbl_graph()][tidygraph::tbl_graph()];
@@ -40,23 +40,23 @@ tbl_main_component  <- function(edges, nodes, nb_components = 1, threshold_alert
   # creating the tidygraph object
   graph <- tidygraph::tbl_graph(nodes, edges, ...)
 
-    # attributing a number to the different components (1 is the biggest components)
+  # attributing a number to the different components (1 is the biggest components)
   graph <- graph %>%
     tidygraph::activate(nodes) %>%
     dplyr::mutate(components_att = tidygraph::group_components(type = "weak")) %>%
-    dplyr::rename_at( 1, ~"Id" ) # renamed the first column to a standard format
+    dplyr::rename_at(1, ~"Id") # renamed the first column to a standard format
 
   # looking at the biggest component just after the last one we have kept
   threshold <- graph %>%
-    dplyr::filter(components_att == nb_components+1) %>%
-    dplyr::rename_at( 1, ~"Id" )
+    dplyr::filter(components_att == nb_components + 1) %>%
+    dplyr::rename_at(1, ~"Id")
 
   # looking at the percentage of nodes in the biggest component just after the last one we have kept
   # trigger a warning if superior to the threshold_alert
-  if(length(igraph::V(threshold)$Id)/length(igraph::V(graph)$Id) > threshold_alert)warning(paste0("Warning: you have removed a component gathering more than ",threshold_alert,"% of the nodes"))
+  if (length(igraph::V(threshold)$Id) / length(igraph::V(graph)$Id) > threshold_alert) warning(paste0("Warning: you have removed a component gathering more than ", threshold_alert, "% of the nodes"))
 
   # keeping only the number of components we want
   graph <- graph %>%
-    dplyr::filter(components_att<= nb_components) %>%
+    dplyr::filter(components_att <= nb_components) %>%
     dplyr::select(-components_att) # we remove the column as it won't be useful after that
 }

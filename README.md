@@ -6,6 +6,8 @@
             component](#first-step-creating-the-network-and-keeping-the-main-component)
         -   [Second step: finding
             communities](#second-step-finding-communities)
+        -   [Third step: giving a structure to your
+            graph](#third-step-giving-a-structure-to-your-graph)
     -   [References](#references)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -214,7 +216,7 @@ print(graph)
 #> 2     4    65 0.0408 214927 5.98e6 02        01          03     01         
 #> 3     4    46 0.0973 214927 8.46e6 01        01          01     08         
 #> 4     4     6 0.298  214927 1.07e7 01        01          01     08         
-#> 5     4   113 0.0471 214927 1.60e7 02        01          03     05         
+#> 5     4   113 0.0471 214927 1.60e7 02        01          03     04         
 #> 6     4    62 0.0447 214927 1.62e7 02        01          03     01         
 #> # ... with 2,587 more rows, and 5 more variables: Com_ID_2_from <chr>,
 #> #   Com_ID_2 <chr>, Com_ID_3_to <chr>, Com_ID_3_from <chr>, Com_ID_3 <chr>
@@ -222,10 +224,75 @@ print(graph)
 #> # Node Data: 145 x 10
 #>   Id    Author  Year Author_date Title Journal Com_ID Size_com Com_ID_2 Com_ID_3
 #>   <chr> <chr>  <int> <chr>       <chr> <chr>   <chr>     <dbl> <chr>    <chr>   
-#> 1 9628~ ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 01        0.510 08       17      
-#> 2 3709~ ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 02        0.490 05       02      
-#> 3 4628~ ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 02        0.490 05       02      
+#> 1 9628~ ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 01        0.510 08       14      
+#> 2 3709~ ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 02        0.490 04       03      
+#> 3 4628~ ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 02        0.490 04       03      
 #> # ... with 142 more rows
+```
+
+Once you have detected different communities in your network, you are
+well on the way of the projection of your graph, but two important steps
+should be implemented before. First, you have to attribute some colors
+to each community. These colors will be used for your nodes and edges
+when you will project your graph with `ggraph`. The function
+`community_colors` of the `networkflow` package allow to do that. You
+just have to give it a palette (with as many colors as the number of
+communities for a better visualisation).[1]
+
+``` r
+palette <- c("#1969B3","#01A5D8","#DA3E61","#3CB95F","#E0AF0C","#E25920","#6C7FC9","#DE9493","#CD242E","#6F4288","#B2EEF8","#7FF6FD","#FDB8D6","#8BF9A9","#FEF34A","#FEC57D","#DAEFFB","#FEE3E1","#FBB2A7","#EFD7F2","#5CAADA","#37D4F5","#F5779B","#62E186","#FBDA28","#FB8F4A","#A4B9EA","#FAC2C0","#EB6466","#AD87BC","#0B3074","#00517C","#871B2A","#1A6029","#7C4B05","#8A260E","#2E3679","#793F3F","#840F14","#401C56","#003C65","#741A09","#602A2A","#34134A","#114A1B","#27DDD1","#27DD8D","#4ADD27","#D3DD27","#DDA427","#DF2935","#DD27BC","#BA27DD","#3227DD","#2761DD","#27DDD1")
+
+graph <- community_colors(graph, palette, community_column = "Com_ID")
+#> Warning in as.data.table.list(x, keep.rownames = keep.rownames, check.names
+#> = check.names, : Item 2 has 56 rows but longest item has 500; recycled with
+#> remainder.
+#> Joining, by = "Com_ID"
+print(graph)
+#> # A tbl_graph: 145 nodes and 2593 edges
+#> #
+#> # An undirected simple graph with 1 component
+#> #
+#> # Edge Data: 2,593 x 17 (active)
+#>    from    to weight Source Target com_ID_to com_ID_from Com_ID Com_ID_2_to
+#>   <int> <int>  <dbl>  <int>  <int> <chr>     <chr>       <chr>  <chr>      
+#> 1     4     5 0.146  214927 2.21e6 02        01          03     08         
+#> 2     4    65 0.0408 214927 5.98e6 02        01          03     01         
+#> 3     4    46 0.0973 214927 8.46e6 01        01          01     08         
+#> 4     4     6 0.298  214927 1.07e7 01        01          01     08         
+#> 5     4   113 0.0471 214927 1.60e7 02        01          03     04         
+#> 6     4    62 0.0447 214927 1.62e7 02        01          03     01         
+#> # ... with 2,587 more rows, and 8 more variables: Com_ID_2_from <chr>,
+#> #   Com_ID_2 <chr>, Com_ID_3_to <chr>, Com_ID_3_from <chr>, Com_ID_3 <chr>,
+#> #   color_com_ID_to <chr>, color_com_ID_from <chr>, color_edges <chr>
+#> #
+#> # Node Data: 145 x 11
+#>   Id    Author  Year Author_date Title Journal Com_ID Size_com Com_ID_2 Com_ID_3
+#>   <chr> <chr>  <int> <chr>       <chr> <chr>   <chr>     <dbl> <chr>    <chr>   
+#> 1 9628~ ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 01        0.510 08       14      
+#> 2 3709~ ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 02        0.490 04       03      
+#> 3 4628~ ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 02        0.490 04       03      
+#> # ... with 142 more rows, and 1 more variable: color <chr>
+```
+
+### Third step: giving a structure to your graph
+
+You now have your network with your communities (and names and colors
+for these communities). The next step is
+
+``` r
+# installing the Vite package for the Force Atlas layout
+# devtools::install_github("ParkerICI/vite")
+library(vite)
+
+graph <- vite::complete_forceatlas2(graph, first.iter = 40000, overlap.method = "repel", overlap.iter = 1000, barnes.hut = TRUE, stopping.tolerance = 0.15)
+#> First iteration
+#> Using Barnes-Hut approximation
+#> Stopping tolerance: 0.001000
+#> Total number of iterations: 40000
+#> Second iteration with prevent overalp
+#> Using Barnes-Hut approximation
+#> Stopping tolerance: 0.001000
+#> Total number of iterations: 1000
 ```
 
 ## References
@@ -241,3 +308,7 @@ Reports* 9 (1): 1–12.
 </div>
 
 </div>
+
+[1] If two connected nodes are in the same community, their edge will
+take the same color. If they are in different communities, their edge
+will have a mix of the two communities colors.
