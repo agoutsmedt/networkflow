@@ -185,7 +185,7 @@ library(ggrepel) # use for avoiding labels overlapping
 library(ggnewscale) # this is needeed to use several size scale in the graph (here, one for nodes, and one for labels)
 
 ggraph(graph, "manual", x = x, y = y) + 
-  geom_edge_arc(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
+  geom_edge_arc0(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
   scale_edge_width_continuous(range = c(0.1,2)) +
   scale_edge_colour_identity() +
   geom_node_point(aes(x=x, y=y, size = degree, fill = color), pch = 21, alpha = 0.9, show.legend = FALSE) +
@@ -193,7 +193,7 @@ ggraph(graph, "manual", x = x, y = y) +
   scale_fill_identity() +
   new_scale("size") +
   geom_text_repel(data=top_nodes, aes(x=x, y=y, label = Label), size = 2, fontface="bold", alpha = 1, point.padding=NA, show.legend = FALSE) +
-  geom_label_repel(data=community_labels, aes(x=x, y=y, label = Community_name, fill = color, size = Size_com), fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
+  geom_label_repel(data=community_labels, aes(x=x, y=y, label = Community_name, fill = color), size = 6, fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
   scale_size_continuous(range = c(0.5,5)) +
   theme_void()
 ```

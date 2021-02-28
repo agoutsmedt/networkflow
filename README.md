@@ -162,8 +162,6 @@ graph <- tbl_main_component(nodes = Nodes_coupling, edges = Edges_coupling, dire
 graph <- leiden_workflow(graph)
 #> Warning: The `add` argument of `group_by()` is deprecated as of dplyr 1.0.0.
 #> Please use the `.add` argument instead.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_warnings()` to see where this warning was generated.
 print(graph)
 #> # A tbl_graph: 145 nodes and 2593 edges
 #> #
@@ -226,9 +224,9 @@ print(graph)
 #> # Node Data: 145 x 10
 #>   Id    Author  Year Author_date Title Journal Com_ID Size_com Com_ID_2 Com_ID_3
 #>   <chr> <chr>  <int> <chr>       <chr> <chr>   <chr>     <dbl> <chr>    <chr>   
-#> 1 9628~ ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 01        0.510 10       17      
-#> 2 3709~ ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 02        0.490 01       02      
-#> 3 4628~ ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 02        0.490 01       02      
+#> 1 9628~ ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 01        0.510 06       15      
+#> 2 3709~ ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 02        0.490 01       07      
+#> 3 4628~ ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 02        0.490 01       07      
 #> # ... with 142 more rows
 ```
 
@@ -364,7 +362,7 @@ graph <- graph %>%
 graph <- vite::complete_forceatlas2(graph, first.iter = 5000, overlap.method = "repel", overlap.iter = 500)
 #> First iteration
 #> Stopping tolerance: 0.001000
-#> Total number of iterations: 1137
+#> Total number of iterations: 5000
 #> Second iteration with prevent overalp
 #> Stopping tolerance: 0.001000
 #> Total number of iterations: 500
@@ -437,19 +435,19 @@ print(top_nodes)
 #> 12:                               The American Economic Review     01
 #> 13:                Reducing inflation: Motivation and strategy     04
 #>       Size_com   color degree   Community_name size           x          y
-#>  1: 0.33103448 #01A5D8     90  02-VELDE-F-2004   90  193.758234   77.85637
-#>  2: 0.33103448 #01A5D8     89  02-VELDE-F-2004   89  -76.588162 -167.84908
-#>  3: 0.12413793 #DA3E61     87 03-BARSKY-R-2002   87  427.432444  100.55689
-#>  4: 0.12413793 #DA3E61     82 03-BARSKY-R-2002   82  530.421600 -112.11233
-#>  5: 0.33103448 #01A5D8     77  02-VELDE-F-2004   77  105.159143 -272.62870
-#>  6: 0.33103448 #01A5D8     76  02-VELDE-F-2004   76  -81.852673 -391.04813
-#>  7: 0.33103448 #01A5D8     75  02-VELDE-F-2004   75 -254.546293 -294.22792
-#>  8: 0.12413793 #DA3E61     72 03-BARSKY-R-2002   72  298.574335  274.75553
-#>  9: 0.33103448 #01A5D8     70  02-VELDE-F-2004   70   66.228155  496.87044
-#> 10: 0.33103448 #01A5D8     69  02-VELDE-F-2004   69   -1.237611   16.80427
-#> 11: 0.33103448 #01A5D8     69  02-VELDE-F-2004   69 -310.744848 -518.25966
-#> 12: 0.48965517 #1969B3     50 01-GORDON-R-1984   50  618.294179 -340.05442
-#> 13: 0.05517241 #3CB95F     54 04-DELONG-B-1997   54  106.825065 -458.94772
+#>  1: 0.33103448 #01A5D8     90  02-VELDE-F-2004   90   -5.087482 -193.74475
+#>  2: 0.33103448 #01A5D8     89  02-VELDE-F-2004   89 -158.569104  117.71047
+#>  3: 0.12413793 #DA3E61     87 03-BARSKY-R-2002   87   54.510553 -418.68108
+#>  4: 0.12413793 #DA3E61     82 03-BARSKY-R-2002   82 -190.631873 -476.20052
+#>  5: 0.33103448 #01A5D8     77  02-VELDE-F-2004   77 -197.219093  -86.41167
+#>  6: 0.33103448 #01A5D8     76  02-VELDE-F-2004   76 -374.488033  135.10908
+#>  7: 0.33103448 #01A5D8     75  02-VELDE-F-2004   75 -251.337032  299.98809
+#>  8: 0.12413793 #DA3E61     72 03-BARSKY-R-2002   72  215.623691 -253.68700
+#>  9: 0.33103448 #01A5D8     70  02-VELDE-F-2004   70  316.832571  -98.44778
+#> 10: 0.33103448 #01A5D8     69  02-VELDE-F-2004   69  146.760195  -76.07266
+#> 11: 0.33103448 #01A5D8     69  02-VELDE-F-2004   69 -514.857901  292.32473
+#> 12: 0.48965517 #1969B3     50 01-GORDON-R-1984   50 -385.443240 -586.55061
+#> 13: 0.05517241 #3CB95F     54 04-DELONG-B-1997   54 -384.095181  -87.71840
 ```
 
 The second operation is done using the `community_labels()` function,
@@ -462,7 +460,7 @@ community_labels <- community_labels(graph, community_name_column = "Community_n
 print(labels)
 #> function (object, ...) 
 #> UseMethod("labels")
-#> <bytecode: 0x0000000026e19c58>
+#> <bytecode: 0x0000000022a29d60>
 #> <environment: namespace:base>
 ```
 
@@ -476,7 +474,7 @@ library(ggrepel) # use for avoiding labels overlapping
 library(ggnewscale) # this is needeed to use several size scale in the graph (here, one for nodes, and one for labels)
 
 ggraph(graph, "manual", x = x, y = y) + 
-  geom_edge_arc(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
+  geom_edge_arc0(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
   scale_edge_width_continuous(range = c(0.1,2)) +
   scale_edge_colour_identity() +
   geom_node_point(aes(x=x, y=y, size = degree, fill = color), pch = 21, alpha = 0.9, show.legend = FALSE) +
@@ -484,7 +482,7 @@ ggraph(graph, "manual", x = x, y = y) +
   scale_fill_identity() +
   new_scale("size") +
   geom_text_repel(data=top_nodes, aes(x=x, y=y, label = Label), size = 2, fontface="bold", alpha = 1, point.padding=NA, show.legend = FALSE) +
-  geom_label_repel(data=community_labels, aes(x=x, y=y, label = Community_name, fill = color, size = Size_com), fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
+  geom_label_repel(data=community_labels, aes(x=x, y=y, label = Community_name, fill = color), size = 6, fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
   scale_size_continuous(range = c(0.5,5)) +
   theme_void()
 #> Warning: Existing variables `x`, `y` overwritten by layout variables
