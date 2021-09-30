@@ -78,14 +78,14 @@ print(graph)
 #> # An undirected simple graph with 1 component
 #> #
 #> # Node Data: 145 x 6 (active)
-#>   Id     Author    Year Author_date   Title                     Journal         
-#>   <chr>  <chr>    <int> <chr>         <chr>                     <chr>           
-#> 1 96284~ ALBANES~  2003 ALBANESI-S-2~ Expectation traps and mo~ "The Review of ~
-#> 2 37095~ ATESOGL~  1980 ATESOGLU-H-1~ Inflation and its accele~ "Journal of Pos~
-#> 3 46282~ ATESOGL~  1982 ATESOGLU-H-1~ WAGES AND STAGFLATION     "JOURNAL OF POS~
-#> 4 214927 BALL-L    1991 BALL-L-1991   The Genesis of Inflation~ "Journal of Mon~
-#> 5 22075~ BALL-L    1995 BALL-L-1995a  Relative-Price Changes a~ "The Quarterly ~
-#> 6 10729~ BALL-L    1995 BALL-L-1995b  Time-consistent policy a~ "Journal of Mon~
+#>   Id       Author      Year Author_date     Title                 Journal       
+#>   <chr>    <chr>      <int> <chr>           <chr>                 <chr>         
+#> 1 96284971 ALBANESI-S  2003 ALBANESI-S-2003 Expectation traps an~ "The Review o~
+#> 2 37095547 ATESOGLU-H  1980 ATESOGLU-H-1980 Inflation and its ac~ "Journal of P~
+#> 3 46282251 ATESOGLU-H  1982 ATESOGLU-H-1982 WAGES AND STAGFLATION "JOURNAL OF P~
+#> 4 214927   BALL-L      1991 BALL-L-1991     The Genesis of Infla~ "Journal of M~
+#> 5 2207578  BALL-L      1995 BALL-L-1995a    Relative-Price Chang~ "The Quarterl~
+#> 6 10729971 BALL-L      1995 BALL-L-1995b    Time-consistent poli~ "Journal of M~
 #> # ... with 139 more rows
 #> #
 #> # Edge Data: 2,593 x 5
@@ -122,14 +122,14 @@ print(graph)
 #> # An undirected simple graph with 1 component
 #> #
 #> # Node Data: 145 x 6 (active)
-#>   Id     Author    Year Author_date   Title                     Journal         
-#>   <chr>  <chr>    <int> <chr>         <chr>                     <chr>           
-#> 1 96284~ ALBANES~  2003 ALBANESI-S-2~ Expectation traps and mo~ "The Review of ~
-#> 2 37095~ ATESOGL~  1980 ATESOGLU-H-1~ Inflation and its accele~ "Journal of Pos~
-#> 3 46282~ ATESOGL~  1982 ATESOGLU-H-1~ WAGES AND STAGFLATION     "JOURNAL OF POS~
-#> 4 214927 BALL-L    1991 BALL-L-1991   The Genesis of Inflation~ "Journal of Mon~
-#> 5 22075~ BALL-L    1995 BALL-L-1995a  Relative-Price Changes a~ "The Quarterly ~
-#> 6 10729~ BALL-L    1995 BALL-L-1995b  Time-consistent policy a~ "Journal of Mon~
+#>   Id       Author      Year Author_date     Title                 Journal       
+#>   <chr>    <chr>      <int> <chr>           <chr>                 <chr>         
+#> 1 96284971 ALBANESI-S  2003 ALBANESI-S-2003 Expectation traps an~ "The Review o~
+#> 2 37095547 ATESOGLU-H  1980 ATESOGLU-H-1980 Inflation and its ac~ "Journal of P~
+#> 3 46282251 ATESOGLU-H  1982 ATESOGLU-H-1982 WAGES AND STAGFLATION "JOURNAL OF P~
+#> 4 214927   BALL-L      1991 BALL-L-1991     The Genesis of Infla~ "Journal of M~
+#> 5 2207578  BALL-L      1995 BALL-L-1995a    Relative-Price Chang~ "The Quarterl~
+#> 6 10729971 BALL-L      1995 BALL-L-1995b    Time-consistent poli~ "Journal of M~
 #> # ... with 139 more rows
 #> #
 #> # Edge Data: 2,593 x 5
@@ -170,20 +170,20 @@ print(graph)
 #> # Edge Data: 2,593 x 8 (active)
 #>    from    to weight Source   Target com_ID_to com_ID_from Com_ID
 #>   <int> <int>  <dbl>  <int>    <int> <chr>     <chr>       <chr> 
-#> 1     4     5 0.146  214927  2207578 01        04          05    
-#> 2     4    65 0.0408 214927  5982867 01        04          05    
-#> 3     4    46 0.0973 214927  8456979 04        04          04    
-#> 4     4     6 0.298  214927 10729971 04        04          04    
-#> 5     4   113 0.0471 214927 16008556 01        04          05    
-#> 6     4    62 0.0447 214927 16167977 01        04          05    
+#> 1     4     5 0.146  214927  2207578 02        05          06    
+#> 2     4    65 0.0408 214927  5982867 02        05          06    
+#> 3     4    46 0.0973 214927  8456979 05        05          05    
+#> 4     4     6 0.298  214927 10729971 05        05          05    
+#> 5     4   113 0.0471 214927 16008556 02        05          06    
+#> 6     4    62 0.0447 214927 16167977 02        05          06    
 #> # ... with 2,587 more rows
 #> #
 #> # Node Data: 145 x 8
-#>   Id     Author   Year Author_date  Title           Journal      Com_ID Size_com
-#>   <chr>  <chr>   <int> <chr>        <chr>           <chr>        <chr>     <dbl>
-#> 1 96284~ ALBANE~  2003 ALBANESI-S-~ Expectation tr~ "The Review~ 02        0.331
-#> 2 37095~ ATESOG~  1980 ATESOGLU-H-~ Inflation and ~ "Journal of~ 01        0.490
-#> 3 46282~ ATESOG~  1982 ATESOGLU-H-~ WAGES AND STAG~ "JOURNAL OF~ 01        0.490
+#>   Id       Author      Year Author_date     Title      Journal   Com_ID Size_com
+#>   <chr>    <chr>      <int> <chr>           <chr>      <chr>     <chr>     <dbl>
+#> 1 96284971 ALBANESI-S  2003 ALBANESI-S-2003 Expectati~ "The Rev~ 03        0.331
+#> 2 37095547 ATESOGLU-H  1980 ATESOGLU-H-1980 Inflation~ "Journal~ 02        0.490
+#> 3 46282251 ATESOGLU-H  1982 ATESOGLU-H-1982 WAGES AND~ "JOURNAL~ 02        0.490
 #> # ... with 142 more rows
 ```
 
@@ -212,21 +212,21 @@ print(graph)
 #> # Edge Data: 2,593 x 14 (active)
 #>    from    to weight Source Target com_ID_to com_ID_from Com_ID Com_ID_2_to
 #>   <int> <int>  <dbl>  <int>  <int> <chr>     <chr>       <chr>  <chr>      
-#> 1     4     5 0.146  214927 2.21e6 02        01          03     06         
-#> 2     4    65 0.0408 214927 5.98e6 02        01          03     02         
-#> 3     4    46 0.0973 214927 8.46e6 01        01          01     06         
-#> 4     4     6 0.298  214927 1.07e7 01        01          01     06         
-#> 5     4   113 0.0471 214927 1.60e7 02        01          03     01         
-#> 6     4    62 0.0447 214927 1.62e7 02        01          03     02         
+#> 1     4     5 0.146  214927 2.21e6 03        02          04     08         
+#> 2     4    65 0.0408 214927 5.98e6 03        02          04     02         
+#> 3     4    46 0.0973 214927 8.46e6 02        02          02     08         
+#> 4     4     6 0.298  214927 1.07e7 02        02          02     08         
+#> 5     4   113 0.0471 214927 1.60e7 03        02          04     06         
+#> 6     4    62 0.0447 214927 1.62e7 03        02          04     02         
 #> # ... with 2,587 more rows, and 5 more variables: Com_ID_2_from <chr>,
 #> #   Com_ID_2 <chr>, Com_ID_3_to <chr>, Com_ID_3_from <chr>, Com_ID_3 <chr>
 #> #
 #> # Node Data: 145 x 10
-#>   Id    Author  Year Author_date Title Journal Com_ID Size_com Com_ID_2 Com_ID_3
-#>   <chr> <chr>  <int> <chr>       <chr> <chr>   <chr>     <dbl> <chr>    <chr>   
-#> 1 9628~ ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 01        0.510 06       15      
-#> 2 3709~ ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 02        0.490 01       07      
-#> 3 4628~ ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 02        0.490 01       07      
+#>   Id       Author  Year Author_date Title Journal Com_ID Size_com Com_ID_2 Com_ID_3
+#>   <chr>    <chr>  <int> <chr>       <chr> <chr>   <chr>     <dbl> <chr>    <chr>   
+#> 1 96284971 ALBAN~  2003 ALBANESI-S~ Expe~ "The R~ 02        0.510 12       07      
+#> 2 37095547 ATESO~  1980 ATESOGLU-H~ Infl~ "Journ~ 03        0.490 06       02      
+#> 3 46282251 ATESO~  1982 ATESOGLU-H~ WAGE~ "JOURN~ 03        0.490 06       02      
 #> # ... with 142 more rows
 ```
 
@@ -263,21 +263,21 @@ print(graph)
 #> # Edge Data: 2,593 x 11 (active)
 #>    from    to weight Source Target com_ID_to com_ID_from Com_ID color_com_ID_to
 #>   <int> <int>  <dbl>  <int>  <int> <chr>     <chr>       <chr>  <chr>          
-#> 1     4     5 0.146  214927 2.21e6 01        04          05     #1969B3        
-#> 2     4    65 0.0408 214927 5.98e6 01        04          05     #1969B3        
-#> 3     4    46 0.0973 214927 8.46e6 04        04          04     #3CB95F        
-#> 4     4     6 0.298  214927 1.07e7 04        04          04     #3CB95F        
-#> 5     4   113 0.0471 214927 1.60e7 01        04          05     #1969B3        
-#> 6     4    62 0.0447 214927 1.62e7 01        04          05     #1969B3        
+#> 1     4     5 0.146  214927 2.21e6 02        05          06     #01A5D8        
+#> 2     4    65 0.0408 214927 5.98e6 02        05          06     #01A5D8        
+#> 3     4    46 0.0973 214927 8.46e6 05        05          05     #E0AF0C        
+#> 4     4     6 0.298  214927 1.07e7 05        05          05     #E0AF0C        
+#> 5     4   113 0.0471 214927 1.60e7 02        05          06     #01A5D8        
+#> 6     4    62 0.0447 214927 1.62e7 02        05          06     #01A5D8        
 #> # ... with 2,587 more rows, and 2 more variables: color_com_ID_from <chr>,
 #> #   color_edges <chr>
 #> #
 #> # Node Data: 145 x 9
-#>   Id     Author   Year Author_date Title        Journal    Com_ID Size_com color
-#>   <chr>  <chr>   <int> <chr>       <chr>        <chr>      <chr>     <dbl> <chr>
-#> 1 96284~ ALBANE~  2003 ALBANESI-S~ Expectation~ "The Revi~ 02        0.331 #01A~
-#> 2 37095~ ATESOG~  1980 ATESOGLU-H~ Inflation a~ "Journal ~ 01        0.490 #196~
-#> 3 46282~ ATESOG~  1982 ATESOGLU-H~ WAGES AND S~ "JOURNAL ~ 01        0.490 #196~
+#>   Id       Author      Year Author_date  Title    Journal  Com_ID Size_com color
+#>   <chr>    <chr>      <int> <chr>        <chr>    <chr>    <chr>     <dbl> <chr>
+#> 1 96284971 ALBANESI-S  2003 ALBANESI-S-~ Expecta~ "The Re~ 03        0.331 #DA3~
+#> 2 37095547 ATESOGLU-H  1980 ATESOGLU-H-~ Inflati~ "Journa~ 02        0.490 #01A~
+#> 3 46282251 ATESOGLU-H  1982 ATESOGLU-H-~ WAGES A~ "JOURNA~ 02        0.490 #01A~
 #> # ... with 142 more rows
 ```
 
@@ -321,20 +321,20 @@ library(tidygraph)
 #> # Node Data: 145 x 11 (active)
 #>   Id    Author  Year Label Title Journal Com_ID Size_com color degree
 #>   <chr> <chr>  <int> <chr> <chr> <chr>   <chr>     <dbl> <chr>  <dbl>
-#> 1 9628~ ALBAN~  2003 ALBA~ Expe~ "The R~ 02       0.331  #01A~     47
-#> 2 3709~ ATESO~  1980 ATES~ Infl~ "Journ~ 01       0.490  #196~     11
-#> 3 4628~ ATESO~  1982 ATES~ WAGE~ "JOURN~ 01       0.490  #196~      9
-#> 4 2149~ BALL-L  1991 BALL~ The ~ "Journ~ 04       0.0552 #3CB~     25
-#> 5 2207~ BALL-L  1995 BALL~ Rela~ "The Q~ 01       0.490  #196~     39
-#> 6 1072~ BALL-L  1995 BALL~ Time~ "Journ~ 04       0.0552 #3CB~     33
+#> 1 9628~ ALBAN~  2003 ALBA~ Expe~ "The R~ 03       0.331  #DA3~     47
+#> 2 3709~ ATESO~  1980 ATES~ Infl~ "Journ~ 02       0.490  #01A~     11
+#> 3 4628~ ATESO~  1982 ATES~ WAGE~ "JOURN~ 02       0.490  #01A~      9
+#> 4 2149~ BALL-L  1991 BALL~ The ~ "Journ~ 05       0.0552 #E0A~     25
+#> 5 2207~ BALL-L  1995 BALL~ Rela~ "The Q~ 02       0.490  #01A~     39
+#> 6 1072~ BALL-L  1995 BALL~ Time~ "Journ~ 05       0.0552 #E0A~     33
 #> # ... with 139 more rows, and 1 more variable: Community_name <chr>
 #> #
 #> # Edge Data: 2,593 x 11
 #>    from    to weight Source Target com_ID_to com_ID_from Com_ID color_com_ID_to
 #>   <int> <int>  <dbl>  <int>  <int> <chr>     <chr>       <chr>  <chr>          
-#> 1     4     5 0.146  214927 2.21e6 01        04          05     #1969B3        
-#> 2     4    65 0.0408 214927 5.98e6 01        04          05     #1969B3        
-#> 3     4    46 0.0973 214927 8.46e6 04        04          04     #3CB95F        
+#> 1     4     5 0.146  214927 2.21e6 02        05          06     #01A5D8        
+#> 2     4    65 0.0408 214927 5.98e6 02        05          06     #01A5D8        
+#> 3     4    46 0.0973 214927 8.46e6 05        05          05     #E0AF0C        
 #> # ... with 2,590 more rows, and 2 more variables: color_com_ID_from <chr>,
 #> #   color_edges <chr>
 ```
@@ -421,33 +421,33 @@ print(top_nodes)
 #> 12:                                                            Supply Shocks and Monetary Policy Revisited
 #> 13:                                                               America's peacetime inflation: The 1970s
 #>                                                        Journal Com_ID
-#>  1:      Economic Perspectives Reserve Federal Bank of Chicago     02
-#>  2:                                                                02
-#>  3:                 NBER Macroeconomics Annual 2001, Volume 16     03
-#>  4: The Great Inflation: The Rebirth of Modern Central Banking     03
-#>  5:                                  Advance in Macroeconomics     02
-#>  6:                                  Journal of Macroeconomics     02
-#>  7:                   Federal Reserve Bank of St. Louis Review     02
-#>  8:                              Journal of Monetary Economics     03
-#>  9:                                 NBER macroeconomics annual     02
-#> 10:                       Journal of Money, credit and Banking     02
-#> 11: The Great Inflation: The Rebirth of Modern Central Banking     02
-#> 12:                               The American Economic Review     01
-#> 13:                Reducing inflation: Motivation and strategy     04
-#>       Size_com   color degree   Community_name size           x          y
-#>  1: 0.33103448 #01A5D8     90  02-VELDE-F-2004   90   -5.087482 -193.74475
-#>  2: 0.33103448 #01A5D8     89  02-VELDE-F-2004   89 -158.569104  117.71047
-#>  3: 0.12413793 #DA3E61     87 03-BARSKY-R-2002   87   54.510553 -418.68108
-#>  4: 0.12413793 #DA3E61     82 03-BARSKY-R-2002   82 -190.631873 -476.20052
-#>  5: 0.33103448 #01A5D8     77  02-VELDE-F-2004   77 -197.219093  -86.41167
-#>  6: 0.33103448 #01A5D8     76  02-VELDE-F-2004   76 -374.488033  135.10908
-#>  7: 0.33103448 #01A5D8     75  02-VELDE-F-2004   75 -251.337032  299.98809
-#>  8: 0.12413793 #DA3E61     72 03-BARSKY-R-2002   72  215.623691 -253.68700
-#>  9: 0.33103448 #01A5D8     70  02-VELDE-F-2004   70  316.832571  -98.44778
-#> 10: 0.33103448 #01A5D8     69  02-VELDE-F-2004   69  146.760195  -76.07266
-#> 11: 0.33103448 #01A5D8     69  02-VELDE-F-2004   69 -514.857901  292.32473
-#> 12: 0.48965517 #1969B3     50 01-GORDON-R-1984   50 -385.443240 -586.55061
-#> 13: 0.05517241 #3CB95F     54 04-DELONG-B-1997   54 -384.095181  -87.71840
+#>  1:      Economic Perspectives Reserve Federal Bank of Chicago     03
+#>  2:                                                                03
+#>  3:                 NBER Macroeconomics Annual 2001, Volume 16     04
+#>  4: The Great Inflation: The Rebirth of Modern Central Banking     04
+#>  5:                                  Advance in Macroeconomics     03
+#>  6:                                  Journal of Macroeconomics     03
+#>  7:                   Federal Reserve Bank of St. Louis Review     03
+#>  8:                              Journal of Monetary Economics     04
+#>  9:                                 NBER macroeconomics annual     03
+#> 10:                       Journal of Money, credit and Banking     03
+#> 11: The Great Inflation: The Rebirth of Modern Central Banking     03
+#> 12:                               The American Economic Review     02
+#> 13:                Reducing inflation: Motivation and strategy     05
+#>       Size_com   color degree   Community_name size          x          y
+#>  1: 0.33103448 #DA3E61     90  03-VELDE-F-2004   90   94.26662  122.79894
+#>  2: 0.33103448 #DA3E61     89  03-VELDE-F-2004   89  157.25039 -120.80523
+#>  3: 0.12413793 #3CB95F     87 04-BARSKY-R-2002   87  100.96343  399.70321
+#>  4: 0.12413793 #3CB95F     82 04-BARSKY-R-2002   82  347.18330  422.28350
+#>  5: 0.33103448 #DA3E61     77  03-VELDE-F-2004   77  291.58976   30.50923
+#>  6: 0.33103448 #DA3E61     76  03-VELDE-F-2004   76  262.69033 -302.05340
+#>  7: 0.33103448 #DA3E61     75  03-VELDE-F-2004   75   64.66663 -362.11489
+#>  8: 0.12413793 #3CB95F     72 04-BARSKY-R-2002   72 -119.49112  417.52543
+#>  9: 0.33103448 #DA3E61     70  03-VELDE-F-2004   70 -201.39331  258.95737
+#> 10: 0.33103448 #DA3E61     69  03-VELDE-F-2004   69 -101.66184  112.30151
+#> 11: 0.33103448 #DA3E61     69  03-VELDE-F-2004   69  338.99716 -488.01188
+#> 12: 0.48965517 #01A5D8     50 02-GORDON-R-1984   50  602.40795  376.56888
+#> 13: 0.05517241 #E0AF0C     54 05-DELONG-B-1997   54  394.56343 -146.53740
 ```
 
 The second operation is done using the `community_labels()` function,
@@ -460,7 +460,7 @@ community_labels <- community_labels(graph, community_name_column = "Community_n
 print(labels)
 #> function (object, ...) 
 #> UseMethod("labels")
-#> <bytecode: 0x0000000022a29d60>
+#> <bytecode: 0x000000002a026500>
 #> <environment: namespace:base>
 ```
 
@@ -469,7 +469,9 @@ We can now plot the graph using the
 
 ``` r
 library(ggraph)
+#> Warning: le package 'ggraph' a été compilé avec la version R 4.0.4
 #> Le chargement a nécessité le package : ggplot2
+#> Warning: le package 'ggplot2' a été compilé avec la version R 4.0.5
 library(ggrepel) # use for avoiding labels overlapping
 library(ggnewscale) # this is needeed to use several size scale in the graph (here, one for nodes, and one for labels)
 
