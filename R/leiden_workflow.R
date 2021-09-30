@@ -1,5 +1,5 @@
 # Running Leiden for two different resolutions and associating edges to communities
-leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 500) {
+leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000) {
   #' Add Leiden Communities to graph
   #'
   #' @description This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
@@ -51,13 +51,13 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
   components_att <- edges <- nodes <- Com_ID <- Size_com <- to <- from <- com_ID_from <- com_ID_to <- Com_ID_2 <- Com_ID_2_from <- Com_ID_2_to <- Com_ID_3 <- Com_ID_3_from <- Com_ID_3_to <- NULL
 
   # run the leiden algorithm for the first resolution
-  leiden <- leidenAlg::find_partition(graph, edge_weights = igraph::E(graph)$weight, resolution = res_1, niter = niter)
+  leiden <- leidenAlg::leiden.community(graph, resolution = res_1, n.iterations = niter)
 
   # Add the resulting partition as an attribute of nodes
   # (to make plotting easier, put a 0 before one digit community)
   graph <- graph %>%
     activate(nodes) %>%
-    mutate(Com_ID = sprintf("%02d", leiden + 1)) %>%
+    mutate(Com_ID = sprintf("%02d", as.integer(leiden$membership) + 1)) %>%
     mutate(Com_ID = as.character(Com_ID))
 
   # calculate the size of the community
@@ -73,7 +73,7 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
   # two communities number. It would allow the edges to take as color the mix of the two communities color)
   graph <- graph %>%
     tidygraph::activate(edges) %>%
-    dplyr::mutate(com_ID_to = .N()$Com_ID[to], com_ID_from = .N()$Com_ID[from], Com_ID = ifelse(com_ID_from == com_ID_to, com_ID_from, sprintf("%02d", max(leiden) + 2))) # .N() makes the node data available while manipulating edges
+    dplyr::mutate(com_ID_to = .N()$Com_ID[to], com_ID_from = .N()$Com_ID[from], Com_ID = ifelse(com_ID_from == com_ID_to, com_ID_from, sprintf("%02d", max(as.integer(leiden$membership)) + 2))) # .N() makes the node data available while manipulating edges
 
 
   # Doing the same for the second resolution
@@ -81,15 +81,15 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
     return(graph)
   }
   if (!is.null(res_2)) {
-    leiden_2 <- leidenAlg::find_partition(graph, edge_weights = igraph::E(graph)$weight, resolution = res_2, niter = niter)
+    leiden_2 <- leidenAlg::leiden.community(graph, resolution = res_2, n.iterations = niter)
     graph <- graph %>%
       activate(nodes) %>%
-      mutate(Com_ID_2 = sprintf("%02d", leiden_2 + 1)) %>%
+      mutate(Com_ID_2 = sprintf("%02d", as.integer(leiden_2$membership) + 1)) %>%
       mutate(Com_ID_2 = as.character(Com_ID_2))
 
     graph <- graph %>%
       activate(edges) %>%
-      mutate(Com_ID_2_to = .N()$Com_ID_2[to], Com_ID_2_from = .N()$Com_ID_2[from], Com_ID_2 = ifelse(Com_ID_2_from == Com_ID_2_to, Com_ID_2_from, sprintf("%02d", max(leiden_2) + 2)))
+      mutate(Com_ID_2_to = .N()$Com_ID_2[to], Com_ID_2_from = .N()$Com_ID_2[from], Com_ID_2 = ifelse(Com_ID_2_from == Com_ID_2_to, Com_ID_2_from, sprintf("%02d", max(as.integer(leiden_2$membership)) + 2)))
   }
 
   # Doing the same for the third resolution
@@ -97,14 +97,14 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
     return(graph)
   }
   if (!is.null(res_3)) {
-    leiden_3 <- leidenAlg::find_partition(graph, edge_weights = igraph::E(graph)$weight, resolution = res_3, niter = niter)
+    leiden_3 <- leidenAlg::leiden.community(graph, resolution = res_2, n.iterations = niter)
     graph <- graph %>%
       activate(nodes) %>%
-      mutate(Com_ID_3 = sprintf("%02d", leiden_3 + 1)) %>%
+      mutate(Com_ID_3 = sprintf("%02d", as.integer(leiden_3$membership) + 1)) %>%
       mutate(Com_ID_3 = as.character(Com_ID_3))
 
     graph <- graph %>%
       activate(edges) %>%
-      mutate(Com_ID_3_to = .N()$Com_ID_3[to], Com_ID_3_from = .N()$Com_ID_3[from], Com_ID_3 = ifelse(Com_ID_3_from == Com_ID_3_to, Com_ID_3_from, sprintf("%02d", max(leiden_3) + 2)))
+      mutate(Com_ID_3_to = .N()$Com_ID_3[to], Com_ID_3_from = .N()$Com_ID_3[from], Com_ID_3 = ifelse(Com_ID_3_from == Com_ID_3_to, Com_ID_3_from, sprintf("%02d", max(as.integer(leiden_3$membership)) + 2)))
   }
 }

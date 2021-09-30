@@ -4,7 +4,7 @@
 \alias{leiden_workflow}
 \title{Add Leiden Communities to graph}
 \usage{
-leiden_workflow(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 500)
+leiden_workflow(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000)
 }
 \arguments{
 \item{graph}{A tidygraph object with a "weight" column for edges.}
