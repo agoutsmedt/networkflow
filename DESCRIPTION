@@ -2,36 +2,49 @@ Package: networkflow
 Title: Functions For A Workflow To Manipulate Networks
 Version: 0.0.0.9000
 Authors@R: c(
-    person(given = "Aurélien",
-           family = "Goutsmedt",
-           role = c("cre","aut"),
-           email = "agoutsmedt@gmail.com",
+    person("Aurélien", "Goutsmedt", , "agoutsmedt@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3788-7237")),
-    person(given = "Alexandre",
-           family = "Truc",
-           role = c("aut"),
-           email = "alexandre.truc77@gmail.com",
-           comment = c(ORCID = "0000-0002-1328-7819")))
+    person("Alexandre", "Truc", , "alexandre.truc77@gmail.com", role = "aut",
+           comment = c(ORCID = "0000-0002-1328-7819"))
+  )
 Author: Aurélien Goutsmedt and Alexandre Truc.
 Maintainer: Aurélien Goutsmedt <agoutsmedt@hotmail.fr>
-Description: This package proposes a series of function to make it easier and quicker to work on networks. It mainly targets working on bibliometric networks (see the [biblionetwork](https://github.com/agoutsmedt/biblionetwork) package for creating such networks). This package heavily relies on [igraph](https://igraph.org/r/) and [tidygraph](https://tidygraph.data-imaginist.com/index.html), and aims at producing ready-made networks for projecting them using [ggraph](https://ggraph.data-imaginist.com/). This package does not invent nothing new, properly speaking, but it allows the users to follow more quickly and easily the main steps of network manipulation, from creating the graph to projecting it. It is inspired by what could be done with [GEPHI](https://gephi.org/): the package allows the use of the Leiden community detection algorithm, as well as of the Force Atlas 2 layout, both being unavailable in igraph (and so in tidygraph).
+Description: This package proposes a series of function to make it easier
+    and quicker to work on networks. It mainly targets working on
+    bibliometric networks (see the
+    [biblionetwork](https://github.com/agoutsmedt/biblionetwork) package
+    for creating such networks). This package heavily relies on
+    [igraph](https://igraph.org/r/) and
+    [tidygraph](https://tidygraph.data-imaginist.com/index.html), and aims
+    at producing ready-made networks for projecting them using
+    [ggraph](https://ggraph.data-imaginist.com/). This package does not
+    invent nothing new, properly speaking, but it allows the users to
+    follow more quickly and easily the main steps of network manipulation,
+    from creating the graph to projecting it. It is inspired by what could
+    be done with [GEPHI](https://gephi.org/): the package allows the use
+    of the Leiden community detection algorithm, as well as of the Force
+    Atlas 2 layout, both being unavailable in igraph (and so in
+    tidygraph).
+License: MIT + file LICENSE
 URL: https://github.com/agoutsmedt/networkflow
 BugReports: https://github.com/agoutsmedt/networkflow/issues
-License: MIT + file LICENSE
+Depends: 
+    R (>= 2.10)
+Imports:
+    biblionetwork,
+    data.table (>= 1.14.3),
+    DescTools,
+    dplyr,
+    igraph,
+    leidenAlg,
+    magrittr,
+    Rdpack (>= 0.7),
+    tidygraph
+RdMacros:
+    Rdpack
+Remotes: 
+    Rdatatable/data.table
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Imports:
-    magrittr,
-    igraph,
-    tidygraph,
-    dplyr,
-    Rdpack (>= 0.7),
-    leidenAlg,
-    data.table,
-    DescTools
-Depends: 
-    R (>= 2.10)
-RdMacros:
-    Rdpack
