@@ -94,6 +94,10 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
   size <- node_size <- N <- NULL
 
+  # Making sure the table is a datatable
+  nodes <- data.table::data.table(nodes)
+  directed_edges <- data.table::data.table(directed_edges)
+
   if(!cooccurrence_method %in% c("coupling_angle","coupling_strength","coupling_similarity"))
     stop('You did not choose a proper method for coupling computation. You have to choose between:\n - coupling_angle\n - coupling_strength\n - coupling_similarity')
 
@@ -105,7 +109,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     stop("You cannot have a 'time_window' if you don't give any column with a temporal variable. Put a column in 'time_variable' or remove the 'time_window'.")
   }
 
-  Nodes_coupling <- copy(nodes)
+  Nodes_coupling <- data.table::copy(nodes)
   Nodes_coupling[, source_column := as.character(source_column),
                  env = list(source_column = source_column)]
 
@@ -125,7 +129,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
                    env = list(target_column = target_column)]
   }
 
-  Edges <- copy(directed_edges)
+  Edges <- data.table::copy(directed_edges)
   Edges <- Edges[, .SD, .SDcols = c(source_column, target_column)]
   Edges[, c(source_column, target_column) := lapply(.SD, as.character), .SDcols = c(source_column, target_column)]
 
