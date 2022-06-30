@@ -90,6 +90,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #'
   #' @export
   #' @import data.table
+  #' @import tidygraph
   #' @import biblionetwork
 
   size <- node_size <- N <- NULL
@@ -170,9 +171,9 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
                                         env = list(time_variable = time_variable, Year = Year)]
 
     if(time_variable != "fake_column"){
-    nodes_of_the_year[, time_window := paste0(Year, "-", Year + time_window - 1),
-                      env = list(Year = Year)]
-    message(paste0("Creation of the network for the ", Year, "-", Year + time_window - 1, " window."))
+      nodes_of_the_year[, time_window := paste0(Year, "-", Year + time_window - 1),
+                        env = list(Year = Year)]
+      message(paste0("Creation of the network for the ", Year, "-", Year + time_window - 1, " window."))
     } else {
       nodes_of_the_year <- nodes_of_the_year[, -c("fake_column")]
     }
@@ -201,25 +202,25 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     if(cooccurrence_method == "coupling_angle" ){
       message(paste("The method use for bibliometric coupling is the coupling angle method. The edge threshold is:", edges_threshold))
       edges_of_the_year <- biblionetwork::biblio_coupling(dt = edges_of_the_year,
-                                              source = source_column,
-                                              ref = target_column,
-                                              weight_threshold = edges_threshold,
-                                              output_in_character = TRUE)
+                                                          source = source_column,
+                                                          ref = target_column,
+                                                          weight_threshold = edges_threshold,
+                                                          output_in_character = TRUE)
     }else{
       if(cooccurrence_method == "coupling_strength" ){
         message(paste("The method use for bibliometric coupling is the coupling strength method.The edge threshold is:",edges_threshold))
         edges_of_the_year <- biblionetwork::coupling_strength(dt = edges_of_the_year,
-                                                  source = source_column,
-                                                  ref = target_column,
-                                                  weight_threshold = edges_threshold,
-                                                  output_in_character = TRUE)
+                                                              source = source_column,
+                                                              ref = target_column,
+                                                              weight_threshold = edges_threshold,
+                                                              output_in_character = TRUE)
       }else{
         message(paste("The method use for bibliometric coupling is the coupling similarity method.The edge threshold is:",edges_threshold))
         edges_of_the_year <- biblionetwork::coupling_similarity(dt = edges_of_the_year,
-                                                    source = source_column,
-                                                    ref = target_column,
-                                                    weight_threshold = edges_threshold,
-                                                    output_in_character = TRUE)
+                                                                source = source_column,
+                                                                ref = target_column,
+                                                                weight_threshold = edges_threshold,
+                                                                output_in_character = TRUE)
       }
     }
 
@@ -231,15 +232,15 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
     # make tbl
     if(length(all_years) == 1){
-      tbl_coup_list <- tbl_graph(nodes = nodes_of_the_year,
-                                 edges = edges_of_the_year,
-                                 directed = FALSE,
-                                 node_key = source_column)
+      tbl_coup_list <- tidygraph::tbl_graph(nodes = nodes_of_the_year,
+                                            edges = edges_of_the_year,
+                                            directed = FALSE,
+                                            node_key = source_column)
     } else {
-      tbl_coup_list[[paste0(Year, "-", Year + time_window - 1)]] <- tbl_graph(nodes = nodes_of_the_year,
-                                                                              edges = edges_of_the_year,
-                                                                              directed = FALSE,
-                                                                              node_key = source_column)
+      tbl_coup_list[[paste0(Year, "-", Year + time_window - 1)]] <- tidygraph::tbl_graph(nodes = nodes_of_the_year,
+                                                                                         edges = edges_of_the_year,
+                                                                                         directed = FALSE,
+                                                                                         node_key = source_column)
     }
   }
 
