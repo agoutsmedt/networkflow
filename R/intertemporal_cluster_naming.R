@@ -46,7 +46,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' In that case complete similarity is the right choice. However, if one consider that A and A' are very similar because all the nodes that exists in both networks are identified as part of the same community,
   #' then partial treshold similarity is more desirable.
   #'
-  #' @examples
+  #'  #' @examples
   #' library(biblionetwork)
   #' intertemporal_cluster_naming(list_of_temporal_networks,
   #' cluster_column = "Louvain_clusters",

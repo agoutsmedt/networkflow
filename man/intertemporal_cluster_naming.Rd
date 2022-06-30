@@ -22,6 +22,7 @@ from the oldest to the most recent network.}
 
 \item{threshold_similarity}{The threshold_similarity variable defines how sensitive the function is to giving the same name to two clusters.
 A higher threshold will lead to more communities.
+
 For example, if you have two temporal networks with two communities each. Communities A and B for the older network,
 and communities A' and B' for the more recent network. A threshold of 0.51 with a "complete" similarity_type means that community A' will be given the name
 A if 51\% of the nodes from A' in the more recent network originate from A in the older network, and 51\% of the node from A in the older
@@ -31,10 +32,11 @@ network becomes in A' in the more recent network.}
 \itemize{
 \item "complete" similarity compute the share of nodes going from a older community to a more recent community on all the nodes in both networks
 \item "partial" similarity compute the share of nodes going from a older community to a more recent community only on nodes that exists in both networks
+}
+
 Complete similarity is particularly suited if the number of nodes in your networks is relatively stable over time as the threshold capture the share of all nodes
 moving between clusters. Partial similarity can be particularly useful when the number of nodes in your networks increases rapidly. The interpretation of the threshold
 is that it captures the share of nodes existing in both networks moving between clusters.
-}
 
 For example, with a complete similarity threshold of 0.51, if (1) all nodes from community A in network t-1 go into community A' in network t+1, and (2) all nodes in community A'
 present in network t-1 originate from community A, but (3) the number of nodes in A' is more than twice of A because of new nodes that did not exists in t-1,
