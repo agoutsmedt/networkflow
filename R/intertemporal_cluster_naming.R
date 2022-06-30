@@ -24,6 +24,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' @param threshold_similarity
   #' The threshold_similarity variable defines how sensitive the function is to giving the same name to two clusters.
   #' A higher threshold will lead to more communities.
+  #'
   #' For example, if you have two temporal networks with two communities each. Communities A and B for the older network,
   #' and communities A' and B' for the more recent network. A threshold of 0.51 with a "complete" similarity_type means that community A' will be given the name
   #' A if 51% of the nodes from A' in the more recent network originate from A in the older network, and 51% of the node from A in the older
@@ -33,6 +34,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' Choose a similarity type to compare the threshold to:
   #' - "complete" similarity compute the share of nodes going from a older community to a more recent community on all the nodes in both networks
   #' - "partial" similarity compute the share of nodes going from a older community to a more recent community only on nodes that exists in both networks
+  #'
   #' Complete similarity is particularly suited if the number of nodes in your networks is relatively stable over time as the threshold capture the share of all nodes
   #' moving between clusters. Partial similarity can be particularly useful when the number of nodes in your networks increases rapidly. The interpretation of the threshold
   #' is that it captures the share of nodes existing in both networks moving between clusters.
@@ -44,7 +46,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' In that case complete similarity is the right choice. However, if one consider that A and A' are very similar because all the nodes that exists in both networks are identified as part of the same community,
   #' then partial treshold similarity is more desirable.
   #'
-  #'  #' @examples
+  #' @examples
   #' library(biblionetwork)
   #' intertemporal_cluster_naming(list_of_temporal_networks,
   #' cluster_column = "Louvain_clusters",
