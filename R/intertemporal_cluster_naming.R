@@ -70,7 +70,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #########################  Prepare everything **********************
 
   list_graph <- copy(list_graph)
-  list_graph <- list_graph %>% activate(nodes) %>% mutate(cluster_column=as.character(cluster_column))
+  list_graph <- lapply(list_graph, function(tbl) tbl %>% activate(nodes) %>% mutate(across(all_of(cluster_column), as.character(.))))
 
   # get all years to study
   all_years <- as.numeric(names(list_graph))
