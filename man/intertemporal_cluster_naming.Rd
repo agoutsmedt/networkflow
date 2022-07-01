@@ -2,23 +2,23 @@
 % Please edit documentation in R/intertemporal_cluster_naming.R
 \name{intertemporal_cluster_naming}
 \alias{intertemporal_cluster_naming}
-\title{Find similar clusters across multiple temporal networks}
+\title{Find Similar Clusters across Multiple Temporal Networks}
 \usage{
 intertemporal_cluster_naming(
   list_graph = NA,
   cluster_column = NA,
-  ID_key = NA,
+  node_key = NA,
   threshold_similarity = 0.5001,
   similarity_type = c("complete, partial")
 )
 }
 \arguments{
-\item{list_graph}{A list of graph. The list of networks is expected to be ordered in a sequential order
+\item{list_graph}{A list of networks. The list is expected to be ordered in a sequential order
 from the oldest to the most recent network.}
 
-\item{cluster_column}{The column with the name of the cluster.}
+\item{cluster_column}{The column with the identifier of the cluster.}
 
-\item{ID_key}{The column with the unique identifier of each node.}
+\item{node_key}{The column with the unique identifier of each node.}
 
 \item{threshold_similarity}{The threshold_similarity variable defines how sensitive the function is to giving the same name to two clusters.
 A higher threshold will lead to more communities.
@@ -43,19 +43,20 @@ present in network t-1 originate from community A, but (3) the number of nodes i
 A' will never meet the threshold requirement to be named A despite a strong similarity between the two clusters.
 Conceptually, this might be a desired behavior of the function because one might considered that A' is too different from A to be considered the same cluster as its composition is changed from new nodes.
 In that case complete similarity is the right choice. However, if one consider that A and A' are very similar because all the nodes that exists in both networks are identified as part of the same community,
-then partial treshold similarity is more desirable.
+then partial threshold similarity is more desirable.
 
 #' @examples
 library(biblionetwork)
 intertemporal_cluster_naming(list_of_temporal_networks,
 cluster_column = "Louvain_clusters",
-ID_key = "ids_nodes",
+node_key = "ids_nodes",
 threshold_similarity = 0.51,
 similarity_type = "partial")}
 }
 \description{
-This function creates a new column "intertemporal_name" for each network in a list of temporal networks to
-identify similar clusters across time. The function give the same to name two
-clusters between two sequential temporal network if they match the conditions from
-the user defined threshold_similarity, cluster_column and similarity_type.
+This function creates a new column "intertemporal_name" for each network from a list
+of temporal networks to
+identify similar clusters across time. The function gives the same name to two
+clusters from two succesive temporal networks if they match the conditions defined by
+the user: \code{threshold_similarity}, \code{cluster_colum} and \code{similarity_type}.
 }
