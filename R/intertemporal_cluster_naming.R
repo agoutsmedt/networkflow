@@ -12,7 +12,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' the user defined threshold_similarity, cluster_column and similarity_type.
   #'
   #' @param list_graph
-  #' A list of graph. The list of networks is expected to be order in a sequential order
+  #' A list of graph. The list of networks is expected to be ordered in a sequential order
   #' from the oldest to the most recent network.
   #'
   #' @param cluster_column
@@ -75,6 +75,8 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   list_graph <- lapply(list_graph, function(tbl) tbl %>% activate(nodes) %>% mutate(across(all_of(cluster_column), ~ as.character(.))))
 
   # get all years to study
+  old_list_name <- names(list_graph) # save old list name
+  names(list_graph) <- c(1:length(names(list_graph))) # numeric list name
   all_years <- as.numeric(names(list_graph))
 
   # get the number of unique communities
@@ -183,5 +185,6 @@ intertemporal_cluster_naming <- function(list_graph = NA,
       intertemporal_naming[[paste0(Year)]] <- tbl
     }
   }
+  names(intertemporal_naming) <- c(old_list_name)
   return (intertemporal_naming)
 }

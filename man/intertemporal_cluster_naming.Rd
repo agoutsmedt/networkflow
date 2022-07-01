@@ -13,7 +13,7 @@ intertemporal_cluster_naming(
 )
 }
 \arguments{
-\item{list_graph}{A list of graph. The list of networks is expected to be order in a sequential order
+\item{list_graph}{A list of graph. The list of networks is expected to be ordered in a sequential order
 from the oldest to the most recent network.}
 
 \item{cluster_column}{The column with the name of the cluster.}
