@@ -93,13 +93,14 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #' @import tidygraph
   #' @import biblionetwork
 
-  size <- node_size <- N <- NULL
+  size <- node_size <- N <- method <- NULL
 
   # Making sure the table is a datatable
   nodes <- data.table::data.table(nodes)
   directed_edges <- data.table::data.table(directed_edges)
+  cooccurrence_methods <- c("coupling_angle","coupling_strength","coupling_similarity")
 
-  if(!cooccurrence_method %in% c("coupling_angle","coupling_strength","coupling_similarity"))
+  if(!cooccurrence_method %in% cooccurrence_methods)
     stop('You did not choose a proper method for coupling computation. You have to choose between:\n - coupling_angle\n - coupling_strength\n - coupling_similarity')
 
   if(nodes[, .N, source_column, env = list(source_column=source_column)][N > 1, .N] > 0){
@@ -199,30 +200,21 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     }
 
     # coupling
-    if(cooccurrence_method == "coupling_angle" ){
-      message(paste("The method use for bibliometric coupling is the coupling angle method. The edge threshold is:", edges_threshold))
-      edges_of_the_year <- biblionetwork::biblio_coupling(dt = edges_of_the_year,
-                                                          source = source_column,
-                                                          ref = target_column,
-                                                          weight_threshold = edges_threshold,
-                                                          output_in_character = TRUE)
-    }else{
-      if(cooccurrence_method == "coupling_strength" ){
-        message(paste("The method use for bibliometric coupling is the coupling strength method.The edge threshold is:",edges_threshold))
-        edges_of_the_year <- biblionetwork::coupling_strength(dt = edges_of_the_year,
-                                                              source = source_column,
-                                                              ref = target_column,
-                                                              weight_threshold = edges_threshold,
-                                                              output_in_character = TRUE)
-      }else{
-        message(paste("The method use for bibliometric coupling is the coupling similarity method.The edge threshold is:",edges_threshold))
-        edges_of_the_year <- biblionetwork::coupling_similarity(dt = edges_of_the_year,
-                                                                source = source_column,
-                                                                ref = target_column,
-                                                                weight_threshold = edges_threshold,
-                                                                output_in_character = TRUE)
-      }
-    }
+    biblio_functions <- data.table::data.table(method = cooccurrence_methods,
+                                               biblio_function = c("biblio_coupling", "coupling_strength", "coupling_similarity"))
+    biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]]
+
+    message(paste("The method use for co-occurence is the ", cooccurrence_method," method. The edge threshold is:", edges_threshold))
+    edges_of_the_year <- data.table::substitute2(
+      biblionetwork::fun(dt = edges_of_the_year,
+                         source = source_column,
+                         ref = target_column,
+                         weight_threshold = edges_threshold),
+      env = list(fun = biblio_function,
+                 source_column = I(source_column),
+                 target_column = I(target_column),
+                 edges_threshold = edges_threshold)) %>%
+      eval()
 
     # remove nodes with no edges
     if(keep_singleton==FALSE){
