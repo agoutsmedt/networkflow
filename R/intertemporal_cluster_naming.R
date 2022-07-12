@@ -57,7 +57,6 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #'
   #' @export
   #' @import data.table
-  #' @importFrom stringi stri_rand_strings
   #' @import tidygraph
   #' @import dplyr
 
@@ -88,7 +87,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
     data.table::rbindlist(idcol = "network_num")
   n_com_unique <- all_nodes[, .N, .(cluster_column, network_num), env = list(cluster_column = cluster_column)][,.N]
 
-  unique_ids <-  stringi::stri_rand_strings(n_com_unique, 4) # generate a number of unique ids equal to the maximum number of communities
+  unique_ids <- paste0("cl_",1:n_com_unique) # generate a number of unique ids equal to the maximum number of communities
 
   intertemporal_naming <- list()
   for (Year in all_years) {
