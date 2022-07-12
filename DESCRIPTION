@@ -39,7 +39,7 @@ Imports:
     leidenAlg,
     magrittr,
     Rdpack (>= 0.7),
-    stringi,
+    forcats,
     tidygraph
 RdMacros:
     Rdpack
