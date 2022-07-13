@@ -104,7 +104,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     stop('You did not choose a proper method for coupling computation. You have to choose between:\n - coupling_angle\n - coupling_strength\n - coupling_similarity')
 
   if(nodes[, .N, source_column, env = list(source_column=source_column)][N > 1, .N] > 0){
-    stop(paste0("some identifiers in your column '", target_column, "' in your node table are not unique"))
+    warning(paste0("some identifiers in your column '", target_column, "' in your node table are not unique"))
   }
 
   if(! is.null(time_window) & is.null(time_variable)){
