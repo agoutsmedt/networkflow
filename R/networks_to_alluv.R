@@ -45,7 +45,7 @@ networks_to_alluv <- function(list_graph = NA,
     alluv_dt[,tot_window_leiden := .N, .(Window,cluster_column), env = list(cluster_column = cluster_column)]
     alluv_dt[,tot_window := .N, .(Window)]
     alluv_dt[,share_cl_window := tot_window_leiden/tot_window] # share of cl in time window
-    alluv_dt[,share_cl_max := max(share_cl_alluv), cluster_column, env = list(cluster_column = cluster_column)] # max share of cl in all time windows
+    alluv_dt[,share_cl_max := max(share_cl_window), cluster_column, env = list(cluster_column = cluster_column)] # max share of cl in all time windows
     alluv_dt[,tot_window_leiden := NULL]
     alluv_dt[,tot_window := NULL]
 
