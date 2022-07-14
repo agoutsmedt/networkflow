@@ -148,7 +148,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
                               env = list(time_variable = time_variable)]
 
   if(!is.null(time_window)){
-    if(last_year - first_year <= time_window + 1){
+    if(last_year - first_year + 1 <= time_window){
       stop("ERROR: your time window is greater than the number of distinct values for time_variable")
     }
   }
