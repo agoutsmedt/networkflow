@@ -20,7 +20,7 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
   #' @import magrittr
   #' @import tidygraph
   #' @import dplyr
-  #' @importFrom DescTools MixColor
+  #' @import DescTools
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
