@@ -68,6 +68,8 @@ network_list <- dynamic_network_cooccurrence(nodes = nodes,
                                              compute_size = FALSE,
                                              keep_singleton = FALSE,
                                              overlapping_window = TRUE)
+
+network_list[[1]]
 ```
 
 # Clustering and intertemporal naming
@@ -84,6 +86,8 @@ network_list <- intertemporal_cluster_naming(list_graph = network_list,
                                              node_key = "ID_Art",
                                              threshold_similarity = 0.5001,
                                              similarity_type = "partial")
+
+network_list[[1]]
 ```
 
 # Building Alluvial
@@ -115,16 +119,22 @@ ggplot(alluv_dt, aes(x = Window, y= y_alluv, stratum = intertemporal_name, alluv
 ```{r}
 corpus <- merge(alluv_dt,
                 nodes,
-                by = "ID_Art")
-tf_idf <- function(corpus,
-                   text_columns = "Titre",
-                   grouping_columns = "intertemporal_name",
-                   n_gram = 2L,
-                   stopwords = NULL,
-                   stopwords_list = "smart",
-                   clean_word_method = "lemmatize",
-                   ngrams_filter = 5L
-                   )
+                by = "ID_Art",
+                all.x = TRUE)
+
+tf_idf <- extract_tfidf(data = corpus,
+                 text_columns = "Title",
+                 grouping_columns = "intertemporal_name",
+                 n_gram = 3L,
+                 stopwords = NULL,
+                 stopwords_list = "smart",
+                 clean_word_method = "lemmatize",
+                 ngrams_filter = 2)
+
+tf_idf %>% 
+  group_by(document) %>% 
+  slice_max(order_by = tf_idf, n = 1, with_ties = FALSE) %>% 
+  arrange(-tf_idf)
   
 ```
 

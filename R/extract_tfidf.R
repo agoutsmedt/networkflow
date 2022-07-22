@@ -1,12 +1,11 @@
-tf_idf <- function(data,
+extract_tfidf <- function(data,
                    text_columns,
                    grouping_columns,
                    n_gram = 2L,
                    stopwords = NULL,
                    stopwords_list = "smart",
                    clean_word_method = c("lemmatize", "stemming", "none"),
-                   ngrams_filter = 5L
-                   ) {
+                   ngrams_filter = 5L){
   #' Extracting TF-IDF Values for Ngrams
   #'
   #' This function takes as input a tidygraph object, a list of tidygraph objects or a data frame,
@@ -57,7 +56,7 @@ tf_idf <- function(data,
   #' @import tidytext
   #' @import textstem
 
-  row_id <- text <- . <- term <- total_term <- ngrams_filter <- document <- NULL
+  row_id <- text <- . <- term <- total_term <- document <- NULL
 
   if(! is.null(stopwords) & ! is.character(stopwords)){
     stop("The stopwords list is not a character vector.")
@@ -95,11 +94,11 @@ tf_idf <- function(data,
                   dplyr::if_all(starts_with("word_"), ~ ! stringr::str_detect(., "^[:digit:]+$"))) %>%
     tidyr::unite(term, starts_with("word_"), sep = " ") %>%
     .[, term := stringr::str_trim(term, "both")] %>%
-    select(dplyr::all_of(grouping_columns), term) %>%
+    dplyr::select(dplyr::all_of(grouping_columns), term) %>%
     .[, total_term := .N, by = term] %>%
-    filter(total_term >= ngrams_filter) %>%
+    dplyr::filter(total_term >= ngrams_filter) %>%
     tidyr::unite(document, all_of(grouping_columns), sep = "_") %>%
-    select(document, term) %>%
+    dplyr::select(document, term) %>%
     unique %>%
     .[, n := .N, by = .(term, document)] %>%
     tidytext::bind_tf_idf(term, document, n)
