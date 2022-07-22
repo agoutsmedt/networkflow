@@ -44,7 +44,9 @@ Imports:
     textstem,
     tidygraph,
     tidyr,
-    tidytext
+    tidytext,
+    ggplot2,
+    ggalluvial
 RdMacros:
     Rdpack
 Remotes: 
