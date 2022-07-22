@@ -6,7 +6,7 @@
 \usage{
 networks_to_alluv(
   list_graph = NA,
-  cluster_column = NA,
+  intertemporal_cluster_column = "intertemporal_name",
   node_key = NA,
   summary_cl_stats = FALSE
 )
@@ -14,7 +14,8 @@ networks_to_alluv(
 \arguments{
 \item{list_graph}{Your list with all networks}
 
-\item{cluster_column}{The column with the identifier of the cluster.}
+\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. By default, "intertemporal_name", as it is
+the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.}
 
 \item{node_key}{The column with the unique identifier of each node.}
 
@@ -24,7 +25,7 @@ can be particularly useful to filter smaller communities when plotting according
 \item share_cl_alluv is the share of a given cluster across all time windows;
 \item share_cl_window is the share of a given cluster in a given time window;
 \item share_cl_max is the highest value of share_cl_window for a given cluster across all individual time windows;
-\item length_cl is number of time windows a cluster exists.
+\item length_cl is the number of time windows a cluster exists.
 }
 
 #' @examples}

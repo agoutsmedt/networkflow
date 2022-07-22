@@ -6,19 +6,20 @@
 \usage{
 minimize_crossing_alluvial(
   alluv_dt = NA,
-  cluster_column = NA,
+  intertemporal_cluster_column = "intertemporal_name",
   node_key = NA,
-  time_variable = NA
+  window_column = "Window"
 )
 }
 \arguments{
 \item{alluv_dt}{Data.frame of the alluvial created using the networkflow::networks_to_alluv function}
 
-\item{cluster_column}{The column with the identifier of the clusters. This is stratum of the alluvial.}
+\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. By default, "intertemporal_name", as it is
+the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.}
 
 \item{node_key}{The column with the unique identifier of each node. This is the alluvium of the alluvial.}
 
-\item{time_variable}{The column with the temporal variable you used to build your windows or your list of networks.
+\item{window_column}{The column with your time windows.
 
 #' @examples}
 }

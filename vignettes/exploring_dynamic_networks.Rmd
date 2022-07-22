@@ -1,0 +1,130 @@
+---
+title: "Exploring dynamic networks"
+author: "Aurélien Goutsmedt and Alexandre Truc"
+description: "Introduction to the uses of the networkflow package for temporal networks"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Exploring dynamic networks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+This vignette introduces you to some functions of the package with the [data integrated][Incorporated data] 
+in the package. Here, we are interested to the exploration of dynamic networks.
+
+# Building your list of networks
+
+```{r setup}
+library(networkflow)
+library(magrittr)
+library(dplyr)
+library(tidygraph)
+```
+
+```{r}
+nodes <- Nodes_stagflation %>%  
+  dplyr::rename(ID_Art = ItemID_Ref) %>% 
+  dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation %>%  
+  dplyr::rename(ID_Art = Citing_ItemID_Ref)
+```
+
+
+```{r}
+single_network <- dynamic_network_cooccurrence(nodes = nodes,
+                                               directed_edges = references,
+                                               source_column = "ID_Art",
+                                               target_column = "ItemID_Ref",
+                                               time_variable = NULL,
+                                               cooccurrence_method = "coupling_similarity",
+                                               time_window = NULL,
+                                               edges_threshold = 1,
+                                               compute_size = FALSE,
+                                               keep_singleton = FALSE,
+                                               overlapping_window = TRUE)
+```
+
+```{r}
+network_list <- dynamic_network_cooccurrence(nodes = nodes,
+                                             directed_edges = references,
+                                             source_column = "ID_Art",
+                                             target_column = "ItemID_Ref",
+                                             time_variable = "Year",
+                                             cooccurrence_method = "coupling_similarity",
+                                             time_window = 15,
+                                             edges_threshold = 1,
+                                             compute_size = FALSE,
+                                             keep_singleton = FALSE,
+                                             overlapping_window = TRUE)
+```
+
+# Clustering and intertemporal naming
+
+```{r}
+network_list <- lapply(network_list, 
+                       function(tbl) tbl %N>% mutate(clusters = group_louvain()))
+
+```
+
+```{r}
+network_list <- intertemporal_cluster_naming(list_graph = network_list,
+                                             cluster_column = "clusters",
+                                             node_key = "ID_Art",
+                                             threshold_similarity = 0.5001,
+                                             similarity_type = "partial")
+```
+
+# Building Alluvial
+
+```{r}
+library(ggplot2)
+library(ggalluvial)
+
+alluv_dt <- networks_to_alluv(list_graph = network_list,
+                            intertemporal_cluster_column = "intertemporal_name",
+                            node_key = "ID_Art",
+                            summary_cl_stats = FALSE)
+
+alluv_dt <- minimize_crossing_alluvial(alluv_dt = alluv_dt,
+                                     node_key = "ID_Art")
+alluv_dt[,y_alluv:=1/.N, Window]
+
+ggplot(alluv_dt, aes(x = Window, y= y_alluv, stratum = intertemporal_name, alluvium = ID_Art, fill = intertemporal_name, label = intertemporal_name)) +
+  geom_stratum(alpha =1, size=1/12) +
+  geom_flow() +
+  theme(legend.position = "none") +
+  theme_minimal() +
+  theme(plot.background = element_rect(fill = 'white', colour = NA)) +
+  ggtitle("")
+```
+
+# exploring tf-idf
+
+```{r}
+corpus <- merge(alluv_dt,
+                nodes,
+                by = "ID_Art")
+tf_idf <- function(corpus,
+                   text_columns = "Titre",
+                   grouping_columns = "intertemporal_name",
+                   n_gram = 2L,
+                   stopwords = NULL,
+                   stopwords_list = "smart",
+                   clean_word_method = "lemmatize",
+                   ngrams_filter = 5L
+                   )
+  
+```
+

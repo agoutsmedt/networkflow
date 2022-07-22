@@ -43,15 +43,11 @@ present in network t-1 originate from community A, but (3) the number of nodes i
 A' will never meet the threshold requirement to be named A despite a strong similarity between the two clusters.
 Conceptually, this might be a desired behavior of the function because one might considered that A' is too different from A to be considered the same cluster as its composition is changed from new nodes.
 In that case complete similarity is the right choice. However, if one consider that A and A' are very similar because all the nodes that exists in both networks are identified as part of the same community,
-then partial threshold similarity is more desirable.
-
-#' @examples
-library(biblionetwork)
-intertemporal_cluster_naming(list_of_temporal_networks,
-cluster_column = "Louvain_clusters",
-node_key = "ids_nodes",
-threshold_similarity = 0.51,
-similarity_type = "partial")}
+then partial threshold similarity is more desirable.}
+}
+\value{
+The function returns the same list of networks used as input in \code{list_graph} but with a new column \code{intertemporal_name}. The column
+is the result of the inter-temporal grouping of the original clusters of the \code{cluster_column}.
 }
 \description{
 This function creates a new column "intertemporal_name" for each network from a list
@@ -59,4 +55,39 @@ of temporal networks to
 identify similar clusters across time. The function gives the same name to two
 clusters from two succesive temporal networks if they match the conditions defined by
 the user: \code{threshold_similarity}, \code{cluster_colum} and \code{similarity_type}.
+}
+\examples{
+library(biblionetwork)
+library(magrittr)
+library(tidygraph)
+
+nodes <- Nodes_stagflation \%>\%
+dplyr::rename(ID_Art = ItemID_Ref) \%>\%
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation \%>\%
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
+directed_edges = references,
+source_column = "ID_Art",
+target_column = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = 15,
+edges_threshold = 1,
+compute_size = FALSE,
+keep_singleton = FALSE,
+overlapping_window = TRUE)
+
+temporal_networks <- lapply(temporal_networks,
+                                    function(tbl) tbl \%N>\%
+                                                  mutate(clusters = tidygraph::group_louvain()))
+
+intertemporal_cluster_naming(temporal_networks,
+cluster_column = "clusters",
+node_key = "ID_Art",
+threshold_similarity = 0.51,
+similarity_type = "partial")
+
 }

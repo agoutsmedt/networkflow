@@ -81,12 +81,28 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #' If `time_variable` and `time_window` are not `NULL`, the function returns a list
   #' of tidygraph networks, for each time window.
   #'
-  #'  #' @examples
+  #' @examples
   #' library(biblionetwork)
-  #' biblio_coupling(Ref_stagflation,
-  #' source = "Citing_ItemID_Ref",
-  #' ref = "ItemID_Ref",
-  #' weight_threshold = 3)
+  #' library(magrittr)
+  #'
+  #' nodes <- Nodes_stagflation %>%
+  #' dplyr::rename(ID_Art = ItemID_Ref) %>%
+  #' dplyr::filter(Type == "Stagflation")
+  #'
+  #' references <- Ref_stagflation %>%
+  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+  #'
+  #' temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
+  #' directed_edges = references,
+  #' source_column = "ID_Art",
+  #' target_column = "ItemID_Ref",
+  #' time_variable = "Year",
+  #' cooccurrence_method = "coupling_similarity",
+  #' time_window = NULL,
+  #' edges_threshold = 1,
+  #' compute_size = FALSE,
+  #' keep_singleton = FALSE,
+  #' overlapping_window = TRUE)
   #'
   #' @export
   #' @import data.table

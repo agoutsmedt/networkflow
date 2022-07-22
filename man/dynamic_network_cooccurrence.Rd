@@ -73,17 +73,34 @@ If \code{time_window} is \code{NULL}, the function computes only
 one network and return a tidygraph object built with \link[tidygraph:tbl_graph]{tbl_graph()}.
 If \code{time_variable} and \code{time_window} are not \code{NULL}, the function returns a list
 of tidygraph networks, for each time window.
-
-#' @examples
-library(biblionetwork)
-biblio_coupling(Ref_stagflation,
-source = "Citing_ItemID_Ref",
-ref = "ItemID_Ref",
-weight_threshold = 3)
 }
 \description{
 This function creates ne or several otidygraph networks from a table of nodes and its
 directed edges. For instance, for bibliometric networks, you can give a list of
 articles and the list of the references these articles cite. You can use it to
 build a single network or multiple networks over different time windows.
+}
+\examples{
+library(biblionetwork)
+library(magrittr)
+
+nodes <- Nodes_stagflation \%>\%
+dplyr::rename(ID_Art = ItemID_Ref) \%>\%
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation \%>\%
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
+directed_edges = references,
+source_column = "ID_Art",
+target_column = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = NULL,
+edges_threshold = 1,
+compute_size = FALSE,
+keep_singleton = FALSE,
+overlapping_window = TRUE)
+
 }

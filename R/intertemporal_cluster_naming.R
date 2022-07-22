@@ -54,9 +54,35 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #'
   #' @examples
   #' library(biblionetwork)
-  #' intertemporal_cluster_naming(list_of_temporal_networks,
-  #' cluster_column = "Louvain_clusters",
-  #' node_key = "ids_nodes",
+  #' library(magrittr)
+  #' library(tidygraph)
+  #'
+  #' nodes <- Nodes_stagflation %>%
+  #' dplyr::rename(ID_Art = ItemID_Ref) %>%
+  #' dplyr::filter(Type == "Stagflation")
+  #'
+  #' references <- Ref_stagflation %>%
+  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+  #'
+  #' temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
+  #' directed_edges = references,
+  #' source_column = "ID_Art",
+  #' target_column = "ItemID_Ref",
+  #' time_variable = "Year",
+  #' cooccurrence_method = "coupling_similarity",
+  #' time_window = 15,
+  #' edges_threshold = 1,
+  #' compute_size = FALSE,
+  #' keep_singleton = FALSE,
+  #' overlapping_window = TRUE)
+  #'
+  #' temporal_networks <- lapply(temporal_networks,
+  #'                                     function(tbl) tbl %N>%
+  #'                                                   mutate(clusters = tidygraph::group_louvain()))
+  #'
+  #' intertemporal_cluster_naming(temporal_networks,
+  #' cluster_column = "clusters",
+  #' node_key = "ID_Art",
   #' threshold_similarity = 0.51,
   #' similarity_type = "partial")
   #'
@@ -69,7 +95,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
     stop('You must chose a similarity type between "complete" and "partial":\n
     - "complete" similarity compare the threshold to all the nodes in both networks\n
     - "partial" similarity compare the threshold to nodes that only exists in both networks')}
-  if((class(test) != "list") | (class(test) == "list" & length(as.list(list_graph)) == 1)){
+  if((class(list_graph) != "list") | (class(list_graph) == "list" & length(as.list(list_graph)) == 1)){
     stop("Your data is not a list of tidygraph networks or you only have one network in your list.")
   }
   if(threshold_similarity <= 0.5 | threshold_similarity > 1){
@@ -104,7 +130,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
     if(is.null(list_graph[[paste0(Year-1)]])){
       dt_year <- all_nodes[network_num == as.character(Year), env = list(Year = Year)] %>%
         .[,.SD,.SDcols = c(node_key, cluster_column)] %>%  # extract the nodes of the period
-        .[order(clusters)] #just to have a more informative numerotation of cluster then
+        .[order(cluster_column), env = list(cluster_column = cluster_column)] #just to have a more informative numerotation of cluster then
       n_com <- dt_year[, .N, cluster_column, env = list(cluster_column = cluster_column)][,.N] # number of communities
       id_com_corr <- data.table(intertemporal_name = unique_ids[1:n_com],
                                 dt_year[, .SD,.SDcols = cluster_column] %>% unique) #give a unique ids to com
