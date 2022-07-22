@@ -157,10 +157,14 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     all_years <- first_year
     time_window <- last_year - first_year + 1
   } else {
-    last_year <- last_year - time_window + 1
-    all_years <- first_year:last_year
-    if(overlapping_window == FALSE){
+    if(overlapping_window == TRUE){
+      last_year <- last_year - time_window + 1
+      all_years <- first_year:last_year
+    } else {
       all_years <- seq(first_year, last_year, by = time_window)
+      if(all_years[length(all_years)] + (time_window - 1) > last_year){
+        warning("Your last network is shorter than the other(s) because the cutting by time window does not give a round count.")
+      }
     }
   }
 
@@ -174,7 +178,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     if(time_variable != "fake_column"){
       nodes_of_the_year[, time_window := paste0(Year, "-", Year + time_window - 1),
                         env = list(Year = Year)]
-      message(paste0("Creation of the network for the ", Year, "-", Year + time_window - 1, " window."))
+      cat(paste0("Creation of the network for the ", Year, "-", Year + time_window - 1, " window.\n"))
     } else {
       nodes_of_the_year <- nodes_of_the_year[, -c("fake_column")]
     }
@@ -204,7 +208,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
                                                biblio_function = c("biblio_coupling", "coupling_strength", "coupling_similarity"))
     biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]]
 
-    message(paste("The method use for co-occurence is the ", cooccurrence_method," method. The edge threshold is:", edges_threshold))
+    cat(paste0("The method use for co-occurence is the ", cooccurrence_method," method. The edge threshold is:", edges_threshold, ".\n"))
     edges_of_the_year <- data.table::substitute2(
       biblionetwork::fun(dt = edges_of_the_year,
                          source = source_column,
@@ -218,7 +222,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
     # remove nodes with no edges
     if(keep_singleton==FALSE){
-      message("We remove the nodes that are alone with no edge.")
+      cat("We remove the nodes that are alone with no edge. \n\n")
       nodes_of_the_year <- nodes_of_the_year[source_column %in% edges_of_the_year$from | source_column %in% edges_of_the_year$to, env=list(source_column=source_column)]
     }
 

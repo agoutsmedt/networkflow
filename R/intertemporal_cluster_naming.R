@@ -33,6 +33,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #'
   #' @param similarity_type
   #' Choose a similarity type to compare the threshold to:
+  #'
   #' - "complete" similarity compute the share of nodes going from a older community to a more recent community on all the nodes in both networks
   #' - "partial" similarity compute the share of nodes going from a older community to a more recent community only on nodes that exists in both networks
   #'
@@ -47,7 +48,11 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' In that case complete similarity is the right choice. However, if one consider that A and A' are very similar because all the nodes that exists in both networks are identified as part of the same community,
   #' then partial threshold similarity is more desirable.
   #'
-  #'  #' @examples
+  #' @return
+  #' The function returns the same list of networks used as input in `list_graph` but with a new column `intertemporal_name`. The column
+  #' is the result of the inter-temporal grouping of the original clusters of the `cluster_column`.
+  #'
+  #' @examples
   #' library(biblionetwork)
   #' intertemporal_cluster_naming(list_of_temporal_networks,
   #' cluster_column = "Louvain_clusters",
@@ -64,6 +69,9 @@ intertemporal_cluster_naming <- function(list_graph = NA,
     stop('You must chose a similarity type between "complete" and "partial":\n
     - "complete" similarity compare the threshold to all the nodes in both networks\n
     - "partial" similarity compare the threshold to nodes that only exists in both networks')}
+  if((class(test) != "list") | (class(test) == "list" & length(as.list(list_graph)) == 1)){
+    stop("Your data is not a list of tidygraph networks or you only have one network in your list.")
+  }
   if(threshold_similarity <= 0.5 | threshold_similarity > 1){
     stop("Your threshold for similarity must be superior to 0.5 and inferior or equal to 1")}
 
@@ -73,8 +81,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
 
   list_graph <- data.table::copy(list_graph)
   list_graph <- lapply(list_graph,
-                       function(tbl) tbl %>%
-                         tidygraph::activate(nodes) %>%
+                       function(tbl) tbl %N>%
                          dplyr::mutate(dplyr::across(dplyr::all_of(cluster_column), ~ as.character(.))))
 
   # get all years to study
@@ -83,7 +90,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   names(list_graph) <- all_years
 
   # get the number of unique communities
-  all_nodes <- lapply(list_graph, function(tbl) tbl %>% tidygraph::activate(nodes) %>% data.table::as.data.table()) %>%
+  all_nodes <- lapply(list_graph, function(tbl) tbl %N>% data.table::as.data.table()) %>%
     data.table::rbindlist(idcol = "network_num")
   n_com_unique <- all_nodes[, .N, .(cluster_column, network_num), env = list(cluster_column = cluster_column)][,.N]
 
@@ -95,16 +102,18 @@ intertemporal_cluster_naming <- function(list_graph = NA,
     ######################### For the first year, let's just give clusters unique ids **********************
 
     if(is.null(list_graph[[paste0(Year-1)]])){
-
-      dt_year <- all_nodes[network_num == Year][,.SD,.SDcols = c(node_key, cluster_column)] # extract the nodes of the period
+      dt_year <- all_nodes[network_num == as.character(Year), env = list(Year = Year)] %>%
+        .[,.SD,.SDcols = c(node_key, cluster_column)] %>%  # extract the nodes of the period
+        .[order(clusters)] #just to have a more informative numerotation of cluster then
       n_com <- dt_year[, .N, cluster_column, env = list(cluster_column = cluster_column)][,.N] # number of communities
       id_com_corr <- data.table(intertemporal_name = unique_ids[1:n_com],
                                 dt_year[, .SD,.SDcols = cluster_column] %>% unique) #give a unique ids to com
       unique_ids <- unique_ids[-c(1:n_com)] #remove ids taken from list
-      dt_year <- dt_year[id_com_corr, on = cluster_column][, .SD, .SDcols = c(node_key, "intertemporal_name")] #merge with unique id
+      dt_year <- dt_year[id_com_corr, on = cluster_column] %>%
+        .[, .SD, .SDcols = c(cluster_column, "intertemporal_name")] %>%  #merge with unique id
+        unique
 
-      intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %>%
-        tidygraph::activate(nodes) %>%
+      intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
         tidygraph::left_join(dt_year)
     }
 
@@ -114,16 +123,14 @@ intertemporal_cluster_naming <- function(list_graph = NA,
 
       ######################### Communities from previous year  **********************
 
-      dt_year <- intertemporal_naming[[paste0(Year-1)]] %>%
-        tidygraph::activate(nodes) %>%
+      dt_year <- intertemporal_naming[[paste0(Year-1)]] %N>%
         dplyr::rename("past_id_com" = intertemporal_name) %>%
         dplyr::select(all_of(c(node_key, "past_id_com"))) %>% # this is the nodes from the past
         data.table::as.data.table()
 
       ######################### Communities from present  **********************
 
-      dt_year2 <- list_graph[[paste0(Year)]] %>%
-        tidygraph::activate(nodes) %>%
+      dt_year2 <- list_graph[[paste0(Year)]] %N>%
         dplyr::select(all_of(c(node_key, cluster_column))) %>%
         data.table::as.data.table()
       n_com <- dt_year2[, .N, cluster_column, env = list(cluster_column = cluster_column)][,.N] # number of communities
@@ -180,11 +187,10 @@ intertemporal_cluster_naming <- function(list_graph = NA,
       ######################### Inject new names **********************
 
       final_names <- data.table::merge.data.table(id_com_corr, compare, by = cluster_column, all.x = TRUE) # we get the new names
-      final_names[is.na(intertemporal_name), intertemporal_name := new_cluster_column] # if there is no correspodndance, a present community is a new community, and is given a new name
+      final_names[is.na(intertemporal_name), intertemporal_name := new_cluster_column] # if there is no correspondence, a present community is a new community, and is given a new name
       final_names <- final_names[, .SD, .SDcols = c(cluster_column, "intertemporal_name")]
 
-      intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %>%
-        tidygraph::activate(nodes) %>%
+      intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
         tidygraph::left_join(final_names)
     }
   }
