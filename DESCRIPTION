@@ -1,10 +1,11 @@
 Package: networkflow
 Title: Functions For A Workflow To Manipulate Networks
-Version: 0.0.0.9000
+Version: 0.1.0
+Date: 2022-11-25
 Authors@R: c(
     person("Aurélien", "Goutsmedt", , "agoutsmedt@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3788-7237")),
-    person("Alexandre", "Truc", , "alexandre.truc77@gmail.com", role = "aut",
+    person("Alexandre", "Truc", , "alexandre.truc77@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-1328-7819"))
   )
 Author: Aurélien Goutsmedt and Alexandre Truc.
@@ -26,7 +27,8 @@ Description: This package proposes a series of function to make it easier
     Atlas 2 layout, both being unavailable in igraph (and so in
     tidygraph).
 License: MIT + file LICENSE
-URL: https://github.com/agoutsmedt/networkflow
+URL: https://github.com/agoutsmedt/networkflow,
+    https://agoutsmedt.github.io/networkflow/
 BugReports: https://github.com/agoutsmedt/networkflow/issues
 Depends: 
     R (>= 2.10)

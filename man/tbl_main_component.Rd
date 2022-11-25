@@ -32,7 +32,11 @@ Coupling or co-citation network are \emph{undirected} networks.}
 A tidygraph object with a list of nodes and a list of edges.
 }
 \description{
-A function which i) creates a \href{https://tidygraph.data-imaginist.com/index.html}{tidygraph} graph using \link[tidygraph:tbl_graph]{tbl_graph()};
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated and will be replaced by \code{networkflow::extract_main_component()}.
+This function which i) creates a \href{https://tidygraph.data-imaginist.com/index.html}{tidygraph}
+graph using \link[tidygraph:tbl_graph]{tbl_graph()};
 ii) keeps the main components of the graph, using \link[tidygraph:group_graph]{main_components()}; and iii) warns
 the user if the first biggest component removed is too large.
 }

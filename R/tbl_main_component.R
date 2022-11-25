@@ -1,7 +1,12 @@
 tbl_main_component <- function(edges, nodes, nb_components = 1, threshold_alert = 0.05, ...) {
   #' Creating Graph And Keeping Main Component With Tidygraph From Edges And Nodes
   #'
-  #' A function which i) creates a [tidygraph](https://tidygraph.data-imaginist.com/index.html) graph using [tbl_graph()][tidygraph::tbl_graph()];
+  #' @description
+  #' `r lifecycle::badge("deprecated")`
+  #'
+  #' This function is deprecated and will be replaced by `networkflow::extract_main_component()`.
+  #' This function which i) creates a [tidygraph](https://tidygraph.data-imaginist.com/index.html)
+  #' graph using [tbl_graph()][tidygraph::tbl_graph()];
   #' ii) keeps the main components of the graph, using [main_components()][tidygraph::group_components()]; and iii) warns
   #' the user if the first biggest component removed is too large.
   #'
@@ -36,6 +41,7 @@ tbl_main_component <- function(edges, nodes, nb_components = 1, threshold_alert 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
   components_att <- NULL
+  lifecycle::deprecate_warn("0.1.0", "tbl_main_component()", "extract_main_component()")
 
   # creating the tidygraph object
   graph <- tidygraph::tbl_graph(nodes, edges, ...)

@@ -94,14 +94,11 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #' of tidygraph networks, for each time window.
   #'
   #' @examples
-  #' library(biblionetwork)
-  #' library(magrittr)
-  #'
-  #' nodes <- Nodes_stagflation %>%
-  #' dplyr::rename(ID_Art = ItemID_Ref) %>%
+  #' nodes <- Nodes_stagflation |>
+  #' dplyr::rename(ID_Art = ItemID_Ref) |>
   #' dplyr::filter(Type == "Stagflation")
   #'
-  #' references <- Ref_stagflation %>%
+  #' references <- Ref_stagflation |>
   #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
   #'
   #' temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
