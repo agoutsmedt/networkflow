@@ -130,7 +130,7 @@ library(tidygraph)
 You now have your network with your communities (and names and colors for these communities). The next step is to use layout, that is an algorithm that will attribute coordinates to your network. Here, we use the Force Atlas 2 algorithm [@jacomy2014], which is implemented in the [vite](https://github.com/ParkerICI/vite) package, via the [complete_forceatlas2()](https://rdrr.io/github/ParkerICI/scgraphs/man/complete_forceatlas2.html) function. As it is not on CRAN, you need to install this package via github. 
 
 ```{r force_atlas}
-
+library(devtools)
 if ("vite" %in% installed.packages()==FALSE){devtools::install_github("ParkerICI/vite")}
   library(vite)
 

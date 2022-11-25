@@ -1,7 +1,10 @@
 community_colors <- function(graph, palette, community_column = "Com_ID"){
   #' Creating Color Attribute For Network Communities
   #'
-  #' @description This function takes as an input a tidygraph graph, with a column with a community identifier for
+  #' @description
+  #' `r lifecycle::badge("deprecated")`
+  #'
+  #' This function takes as an input a tidygraph graph, with a column with a community identifier for
   #' each node and each edge. It attributes to each community a color, depending on a palette chosen.
   #' If the two nodes connected by an edge have a different community, the function mixes the color of the two communities.
   #'
