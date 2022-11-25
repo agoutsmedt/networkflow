@@ -29,6 +29,12 @@ reference:
   contents:
   - extract_tfidf
 
+- title: "Included datasets"
+  desc: "Data on articles about stagflation from Goutsmedt (2021) 'From the Stagflation to the Great Inflation'"
+- contents:
+  - contains("stagflation")
+  - ends_with("coupling")
+
 - title: "Deprecated functions"
   desc: >
     Functions that have been replaced or will be replaced soon.
