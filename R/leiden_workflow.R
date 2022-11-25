@@ -2,7 +2,11 @@
 leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000) {
   #' Add Leiden Communities to graph
   #'
-  #' @description This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
+  #' @description
+  #' `r lifecycle::badge("deprecated")`
+  #'
+  #' This function has been superseded by the more general `networkflow::add_clusters()`.
+  #' This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
   #' \insertCite{traag2019}{networkflow} which creates a partition. The `Leiden_workflow` functhion uses
   #' [find_partition()][leidenAlg::find_partition()] from the [leidenAlg](https://cran.r-project.org/web/packages/leidenAlg/index.html)
   #' package. The function then associates each node to its
@@ -45,10 +49,13 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
   #' @import magrittr
   #' @import tidygraph
   #' @import dplyr
+  #' @importFrom Rdpack reprompt
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
   components_att <- edges <- nodes <- Com_ID <- Size_com <- to <- from <- com_ID_from <- com_ID_to <- Com_ID_2 <- Com_ID_2_from <- Com_ID_2_to <- Com_ID_3 <- Com_ID_3_from <- Com_ID_3_to <- NULL
+
+  lifecycle::deprecate_warn("0.1.0", "leiden_workflow()", "add_clusters()")
 
   # run the leiden algorithm for the first resolution
   leiden <- leidenAlg::leiden.community(graph, resolution = res_1, n.iterations = niter)

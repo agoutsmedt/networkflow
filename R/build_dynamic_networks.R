@@ -1,23 +1,21 @@
-dynamic_network_cooccurrence <- function(nodes = NULL,
-                                         directed_edges = NULL,
-                                         source_column = NULL,
-                                         target_column = NULL,
-                                         time_variable = NULL,
-                                         time_window = NULL,
-                                         cooccurrence_method = c("coupling_angle","coupling_strength","coupling_similarity"),
-                                         overlapping_window = FALSE,
-                                         edges_threshold = 1,
-                                         compute_size = FALSE,
-                                         keep_singleton = FALSE,
-                                         verbose = TRUE)
+build_dynamic_networks <- function(nodes = NULL,
+                                   directed_edges = NULL,
+                                   source_column = NULL,
+                                   target_column = NULL,
+                                   time_variable = NULL,
+                                   time_window = NULL,
+                                   cooccurrence_method = c("coupling_angle","coupling_strength","coupling_similarity"),
+                                   overlapping_window = FALSE,
+                                   edges_threshold = 1,
+                                   compute_size = FALSE,
+                                   keep_singleton = FALSE,
+                                   verbose = TRUE)
 {
   #' Creating Dynamic Networks from a List of Nodes and Directed Edges
   #'
   #' @description
-  #' `r lifecycle::badge("deprecated")`
+  #' `r lifecycle::badge("experimental")`
   #'
-  #' This function was implemented in an earlier version of the development of this package.
-  #' It has been replaced by `networkflow::build_dynamic_networks()`.
   #' This function creates one or several tidygraph networks from a table of nodes and its
   #' directed edges. For instance, for bibliometric networks, you can give a list of
   #' articles and the list of the references these articles cite. You can use it to
@@ -121,9 +119,9 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #' @import tidygraph
   #' @import biblionetwork
   #' @import lifecycle
+  #' @import cli
 
   size <- node_size <- N <- method <- NULL
-  lifecycle::deprecate_warn("0.1.0", "dynamic_network_cooccurrence()", "build_dynamic_networks()")
 
 
   # Making sure the table is a datatable
@@ -132,17 +130,40 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   cooccurrence_methods <- c("coupling_angle","coupling_strength","coupling_similarity")
 
   # Checking various problems: lacking method,
-  if(!cooccurrence_method %in% cooccurrence_methods)
-    stop('You did not choose a proper method for coupling computation. You have to choose between:\n - coupling_angle\n - coupling_strength\n - coupling_similarity')
-
+  if(length(cooccurrence_method) > 1){
+    cli::cli_abort(c(
+      "You did not choose any method for cooccurrence computation. You have to choose between: ",
+      "*" = "\"coupling_angle\";",
+      "*" = "\"coupling_strength\";",
+      "*" = "\"coupling_similarity\"."))
+  }
+  if(!cooccurrence_method %in% cooccurrence_methods){
+    cli::cli_abort(c(
+      "You did not choose an existing method for cooccurrence computation. You have to choose between: ",
+      "*" = "\"coupling_angle\";",
+      "*" = "\"coupling_strength\";",
+      "*" = "\"coupling_similarity\"."))
+  }
   if(nodes[, .N, source_column, env = list(source_column=source_column)][N > 1, .N] > 0){
-    stop(paste0("Some identifiers in your column '", source_column, "' in your node table are not unique. You need only one row per node."))
+    name <- ensym(nodes)
+    cli::cli_abort("Some identifiers in your column {.field {source_column}} in your {name} table are not unique. You need only one row per node.")
   }
 
   if(! is.null(time_window) & is.null(time_variable)){
-    stop("You cannot have a 'time_window' if you don't give any column with a temporal variable. Put a column in 'time_variable' or remove the 'time_window'.")
+
+    cli::cli_abort("You cannot have a {.emph time_window} if you don't give any column with a temporal variable.
+                          Put a column in {.emph time_variable} or remove the {.emph time_window}.")
   }
 
+  # giving information on the method
+
+  if(verbose == TRUE){
+    cli::cli_alert_info("The method use for co-occurence is the {.emph {cooccurrence_method}} method.")
+    cli::cli_alert_info("The edge threshold is: {.val {edges_threshold}}.")
+    if(keep_singleton == FALSE) cli::cli_alert_info("We remove the nodes that are alone with no edge. \n\n")
+  }
+
+  # let's extract the information we need
   Nodes_coupling <- data.table::copy(nodes)
   Nodes_coupling[, source_column := as.character(source_column),
                  env = list(source_column = source_column)]
@@ -155,7 +176,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
   if(! target_column %in% colnames(Nodes_coupling) & compute_size == TRUE)
   {
-    stop(paste0("You don't have the column '", target_column,"' in your nodes table. Set 'compute_size' to FALSE."))
+    cli::cli_abort("You don't have the column {.field {target_column}} in your nodes table. Set {.emph compute_size} to {.val FALSE}.")
   }
 
   if(compute_size == TRUE){
@@ -181,7 +202,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
   if(!is.null(time_window)){
     if(last_year - first_year + 1 < time_window){
-      stop("ERROR: your time window is greater than the number of distinct values for time_variable")
+      cli::cli_abort("Your time window is greater than the number of distinct values of {.field {time_variable}}")
     }
   }
 
@@ -195,9 +216,9 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     } else {
       all_years <- seq(first_year, last_year, by = time_window)
       if(all_years[length(all_years)] + (time_window - 1) > last_year){
-        warning(paste0("Your last network is shorter than the other(s) because the cutting by time window does not give a round count.
-                The last time unity in your data is ", last_year, " but the upper limit of your last time window is ",
-                all_years[length(all_years)] + (time_window - 1), "."))
+        cli::cli_warn("Your last network is shorter than the other(s) because the cutting by time window does not give a round count.
+                The last time unity in your data is {.val {last_year}}, but the upper limit of your last time window is
+                {.val {all_years[length(all_years)] + (time_window - 1)}}.")
       }
     }
   }
@@ -212,7 +233,7 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     if(time_variable != "fake_column"){
       nodes_of_the_year[, time_window := paste0(Year, "-", Year + time_window - 1),
                         env = list(Year = Year)]
-      if(verbose == TRUE) cat(paste0("Creation of the network for the ", Year, "-", Year + time_window - 1, " window.\n"))
+      if(verbose == TRUE) cli::cli_h1("Creation of the network for the {.val {Year}}-{.val {Year + time_window - 1}} window.")
     } else {
       nodes_of_the_year <- nodes_of_the_year[, -c("fake_column")]
     }
@@ -228,12 +249,12 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
       if("node_size" %in% colnames(Nodes_coupling) == TRUE)
       {
-        warning("You already have a column name 'node_size'. Columns will be duplicated now.")
+        cli::cli_warn("You already have a column name {.field node_size}. The content of the column will be replaced.")
       }
       nodes_of_the_year <- data.table::merge.data.table(nodes_of_the_year,
-                                 nb_cit,
-                                 by = target_column,
-                                 all.x = TRUE)
+                                                        nb_cit,
+                                                        by = target_column,
+                                                        all.x = TRUE)
       nodes_of_the_year[is.na(node_size), node_size := 0]
     }
 
@@ -242,7 +263,6 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
                                                biblio_function = c("biblio_coupling", "coupling_strength", "coupling_similarity"))
     biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]]
 
-    if(verbose == TRUE) cat(paste0("The method use for co-occurence is the ", cooccurrence_method," method. The edge threshold is:", edges_threshold, ".\n"))
     edges_of_the_year <- data.table::substitute2(
       biblionetwork::fun(dt = edges_of_the_year,
                          source = source_column,
@@ -256,7 +276,6 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
 
     # remove nodes with no edges
     if(keep_singleton==FALSE){
-      if(verbose == TRUE) cat("We remove the nodes that are alone with no edge. \n\n")
       nodes_of_the_year <- nodes_of_the_year[source_column %in% edges_of_the_year$from | source_column %in% edges_of_the_year$to, env=list(source_column=source_column)]
     }
 

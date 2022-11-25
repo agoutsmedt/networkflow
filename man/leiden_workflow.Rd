@@ -27,6 +27,9 @@ The same tidygraph graph as input, but with a new (or three) community number at
 each edge.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function has been superseded by the more general \code{networkflow::add_clusters()}.
 This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
 \insertCite{traag2019}{networkflow} which creates a partition. The \code{Leiden_workflow} functhion uses
 \link[leidenAlg:find_partition]{find_partition()} from the \href{https://cran.r-project.org/web/packages/leidenAlg/index.html}{leidenAlg}

@@ -95,7 +95,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
     stop('You must chose a similarity type between "complete" and "partial":\n
     - "complete" similarity compare the threshold to all the nodes in both networks\n
     - "partial" similarity compare the threshold to nodes that only exists in both networks')}
-  if((class(list_graph) != "list") | (class(list_graph) == "list" & length(as.list(list_graph)) == 1)){
+  if(!inherits(list_graph, "list") | (inherits(list_graph, "list") & length(as.list(list_graph)) == 1)){
     stop("Your data is not a list of tidygraph networks or you only have one network in your list.")
   }
   if(threshold_similarity <= 0.5 | threshold_similarity > 1){
