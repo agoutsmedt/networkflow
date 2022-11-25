@@ -127,64 +127,6 @@ library(tidygraph)
 
 ### Preparing the plot
 
-You now have your network with your communities (and names and colors for these communities). The next step is to use layout, that is an algorithm that will attribute coordinates to your network. Here, we use the Force Atlas 2 algorithm [@jacomy2014], which is implemented in the [vite](https://github.com/ParkerICI/vite) package, via the [complete_forceatlas2()](https://rdrr.io/github/ParkerICI/scgraphs/man/complete_forceatlas2.html) function. As it is not on CRAN, you need to install this package via github. 
-
-```{r force_atlas}
-library(devtools)
-if ("vite" %in% installed.packages()==FALSE){devtools::install_github("ParkerICI/vite")}
-  library(vite)
-
-graph <- graph %>%
-  activate(nodes) %>% 
-  mutate(size = degree) # use here what you will use for the size of the nodes in the graph. Force Atlas will take care of avoiding overlapping
-
-graph <- vite::complete_forceatlas2(graph, first.iter = 5000, overlap.method = "repel", overlap.iter = 500)
-
-```
-
-### plotting your graph, at last!
-
-We now have our communities, with their respective colors, and a set of coordinates for each node. Two last steps are necessary to create a more understandable visualisation:
-
-- Selection a list of nodes you want the names to be displayed on the graph (considering the fact that displaying the names of all nodes would produce a too crowded visualisation);
-- Giving coordinates to communities labels, for these labels to be displayed on the graph.
-
-The first operation is done using the `top_nodes()` function, which selects a number n of nodes with the highest chosen statistics value per communities and a number n of nodes with the highest chosen statistics value within the whole network. Here, we will use the nodes degree (that we have already calculated above): we will take the node that has the highest degree in each community, as well as the 10 nodes which have the highest degree value in the whole network (of course, the function takes care for doublons).
-
-```{r}
-top_nodes  <- top_nodes(graph, ordering_column = "degree", top_n = 10, top_n_per_com = 1)
-print(top_nodes)
-```
-
-
-The second operation is done using the `community_labels()` function, which calculate the mean of coordinates x and y for each community. These coordinates are to be used to plot the name of the community on the graph visualisation. 
-
-```{r}
-community_labels <- community_labels(graph, community_name_column = "Community_name", community_size_column = "Size_com")
-print(labels)
-```
-
-
-We can now plot the graph using the [ggraph](https://ggraph.data-imaginist.com/) package!
-
-```{r fig.width = 12, fig.height = 10}
-library(ggraph)
-library(ggrepel) # use for avoiding labels overlapping
-library(ggnewscale) # this is needeed to use several size scale in the graph (here, one for nodes, and one for labels)
-
-ggraph(graph, "manual", x = x, y = y) + 
-  geom_edge_arc0(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
-  scale_edge_width_continuous(range = c(0.1,2)) +
-  scale_edge_colour_identity() +
-  geom_node_point(aes(x=x, y=y, size = degree, fill = color), pch = 21, alpha = 0.9, show.legend = FALSE) +
-  scale_size_continuous(range = c(0.2,13)) +
-  scale_fill_identity() +
-  new_scale("size") +
-  geom_text_repel(data=top_nodes, aes(x=x, y=y, label = Label), size = 2, fontface="bold", alpha = 1, point.padding=NA, show.legend = FALSE) +
-  geom_label_repel(data=community_labels, aes(x=x, y=y, label = Community_name, fill = color), size = 6, fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
-  scale_size_continuous(range = c(0.5,5)) +
-  theme_void()
-```
 
 
 ## References
