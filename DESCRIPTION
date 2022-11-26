@@ -5,7 +5,7 @@ Date: 2022-11-25
 Authors@R: c(
     person("Aurélien", "Goutsmedt", , "agoutsmedt@gmail.com", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0002-3788-7237")),
-    person("Alexandre", "Truc", , "alexandre.truc77@gmail.com", role = c("cre", "aut"),
+    person("Alexandre", "Truc", , "alexandre.truc77@gmail.com", role = c("aut"),
            comment = c(ORCID = "0000-0002-1328-7819"))
   )
 Author: Aurélien Goutsmedt and Alexandre Truc.

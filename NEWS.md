@@ -2,8 +2,9 @@
 
 Deprecated and new functions:
 
-- `dynamic_network_cooccurrence()` is deprecated and will be replaced by `build_dynamic_networks()`
-- `leiden_workflow()` is deprecated and will be replaced by `build_dynamic_networks()`
+- `dynamic_network_cooccurrence()` is deprecated and will be replaced by `build_dynamic_networks()`;
+- `leiden_workflow()` is deprecated and will be replaced by `build_dynamic_networks()`;
+- `tbl_main_component()` is deprecated and will be replaced by `build_network()` and `filter_components()`; 
 
 # networkflow 0.0.0.9000
 

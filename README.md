@@ -56,6 +56,6 @@ devtools::install_github("agoutsmedt/networkflow")
 
 ## Example
 
-See `vignette(workflow-network)` and
-`vignette(exploring_dynamic_networks)` for more explanations on the
+See `vignette("workflow-network")` and
+`vignette("exploring_dynamic_networks")` for more explanations on the
 package.

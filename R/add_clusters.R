@@ -9,10 +9,9 @@ add_clusters <- function(graphs,
                          steps = 4, #walktrap
                          verbose = TRUE
                          ){
-  #' Add Clusters to Graphs
+  #' Detect and Add Clusters to Graphs
   #'
   #' @description
-  #'
   #' `r lifecycle::badge("experimental")`
   #'
   #' This function takes as input a tidygraph graph and then runs different
@@ -22,12 +21,6 @@ add_clusters <- function(graphs,
   #' attribute for edges: to each edge is associated a corresponding cluster
   #' identifier if  the two nodes connected by the edge belong to the same
   #' cluster If nodes have a different cluster, the edge takes "00" as cluster attribute.
-  #'
-  #' the Leiden detection community algorithm
-  #' \insertCite{traag2019}{networkflow} which creates a partition. The `Leiden_workflow` functhion uses
-  #' [find_partition()][leidenAlg::find_partition()] from the [leidenAlg](https://cran.r-project.org/web/packages/leidenAlg/index.html)
-  #' package. The function then associates each node to its
-  #' corresponding community number.
   #'
   #' @param graphs A tidygraph object or a list of tidygraph objects with a "weight" column
   #' for edges.
@@ -90,6 +83,34 @@ add_clusters <- function(graphs,
   #' @return The same tidygraph graph or tidygraph list as input, but with a new cluster
   #' column for nodes with a column with the size of these clusters,
   #' and three cluster columns for edges (see the details).
+  #'
+  #' @examples
+  #' library(networkflow)
+  #'
+  #' nodes <- Nodes_stagflation |>
+  #' dplyr::rename(ID_Art = ItemID_Ref) |>
+  #' dplyr::filter(Type == "Stagflation")
+  #'
+  #' references <- Ref_stagflation |>
+  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+  #'
+  #' temporal_networks <- build_dynamic_networks(nodes = nodes,
+  #' directed_edges = references,
+  #' source_id = "ID_Art",
+  #' target_id = "ItemID_Ref",
+  #' time_variable = "Year",
+  #' cooccurrence_method = "coupling_similarity",
+  #' time_window = 10,
+  #' edges_threshold = 1,
+  #' overlapping_window = TRUE,
+  #' filter_components = TRUE)
+  #'
+  #' temporal_networks <- add_clusters(temporal_networks,
+  #' objective_function = "modularity",
+  #' clustering_method = "leiden")
+  #'
+  #' temporal_networks[[1]]
+  #'
   #'
   #' @references
   #' \insertAllCited{}
@@ -236,7 +257,7 @@ detect_cluster <- function(graph,
       as.data.frame %>%
       .[[size_col]] %>%
       max() %>%
-      round(2) * 100
+      round(3) * 100
 
     if(list == TRUE) cli::cli_h1("Cluster detection for the {.val {graph %N>% as.data.frame() %>% .$time_window %>% unique()}} period")
     cli::cli_alert_info("The {.emph {clustering_method}} method detected {.val {nb_clusters}} clusters. The biggest cluster represents {.val {max_size}%} of the network.")

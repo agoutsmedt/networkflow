@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_clusters.R
 \name{add_clusters}
 \alias{add_clusters}
-\title{Add Clusters to Graphs}
+\title{Detect and Add Clusters to Graphs}
 \usage{
 add_clusters(
   graphs,
@@ -70,12 +70,6 @@ associate each node to its corresponding cluster identifier. It also creates a c
 attribute for edges: to each edge is associated a corresponding cluster
 identifier if  the two nodes connected by the edge belong to the same
 cluster If nodes have a different cluster, the edge takes "00" as cluster attribute.
-
-the Leiden detection community algorithm
-\insertCite{traag2019}{networkflow} which creates a partition. The \code{Leiden_workflow} functhion uses
-\link[leidenAlg:find_partition]{find_partition()} from the \href{https://cran.r-project.org/web/packages/leidenAlg/index.html}{leidenAlg}
-package. The function then associates each node to its
-corresponding community number.
 }
 \details{
 The function could be run indifferently on one tidigraph object or on a list
@@ -101,6 +95,35 @@ To make plotting easier later, a zero is put before one-digit cluster identifier
 (cluster 5 becomes "05"; cluster 10 becomes "10"). Attributing a cluster identifier to edges
 allow for giving edges the same color of the nodes they are connecting together if the two nodes have the same color,
 or a different color from both nodes, if the nodes belong to different clusters.
+}
+\examples{
+library(networkflow)
+
+nodes <- Nodes_stagflation |>
+dplyr::rename(ID_Art = ItemID_Ref) |>
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation |>
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- build_dynamic_networks(nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = 10,
+edges_threshold = 1,
+overlapping_window = TRUE,
+filter_components = TRUE)
+
+temporal_networks <- add_clusters(temporal_networks,
+objective_function = "modularity",
+clustering_method = "leiden")
+
+temporal_networks[[1]]
+
+
 }
 \references{
 \insertAllCited{}

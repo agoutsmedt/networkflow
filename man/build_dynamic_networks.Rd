@@ -2,13 +2,14 @@
 % Please edit documentation in R/build_dynamic_networks.R
 \name{build_dynamic_networks}
 \alias{build_dynamic_networks}
-\title{Creating Dynamic Networks from a List of Nodes and Directed Edges}
+\alias{build_network}
+\title{Creating 1 or Multiple Networks from a List of Nodes and Directed Edges}
 \usage{
 build_dynamic_networks(
   nodes = NULL,
   directed_edges = NULL,
-  source_column = NULL,
-  target_column = NULL,
+  source_id = NULL,
+  target_id = NULL,
   time_variable = NULL,
   time_window = NULL,
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
@@ -16,7 +17,22 @@ build_dynamic_networks(
   edges_threshold = 1,
   compute_size = FALSE,
   keep_singleton = FALSE,
+  filter_components = FALSE,
+  ...,
   verbose = TRUE
+)
+
+build_network(
+  nodes = NULL,
+  directed_edges = NULL,
+  source_id = NULL,
+  target_id = NULL,
+  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
+  edges_threshold = 1,
+  compute_size = FALSE,
+  keep_singleton = FALSE,
+  filter_components = FALSE,
+  ...
 )
 }
 \arguments{
@@ -29,10 +45,10 @@ articles, the \code{directed_edges} table can contain the list of the references
 by these articles, the authors that have written these articles, or the affiliations
 of the authors of these articles.}
 
-\item{source_column}{The column with the unique identifier of each node. For instance, for a bibliographic
-coupling network, the id of your citing documents.}
+\item{source_id}{The quoted name of the column with the unique identifier of each node. For instance,
+for a bibliographic coupling network, the id of your citing documents.}
 
-\item{target_column}{The column with the unique identifier of each element connected to the node (for
+\item{target_id}{The quoted name of the column with the unique identifier of each element connected to the node (for
 instance, the identifier of the reference cited by your node if the node is an article).}
 
 \item{time_variable}{The column with the temporal variable you want to use to build your windows for the
@@ -65,12 +81,19 @@ documentation and the \code{cooccurrence_method} parameter.}
 \item{compute_size}{Set to \code{FALSE} by default. If \code{TRUE}, the function uses the \code{directed_edges} data
 to calculate how many directed edges a node receives (as a target). If \code{directed_edges}
 is a table of direct citations, the functions calculates the number of time a node
-is cited by the other nodes. You need to have the \code{target_column} in the \code{nodes} table
+is cited by the other nodes. You need to have the \code{target_id} in the \code{nodes} table
 to make the link with the targetted nodes in the \code{directed_edges} table.}
 
 \item{keep_singleton}{Set to \code{FALSE} by default. If \code{TRUE}, the function removes the nodes that have no
 undirected edges, i.e. no cooccurrence with any other nodes. In graphical terms,
 these nodes are alone in the network, with no link with other nodes.}
+
+\item{filter_components}{Set to  \code{TRUE} if you want to run \code{networkflow::filter_components()}
+to filter the components of the network(s) and keep only the biggest component(s). If
+you don't change the defaults parameters of \code{networkflow::filter_components()},
+it will keep only the main component.}
+
+\item{...}{Additional arguments from \code{networkflow::filter_components()}.}
 
 \item{verbose}{Set to \code{FALSE} if you don't want the function to display different sort of information.}
 }
@@ -83,12 +106,20 @@ of tidygraph networks, for each time window.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function creates one or several tidygraph networks from a table of nodes and its
+\code{build_network()} creates a network from a table of nodes and its
+directed edges. That is a special case of the more general \code{build_dynamic_networks()}.
+This function creates one or several tibble graphs (built with
+\href{https://tidygraph.data-imaginist.com/}{tidygraph}) from a table of nodes and its
 directed edges. For instance, for bibliometric networks, you can give a list of
 articles and the list of the references these articles cite. You can use it to
 build a single network or multiple networks over different time windows.
 }
+\details{
+\code{build_network()} has been added for convenience but it is just
+a special case of the more general \code{build_dynamic_networks()}, with
+}
 \examples{
+library(networkflow)
 
 nodes <- Nodes_stagflation |>
 dplyr::rename(ID_Art = ItemID_Ref) |>
@@ -99,8 +130,8 @@ dplyr::rename(ID_Art = Citing_ItemID_Ref)
 
 temporal_networks <- build_dynamic_networks(nodes = nodes,
 directed_edges = references,
-source_column = "ID_Art",
-target_column = "ItemID_Ref",
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
 time_variable = "Year",
 cooccurrence_method = "coupling_similarity",
 time_window = 10,

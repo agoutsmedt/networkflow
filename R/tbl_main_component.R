@@ -41,7 +41,7 @@ tbl_main_component <- function(edges, nodes, nb_components = 1, threshold_alert 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
   components_att <- NULL
-  lifecycle::deprecate_warn("0.1.0", "tbl_main_component()", "extract_main_component()")
+  lifecycle::deprecate_warn("0.1.0", "tbl_main_component()", "filter_components()")
 
   # creating the tidygraph object
   graph <- tidygraph::tbl_graph(nodes, edges, ...)

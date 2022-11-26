@@ -20,5 +20,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Aurélien Goutsmedt \email{agoutsmedt@gmail.com} (\href{https://orcid.org/0000-0002-3788-7237}{ORCID})
 
+Authors:
+\itemize{
+  \item Alexandre Truc \email{alexandre.truc77@gmail.com} (\href{https://orcid.org/0000-0002-1328-7819}{ORCID})
+}
+
 }
 \keyword{internal}

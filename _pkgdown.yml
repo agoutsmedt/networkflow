@@ -7,9 +7,10 @@ template:
 reference:
 - title: "Step 1: Creating networks"
   desc: >
-    Functions for created one or multiple networks and to filter the networks.
+    Functions for creating one or multiple networks and to filter the networks.
   contents:
   - build_dynamic_networks
+  - filter_components
 
 - title: "Step 2: Clustering"
   desc: >

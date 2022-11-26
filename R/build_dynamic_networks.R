@@ -1,7 +1,132 @@
+#' Creating 1 or Multiple Networks from a List of Nodes and Directed Edges
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' `build_network()` creates a network from a table of nodes and its
+#' directed edges. That is a special case of the more general `build_dynamic_networks()`.
+#' This function creates one or several tibble graphs (built with
+#' [tidygraph](https://tidygraph.data-imaginist.com/)) from a table of nodes and its
+#' directed edges. For instance, for bibliometric networks, you can give a list of
+#' articles and the list of the references these articles cite. You can use it to
+#' build a single network or multiple networks over different time windows.
+#'
+#' @param nodes
+#' The table with all the nodes and their metadata. For instance, if your nodes are
+#' articles, this table is likely to contain the year of publication, the name of the authors,
+#' the title of the article, etc... The table must have one row per node.
+#'
+#' @param directed_edges
+#' The table with of all the elements to which your nodes are connected. If your nodes are
+#' articles, the `directed_edges` table can contain the list of the references cited
+#' by these articles, the authors that have written these articles, or the affiliations
+#' of the authors of these articles.
+#'
+#' @param source_id
+#' The quoted name of the column with the unique identifier of each node. For instance,
+#' for a bibliographic coupling network, the id of your citing documents.
+#'
+#' @param target_id
+#' The quoted name of the column with the unique identifier of each element connected to the node (for
+#' instance, the identifier of the reference cited by your node if the node is an article).
+#'
+#' @param time_variable
+#' The column with the temporal variable you want to use to build your windows for the
+#' succession of networks. By default, `time_variable` is `NULL` and the function
+#' will only build one network without taking into account any temporal variable.
+#'
+#' @param time_window
+#' The length of your network relatively of the unity of the `time_variable` column. If you
+#' use a variable in years as `time_variable` and you set `time_window` at 5, the function
+#' will build network on five year windows. By default, `time_window` is `NULL` and the
+#' function will only build one network.
+#'
+#' @param overlapping_window
+#' Set to `FALSE` by default. If set to `TRUE`, and if `time_variable` and `time_window` not
+#' `NULL`, the function will create a succession of networks for moving time windows. The windows are
+#' moving one unit per one unit of the `time_variable`. For instance, for years, if `time_window`
+#' set to 5, it creates networks for successive time windows like 1970-1974, 1971-1975, 1972-1976, etc.
+#'
+#' @param cooccurrence_method
+#' Choose a cooccurrence method to build your indirect edges table. The function propose
+#' three methods that depends on the [biblionetwork package](https://agoutsmedt.github.io/biblionetwork/)
+#' and three methods that are implemented in it:
+#'
+#' - the coupling angle measure (see [biblionetwork::biblio_coupling()] for documentation);
+#' - the coupling strength measure ([biblionetwork::coupling_strength()]);
+#' - the coupling similarity measure ([biblionetwork:: coupling_similarity()]).
+#'
+#' @param edges_threshold
+#' Threshold value for building your edges. With a higher threshold, only the stronger links
+#' will be kept. See the [biblionetwork package](https://agoutsmedt.github.io/biblionetwork/)
+#' documentation and the `cooccurrence_method` parameter.
+#'
+#' @param compute_size
+#' Set to `FALSE` by default. If `TRUE`, the function uses the `directed_edges` data
+#' to calculate how many directed edges a node receives (as a target). If `directed_edges`
+#' is a table of direct citations, the functions calculates the number of time a node
+#' is cited by the other nodes. You need to have the `target_id` in the `nodes` table
+#' to make the link with the targetted nodes in the `directed_edges` table.
+#'
+#' @param keep_singleton
+#' Set to `FALSE` by default. If `TRUE`, the function removes the nodes that have no
+#' undirected edges, i.e. no cooccurrence with any other nodes. In graphical terms,
+#' these nodes are alone in the network, with no link with other nodes.
+#'
+#' @param filter_components
+#' Set to  `TRUE` if you want to run `networkflow::filter_components()`
+#' to filter the components of the network(s) and keep only the biggest component(s). If
+#' you don't change the defaults parameters of `networkflow::filter_components()`,
+#' it will keep only the main component.
+#'
+#' @param ...
+#' Additional arguments from `networkflow::filter_components()`.
+#'
+#' @param verbose
+#' Set to `FALSE` if you don't want the function to display different sort of information.
+#'
+#' @details `build_network()` has been added for convenience but it is just
+#' a special case of the more general `build_dynamic_networks()`, with
+#'
+#'
+#'
+#' @return If `time_window` is `NULL`, the function computes only
+#' one network and return a tidygraph object built with [tbl_graph()][tidygraph::tbl_graph()].
+#' If `time_variable` and `time_window` are not `NULL`, the function returns a list
+#' of tidygraph networks, for each time window.
+#'
+#' @examples
+#' library(networkflow)
+#'
+#' nodes <- Nodes_stagflation |>
+#' dplyr::rename(ID_Art = ItemID_Ref) |>
+#' dplyr::filter(Type == "Stagflation")
+#'
+#' references <- Ref_stagflation |>
+#' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+#'
+#' temporal_networks <- build_dynamic_networks(nodes = nodes,
+#' directed_edges = references,
+#' source_id = "ID_Art",
+#' target_id = "ItemID_Ref",
+#' time_variable = "Year",
+#' cooccurrence_method = "coupling_similarity",
+#' time_window = 10,
+#' edges_threshold = 1,
+#' overlapping_window = TRUE)
+#'
+#' temporal_networks[[1]]
+#'
+#' @export
+#' @import data.table
+#' @import tidygraph
+#' @import biblionetwork
+#' @import lifecycle
+#' @import cli
 build_dynamic_networks <- function(nodes = NULL,
                                    directed_edges = NULL,
-                                   source_column = NULL,
-                                   target_column = NULL,
+                                   source_id = NULL,
+                                   target_id = NULL,
                                    time_variable = NULL,
                                    time_window = NULL,
                                    cooccurrence_method = c("coupling_angle","coupling_strength","coupling_similarity"),
@@ -9,116 +134,10 @@ build_dynamic_networks <- function(nodes = NULL,
                                    edges_threshold = 1,
                                    compute_size = FALSE,
                                    keep_singleton = FALSE,
+                                   filter_components = FALSE,
+                                   ...,
                                    verbose = TRUE)
 {
-  #' Creating Dynamic Networks from a List of Nodes and Directed Edges
-  #'
-  #' @description
-  #' `r lifecycle::badge("experimental")`
-  #'
-  #' This function creates one or several tidygraph networks from a table of nodes and its
-  #' directed edges. For instance, for bibliometric networks, you can give a list of
-  #' articles and the list of the references these articles cite. You can use it to
-  #' build a single network or multiple networks over different time windows.
-  #'
-  #' @param nodes
-  #' The table with all the nodes and their metadata. For instance, if your nodes are
-  #' articles, this table is likely to contain the year of publication, the name of the authors,
-  #' the title of the article, etc... The table must have one row per node.
-  #'
-  #' @param directed_edges
-  #' The table with of all the elements to which your nodes are connected. If your nodes are
-  #' articles, the `directed_edges` table can contain the list of the references cited
-  #' by these articles, the authors that have written these articles, or the affiliations
-  #' of the authors of these articles.
-  #'
-  #' @param source_column
-  #' The column with the unique identifier of each node. For instance, for a bibliographic
-  #' coupling network, the id of your citing documents.
-  #'
-  #' @param target_column
-  #' The column with the unique identifier of each element connected to the node (for
-  #' instance, the identifier of the reference cited by your node if the node is an article).
-  #'
-  #' @param time_variable
-  #' The column with the temporal variable you want to use to build your windows for the
-  #' succession of networks. By default, `time_variable` is `NULL` and the function
-  #' will only build one network without taking into account any temporal variable.
-  #'
-  #' @param time_window
-  #' The length of your network relatively of the unity of the `time_variable` column. If you
-  #' use a variable in years as `time_variable` and you set `time_window` at 5, the function
-  #' will build network on five year windows. By default, `time_window` is `NULL` and the
-  #' function will only build one network.
-  #'
-  #' @param overlapping_window
-  #' Set to `FALSE` by default. If set to `TRUE`, and if `time_variable` and `time_window` not
-  #' `NULL`, the function will create a succession of networks for moving time windows. The windows are
-  #' moving one unit per one unit of the `time_variable`. For instance, for years, if `time_window`
-  #' set to 5, it creates networks for successive time windows like 1970-1974, 1971-1975, 1972-1976, etc.
-  #'
-  #' @param cooccurrence_method
-  #' Choose a cooccurrence method to build your indirect edges table. The function propose
-  #' three methods that depends on the [biblionetwork package](https://agoutsmedt.github.io/biblionetwork/)
-  #' and three methods that are implemented in it:
-  #'
-  #' - the coupling angle measure (see [biblionetwork::biblio_coupling()] for documentation);
-  #' - the coupling strength measure ([biblionetwork::coupling_strength()]);
-  #' - the coupling similarity measure ([biblionetwork:: coupling_similarity()]).
-  #'
-  #' @param edges_threshold
-  #' Threshold value for building your edges. With a higher threshold, only the stronger links
-  #' will be kept. See the [biblionetwork package](https://agoutsmedt.github.io/biblionetwork/)
-  #' documentation and the `cooccurrence_method` parameter.
-  #'
-  #' @param compute_size
-  #' Set to `FALSE` by default. If `TRUE`, the function uses the `directed_edges` data
-  #' to calculate how many directed edges a node receives (as a target). If `directed_edges`
-  #' is a table of direct citations, the functions calculates the number of time a node
-  #' is cited by the other nodes. You need to have the `target_column` in the `nodes` table
-  #' to make the link with the targetted nodes in the `directed_edges` table.
-  #'
-  #' @param keep_singleton
-  #' Set to `FALSE` by default. If `TRUE`, the function removes the nodes that have no
-  #' undirected edges, i.e. no cooccurrence with any other nodes. In graphical terms,
-  #' these nodes are alone in the network, with no link with other nodes.
-  #'
-  #' @param verbose
-  #' Set to `FALSE` if you don't want the function to display different sort of information.
-  #'
-  #' @return If `time_window` is `NULL`, the function computes only
-  #' one network and return a tidygraph object built with [tbl_graph()][tidygraph::tbl_graph()].
-  #' If `time_variable` and `time_window` are not `NULL`, the function returns a list
-  #' of tidygraph networks, for each time window.
-  #'
-  #' @examples
-  #'
-  #' nodes <- Nodes_stagflation |>
-  #' dplyr::rename(ID_Art = ItemID_Ref) |>
-  #' dplyr::filter(Type == "Stagflation")
-  #'
-  #' references <- Ref_stagflation |>
-  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
-  #'
-  #' temporal_networks <- build_dynamic_networks(nodes = nodes,
-  #' directed_edges = references,
-  #' source_column = "ID_Art",
-  #' target_column = "ItemID_Ref",
-  #' time_variable = "Year",
-  #' cooccurrence_method = "coupling_similarity",
-  #' time_window = 10,
-  #' edges_threshold = 1,
-  #' overlapping_window = TRUE)
-  #'
-  #' temporal_networks[[1]]
-  #'
-  #' @export
-  #' @import data.table
-  #' @import tidygraph
-  #' @import biblionetwork
-  #' @import lifecycle
-  #' @import cli
-
   size <- node_size <- N <- method <- NULL
 
 
@@ -142,13 +161,11 @@ build_dynamic_networks <- function(nodes = NULL,
       "*" = "\"coupling_strength\";",
       "*" = "\"coupling_similarity\"."))
   }
-  if(nodes[, .N, source_column, env = list(source_column=source_column)][N > 1, .N] > 0){
-    name <- ensym(nodes)
-    cli::cli_abort("Some identifiers in your column {.field {source_column}} in your {name} table are not unique. You need only one row per node.")
+  if(nodes[, .N, source_id, env = list(source_id=source_id)][N > 1, .N] > 0){
+    cli::cli_abort("Some identifiers in your column {.field {source_id}} in your nodes table are not unique. You need only one row per node.")
   }
 
   if(! is.null(time_window) & is.null(time_variable)){
-
     cli::cli_abort("You cannot have a {.emph time_window} if you don't give any column with a temporal variable.
                           Put a column in {.emph time_variable} or remove the {.emph time_window}.")
   }
@@ -163,8 +180,8 @@ build_dynamic_networks <- function(nodes = NULL,
 
   # let's extract the information we need
   Nodes_coupling <- data.table::copy(nodes)
-  Nodes_coupling[, source_column := as.character(source_column),
-                 env = list(source_column = source_column)]
+  Nodes_coupling[, source_id := as.character(source_id),
+                 env = list(source_id = source_id)]
 
   if(is.null(time_variable)){
     time_variable <- "fake_column"
@@ -172,19 +189,19 @@ build_dynamic_networks <- function(nodes = NULL,
                    env = list(time_variable = time_variable)]
   }
 
-  if(! target_column %in% colnames(Nodes_coupling) & compute_size == TRUE)
+  if(! target_id %in% colnames(Nodes_coupling) & compute_size == TRUE)
   {
-    cli::cli_abort("You don't have the column {.field {target_column}} in your nodes table. Set {.emph compute_size} to {.val FALSE}.")
+    cli::cli_abort("You don't have the column {.field {target_id}} in your nodes table. Set {.emph compute_size} to {.val FALSE}.")
   }
 
   if(compute_size == TRUE){
-    Nodes_coupling[, target_column := as.character(target_column),
-                   env = list(target_column = target_column)]
+    Nodes_coupling[, target_id := as.character(target_id),
+                   env = list(target_id = target_id)]
   }
 
   Edges <- data.table::copy(directed_edges)
-  Edges <- Edges[, .SD, .SDcols = c(source_column, target_column)]
-  Edges[, c(source_column, target_column) := lapply(.SD, as.character), .SDcols = c(source_column, target_column)]
+  Edges <- Edges[, .SD, .SDcols = c(source_id, target_id)]
+  Edges[, c(source_id, target_id) := lapply(.SD, as.character), .SDcols = c(source_id, target_id)]
 
   ######################### Dynamics networks *********************
 
@@ -236,13 +253,13 @@ build_dynamic_networks <- function(nodes = NULL,
       nodes_of_the_year <- nodes_of_the_year[, -c("fake_column")]
     }
 
-    edges_of_the_year <- Edges[source_column %in% nodes_of_the_year[, source_column],
-                               env = list(source_column = source_column)]
+    edges_of_the_year <- Edges[source_id %in% nodes_of_the_year[, source_id],
+                               env = list(source_id = source_id)]
 
     # size of nodes
     if(compute_size == TRUE){
-      nb_cit <- edges_of_the_year[source_column %in% nodes_of_the_year[, source_column], .N, target_column,
-                                  env = list(source_column = source_column, target_column = target_column)]
+      nb_cit <- edges_of_the_year[source_id %in% nodes_of_the_year[, source_id], .N, target_id,
+                                  env = list(source_id = source_id, target_id = target_id)]
       colnames(nb_cit)[colnames(nb_cit) == "N"] <- "node_size"
 
       if("node_size" %in% colnames(Nodes_coupling) == TRUE)
@@ -251,7 +268,7 @@ build_dynamic_networks <- function(nodes = NULL,
       }
       nodes_of_the_year <- data.table::merge.data.table(nodes_of_the_year,
                                                         nb_cit,
-                                                        by = target_column,
+                                                        by = target_id,
                                                         all.x = TRUE)
       nodes_of_the_year[is.na(node_size), node_size := 0]
     }
@@ -263,18 +280,18 @@ build_dynamic_networks <- function(nodes = NULL,
 
     edges_of_the_year <- data.table::substitute2(
       biblionetwork::fun(dt = edges_of_the_year,
-                         source = source_column,
-                         ref = target_column,
+                         source = source_id,
+                         ref = target_id,
                          weight_threshold = edges_threshold),
       env = list(fun = biblio_function,
-                 source_column = I(source_column),
-                 target_column = I(target_column),
+                 source_id = I(source_id),
+                 target_id = I(target_id),
                  edges_threshold = edges_threshold)) %>%
       eval()
 
     # remove nodes with no edges
     if(keep_singleton==FALSE){
-      nodes_of_the_year <- nodes_of_the_year[source_column %in% edges_of_the_year$from | source_column %in% edges_of_the_year$to, env=list(source_column=source_column)]
+      nodes_of_the_year <- nodes_of_the_year[source_id %in% edges_of_the_year$from | source_id %in% edges_of_the_year$to, env=list(source_id=source_id)]
     }
 
     # make tbl
@@ -282,14 +299,42 @@ build_dynamic_networks <- function(nodes = NULL,
       tbl_coup_list <- tidygraph::tbl_graph(nodes = nodes_of_the_year,
                                             edges = edges_of_the_year,
                                             directed = FALSE,
-                                            node_key = source_column)
+                                            node_key = source_id)
     } else {
       tbl_coup_list[[paste0(Year, "-", Year + time_window - 1)]] <- tidygraph::tbl_graph(nodes = nodes_of_the_year,
                                                                                          edges = edges_of_the_year,
                                                                                          directed = FALSE,
-                                                                                         node_key = source_column)
+                                                                                         node_key = source_id)
     }
   }
-
+  if(filter_components == TRUE){
+    tbl_coup_list <- filter_components(tbl_coup_list, ...)
+  }
   return (tbl_coup_list)
+}
+
+#' @rdname build_dynamic_networks
+build_network <- function(nodes = NULL,
+                          directed_edges = NULL,
+                          source_id = NULL,
+                          target_id = NULL,
+                          cooccurrence_method = c("coupling_angle","coupling_strength","coupling_similarity"),
+                          edges_threshold = 1,
+                          compute_size = FALSE,
+                          keep_singleton = FALSE,
+                          filter_components = FALSE,
+                          ...){
+graph <- build_dynamic_networks(nodes = nodes,
+                         directed_edges = directed_edges,
+                         source_id = source_id,
+                         target_id = target_id,
+                         cooccurrence_method = cooccurrence_method,
+                         edges_threshold = edges_threshold,
+                         compute_size = compute_size,
+                         keep_singleton = keep_singleton,
+                         filter_components = FALSE,
+                         ...,
+                         verbose = FALSE)
+if(filter_components == TRUE) graph <- filter_components(graph, ...)
+return(graph)
 }

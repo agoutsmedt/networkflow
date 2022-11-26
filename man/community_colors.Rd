@@ -20,6 +20,8 @@ The same tidygraph object but with a new \code{color} column in the nodes side, 
 \code{color_edges} column in the edges side.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 This function takes as an input a tidygraph graph, with a column with a community identifier for
 each node and each edge. It attributes to each community a color, depending on a palette chosen.
 If the two nodes connected by an edge have a different community, the function mixes the color of the two communities.

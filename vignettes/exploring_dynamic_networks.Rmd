@@ -123,13 +123,13 @@ corpus <- merge(alluv_dt,
                 all.x = TRUE)
 
 tf_idf <- extract_tfidf(data = corpus,
-                 text_columns = "Title",
-                 grouping_columns = "intertemporal_name",
-                 n_gram = 3L,
-                 stopwords = NULL,
-                 stopwords_list = "smart",
-                 clean_word_method = "lemmatize",
-                 ngrams_filter = 2)
+                        text_columns = "Title",
+                        grouping_columns = "intertemporal_name",
+                        n_gram = 3L,
+                        stopwords = NULL,
+                        stopwords_type = "smart",
+                        clean_word_method = "lemmatize",
+                        ngrams_filter = 2)
 
 tf_idf %>% 
   group_by(document) %>% 

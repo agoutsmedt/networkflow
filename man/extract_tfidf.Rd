@@ -8,43 +8,130 @@ extract_tfidf(
   data,
   text_columns,
   grouping_columns,
+  grouping_across_list = FALSE,
   n_gram = 2L,
-  stopwords = NULL,
-  stopwords_list = "smart",
+  stopwords_type = "smart",
+  stopwords_vector = NULL,
   clean_word_method = c("lemmatize", "stemming", "none"),
-  ngrams_filter = 5L
+  ngrams_filter = 5L,
+  nb_terms = 5L
 )
 }
 \arguments{
-\item{data}{A \href{https://tidygraph.data-imaginist.com/}{tidygraph} object, a list of tidygraph objects or a simple table.}
+\item{data}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
+graphs or a data frame.}
 
 \item{text_columns}{The columns with the text you want to analyze. If you give multiple columns, they will
-be gathered to extract the terms.}
+be united to extract the terms.}
 
-\item{grouping_columns}{The columns you want to use to calculate the tf-idf. These columns will become your
-"document" unit in the \link[tidytext:bind_tf_idf]{bind_tf_idf()} function.}
+\item{grouping_columns}{The column(s) you want to use to calculate the tf-idf. These columns will become your
+"document" unit in the \link[tidytext:bind_tf_idf]{bind_tf_idf()} function. For instance,
+if you run the function on a unique tibble graph, you may want to compute the tf-idf
+depending on the clusters your nodes are belonging. You have to take care that the
+identifier of the variable you are using to compute the tf-idf is unique for each group
+(see the details for more information).}
+
+\item{grouping_across_list}{Set to \code{TRUE} if you want to compute tf-idf on the
+whole list of tibble graphs and that you have no unique identifier for them (see
+the details for more information).}
 
 \item{n_gram}{The maximum n you want for tokenizing your ngrams (see \link[tidytext:unnest_tokens]{unnest_tokens()}
 for more information). 2 by default, i.e. only unigrams and bigrams will be extracted.}
 
-\item{stopwords}{Use your own stopwords list, in a character vector format}
+\item{stopwords_type}{The type of stopwords list you want to use to remove stopwords from your ngrams.
+The "smart" list is chosen by default, but see other possilities with
+\link[stopwords:stopwords_getsources]{stopwords_getsources}.}
 
-\item{stopwords_list}{The stopwords list you want to use to remove stopwords from your ngrams. The "smart" list by
-default, but see other possilities with \link[stopwords:stopwords_getsources]{stopwords_getsources}.}
+\item{stopwords_vector}{Use your own stopwords list, in a vector of strings format.}
 
 \item{clean_word_method}{Choose the method to clean and standardized your ngrams. You can lemmatize or stem words through
-the \href{https://github.com/trinker/textstem}{textstem package}. Choose "none" if you don't want to apply any cleaning method.}
+the \href{https://github.com/trinker/textstem}{textstem package}.
+Choose "none" if you don't want to apply any cleaning method.}
 
-\item{ngrams_filter}{You can exclude from tf-idf computation the ngrams that does not appear a certain number of time.}
+\item{ngrams_filter}{You can exclude from tf-idf computation the ngrams that does not appear a certain
+number of time in the whole corpus.}
+
+\item{nb_terms}{The functions extracts the \code{nb_terms} (5 by default) highest TF-IDF for each grouping
+variables.}
 }
 \value{
-A data.table with the list of terms (i.e. ngrams) appearing in each "document" (that is your
+A data.table with the terms (i.e. ngrams) appearing in each "document" (that is your
 \code{grouping_columns}) with the number of time they appear per document (\code{n}), their
 term frequency (\code{tf}), their inverse document frequency (\code{idf}), and their term-frequency inverse-document-frequency
-(\code{tf_idf}).
+(\code{tf_idf}). The terms are those with the highest \code{tf_idf} value for each value of the
+grouping columns, depending on the \code{nb_words} value you set. For instance, if \code{nb_words}
+is set to 5 (default valuet), and that you compute the TF-IDF on the cluster variable,
+the function extracts the 5 terms with the highest TF-IDF value for each cluster.
 }
 \description{
-This function takes as input a tidygraph object, a list of tidygraph objects or a data frame,
-extract the ngrams use in the character columns of your choice, and calculates the Term-Frequency
-Inverse-Document-Frequency value of each ngram for each document.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph}),
+a list of tibble graphs or a data frame, extract the ngrams from the text column(s) of
+your choice, and calculates the Term-Frequency Inverse-Document-Frequency value of each
+ngram for each grouping variables you have chosen.
+}
+\details{
+This functions extract TF-IDF values for various types of input, from multiple text
+columns and with grouping of multiple columns. The most simple case is to use this
+function with a data frame or a unique tibble graph with an easily identifiable
+grouping variable (like a cluster). But it also allows more complex uses in the case
+of a list of tibble graphs.
+
+If you enter as an input a list of tibble graphs, the function extracts TF-IDF on the
+binded graphs, and not graph after graph. If your want to extract TF-IDF for each
+graphs separately, then use \code{lapply()} and apply \code{extract_tfidf()} for each graph: the
+input will be a unique tibble graph, and the operation will be repeated for each tibble
+graphs of your list.
+
+As the extraction of TF-IDF is made on the whole aggregated list, you have
+to choose carefully your \code{grouping_columns}. Indeed, your grouping columns must
+identify variables that are unique. For instance, in the case you have used
+\code{add_clusters()}, each node in each of your graph is associated to a cluster. But the
+identifier of the clusters ("01", "02", "03", etc.) are the same across tibble graphs.
+It means that all the "01" clusters will be grouped together, and it is something
+you don't want. In this case, set \code{grouping_across_list} to \code{TRUE}: the identifier
+of the cluster will be merged with the name of the corresponding tibble_graph in
+the list. However, you don't need to use this possibility if you have a unique
+identifier across your tibble graphs. That is the case, for instance, if you have
+use \code{merge_dynamic_clusters()}, you have a column of clusters merged across
+your different tibble graphs. These new inter-networks clusters constitute a unique
+identifier.
+
+TF-IDF are calculated from the number of occurrence of a term in each document.
+The terms which occur only once are removed to avoid too rare terms to appear at
+the top of your grouping variables.
+}
+\examples{
+nodes <- Nodes_stagflation |>
+dplyr::rename(ID_Art = ItemID_Ref) |>
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation |>
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- build_dynamic_networks(nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = 10,
+edges_threshold = 1,
+overlapping_window = TRUE,
+filter_components = TRUE)
+
+temporal_networks <- add_clusters(temporal_networks,
+objective_function = "modularity",
+clustering_method = "leiden")
+
+tfidf <- extract_tfidf(temporal_networks,
+n_gram = 4,
+text_columns = "Title",
+grouping_columns = "cluster_leiden",
+grouping_across_list = TRUE,
+clean_word_method = "lemmatise")
+
+tfidf[[1]]
+
 }
