@@ -64,6 +64,9 @@
     <loc>https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.html</loc>
   </url>
   <url>
+    <loc>https://agoutsmedt.github.io/networkflow/reference/filter_components.html</loc>
+  </url>
+  <url>
     <loc>https://agoutsmedt.github.io/networkflow/reference/index.html</loc>
   </url>
   <url>
@@ -71,6 +74,9 @@
   </url>
   <url>
     <loc>https://agoutsmedt.github.io/networkflow/reference/leiden_workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.html</loc>
   </url>
   <url>
     <loc>https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.html</loc>
