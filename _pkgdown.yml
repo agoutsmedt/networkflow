@@ -17,6 +17,7 @@ reference:
     Functions for detected clusters and manipulate them.
   contents:
   - add_clusters
+  - merge_dynamic_clusters
 
 - title: "Step 3: Plot networks"
   desc: >

@@ -96,9 +96,9 @@ merge_dynamic_clusters <- function(list_graph = NA,
                                    similarity_type = c("complete, partial")){
 
   if(!similarity_type %in% c("complete","partial")){
-    stop('You must chose a similarity type between "complete" and "partial":\n
-    - "complete" similarity compare the threshold to all the nodes in both networks\n
-    - "partial" similarity compare the threshold to nodes that only exists in both networks')}
+    cli::cli_abort(c("You must choose a similarity type between 'complete' and 'partial': ",
+    "*" = "'complete' similarity compare the threshold to all the nodes in both networks;",
+    "*" = "'partial' similarity compare the threshold to nodes that only exists in both networks."))}
   if(!inherits(list_graph, "list") | (inherits(list_graph, "list") & length(as.list(list_graph)) == 1)){
     stop("Your data is not a list of tidygraph networks or you only have one network in your list.")
   }
