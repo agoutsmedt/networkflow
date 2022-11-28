@@ -65,7 +65,7 @@ color_nodes <- function(graphs = NA,
       main_colors_table <- color
     } else {
       warning("Your {.field color} is neither a vector of color characters, nor a data.frame. The function will proceed with a RColorBrewer palettes with 19 distinct colors")
-      color_list <- c(brewer.pal(7, name = "Dark2"), brewer.pal(12, name = "Paired"))
+      color_list <- c(RColorBrewer::brewer.pal(7, name = "Dark2"), RColorBrewer::brewer.pal(12, name = "Paired"))
       main_colors_table <- data.table(
         observation = variable_list,
         color = rep(color_list, length.out = n_colors))
