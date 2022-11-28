@@ -25,6 +25,7 @@ reference:
     Functions for preparing the plots of networks and for plotting them.
   contents:
   - minimize_crossing_alluvial
+  - color_network
 
 - title: "Step 4: Analysis networks"
   desc: >

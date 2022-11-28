@@ -1,4 +1,4 @@
-color_nodes <- function(graphs = NA,
+color_network <- function(graphs = NA,
                         column_to_color = NA,
                         color = NA)
 {
