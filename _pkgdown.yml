@@ -26,6 +26,9 @@ reference:
   contents:
   - layout_networks
   - minimize_crossing_alluvial
+  - color_networks
+  - label_alluvial
+  - label_networks
 
 - title: "Step 4: Analysis networks"
   desc: >

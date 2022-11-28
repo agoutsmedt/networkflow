@@ -1,40 +1,46 @@
-color_nodes <- function(graphs = NA,
-                        colmun_to_color = NA,
+color_networks <- function(graphs = NA,
+                        column_to_color = NA,
                         color = NA)
 {
-  #' Filter components of a network
+  #' Color the nodes and edges of the network according to a given variable.
   #'
   #' @description
   #'
   #' This function will create a color column for the edges and nodes in your network. You can chose a column with a categorical variable
-  #' to color nodes based on this particular variable. Edges will be colored by mixing the color of the two connected nodes.
-  #' By default, the function will color your network by using 19 colors that will be
+  #' to color nodes based on this particular variable. Edges will be colored by mixing the color of connected nodes.
+  #' By default, the function will color your network by using 19 colors from the RColorBrewer package, but you can chose your own color.
   #'
-  #' @param graph
-  #' The network object
+  #' @param graphs
+  #' A network or a list of networks.
   #'
-  #' @param colmun_to_color
+  #' @param column_to_color
   #' This column designates the categorical variable you want to use to color your nodes.
   #'
   #' @param color
-  #' The color you want to use in your networks.
-  #' It can be a vector of colors or a two columns data.frame matching the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use
+  #' The colors you want to use in your networks.
+  #' It can be a vector of colors or a two columns data.frame with the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use
   #'
   #' @export
   #' @import data.table
   #' @import tidygraph
   #' @import dplyr
+  #' @import magrittr
+  #' @importFrom RColorBrewer brewer.pal
+  #' @importFrom DescTools MixColor
 
-  # First we gather the distinct occurrences of our colmun_to_color ordered by number of occurrences
+
+  . <- to <- from <- color_ID_to <- color_ID_from <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
+
+  # First we gather the distinct occurrences of our column_to_color ordered by number of occurrences
   if(inherits(graphs, "list")){
     list <- TRUE
-    variable_list <- lapply(graphs, function(tbl)(tbl %N>% as.data.table %>% .[, .SD, .SDcols = c(colmun_to_color)]))
+    variable_list <- lapply(graphs, function(tbl)(tbl %N>% as.data.table %>% .[, .SD, .SDcols = c(column_to_color)]))
     variable_list <- rbindlist(variable_list)
 
   } else{
     if(inherits(graphs, "tbl_graph")){
       list <- FALSE
-      variable_list <- graphs %N>% as.data.table %>% .[, .SD, .SDcols = c(colmun_to_color)]
+      variable_list <- graphs %N>% as.data.table %>% .[, .SD, .SDcols = c(column_to_color)]
       graphs <- list(graphs) #If it's graph alone, make it into the list so the next part of the function work
 
     } else {
@@ -42,7 +48,7 @@ color_nodes <- function(graphs = NA,
     }
   }
 
-  variable_list <- variable_list[, .N, .(colmun_to_color), env = list(colmun_to_color = colmun_to_color)][order(-N)][[1]]
+  variable_list <- variable_list[, .N, .(column_to_color), env = list(column_to_color = column_to_color)][order(-N)][[1]]
   n_colors <- length(variable_list)
 
 
@@ -58,7 +64,7 @@ color_nodes <- function(graphs = NA,
   } else {
     if(inherits(color, "data.frame")){
       # Verify that the user have given the correct number of colors.
-      if(length(color[[1]]) != n_colors | length(color[[2]]) != n_colors){warning("You have given an incomplete number of colors or an incomplete list of distinct colmun_to_color values. You need a table with ", print(n_colors), " color(s) and an equal number of distinct values for colmun_to_color. The function will proceed with missing colors in the network.")}
+      if(length(color[[1]]) != n_colors | length(color[[2]]) != n_colors){warning("You have given an incomplete number of colors or an incomplete list of distinct column_to_color values. You need a table with ", print(n_colors), " color(s) and an equal number of distinct values for column_to_color The function will proceed with missing colors in the network.")}
       main_colors_table <- color
     } else {
       warning("Your {.field color} is neither a vector of color characters, nor a data.frame. The function will proceed with a RColorBrewer palettes with 19 distinct colors")
@@ -71,7 +77,7 @@ color_nodes <- function(graphs = NA,
 
 
   # Third, we color the graphs
-  setnames(main_colors_table, "observation", colmun_to_color)
+  setnames(main_colors_table, "observation", column_to_color)
   graphs <- lapply(graphs, function(tbl) tbl %N>% left_join(main_colors_table)) # %>% mutate(color = ifelse(is.na(color), "grey", color)))
   graphs <- lapply(graphs, function(tbl) tbl %>%
                      activate(edges) %>%
