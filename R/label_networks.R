@@ -28,7 +28,7 @@ label_networks <- function(graphs = NA,
   #' @import dplyr
   #' @import magrittr
   #'
-  . <- nodes <- label_x <- x <- label_y <- y <- head <- label_column <- intertemporal_name <- link_strength <- minimize_crossing_order <- nodes <- nodes_id <- order_column_raw <- tot_window_leiden_Origin <- tot_window_leiden_Source <- weight <- NULL
+  . <- nodes <- label_x <- x <- label_y <- y <- head <- label_column <- intertemporal_name <- NULL
 
   network_level_label <- function(graphs=graphs,
                                   intertemporal_cluster_label_column = intertemporal_cluster_label_column,

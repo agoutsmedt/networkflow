@@ -23,6 +23,8 @@ label_alluvial <- function(alluv_dt = NA,
   #' @import dplyr
   #' @import magrittr
 
+  . <- Window <- head <- x <- intertemporal_name_label <- NULL
+
   label <- copy(alluv_dt)
   label <- label[,.N,.(intertemporal_cluster_label_column, window_column), env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]
   label <- label[,Window:=round(mean(as.numeric(window_column))),intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]
