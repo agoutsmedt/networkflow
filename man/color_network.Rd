@@ -7,12 +7,12 @@
 color_network(graphs = NA, column_to_color = NA, color = NA)
 }
 \arguments{
+\item{graphs}{A network or a list of networks.}
+
 \item{column_to_color}{This column designates the categorical variable you want to use to color your nodes.}
 
 \item{color}{The color you want to use in your networks.
 It can be a vector of colors or a two columns data.frame matching the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use}
-
-\item{graph}{A network or a list of networks.}
 }
 \description{
 This function will create a color column for the edges and nodes in your network. You can chose a column with a categorical variable
