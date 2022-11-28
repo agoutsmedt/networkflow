@@ -14,7 +14,9 @@ label_networks(
 \arguments{
 \item{graphs}{A network or a list of networks.}
 
-\item{x_coordinates_column}{The column with the y coordinates of your nodes.}
+\item{x_coordinates_column}{The column with the x coordinates of your nodes.}
+
+\item{y_coordinates_column}{The column with the y coordinates of your nodes.}
 
 \item{intertemporal_cluster_label_column}{The column with the identifier or label of the inter-temporal cluster. By default, "intertemporal_name", as it is
 the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.

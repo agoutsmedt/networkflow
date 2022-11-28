@@ -14,7 +14,7 @@ label_networks <- function(graphs = NA,
   #' @param x_coordinates_column
   #' The column with the x coordinates of your nodes.
   #'
-  #' @param x_coordinates_column
+  #' @param y_coordinates_column
   #' The column with the y coordinates of your nodes.
   #'
   #' @param intertemporal_cluster_label_column
