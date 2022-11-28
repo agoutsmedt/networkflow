@@ -24,6 +24,10 @@ color_nodes <- function(graphs = NA,
   #' @import data.table
   #' @import tidygraph
   #' @import dplyr
+  #' @import magrittr
+  #' @importFrom RColorBrewer brewer.pal
+  #' @importFrom DescTools MixColor
+
 
   . <- to <- from <- color_ID_to <- color_ID_from <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
 
