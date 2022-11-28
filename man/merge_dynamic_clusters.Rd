@@ -31,8 +31,8 @@ network becomes in A' in the more recent network.}
 
 \item{similarity_type}{Choose a similarity type to compare the threshold to:
 \itemize{
-\item "complete" similarity compute the share of nodes going from a older community to a more recent community on all the nodes in both networks
-\item "partial" similarity compute the share of nodes going from a older community to a more recent community only on nodes that exists in both networks
+\item "complete" similarity compute the share of nodes going from an older community to a more recent community on all the nodes in both networks
+\item "partial" similarity compute the share of nodes going from an older community to a more recent community only on nodes that exists in both networks
 }
 
 Complete similarity is particularly suited if the number of nodes in your networks is relatively stable over time as the threshold capture the share of all nodes

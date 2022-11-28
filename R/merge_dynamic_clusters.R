@@ -32,8 +32,8 @@
 #' @param similarity_type
 #' Choose a similarity type to compare the threshold to:
 #'
-#' - "complete" similarity compute the share of nodes going from a older community to a more recent community on all the nodes in both networks
-#' - "partial" similarity compute the share of nodes going from a older community to a more recent community only on nodes that exists in both networks
+#' - "complete" similarity compute the share of nodes going from an older community to a more recent community on all the nodes in both networks
+#' - "partial" similarity compute the share of nodes going from an older community to a more recent community only on nodes that exists in both networks
 #'
 #' Complete similarity is particularly suited if the number of nodes in your networks is relatively stable over time as the threshold capture the share of all nodes
 #' moving between clusters. Partial similarity can be particularly useful when the number of nodes in your networks increases rapidly. The interpretation of the threshold

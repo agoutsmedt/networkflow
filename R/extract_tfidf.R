@@ -148,6 +148,10 @@ extract_tfidf <- function(data,
   if(! is.null(stopwords_vector) & ! is.character(stopwords_vector)){
     stop("The stopwords list is not a vector of strings.")
   }
+  if(length(clean_word_method) > 1){
+    clean_word_method <- "none"
+    cli::cli_alert_info("No cleaning word method has been chosen. The ngrams won't be stemmed or lemmatized.")
+  }
   if(inherits(data, "tbl_graph")){ # in case we have only one network
     dt <- data %N>%
       data.table::as.data.table()

@@ -18,7 +18,7 @@ add_clusters(
 )
 }
 \arguments{
-\item{graphs}{A tidygraph object or a list of tidygraph objects with a "weight" column
+\item{graphs}{A tibble graph or a list of tibble graphs with a "weight" column
 for edges.}
 
 \item{clustering_method}{The different clustering algorithms implemented in the
@@ -63,8 +63,9 @@ and three cluster columns for edges (see the details).
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function takes as input a tidygraph graph and then runs different
-cluster detection algorithm depending on the method chosen by the user (see @details for
+This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph}
+or a list of tibble graphs, and then runs different
+cluster detection algorithms depending on the method chosen by the user (see @details for
 information on the different methods. The function
 associate each node to its corresponding cluster identifier. It also creates a cluster
 attribute for edges: to each edge is associated a corresponding cluster
@@ -112,7 +113,7 @@ source_id = "ID_Art",
 target_id = "ItemID_Ref",
 time_variable = "Year",
 cooccurrence_method = "coupling_similarity",
-time_window = 10,
+time_window = 20,
 edges_threshold = 1,
 overlapping_window = TRUE,
 filter_components = TRUE)

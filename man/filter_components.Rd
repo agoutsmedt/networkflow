@@ -12,7 +12,7 @@ filter_components(
 )
 }
 \arguments{
-\item{graphs}{A tidygraph object or a list of tidygraph objects with a "weight" column
+\item{graphs}{A tibble graph or a list of tibble graphs with a "weight" column
 for edges.}
 
 \item{nb_components}{By default, the function takes the main component of the graph (\code{nb_components = 1}).

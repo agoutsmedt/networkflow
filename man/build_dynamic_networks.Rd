@@ -134,7 +134,7 @@ source_id = "ID_Art",
 target_id = "ItemID_Ref",
 time_variable = "Year",
 cooccurrence_method = "coupling_similarity",
-time_window = 10,
+time_window = 20,
 edges_threshold = 1,
 overlapping_window = TRUE)
 
