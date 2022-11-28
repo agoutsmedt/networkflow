@@ -42,6 +42,12 @@ additional column \verb{x_\{layout\}} and \verb{y_\{layout\}} if you have set
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+The function implements different layout algorithms from
+\href{https://ggraph.data-imaginist.com/index.html}{ggraph} and
+\href{http://graphlayouts.schochastics.net/index.html}{graphlayouts}. It also implements
+a dynamic process of computation of coordinates for list of tibble graphs, in order
+for the coordinates to be consistent between graphs.
 }
 \details{
 The function allows for the use of different layouts implemented in
@@ -50,4 +56,32 @@ The function allows for the use of different layouts implemented in
 layout of \code{graphlayouts} are not working with this function. Also, layouts do not
 all take as input pre-determined coordinates, meaning that the
 \code{compute_dynamic_coordinates} argument does not work with all layout.
+}
+\examples{
+library(networkflow)
+
+nodes <- Nodes_stagflation |>
+dplyr::rename(ID_Art = ItemID_Ref) |>
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation |>
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- build_dynamic_networks(nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = 20,
+edges_threshold = 1,
+overlapping_window = TRUE,
+filter_components = TRUE)
+
+temporal_networks <- layout_networks(temporal_networks,
+layout = "stress",
+compute_dynamic_coordinates = TRUE)
+
+temporal_networks [[1]]
+
 }

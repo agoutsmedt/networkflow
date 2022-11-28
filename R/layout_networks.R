@@ -3,7 +3,11 @@
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#'
+#' The function implements different layout algorithms from
+#' [ggraph](https://ggraph.data-imaginist.com/index.html) and
+#' [graphlayouts](http://graphlayouts.schochastics.net/index.html). It also implements
+#' a dynamic process of computation of coordinates for list of tibble graphs, in order
+#' for the coordinates to be consistent between graphs.
 #'
 #' @inheritParams add_clusters
 #'
@@ -43,9 +47,7 @@
 #' additional column `x_{layout}` and `y_{layout}` if you have set
 #' `save_coordinates` to `TRUE`.
 #'
-#' @example
-#'
-#' #' @examples
+#' @examples
 #' library(networkflow)
 #'
 #' nodes <- Nodes_stagflation |>
@@ -80,7 +82,6 @@
 #' @import lifecycle
 #' @import cli
 #'
-#' @examples
 layout_networks <- function(graphs,
                             node_id,
                             layout,
@@ -170,6 +171,7 @@ join_coordinates <- function(graphs,
                              layout,
                              save_coordinates = save_coordinates,
                              ...){
+  x <- y <- NULL
   coords <- ggraph::create_layout(graphs,
                                   layout = layout,
                                   ...) %>%
