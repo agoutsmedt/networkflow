@@ -11,12 +11,12 @@ label_alluvial(
 )
 }
 \arguments{
+\item{alluv_dt}{Data.frame of the alluvial created using the networkflow::networks_to_alluv function}
+
 \item{window_column}{The column with your time windows.}
 
 \item{intertemporal_cluster_label_column}{The column with the identifier or label of the inter-temporal cluster. By default, "intertemporal_name", as it is
 the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.}
-
-\item{graphs}{Data.frame of the alluvial created using the networkflow::networks_to_alluv function}
 }
 \description{
 Simple function to create a label column that make it easy to center label around particular clusters on the alluvial graph of intertemporal networks.

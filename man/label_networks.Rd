@@ -12,13 +12,13 @@ label_networks(
 )
 }
 \arguments{
+\item{graphs}{A network or a list of networks.}
+
 \item{x_coordinates_column}{The column with the y coordinates of your nodes.}
 
 \item{intertemporal_cluster_label_column}{The column with the identifier or label of the inter-temporal cluster. By default, "intertemporal_name", as it is
 the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.
 If you want your label to be something other than cluster names, you can also use this function for any kind of variables in your nodes table.}
-
-\item{list_graph}{A network or a list of networks.}
 }
 \description{
 Simple function to create a label column that make it easy to center label around particular clusters on the alluvial graph of intertemporal networks.
