@@ -10,7 +10,7 @@ color_network <- function(graphs = NA,
   #' to color nodes based on this particular variable. Edges will be colored by mixing the color of connected nodes.
   #' By default, the function will color your network by using 19 colors from the RColorBrewer package, but you can chose your own color.
   #'
-  #' @param graph
+  #' @param graphs
   #' A network or a list of networks.
   #'
   #' @param column_to_color
