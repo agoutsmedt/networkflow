@@ -48,7 +48,8 @@ Imports:
     textstem,
     tidygraph,
     tidyr,
-    tidytext
+    tidytext,
+    RColorBrewer
 Suggests: 
     ggalluvial,
     ggplot2,
