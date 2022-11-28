@@ -14,7 +14,7 @@ add_clusters <- function(graphs,
   #' @description
   #' `r lifecycle::badge("experimental")`
   #'
-  #' This function takes as input a tibble graph (from [tidygraph](https://tidygraph.data-imaginist.com/)
+  #' This function takes as input a tibble graph (from [tidygraph](https://tidygraph.data-imaginist.com/))
   #' or a list of tibble graphs, and then runs different
   #' cluster detection algorithms depending on the method chosen by the user (see @details for
   #' information on the different methods. The function
@@ -23,8 +23,9 @@ add_clusters <- function(graphs,
   #' identifier if  the two nodes connected by the edge belong to the same
   #' cluster If nodes have a different cluster, the edge takes "00" as cluster attribute.
   #'
-  #' @param graphs A tibble graph or a list of tibble graphs with a "weight" column
-  #' for edges.
+  #' @param graphs
+  #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/), a list of tibble
+  #' graphs or a data frame.
   #'
   #' @param clustering_method The different clustering algorithms implemented in the
   #' function (see details). The parameters of the function depend of the clustering method chosen.

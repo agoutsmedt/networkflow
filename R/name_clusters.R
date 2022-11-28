@@ -1,13 +1,17 @@
 #' Automatically Attributing Names to Clusters
 #'
-#' @description The function gives a name to networks clusters.
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' The function gives a name to networks clusters.
 #' It also gives the edges the name of their cluster. The clusters are named according
 #' to the column chosen by the user (for instance, in the case nodes are articles, the
 #' name may be the author and date of an article).
 #'
 #'
 #' @param graphs
-#' A tibble graph or a list of tibble graphs.
+#' A tibble graph (from [tidygraph](https://tidygraph.data-imaginist.com/))
+#' or a list of tibble graphs.
 #'
 #' @param method
 #' The method for finding the names, among `tidygraph_functions`, `given_column`,
@@ -121,7 +125,7 @@
 #'
 #' temporal_networks <- merge_dynamic_clusters(temporal_networks,
 #' cluster_id = "cluster_leiden",
-#' node_key = "ID_Art",
+#' node_id = "ID_Art",
 #' threshold_similarity = 0.51,
 #' similarity_type = "partial")
 #'
@@ -151,7 +155,7 @@ name_clusters <- function(graphs,
                           name_merged_clusters = FALSE,
                           cluster_id,
                           label_columns,
-                          label_name = "label",
+                          label_name = "cluster_label",
                           tidygraph_function = NULL,
                           order_by = NULL,
                           text_columns = NULL,

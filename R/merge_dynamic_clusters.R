@@ -17,7 +17,7 @@
 #' @param cluster_id
 #' The column with the identifier of the cluster.
 #'
-#' @param node_key
+#' @param node_id
 #' The column with the unique identifier of each node.
 #'
 #' @param threshold_similarity
@@ -79,7 +79,7 @@
 #'
 #' temporal_networks <- merge_dynamic_clusters(temporal_networks,
 #' cluster_id = "cluster_leiden",
-#' node_key = "ID_Art",
+#' node_id = "ID_Art",
 #' threshold_similarity = 0.51,
 #' similarity_type = "partial")
 #'
@@ -91,7 +91,7 @@
 #' @import dplyr
 merge_dynamic_clusters <- function(list_graph = NA,
                                    cluster_id = NA,
-                                   node_key = NA,
+                                   node_id = NA,
                                    threshold_similarity = 0.5001,
                                    similarity_type = c("complete, partial")){
 
@@ -133,7 +133,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
 
     if(is.null(list_graph[[paste0(Year-1)]])){
       dt_year <- all_nodes[network_num == as.character(Year), env = list(Year = Year)] %>%
-        .[,.SD,.SDcols = c(node_key, cluster_id)] %>%  # extract the nodes of the period
+        .[,.SD,.SDcols = c(node_id, cluster_id)] %>%  # extract the nodes of the period
         .[order(cluster_id), env = list(cluster_id = cluster_id)] #just to have a more informative numerotation of cluster then
       n_com <- dt_year[, .N, cluster_id, env = list(cluster_id = cluster_id)][,.N] # number of communities
       id_com_corr <- data.table(intertemporal_name = unique_ids[1:n_com],
@@ -155,13 +155,13 @@ merge_dynamic_clusters <- function(list_graph = NA,
 
       dt_year <- intertemporal_naming[[paste0(Year-1)]] %N>%
         dplyr::rename("past_id_com" = intertemporal_name) %>%
-        dplyr::select(all_of(c(node_key, "past_id_com"))) %>% # this is the nodes from the past
+        dplyr::select(all_of(c(node_id, "past_id_com"))) %>% # this is the nodes from the past
         data.table::as.data.table()
 
       ######################### Communities from present  **********************
 
       dt_year2 <- list_graph[[paste0(Year)]] %N>%
-        dplyr::select(all_of(c(node_key, cluster_id))) %>%
+        dplyr::select(all_of(c(node_id, cluster_id))) %>%
         data.table::as.data.table()
       n_com <- dt_year2[, .N, cluster_id, env = list(cluster_id = cluster_id)][,.N] # number of communities
       id_com_corr <- data.table(new_cluster_column = unique_ids[1:n_com],
@@ -172,9 +172,9 @@ merge_dynamic_clusters <- function(list_graph = NA,
       ######################### Find the evolution of past communities  **********************
 
       if(similarity_type == "partial"){
-        dt_list <- data.table::merge.data.table(dt_year, dt_year2, by = node_key) # if "partial" we only merge on nodes that exists in the present and in the past to get the % of nodes moving from one community to the other
+        dt_list <- data.table::merge.data.table(dt_year, dt_year2, by = node_id) # if "partial" we only merge on nodes that exists in the present and in the past to get the % of nodes moving from one community to the other
       } else {
-        dt_list <- data.table::merge.data.table(dt_year, dt_year2, by = node_key, all.x=TRUE) # if "complete" we keep all past nodes, including the ones that do not exist in the present network
+        dt_list <- data.table::merge.data.table(dt_year, dt_year2, by = node_id, all.x=TRUE) # if "complete" we keep all past nodes, including the ones that do not exist in the present network
       }
 
       dt_list[, n_nodes := .N, past_id_com]
@@ -187,9 +187,9 @@ merge_dynamic_clusters <- function(list_graph = NA,
       ######################### Find the origin of present communities  **********************
 
       if(similarity_type == "partial"){
-        dt_list2 <- data.table::merge.data.table(dt_year, dt_year2, by = node_key) # we do the same thing as previously but for the origin of present nodes
+        dt_list2 <- data.table::merge.data.table(dt_year, dt_year2, by = node_id) # we do the same thing as previously but for the origin of present nodes
       } else {
-        dt_list2 <- data.table::merge.data.table(dt_year, dt_year2, by = node_key, all.y=TRUE)
+        dt_list2 <- data.table::merge.data.table(dt_year, dt_year2, by = node_id, all.y=TRUE)
       }
 
       dt_list2[, n_nodes := .N, present_id_com]

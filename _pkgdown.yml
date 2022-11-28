@@ -24,6 +24,7 @@ reference:
   desc: >
     Functions for preparing the plots of networks and for plotting them.
   contents:
+  - layout_networks
   - minimize_crossing_alluvial
 
 - title: "Step 4: Analysis networks"

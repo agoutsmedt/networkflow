@@ -39,6 +39,7 @@ Imports:
     DescTools,
     dplyr,
     forcats,
+    ggraph,
     igraph,
     leidenAlg,
     lifecycle,

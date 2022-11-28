@@ -10,7 +10,7 @@ name_clusters(
   name_merged_clusters = FALSE,
   cluster_id,
   label_columns,
-  label_name = "label",
+  label_name = "cluster_label",
   tidygraph_function = NULL,
   order_by = NULL,
   text_columns = NULL,
@@ -19,7 +19,8 @@ name_clusters(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph or a list of tibble graphs.}
+\item{graphs}{A tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
+or a list of tibble graphs.}
 
 \item{method}{The method for finding the names, among \code{tidygraph_functions}, \code{given_column},
 and \code{tf-idf} (see the details). The \code{tf-idf} method is chosen by default.}
@@ -65,6 +66,8 @@ names of the clusters, for both nodes and edges. If you choose the \code{tidygra
 the function also returns for nodes a column with the centrality measure computed.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 The function gives a name to networks clusters.
 It also gives the edges the name of their cluster. The clusters are named according
 to the column chosen by the user (for instance, in the case nodes are articles, the
@@ -128,7 +131,7 @@ temporal_networks_with_names[[1]]
 
 temporal_networks <- merge_dynamic_clusters(temporal_networks,
 cluster_id = "cluster_leiden",
-node_key = "ID_Art",
+node_id = "ID_Art",
 threshold_similarity = 0.51,
 similarity_type = "partial")
 

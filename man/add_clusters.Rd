@@ -18,8 +18,8 @@ add_clusters(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph or a list of tibble graphs with a "weight" column
-for edges.}
+\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
+graphs or a data frame.}
 
 \item{clustering_method}{The different clustering algorithms implemented in the
 function (see details). The parameters of the function depend of the clustering method chosen.}
@@ -63,7 +63,7 @@ and three cluster columns for edges (see the details).
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph}
+This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
 or a list of tibble graphs, and then runs different
 cluster detection algorithms depending on the method chosen by the user (see @details for
 information on the different methods. The function

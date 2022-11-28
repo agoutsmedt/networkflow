@@ -1,7 +1,11 @@
 community_names <- function(graph, ordering_column, naming = "Label", community_column = "Com_ID"){
   #' Automatically Attributing Names to Communities
   #'
-  #' @description A function to give to a community the name of its node with the highest chosen measure.
+  #' @description
+  #'
+  #' `r lifecycle::badge("deprecated")`
+  #'
+  #' A function to give to a community the name of its node with the highest chosen measure.
   #' It also gives the edges the name of their community. If the edge connects nodes from
   #' different community, name will be NA.
   #'
@@ -40,6 +44,7 @@ community_names <- function(graph, ordering_column, naming = "Label", community_
   #' @import magrittr
   #' @import dplyr
 
+  lifecycle::deprecate_warn("0.1.0", "community_names()", "name_clusters()")
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/

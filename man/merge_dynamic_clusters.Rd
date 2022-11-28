@@ -7,7 +7,7 @@
 merge_dynamic_clusters(
   list_graph = NA,
   cluster_id = NA,
-  node_key = NA,
+  node_id = NA,
   threshold_similarity = 0.5001,
   similarity_type = c("complete, partial")
 )
@@ -19,7 +19,7 @@ recent network.}
 
 \item{cluster_id}{The column with the identifier of the cluster.}
 
-\item{node_key}{The column with the unique identifier of each node.}
+\item{node_id}{The column with the unique identifier of each node.}
 
 \item{threshold_similarity}{The threshold_similarity variable defines how sensitive the function is to giving the same name to two clusters.
 A higher threshold will lead to more communities.
@@ -88,7 +88,7 @@ clustering_method = "leiden")
 
 temporal_networks <- merge_dynamic_clusters(temporal_networks,
 cluster_id = "cluster_leiden",
-node_key = "ID_Art",
+node_id = "ID_Art",
 threshold_similarity = 0.51,
 similarity_type = "partial")
 

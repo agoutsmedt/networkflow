@@ -30,6 +30,8 @@ The same graph object but with a column \code{Community_name}, as well as \code{
 and \code{Community_3_name} if you have run the \code{\link[=leiden_workflow]{leiden_workflow()}} function for more than one resolution.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
 A function to give to a community the name of its node with the highest chosen measure.
 It also gives the edges the name of their community. If the edge connects nodes from
 different community, name will be NA.

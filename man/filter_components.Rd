@@ -12,8 +12,8 @@ filter_components(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph or a list of tibble graphs with a "weight" column
-for edges.}
+\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
+graphs or a data frame.}
 
 \item{nb_components}{By default, the function takes the main component of the graph (\code{nb_components = 1}).
 However it is possible to take as many components as you wish. The first component
