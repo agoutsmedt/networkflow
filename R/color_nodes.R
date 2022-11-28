@@ -24,9 +24,6 @@ color_nodes <- function(graphs = NA,
   #' @import data.table
   #' @import tidygraph
   #' @import dplyr
-  #' @import RColorBrewer
-  #' @import DescTools
-
 
   # First we gather the distinct occurrences of our colmun_to_color ordered by number of occurrences
   if(inherits(graphs, "list")){
