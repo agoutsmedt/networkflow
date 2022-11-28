@@ -17,8 +17,8 @@ color_networks <- function(graphs = NA,
   #' This column designates the categorical variable you want to use to color your nodes.
   #'
   #' @param color
-  #' The color you want to use in your networks.
-  #' It can be a vector of colors or a two columns data.frame matching the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use
+  #' The colors you want to use in your networks.
+  #' It can be a vector of colors or a two columns data.frame with the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use
   #'
   #' @export
   #' @import data.table
