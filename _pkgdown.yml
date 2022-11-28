@@ -18,6 +18,7 @@ reference:
   contents:
   - add_clusters
   - merge_dynamic_clusters
+  - name_clusters
 
 - title: "Step 3: Plot networks"
   desc: >
