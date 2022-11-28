@@ -7,7 +7,7 @@ label_alluvial <- function(alluv_dt = NA,
   #' @description
   #' Simple function to create a label column that make it easy to center label around particular clusters on the alluvial graph of intertemporal networks.
   #'
-  #' @param graphs
+  #' @param alluv_dt
   #' Data.frame of the alluvial created using the networkflow::networks_to_alluv function
   #'
   #' @param window_column

@@ -8,7 +8,7 @@ label_networks <- function(graphs = NA,
   #' @description
   #' Simple function to create a label column that make it easy to center label around particular clusters on the alluvial graph of intertemporal networks.
   #'
-  #' @param list_graph
+  #' @param graphs
   #' A network or a list of networks.
   #'
   #' @param x_coordinates_column
@@ -31,9 +31,9 @@ label_networks <- function(graphs = NA,
   . <- nodes <- label_x <- x <- label_y <- y <- head <- label_column <- intertemporal_name <- NULL
 
   network_level_label <- function(graphs=graphs,
-                                  intertemporal_cluster_label_column = intertemporal_cluster_label_column,
                                   x_coordinates_column = x_coordinates_column,
-                                  y_coordinates_column = y_coordinates_column){
+                                  y_coordinates_column = y_coordinates_column,
+                                  intertemporal_cluster_label_column = intertemporal_cluster_label_column){
 
     label_com <- graphs %>% activate(nodes) %>% as.data.table()
     label_com <- label_com[,label_x:=mean(x), intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column)]
