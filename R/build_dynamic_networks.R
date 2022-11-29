@@ -24,11 +24,15 @@
 #'
 #' @param source_id
 #' The quoted name of the column with the unique identifier of each node. For instance,
-#' for a bibliographic coupling network, the id of your citing documents.
+#' for a bibliographic coupling network, the id of your citing documents. It corresponds
+#' to the `source` argument of [biblionetwork](https://agoutsmedt.github.io/biblionetwork/)
+#' functions.
 #'
 #' @param target_id
 #' The quoted name of the column with the unique identifier of each element connected to the node (for
 #' instance, the identifier of the reference cited by your node if the node is an article).
+#' It corresponds to the `ref` argument of
+#' [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) functions.
 #'
 #' @param time_variable
 #' The column with the temporal variable you want to use to build your windows for the

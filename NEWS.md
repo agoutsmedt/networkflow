@@ -2,9 +2,12 @@
 
 Deprecated and new functions:
 
-- `dynamic_network_cooccurrence()` is deprecated and will be replaced by `build_dynamic_networks()`;
-- `leiden_workflow()` is deprecated and will be replaced by `build_dynamic_networks()`;
-- `tbl_main_component()` is deprecated and will be replaced by `build_network()` and `filter_components()`; 
+- `dynamic_network_cooccurrence()` is deprecated and is replaced by `build_dynamic_networks()`;
+- `tbl_main_component()` is deprecated and is replaced by `build_network()` and `filter_components()`;
+- `leiden_workflow()` is deprecated and is replaced by `build_dynamic_networks()`;
+- `community_names()` is deprecated and is replaced by `name_clusters()`;
+- A new function for calculate coordinates according to different layout algorithms has been
+implement: `layout_clusters()`;
 
 # networkflow 0.0.0.9000
 
