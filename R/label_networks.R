@@ -30,22 +30,22 @@ label_networks <- function(graphs = NA,
   #'
   . <- nodes <- label_x <- x <- label_y <- y <- head <- label_column <- intertemporal_name <- NULL
 
-  network_level_label <- function(graphs=graphs,
-                                  x_coordinates_column = x_coordinates_column,
-                                  y_coordinates_column = y_coordinates_column,
-                                  intertemporal_cluster_label_column = intertemporal_cluster_label_column){
+  network_level_label <- function(graphs_l = graphs,
+                                  x_coordinates_column_l = x_coordinates_column,
+                                  y_coordinates_column_l = y_coordinates_column,
+                                  intertemporal_cluster_label_column_l = intertemporal_cluster_label_column){
 
-    label_com <- graphs %>% activate(nodes) %>% as.data.table()
-    label_com <- label_com[,label_x:=mean(x), intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column)]
-    label_com <- label_com[,label_y:=mean(y), intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column)]
-    label_com <- label_com[, head(.SD, 1), intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column)]
+    label_com <- graphs_l %>% activate(nodes) %>% as.data.table()
+    label_com <- label_com[, label_x := mean(x_coordinates_column_l), intertemporal_cluster_label_column_l, env = list(intertemporal_cluster_label_column_l = intertemporal_cluster_label_column_l, x_coordinates_column_l = x_coordinates_column_l)]
+    label_com <- label_com[, label_y := mean(y_coordinates_column_l), intertemporal_cluster_label_column_l, env = list(intertemporal_cluster_label_column_l = intertemporal_cluster_label_column_l, y_coordinates_column_l = y_coordinates_column_l)]
+    label_com <- label_com[, head(.SD, 1), intertemporal_cluster_label_column_l, env = list(intertemporal_cluster_label_column_l = intertemporal_cluster_label_column_l)]
 
-    label_com[, label_column := intertemporal_name ]
-    label_com <- label_com[, .SD, .SDcol = c(intertemporal_cluster_label_column,"label_column", "label_x", "label_y")]
+    label_com[, c("label_column") := intertemporal_cluster_label_column_l, env = list(intertemporal_cluster_label_column_l = intertemporal_cluster_label_column_l)]
+    label_com <- label_com[, .SD, .SDcol = c(intertemporal_cluster_label_column_l,"label_column", "label_x", "label_y")]
 
-    graphs <- graphs %>%
+    graphs_l <- graphs_l %>%
       activate(nodes) %>%
-      left_join(label_com, by = intertemporal_cluster_label_column)
+      left_join(label_com, by = intertemporal_cluster_label_column_l)
   }
 
 
