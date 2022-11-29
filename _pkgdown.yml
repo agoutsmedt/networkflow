@@ -29,6 +29,8 @@ reference:
   - color_networks
   - label_alluvial
   - label_networks
+  - plot_alluvial
+  - plot_networks
 
 - title: "Step 4: Analysis networks"
   desc: >
