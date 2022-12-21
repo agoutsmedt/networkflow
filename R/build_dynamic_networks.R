@@ -166,7 +166,7 @@ build_dynamic_networks <- function(nodes = NULL,
       "*" = "\"coupling_similarity\"."))
   }
   if(nodes[, .N, source_id, env = list(source_id=source_id)][N > 1, .N] > 0){
-    cli::cli_abort("Some identifiers in your column {.field {source_id}} in your nodes table are not unique. You need only one row per node.")
+    cli::cli_alert_warning("Some identifiers in your column {.field {source_id}} in your nodes table are not unique. You need only one row per node.")
   }
 
   if(! is.null(time_window) & is.null(time_variable)){
@@ -221,7 +221,7 @@ build_dynamic_networks <- function(nodes = NULL,
 
   if(!is.null(time_window)){
     if(last_year - first_year + 1 < time_window){
-      cli::cli_abort("Your time window is greater than the number of distinct values of {.field {time_variable}}")
+      cli::cli_alert_warning("Your time window is larger than the number of distinct values of {.field {time_variable}}")
     }
   }
 
