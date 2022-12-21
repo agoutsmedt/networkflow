@@ -55,7 +55,8 @@ The function allows for the use of different layouts implemented in
 \href{http://graphlayouts.schochastics.net/index.html}{graphlayouts}. However, some
 layout of \code{graphlayouts} are not working with this function. Also, layouts do not
 all take as input pre-determined coordinates, meaning that the
-\code{compute_dynamic_coordinates} argument does not work with all layout.
+\code{compute_dynamic_coordinates} argument does not work with all layout. Please check
+if the layout used allows a parameter called \code{coord}.
 }
 \examples{
 library(networkflow)
@@ -79,7 +80,8 @@ overlapping_window = TRUE,
 filter_components = TRUE)
 
 temporal_networks <- layout_networks(temporal_networks,
-layout = "stress",
+node_id = "ID_Art",
+layout = "fr",
 compute_dynamic_coordinates = TRUE)
 
 temporal_networks [[1]]

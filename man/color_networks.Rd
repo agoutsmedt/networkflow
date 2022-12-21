@@ -4,7 +4,7 @@
 \alias{color_networks}
 \title{Color the nodes and edges of the network according to a given variable.}
 \usage{
-color_networks(graphs = NA, column_to_color = NA, color = NA)
+color_networks(graphs, column_to_color, color = NULL)
 }
 \arguments{
 \item{graphs}{A network or a list of networks.}
@@ -15,6 +15,8 @@ color_networks(graphs = NA, column_to_color = NA, color = NA)
 It can be a vector of colors or a two columns data.frame with the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 This function will create a color column for the edges and nodes in your network. You can chose a column with a categorical variable
 to color nodes based on this particular variable. Edges will be colored by mixing the color of connected nodes.
 By default, the function will color your network by using 19 colors from the RColorBrewer package, but you can chose your own color.

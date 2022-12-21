@@ -1,10 +1,8 @@
-color_networks <- function(graphs = NA,
-                        column_to_color = NA,
-                        color = NA)
-{
+
   #' Color the nodes and edges of the network according to a given variable.
   #'
   #' @description
+  #' `r lifecycle::badge("experimental")`
   #'
   #' This function will create a color column for the edges and nodes in your network. You can chose a column with a categorical variable
   #' to color nodes based on this particular variable. Edges will be colored by mixing the color of connected nodes.
@@ -27,7 +25,10 @@ color_networks <- function(graphs = NA,
   #' @import magrittr
   #' @importFrom RColorBrewer brewer.pal
   #' @importFrom DescTools MixColor
-
+color_networks <- function(graphs,
+                           column_to_color,
+                           color = NULL)
+{
 
   . <- to <- from <- color_ID_to <- color_ID_from <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
 

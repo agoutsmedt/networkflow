@@ -46,10 +46,14 @@ by these articles, the authors that have written these articles, or the affiliat
 of the authors of these articles.}
 
 \item{source_id}{The quoted name of the column with the unique identifier of each node. For instance,
-for a bibliographic coupling network, the id of your citing documents.}
+for a bibliographic coupling network, the id of your citing documents. It corresponds
+to the \code{source} argument of \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}
+functions.}
 
 \item{target_id}{The quoted name of the column with the unique identifier of each element connected to the node (for
-instance, the identifier of the reference cited by your node if the node is an article).}
+instance, the identifier of the reference cited by your node if the node is an article).
+It corresponds to the \code{ref} argument of
+\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} functions.}
 
 \item{time_variable}{The column with the temporal variable you want to use to build your windows for the
 succession of networks. By default, \code{time_variable} is \code{NULL} and the function

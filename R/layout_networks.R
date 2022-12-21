@@ -40,7 +40,8 @@
 #' [graphlayouts](http://graphlayouts.schochastics.net/index.html). However, some
 #' layout of `graphlayouts` are not working with this function. Also, layouts do not
 #' all take as input pre-determined coordinates, meaning that the
-#' `compute_dynamic_coordinates` argument does not work with all layout.
+#' `compute_dynamic_coordinates` argument does not work with all layout. Please check
+#' if the layout used allows a parameter called `coord`.
 #'
 #' @return
 #' The same tibble graph or list of tibble graphs with a column `x` and `y`, and also
@@ -69,7 +70,8 @@
 #' filter_components = TRUE)
 #'
 #' temporal_networks <- layout_networks(temporal_networks,
-#' layout = "stress",
+#' node_id = "ID_Art",
+#' layout = "fr",
 #' compute_dynamic_coordinates = TRUE)
 #'
 #' temporal_networks [[1]]
@@ -136,7 +138,7 @@ compute_dynamic_coordinates <- function(graphs,
       dplyr::select(all_of(node_id), x, y)
 
     graphs[[i]] <- graphs[[i]] %N>%
-      dplyr::select(-all_of(c("x", "y"))) %>%
+      dplyr::select(-any_of(c("x", "y"))) %>%
       dplyr::left_join(past_coords, by = node_id)
 
     input_coords <- graphs[[i]] %N>%
@@ -178,7 +180,7 @@ join_coordinates <- function(graphs,
     dplyr::select(all_of(node_id), x, y)
 
   graphs <- graphs %N>%
-    dplyr::select(-all_of(c("x", "y"))) %>%
+    dplyr::select(-any_of(c("x", "y"))) %>%
     dplyr::left_join(coords, by = node_id)
 
   if(save_coordinates == TRUE){

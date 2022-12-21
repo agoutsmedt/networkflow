@@ -50,7 +50,8 @@
 #' The function returns the same list of networks used as input in `list_graph` but with
 #' a new column `dynamic_{column_id}` (i.e, the name of the new column depends of the column
 #' that served as input). The column is the result of the inter-graphs grouping of the
-#' original clusters of the `cluster_id`.
+#' original clusters of the `cluster_id`. The dynamic clusters are also merged with the
+#' different `cluster_id` columns of the edges data.
 #'
 #' @examples
 #' library(networkflow)
@@ -105,7 +106,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
   if(threshold_similarity <= 0.5 | threshold_similarity > 1){
     stop("Your threshold for similarity must be superior to 0.5 and inferior or equal to 1")}
 
-  . <- nodes <- network_num <- nodes <- n_nodes <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
+  . <- network_num <- nodes <- n_nodes <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
 
   #########################  Prepare everything **********************
 
@@ -144,7 +145,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
         unique
 
       intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        tidygraph::left_join(dt_year)
+        tidygraph::left_join(dt_year, by = cluster_id)
     }
 
     ######################### For other years, we need to take the previous years and give new names to community of the new year  **********************
@@ -221,13 +222,37 @@ merge_dynamic_clusters <- function(list_graph = NA,
       final_names <- final_names[, .SD, .SDcols = c(cluster_id, "intertemporal_name")]
 
       intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        tidygraph::left_join(final_names)
+        tidygraph::left_join(final_names, by = cluster_id)
     }
   }
   names(intertemporal_naming) <- old_list_name
   new_name_col <- paste0("dynamic_", cluster_id)
   intertemporal_naming <- lapply(intertemporal_naming,
                                  function(tbl) tbl %N>% dplyr::rename({{ new_name_col }} := intertemporal_name)) # We want a name that corresponds to the initial column
-
+  intertemporal_naming <- lapply(intertemporal_naming,
+                                 add_dynamic_cluster_to_edges,
+                                 cluster_id = cluster_id,
+                                 new_name_col = new_name_col) # add dynamic cluster id to edges
   return (intertemporal_naming)
+}
+
+add_dynamic_cluster_to_edges <- function(graph,
+                                         cluster_id = cluster_id,
+                                         new_name_col = new_name_col){
+  cluster_correspondance <- graph %N>%
+    dplyr::as_tibble() %>%
+    dplyr::select(dplyr::all_of(c(cluster_id, new_name_col))) %>%
+    unique
+
+  for(i in c("_from", "_to")){ # add cluster to "from" and "to" columns
+    join_dt <- cluster_correspondance %>%
+      rename("{new_name_col}{i}" := new_name_col,
+             "{cluster_id}{i}" := cluster_id)
+
+    graph <- graph %E>%
+      left_join(join_dt, by = paste0(cluster_id, i))
+  }
+
+  graph <- graph %E>%
+    left_join(cluster_correspondance, by = cluster_id)
 }
