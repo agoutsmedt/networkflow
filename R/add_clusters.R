@@ -1,4 +1,5 @@
 add_clusters <- function(graphs,
+                         weights = NULL,
                          clustering_method = c("leiden", "louvain", "fast_greedy", "infomap", "walktrap"),
                          objective_function = c("modularity", "CPM"), #leiden
                          resolution = 1, #leiden
@@ -26,6 +27,15 @@ add_clusters <- function(graphs,
   #' @param graphs
   #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/), a list of tibble
   #' graphs or a data frame.
+  #'
+  #' @param weights
+  #' The weights of the edges. It must be a positive numeric vector, `NULL` or `NA`.
+  #' If it is `NULL` and the input graph has a ‘weight’ edge attribute,
+  #' then that attribute will be used. If `NULL` and no such attribute is present,
+  #' then the edges will have equal weights. Set this to `NA` if the graph was a ‘weight’
+  #' edge attribute, but you don't want to use it for community detection.
+  #' Edge weights are used to calculate weighted edge betweenness. This means that edges
+  #' are interpreted as distances, not as connection strengths.
   #'
   #' @param clustering_method The different clustering algorithms implemented in the
   #' function (see details). The parameters of the function depend of the clustering method chosen.
@@ -150,6 +160,7 @@ add_clusters <- function(graphs,
   if(inherits(graphs, "list")){
     list <- TRUE
     cluster_list_graph <- lapply(graphs, function(graph) detect_cluster(graph,
+                                                                        weights = weights,
                                                                         clustering_method = clustering_method,
                                                                         objective_function = objective_function,
                                                                         resolution = resolution,
@@ -216,6 +227,7 @@ extract_clustering_method <- function(clustering_method = clustering_method){
 
 # function to detect the clusters on one graph
 detect_cluster <- function(graph,
+                           weights = weights,
                            clustering_method = clustering_method,
                            objective_function = objective_function,
                            resolution = resolution,
@@ -228,7 +240,7 @@ detect_cluster <- function(graph,
                            verbose = verbose){
   . <- from <- to <- NULL
 
-  weights <- igraph::E(graph)$weight
+# weights <- igraph::E(graph)$weight
   if(clustering_method %in% c("infomap", "leiden") & !is.null(node_weights)){
     node_weights <- graph %N>% as.data.frame() %>%  .[[node_weights]]
   }
