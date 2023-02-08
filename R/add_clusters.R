@@ -8,7 +8,8 @@ add_clusters <- function(graphs,
                          node_weights = NULL, #infomap & Leiden
                          trials = 10, #infomap
                          steps = 4, #walktrap
-                         verbose = TRUE
+                         verbose = TRUE,
+                         seed = NA
                          ){
   #' Detect and Add Clusters to Graphs
   #'
@@ -71,6 +72,12 @@ add_clusters <- function(graphs,
   #'
   #' @param verbose
   #' Set to `FALSE` if you don't want the function to display different sort of information.
+  #'
+  #' @param seed
+  #' Enter a random number to set the seed within the function. Some algorithms use heuristics
+  #' and random processes that might result in different cluster each time the function is run.
+  #' Setting the seed is particularly useful for reproducibility and if you want to make sure to find
+  #' the same clusters each time the function is run with the same graphs.
   #'
   #' @details The function could be run indifferently on one tidigraph object or on a list
   #' of tidygraph object, as created by `build_dynamic_networks()`.
@@ -136,6 +143,10 @@ add_clusters <- function(graphs,
   #' @import cli
   #' @importFrom Rdpack reprompt
   #'
+
+  if(!is.na(seed)){
+    set.seed(seed)
+  }
 
   if(length(clustering_method) > 1){
     cli::cli_abort(c("You did not choose any clustering method! You have the choice between: ",
