@@ -318,6 +318,8 @@ build_dynamic_networks <- function(nodes = NULL,
 }
 
 #' @rdname build_dynamic_networks
+#' @export
+
 build_network <- function(nodes = NULL,
                           directed_edges = NULL,
                           source_id = NULL,

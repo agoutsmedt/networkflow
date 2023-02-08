@@ -2,6 +2,7 @@
 
 export(add_clusters)
 export(build_dynamic_networks)
+export(build_network)
 export(color_networks)
 export(community_colors)
 export(community_labels)
