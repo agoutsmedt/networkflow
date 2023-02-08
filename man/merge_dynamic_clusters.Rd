@@ -50,7 +50,8 @@ then partial threshold similarity is more desirable.}
 The function returns the same list of networks used as input in \code{list_graph} but with
 a new column \verb{dynamic_\{column_id\}} (i.e, the name of the new column depends of the column
 that served as input). The column is the result of the inter-graphs grouping of the
-original clusters of the \code{cluster_id}.
+original clusters of the \code{cluster_id}. The dynamic clusters are also merged with the
+different \code{cluster_id} columns of the edges data.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

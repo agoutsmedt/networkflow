@@ -6,6 +6,7 @@
 \usage{
 add_clusters(
   graphs,
+  weights = NULL,
   clustering_method = c("leiden", "louvain", "fast_greedy", "infomap", "walktrap"),
   objective_function = c("modularity", "CPM"),
   resolution = 1,
@@ -14,12 +15,21 @@ add_clusters(
   node_weights = NULL,
   trials = 10,
   steps = 4,
-  verbose = TRUE
+  verbose = TRUE,
+  seed = NA
 )
 }
 \arguments{
 \item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
 graphs or a data frame.}
+
+\item{weights}{The weights of the edges. It must be a positive numeric vector, \code{NULL} or \code{NA}.
+If it is \code{NULL} and the input graph has a ‘weight’ edge attribute,
+then that attribute will be used. If \code{NULL} and no such attribute is present,
+then the edges will have equal weights. Set this to \code{NA} if the graph was a ‘weight’
+edge attribute, but you don't want to use it for community detection.
+Edge weights are used to calculate weighted edge betweenness. This means that edges
+are interpreted as distances, not as connection strengths.}
 
 \item{clustering_method}{The different clustering algorithms implemented in the
 function (see details). The parameters of the function depend of the clustering method chosen.}
@@ -54,6 +64,11 @@ to that vertex (see \code{igraph::cluster_infomap()}).}
 (see \code{igraph::cluster_walktrap()})}
 
 \item{verbose}{Set to \code{FALSE} if you don't want the function to display different sort of information.}
+
+\item{seed}{Enter a random number to set the seed within the function. Some algorithms use heuristics
+and random processes that might result in different cluster each time the function is run.
+Setting the seed is particularly useful for reproducibility and if you want to make sure to find
+the same clusters each time the function is run with the same graphs.}
 }
 \value{
 The same tidygraph graph or tidygraph list as input, but with a new cluster
