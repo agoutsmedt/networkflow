@@ -116,7 +116,7 @@ ggplot(alluv_dt, aes(x = Window, y= y_alluv, stratum = intertemporal_name, alluv
 
 # exploring tf-idf
 
-```{r}
+```{r, eval=FALSE}
 corpus <- merge(alluv_dt,
                 nodes,
                 by = "ID_Art",
@@ -134,7 +134,9 @@ tf_idf <- extract_tfidf(data = corpus,
 tf_idf %>% 
   group_by(document) %>% 
   slice_max(order_by = tf_idf, n = 1, with_ties = FALSE) %>% 
-  arrange(-tf_idf)
+  ungroup() %>% 
+  arrange(intertemporal_name) %>% 
+  select(-document)
   
 ```
 
