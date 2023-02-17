@@ -42,7 +42,6 @@ plot_alluvial <- function(alluv_dt = NA,
   #' @import data.table
   #' @import tidygraph
   #' @import dplyr
-  #' @import magrittr
   #' @import ggalluvial
   #' @importFrom ggrepel geom_label_repel
 

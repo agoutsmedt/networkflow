@@ -21,7 +21,6 @@ label_alluvial <- function(alluv_dt = NA,
   #' @import data.table
   #' @import tidygraph
   #' @import dplyr
-  #' @import magrittr
 
   . <- Window <- head <- x <- intertemporal_name_label <- NULL
 

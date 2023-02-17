@@ -1,6 +1,6 @@
-minimize_crossing_alluvial <- function(alluv_dt = NA,
-                                       intertemporal_cluster_column = "intertemporal_name",
-                                       node_key = NA,
+minimize_crossing_alluvial <- function(alluv_dt = NULL,
+                                       intertemporal_cluster_column = NULL,
+                                       node_key = NULL,
                                        window_column = "Window"){
 
   #' Order the rectangles of the alluvial in a way that minimize crossing of flow
@@ -11,8 +11,9 @@ minimize_crossing_alluvial <- function(alluv_dt = NA,
   #' Data.frame of the alluvial created using the networkflow::networks_to_alluv function
   #'
   #' @param intertemporal_cluster_column
-  #' The column with the identifier of the inter-temporal cluster. By default, "intertemporal_name", as it is
-  #' the name of the column created with [intertemporal_cluster_naming()][networkflow::intertemporal_cluster_naming()].
+  #' The column with the identifier of the inter-temporal cluster. If you have used
+  #' [add_clusters()][networkflow::add_clusters()] and [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()],
+  #' it is of the form `dynamic_cluster_{clustering_method}`.
   #'
   #' @param node_key
   #' The column with the unique identifier of each node. This is the alluvium of the alluvial.

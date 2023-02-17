@@ -15,7 +15,8 @@
 #' recent network.
 #'
 #' @param cluster_id
-#' The column with the identifier of the cluster.
+#' The column with the identifier of the cluster. If you have used
+#' [add_clusters()][networkflow::add_clusters()], it is of the form `cluster_{clustering_method}`.
 #'
 #' @param node_id
 #' The column with the unique identifier of each node.
@@ -48,7 +49,7 @@
 #'
 #' @return
 #' The function returns the same list of networks used as input in `list_graph` but with
-#' a new column `dynamic_{column_id}` (i.e, the name of the new column depends of the column
+#' a new column `dynamic_{cluster_id}` (i.e, the name of the new column depends of the column
 #' that served as input). The column is the result of the inter-graphs grouping of the
 #' original clusters of the `cluster_id`. The dynamic clusters are also merged with the
 #' different `cluster_id` columns of the edges data.

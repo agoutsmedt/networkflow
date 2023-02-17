@@ -1,4 +1,4 @@
-#' Creating 1 or Multiple Networks from a List of Nodes and Directed Edges
+#' Creating One or Multiple Networks from a List of Nodes and Directed Edges
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
@@ -125,8 +125,6 @@
 #' @import data.table
 #' @import tidygraph
 #' @import biblionetwork
-#' @import lifecycle
-#' @import cli
 build_dynamic_networks <- function(nodes = NULL,
                                    directed_edges = NULL,
                                    source_id = NULL,
@@ -291,7 +289,7 @@ build_dynamic_networks <- function(nodes = NULL,
                  source_id = I(source_id),
                  target_id = I(target_id),
                  edges_threshold = edges_threshold)) %>%
-      eval()
+      rlang::eval()
 
     # remove nodes with no edges
     if(keep_singleton==FALSE){

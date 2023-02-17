@@ -1,5 +1,5 @@
 # Running Leiden for two different resolutions and associating edges to communities
-leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000) {
+#leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000) {
   #' Add Leiden Communities to graph
   #'
   #' @description
@@ -53,65 +53,65 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
-  components_att <- edges <- nodes <- Com_ID <- Size_com <- to <- from <- com_ID_from <- com_ID_to <- Com_ID_2 <- Com_ID_2_from <- Com_ID_2_to <- Com_ID_3 <- Com_ID_3_from <- Com_ID_3_to <- NULL
-
-  lifecycle::deprecate_warn("0.1.0", "leiden_workflow()", "add_clusters()")
-
-  # run the leiden algorithm for the first resolution
-  leiden <- leidenAlg::leiden.community(graph, resolution = res_1, n.iterations = niter)
-
-  # Add the resulting partition as an attribute of nodes
-  # (to make plotting easier, put a 0 before one digit community)
-  graph <- graph %>%
-    activate(nodes) %>%
-    mutate(Com_ID = sprintf("%02d", as.integer(leiden$membership) + 1)) %>%
-    mutate(Com_ID = as.character(Com_ID))
-
-  # calculate the size of the community
-  graph <- graph %>%
-    group_by(Com_ID) %>%
-    mutate(Size_com = n()) %>%
-    mutate(Size_com = Size_com / length(igraph::V(graph)$Com_ID)) %>%
-    ungroup()
-
-  # Add an attribute to edges, depending on the community of their nodes
-  # (If communities are different between the two nodes, edges takes the total number of communities plus 1 as attribute)
-  # (Another possibility in the future would be for edges with nodes from different communities to be the average of the
-  # two communities number. It would allow the edges to take as color the mix of the two communities color)
-  graph <- graph %>%
-    tidygraph::activate(edges) %>%
-    dplyr::mutate(com_ID_to = .N()$Com_ID[to], com_ID_from = .N()$Com_ID[from], Com_ID = ifelse(com_ID_from == com_ID_to, com_ID_from, sprintf("%02d", max(as.integer(leiden$membership)) + 2))) # .N() makes the node data available while manipulating edges
-
-
-  # Doing the same for the second resolution
-  if (is.null(res_2)) {
-    return(graph)
-  }
-  if (!is.null(res_2)) {
-    leiden_2 <- leidenAlg::leiden.community(graph, resolution = res_2, n.iterations = niter)
-    graph <- graph %>%
-      activate(nodes) %>%
-      mutate(Com_ID_2 = sprintf("%02d", as.integer(leiden_2$membership) + 1)) %>%
-      mutate(Com_ID_2 = as.character(Com_ID_2))
-
-    graph <- graph %>%
-      activate(edges) %>%
-      mutate(Com_ID_2_to = .N()$Com_ID_2[to], Com_ID_2_from = .N()$Com_ID_2[from], Com_ID_2 = ifelse(Com_ID_2_from == Com_ID_2_to, Com_ID_2_from, sprintf("%02d", max(as.integer(leiden_2$membership)) + 2)))
-  }
-
-  # Doing the same for the third resolution
-  if (is.null(res_3)) {
-    return(graph)
-  }
-  if (!is.null(res_3)) {
-    leiden_3 <- leidenAlg::leiden.community(graph, resolution = res_2, n.iterations = niter)
-    graph <- graph %>%
-      activate(nodes) %>%
-      mutate(Com_ID_3 = sprintf("%02d", as.integer(leiden_3$membership) + 1)) %>%
-      mutate(Com_ID_3 = as.character(Com_ID_3))
-
-    graph <- graph %>%
-      activate(edges) %>%
-      mutate(Com_ID_3_to = .N()$Com_ID_3[to], Com_ID_3_from = .N()$Com_ID_3[from], Com_ID_3 = ifelse(Com_ID_3_from == Com_ID_3_to, Com_ID_3_from, sprintf("%02d", max(as.integer(leiden_3$membership)) + 2)))
-  }
-}
+#   components_att <- edges <- nodes <- Com_ID <- Size_com <- to <- from <- com_ID_from <- com_ID_to <- Com_ID_2 <- Com_ID_2_from <- Com_ID_2_to <- Com_ID_3 <- Com_ID_3_from <- Com_ID_3_to <- NULL
+#
+#   lifecycle::deprecate_stop("0.1.0", "leiden_workflow()", "add_clusters()")
+#
+#   # run the leiden algorithm for the first resolution
+#   leiden <- leidenAlg::leiden.community(graph, resolution = res_1, n.iterations = niter)
+#
+#   # Add the resulting partition as an attribute of nodes
+#   # (to make plotting easier, put a 0 before one digit community)
+#   graph <- graph %>%
+#     activate(nodes) %>%
+#     mutate(Com_ID = sprintf("%02d", as.integer(leiden$membership) + 1)) %>%
+#     mutate(Com_ID = as.character(Com_ID))
+#
+#   # calculate the size of the community
+#   graph <- graph %>%
+#     group_by(Com_ID) %>%
+#     mutate(Size_com = n()) %>%
+#     mutate(Size_com = Size_com / length(igraph::V(graph)$Com_ID)) %>%
+#     ungroup()
+#
+#   # Add an attribute to edges, depending on the community of their nodes
+#   # (If communities are different between the two nodes, edges takes the total number of communities plus 1 as attribute)
+#   # (Another possibility in the future would be for edges with nodes from different communities to be the average of the
+#   # two communities number. It would allow the edges to take as color the mix of the two communities color)
+#   graph <- graph %>%
+#     tidygraph::activate(edges) %>%
+#     dplyr::mutate(com_ID_to = .N()$Com_ID[to], com_ID_from = .N()$Com_ID[from], Com_ID = ifelse(com_ID_from == com_ID_to, com_ID_from, sprintf("%02d", max(as.integer(leiden$membership)) + 2))) # .N() makes the node data available while manipulating edges
+#
+#
+#   # Doing the same for the second resolution
+#   if (is.null(res_2)) {
+#     return(graph)
+#   }
+#   if (!is.null(res_2)) {
+#     leiden_2 <- leidenAlg::leiden.community(graph, resolution = res_2, n.iterations = niter)
+#     graph <- graph %>%
+#       activate(nodes) %>%
+#       mutate(Com_ID_2 = sprintf("%02d", as.integer(leiden_2$membership) + 1)) %>%
+#       mutate(Com_ID_2 = as.character(Com_ID_2))
+#
+#     graph <- graph %>%
+#       activate(edges) %>%
+#       mutate(Com_ID_2_to = .N()$Com_ID_2[to], Com_ID_2_from = .N()$Com_ID_2[from], Com_ID_2 = ifelse(Com_ID_2_from == Com_ID_2_to, Com_ID_2_from, sprintf("%02d", max(as.integer(leiden_2$membership)) + 2)))
+#   }
+#
+#   # Doing the same for the third resolution
+#   if (is.null(res_3)) {
+#     return(graph)
+#   }
+#   if (!is.null(res_3)) {
+#     leiden_3 <- leidenAlg::leiden.community(graph, resolution = res_2, n.iterations = niter)
+#     graph <- graph %>%
+#       activate(nodes) %>%
+#       mutate(Com_ID_3 = sprintf("%02d", as.integer(leiden_3$membership) + 1)) %>%
+#       mutate(Com_ID_3 = as.character(Com_ID_3))
+#
+#     graph <- graph %>%
+#       activate(edges) %>%
+#       mutate(Com_ID_3_to = .N()$Com_ID_3[to], Com_ID_3_from = .N()$Com_ID_3[from], Com_ID_3 = ifelse(Com_ID_3_from == Com_ID_3_to, Com_ID_3_from, sprintf("%02d", max(as.integer(leiden_3$membership)) + 2)))
+#   }
+# }

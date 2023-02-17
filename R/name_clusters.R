@@ -146,9 +146,6 @@
 #' @import dplyr
 #' @import tidyr
 #' @import stringr
-#' @import cli
-#' @import lifecycle
-#'
 
 name_clusters <- function(graphs,
                           method = c("tidygraph_functions", "given_column", "tf-idf"),

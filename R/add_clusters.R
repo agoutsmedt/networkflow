@@ -139,8 +139,6 @@ add_clusters <- function(graphs,
   #' @import tidygraph
   #' @import dplyr
   #' @import igraph
-  #' @import lifecycle
-  #' @import cli
   #' @importFrom Rdpack reprompt
   #'
 
@@ -221,13 +219,13 @@ group_leiden <- function(graph = graph,
 extract_clustering_method <- function(clustering_method = clustering_method){
   . <- objective_function <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <- NULL
 
-  function_table <- tribble(
+  function_table <- dplyr::tribble(
     ~ method, ~functions,
-    "leiden", expr(group_leiden(graph, objective_function = objective_function, weights = weights, resolution = resolution, n_iterations = n_iterations, node_weights = node_weights)),
-    "louvain", expr(group_louvain(weights = weights)),
-    "fast_greedy", expr(group_fast_greedy(weights = weights, n_groups = n_groups)),
-    "infomap", expr(group_infomap(weights = weights, node_weights = node_weights, trials = trials)),
-    "walktrap", expr(group_walktrap(weights = weights, steps = steps, n_groups = n_groups)))
+    "leiden", rlang::expr(group_leiden(graph, objective_function = objective_function, weights = weights, resolution = resolution, n_iterations = n_iterations, node_weights = node_weights)),
+    "louvain", rlang::expr(group_louvain(weights = weights)),
+    "fast_greedy", rlang::expr(group_fast_greedy(weights = weights, n_groups = n_groups)),
+    "infomap", rlang::expr(group_infomap(weights = weights, node_weights = node_weights, trials = trials)),
+    "walktrap", rlang::expr(group_walktrap(weights = weights, steps = steps, n_groups = n_groups)))
   fun <- function_table %>%
     filter(method == clustering_method) %>%
     .[["functions"]] %>%
@@ -253,19 +251,21 @@ detect_cluster <- function(graph,
 
 # weights <- igraph::E(graph)$weight
   if(clustering_method %in% c("infomap", "leiden") & !is.null(node_weights)){
-    node_weights <- graph %N>% as.data.frame() %>%  .[[node_weights]]
+    node_weights <- graph %N>%
+      as.data.frame() %>%
+      .[[node_weights]]
   }
   fun <- extract_clustering_method(clustering_method)
   cluster_col <- paste0("cluster_", clustering_method)
   size_col <- paste0("size_cluster_", clustering_method)
 
   graph <- graph %N>%
-    mutate({{ cluster_col }} := eval(fun),
+    dplyr::mutate({{ cluster_col }} := rlang::eval(fun),
            {{ cluster_col }} := sprintf("%02d", as.integer(.data[[cluster_col]])),
            {{ size_col }} := n()) %>%
-    group_by(across({{ cluster_col }})) %>%
-    mutate({{ size_col }} := n()/.data[[size_col]]) %>%
-    ungroup() %E>%
+    dplyr::group_by(across({{ cluster_col }})) %>%
+    dplyr::mutate({{ size_col }} := n()/.data[[size_col]]) %>%
+    dplyr::ungroup() %E>%
     dplyr::mutate("{ cluster_col }_from" := .N()[[cluster_col]][from],
                   "{ cluster_col }_to" := .N()[[cluster_col]][to],
                   {{ cluster_col }} := if_else(.data[[paste0(cluster_col, "_from")]] == .data[[paste0(cluster_col, "_to")]],

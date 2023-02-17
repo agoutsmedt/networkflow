@@ -48,7 +48,6 @@ plot_networks <- function(graphs = NA,
   #' @import data.table
   #' @import tidygraph
   #' @import dplyr
-  #' @import magrittr
   #' @import ggplot2
   #' @importFrom ggrepel geom_label_repel
 
