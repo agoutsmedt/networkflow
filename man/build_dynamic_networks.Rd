@@ -3,7 +3,7 @@
 \name{build_dynamic_networks}
 \alias{build_dynamic_networks}
 \alias{build_network}
-\title{Creating 1 or Multiple Networks from a List of Nodes and Directed Edges}
+\title{Creating One or Multiple Networks from a List of Nodes and Directed Edges}
 \usage{
 build_dynamic_networks(
   nodes = NULL,

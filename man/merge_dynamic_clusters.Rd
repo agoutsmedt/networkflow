@@ -17,7 +17,8 @@ merge_dynamic_clusters(
 The list is expected to be ordered in a sequential order from the oldest to the most
 recent network.}
 
-\item{cluster_id}{The column with the identifier of the cluster.}
+\item{cluster_id}{The column with the identifier of the cluster. If you have used
+\link[=add_clusters]{add_clusters()}, it is of the form \verb{cluster_\{clustering_method\}}.}
 
 \item{node_id}{The column with the unique identifier of each node.}
 
@@ -48,7 +49,7 @@ then partial threshold similarity is more desirable.}
 }
 \value{
 The function returns the same list of networks used as input in \code{list_graph} but with
-a new column \verb{dynamic_\{column_id\}} (i.e, the name of the new column depends of the column
+a new column \verb{dynamic_\{cluster_id\}} (i.e, the name of the new column depends of the column
 that served as input). The column is the result of the inter-graphs grouping of the
 original clusters of the \code{cluster_id}. The dynamic clusters are also merged with the
 different \code{cluster_id} columns of the edges data.

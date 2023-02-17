@@ -5,17 +5,18 @@
 \title{Order the rectangles of the alluvial in a way that minimize crossing of flow}
 \usage{
 minimize_crossing_alluvial(
-  alluv_dt = NA,
-  intertemporal_cluster_column = "intertemporal_name",
-  node_key = NA,
+  alluv_dt = NULL,
+  intertemporal_cluster_column = NULL,
+  node_key = NULL,
   window_column = "Window"
 )
 }
 \arguments{
 \item{alluv_dt}{Data.frame of the alluvial created using the networkflow::networks_to_alluv function}
 
-\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. By default, "intertemporal_name", as it is
-the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.}
+\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. If you have used
+\link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
+it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
 \item{node_key}{The column with the unique identifier of each node. This is the alluvium of the alluvial.}
 
