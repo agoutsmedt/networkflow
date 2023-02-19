@@ -2,22 +2,86 @@
 % Please edit documentation in R/color_networks.R
 \name{color_networks}
 \alias{color_networks}
-\title{Color the nodes and edges of the network according to a given variable.}
+\title{Color Nodes and Edges of Networks}
 \usage{
-color_networks(graphs, column_to_color, color = NULL)
+color_networks(
+  graphs,
+  column_to_color,
+  color = NULL,
+  unique_color_across_list = FALSE
+)
 }
 \arguments{
-\item{graphs}{A network or a list of networks.}
+\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
+graphs or a data frame.}
 
-\item{column_to_color}{This column designates the categorical variable you want to use to color your nodes.}
+\item{column_to_color}{The column of the categorical variable to use to color nodes and edges. For instance,
+the \verb{cluster_\{clustering_method\}} created with \link[=add_clusters]{add_clusters()}
+or the \verb{dynamic_cluster_\{clustering_method\}} created with
+\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}.}
 
-\item{color}{The colors you want to use in your networks.
-It can be a vector of colors or a two columns data.frame with the first column as the distinct observations of the column_to_color and a second column with the vector of colors you want to use}
+\item{color}{The colors to use. It may be a vector of colors (in a character format)
+or a two columns data.frame with the first column as
+the distinct observations of the \code{column_to_color} and a second column with the
+vector of colors you want to use.}
+
+\item{unique_color_across_list}{If set to \code{TRUE}, in a list of tibble graphs, the same categorical variable will
+be considered as a different variable in different graphs and thus receive a different
+color. In other words, if set to \code{TRUE} cluster "01" in two different graphs will
+have two different colors. If set to \code{FALSE} (by default), cluster "01" will have
+the same color in every graphs it exists.}
+}
+\value{
+The same tibble graph or list of tibble graphs as input, but with a new \code{color}
+column for both nodes and edges.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function will create a color column for the edges and nodes in your network. You can chose a column with a categorical variable
-to color nodes based on this particular variable. Edges will be colored by mixing the color of connected nodes.
-By default, the function will color your network by using 19 colors from the RColorBrewer package, but you can chose your own color.
+This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
+or a list of tibble graphs and creates a color column for graphs edges and nodes, for the selected
+categorical variable (most likely a cluster column). You may either provide the color palette,
+provide a data.frame associating the different values of the categorical variable with
+colors, or let the function provide colors (see details).
+You can chose a column with a categorical variable
+}
+\details{
+The best practice is to provide a list of colors equals to the number of categorical
+variable to color. If you provide more colors, excess colors will not be used. If you
+provide less colors, colors will be recycled. If you provide no colors, \code{palette.colors()}
+of base R will be used: the 7 colors of \code{ggplot2} palette will be used (black is excluded) and
+then the 7 colors of \code{Okabe-Ito} palette (black and gray are excluded). Above 14 colors,
+the colors of the two palettes will be recycled.
+}
+\examples{
+library(networkflow)
+
+nodes <- Nodes_stagflation |>
+dplyr::rename(ID_Art = ItemID_Ref) |>
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation |>
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- build_dynamic_networks(nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = 20,
+edges_threshold = 1,
+overlapping_window = TRUE,
+filter_components = TRUE)
+
+temporal_networks <- add_clusters(temporal_networks,
+objective_function = "modularity",
+clustering_method = "leiden")
+
+temporal_networks <- color_networks(graphs = temporal_networks,
+column_to_color = "dynamic_cluster_leiden",
+color = NULL)
+
+temporal_networks[[1]]
+
 }

@@ -92,7 +92,7 @@ network_list[[1]]
 
 # Building Alluvial
 
-```{r, fig.dim=c(10,8)}
+```{r, eval = FALSE, fig.dim=c(10,8)}
 library(ggplot2)
 library(ggalluvial)
 

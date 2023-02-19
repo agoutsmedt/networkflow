@@ -26,7 +26,6 @@ minimize_crossing_alluvial <- function(alluv_dt = NULL,
   #' @export
   #' @import data.table
   #' @import tidygraph
-  #' @importFrom forcats fct_reorder
 
   . <- N <- Origin <- Source <- Window <- cl_id <- cosine_strength <- fct_reorder <- head <- link_strength <- minimize_crossing_order <- nodes <- nodes_id <- order_column_raw <- tot_window_leiden_Origin <- tot_window_leiden_Source <- weight <- NULL
 

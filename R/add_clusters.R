@@ -135,16 +135,7 @@ add_clusters <- function(graphs,
   #' \insertAllCited{}
   #'
   #' @export
-  #' @import magrittr
-  #' @import tidygraph
-  #' @import dplyr
-  #' @import igraph
-  #' @importFrom Rdpack reprompt
   #'
-
-  if(!is.na(seed)){
-    set.seed(seed)
-  }
 
   if(length(clustering_method) > 1){
     cli::cli_abort(c("You did not choose any clustering method! You have the choice between: ",
@@ -166,6 +157,11 @@ add_clusters <- function(graphs,
   }
 
   }
+
+  if(!is.na(seed)){
+    set.seed(seed)
+  }
+
   if(inherits(graphs, "list")){
     list <- TRUE
     cluster_list_graph <- lapply(graphs, function(graph) detect_cluster(graph,
@@ -217,7 +213,7 @@ group_leiden <- function(graph = graph,
 
 # extracting the appropriate clustering function depending on the method chosen
 extract_clustering_method <- function(clustering_method = clustering_method){
-  . <- objective_function <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <- NULL
+  . <- objective_function <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <-   graph <- NULL
 
   function_table <- dplyr::tribble(
     ~ method, ~functions,
@@ -249,18 +245,16 @@ detect_cluster <- function(graph,
                            verbose = verbose){
   . <- from <- to <- NULL
 
-# weights <- igraph::E(graph)$weight
   if(clustering_method %in% c("infomap", "leiden") & !is.null(node_weights)){
     node_weights <- graph %N>%
-      as.data.frame() %>%
-      .[[node_weights]]
+      dplyr::pull(node_weights)
   }
   fun <- extract_clustering_method(clustering_method)
   cluster_col <- paste0("cluster_", clustering_method)
   size_col <- paste0("size_cluster_", clustering_method)
 
   graph <- graph %N>%
-    dplyr::mutate({{ cluster_col }} := rlang::eval(fun),
+    dplyr::mutate({{ cluster_col }} := eval(fun),
            {{ cluster_col }} := sprintf("%02d", as.integer(.data[[cluster_col]])),
            {{ size_col }} := n()) %>%
     dplyr::group_by(across({{ cluster_col }})) %>%
@@ -273,14 +267,12 @@ detect_cluster <- function(graph,
                                                "00"))
   if(verbose == TRUE){
     nb_clusters <- graph %N>%
-      as.data.frame() %>%
-      .[[cluster_col]] %>%
+      dplyr::pull(cluster_col) %>%
       unique %>%
       length()
 
     max_size <- graph %N>%
-      as.data.frame %>%
-      .[[size_col]] %>%
+      dplyr::pull(size_col) %>%
       max() %>%
       round(3) * 100
 

@@ -24,8 +24,9 @@
 #'
 #' @param cluster_id
 #' The column you want to name. Generally, the column with the identifier of the
-#' clusters, whether the simple cluster identified with `add_clusters()` or the
-#' merged clusters identified with `merge_dynamic_clusters()`.
+#' clusters, whether the simple cluster detected with
+#' [networkflow::add_clusters()][networkflow::add_clusters()] or the
+#' merged clusters detected with [networkflow::merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()].
 #'
 #' @param label_columns
 #' The column you want to be used to name the clusters. If the nodes are article,
@@ -69,7 +70,9 @@
 #' different centrality measure implemented  in `tidygraph` (see `tidygraph::centrality()` for details).
 #'
 #' - the `given_column` method: the user gives a column of the tibble graph(s), with numeric
-#' values, that will be used to classify the nodes and choose the name of each cluster.
+#' values, that will be used to classify the nodes and choose the name of each cluster. The
+#' `label_columns` of the node with the highest numerical value in the cluster will be used
+#' to name the cluster.
 #'
 #' - the `tf-idf` method: clusters are name according to the terms with the highest
 #' tf-idf value for each cluster. The user furnishes one or several columns with text,
@@ -141,11 +144,6 @@
 #' temporal_networks_with_names[[1]]
 #'
 #' @export
-#' @import tidygraph
-#' @import magrittr
-#' @import dplyr
-#' @import tidyr
-#' @import stringr
 
 name_clusters <- function(graphs,
                           method = c("tidygraph_functions", "given_column", "tf-idf"),
@@ -183,7 +181,7 @@ name_clusters <- function(graphs,
                  The {.val tidygraph_functions} method only works at the graph level as it depends on the structure of the corresponding network.")
     }
     fun <- enexpr(tidygraph_function)
-    order_by <- as_label(fun) %>%
+    order_by <- rlang::as_label(fun) %>%
       stringr::str_extract("centrality_.+(?=\\()")
 
     graphs <- lapply(graphs, function(tbl) tbl %N>%
@@ -196,7 +194,7 @@ name_clusters <- function(graphs,
         labels <- graphs[[i]] %N>%
           dplyr::as_tibble() %>%
           dplyr::group_by(across({{ cluster_id }})) %>%
-          dplyr::slice_max(order_by = .data[[order_by]], n = 1) %>%
+          dplyr::slice_max(order_by = .data[[order_by]], n = 1, with_ties = FALSE) %>%
           tidyr::unite({{ label_name }}, all_of(label_columns), sep = "_") %>%
           dplyr::select(all_of(cluster_id), all_of(label_name))
       } else if(method == "tf-idf"){
@@ -207,7 +205,7 @@ name_clusters <- function(graphs,
                                 ...) %>%
           .[, (label_name) := paste0(term, collapse = ", "), by = cluster_id,
             env = list(cluster_id = cluster_id)] %>%
-          select(all_of(cluster_id), all_of(label_name)) %>%
+          dplyr::select(all_of(cluster_id), all_of(label_name)) %>%
           unique
       } else {
         cli::cli_abort(c("The {.emph method} chosen does not exist. Please choose between: ",
@@ -216,8 +214,8 @@ name_clusters <- function(graphs,
                          "*" = "\"given_column\""))
       }
       graphs[[i]] <- graphs[[i]] %N>%
-        left_join(labels, by = cluster_id) %E>%
-        left_join(labels, by = cluster_id)
+        dplyr::left_join(labels, by = cluster_id) %E>%
+        dplyr::left_join(labels, by = cluster_id)
     }
     if(unique_graph == TRUE) graphs <- graphs[[1]]
   } else if (name_merged_clusters == TRUE){
@@ -228,7 +226,7 @@ name_clusters <- function(graphs,
     if(method == "given_column"){
       labels <- dt %>%
         dplyr::group_by(across({{ cluster_id }})) %>%
-        dplyr::slice_max(order_by = .data[[order_by]], n = 1) %>%
+        dplyr::slice_max(order_by = .data[[order_by]], n = 1, with_ties = FALSE) %>%
         tidyr::unite({{ label_name }}, all_of(label_columns), sep = "_") %>%
         dplyr::select(all_of(cluster_id), all_of(label_name))
     } else if(method == "tf-idf"){
@@ -239,11 +237,12 @@ name_clusters <- function(graphs,
                               ...) %>%
         .[, (label_name) := paste0(term, collapse = ", "), by = cluster_id,
           env = list(cluster_id = cluster_id)] %>%
-        select(all_of(cluster_id), all_of(label_name)) %>%
+        dplyr::select(all_of(cluster_id), all_of(label_name)) %>%
         unique
     }
     graphs <- lapply(graphs, function(tbl) tbl %N>%
-                       left_join(labels, by = cluster_id))
+                       dplyr::left_join(labels, by = cluster_id) %E>%
+                       dplyr::left_join(labels, by = cluster_id))
   }
   return(graphs)
 }

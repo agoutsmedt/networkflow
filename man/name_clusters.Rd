@@ -30,8 +30,9 @@ all your tibble graphs and thus are unique. Typically, you have such clusters
 after running \code{merge_dynamic_clusters()}.}
 
 \item{cluster_id}{The column you want to name. Generally, the column with the identifier of the
-clusters, whether the simple cluster identified with \code{add_clusters()} or the
-merged clusters identified with \code{merge_dynamic_clusters()}.}
+clusters, whether the simple cluster detected with
+\code{\link[=add_clusters]{add_clusters()}} or the
+merged clusters detected with \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}.}
 
 \item{label_columns}{The column you want to be used to name the clusters. If the nodes are article,
 you can choose, for instance, the columns with the author of the article and the
@@ -80,7 +81,9 @@ The node to be used for naming the community is chosen depending on 3 methods:
 within the cluster, which has the highest centrality measure. The user can choose the
 different centrality measure implemented  in \code{tidygraph} (see \code{tidygraph::centrality()} for details).
 \item the \code{given_column} method: the user gives a column of the tibble graph(s), with numeric
-values, that will be used to classify the nodes and choose the name of each cluster.
+values, that will be used to classify the nodes and choose the name of each cluster. The
+\code{label_columns} of the node with the highest numerical value in the cluster will be used
+to name the cluster.
 \item the \code{tf-idf} method: clusters are name according to the terms with the highest
 tf-idf value for each cluster. The user furnishes one or several columns with text,
 and the function extracts the term and calculate the tf-idf value of each term, depending

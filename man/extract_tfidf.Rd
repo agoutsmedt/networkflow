@@ -25,7 +25,7 @@ graphs or a data frame.}
 be united to extract the terms.}
 
 \item{grouping_columns}{The column(s) you want to use to calculate the tf-idf. These columns will become your
-"document" unit in the \link[tidytext:bind_tf_idf]{bind_tf_idf()} function. For instance,
+"document" unit in the \code{\link[tidytext:bind_tf_idf]{tidytext::bind_tf_idf()}} function. For instance,
 if you run the function on a unique tibble graph, you may want to compute the tf-idf
 depending on the clusters your nodes are belonging. You have to take care that the
 identifier of the variable you are using to compute the tf-idf is unique for each group
@@ -35,12 +35,12 @@ identifier of the variable you are using to compute the tf-idf is unique for eac
 whole list of tibble graphs and that you have no unique identifier for them (see
 the details for more information).}
 
-\item{n_gram}{The maximum n you want for tokenizing your ngrams (see \link[tidytext:unnest_tokens]{unnest_tokens()}
+\item{n_gram}{The maximum n you want for tokenizing your ngrams (see \code{\link[tidytext:unnest_tokens]{tidytext::unnest_tokens()}}
 for more information). 2 by default, i.e. only unigrams and bigrams will be extracted.}
 
 \item{stopwords_type}{The type of stopwords list you want to use to remove stopwords from your ngrams.
 The "smart" list is chosen by default, but see other possilities with
-\link[stopwords:stopwords_getsources]{stopwords_getsources}.}
+\link[stopwords:stopwords_getsources]{stopwords::stopwords_getsources}.}
 
 \item{stopwords_vector}{Use your own stopwords list, in a vector of strings format.}
 

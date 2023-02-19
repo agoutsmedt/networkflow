@@ -289,7 +289,7 @@ build_dynamic_networks <- function(nodes = NULL,
                  source_id = I(source_id),
                  target_id = I(target_id),
                  edges_threshold = edges_threshold)) %>%
-      rlang::eval()
+      eval()
 
     # remove nodes with no edges
     if(keep_singleton==FALSE){

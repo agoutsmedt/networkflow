@@ -1,5 +1,5 @@
 # Running Leiden for two different resolutions and associating edges to communities
-#leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000) {
+leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter = 1000) {
   #' Add Leiden Communities to graph
   #'
   #' @description
@@ -55,7 +55,7 @@
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
 #   components_att <- edges <- nodes <- Com_ID <- Size_com <- to <- from <- com_ID_from <- com_ID_to <- Com_ID_2 <- Com_ID_2_from <- Com_ID_2_to <- Com_ID_3 <- Com_ID_3_from <- Com_ID_3_to <- NULL
 #
-#   lifecycle::deprecate_stop("0.1.0", "leiden_workflow()", "add_clusters()")
+   lifecycle::deprecate_stop("0.1.0", "leiden_workflow()", "add_clusters()")
 #
 #   # run the leiden algorithm for the first resolution
 #   leiden <- leidenAlg::leiden.community(graph, resolution = res_1, n.iterations = niter)
@@ -114,4 +114,4 @@
 #       activate(edges) %>%
 #       mutate(Com_ID_3_to = .N()$Com_ID_3[to], Com_ID_3_from = .N()$Com_ID_3[from], Com_ID_3 = ifelse(Com_ID_3_from == Com_ID_3_to, Com_ID_3_from, sprintf("%02d", max(as.integer(leiden_3$membership)) + 2)))
 #   }
-# }
+ }

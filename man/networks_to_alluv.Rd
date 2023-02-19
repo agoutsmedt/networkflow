@@ -14,18 +14,19 @@ networks_to_alluv(
 \arguments{
 \item{list_graph}{Your list with all networks}
 
-\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. By default, "intertemporal_name", as it is
-the name of the column created with \link[=intertemporal_cluster_naming]{intertemporal_cluster_naming()}.}
+\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. If you have used
+\link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
+it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
 \item{node_key}{The column with the unique identifier of each node.}
 
 \item{summary_cl_stats}{If set to TRUE, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
 can be particularly useful to filter smaller communities when plotting according to different variables:
 \itemize{
-\item share_cl_alluv is the share of a given cluster across all time windows;
-\item share_cl_window is the share of a given cluster in a given time window;
-\item share_cl_max is the highest value of share_cl_window for a given cluster across all individual time windows;
-\item length_cl is the number of time windows a cluster exists.
+\item \code{share_cluster_alluv} is the percentage share of a given cluster across all time windows;
+\item \code{share_cluster_window} is the percentage share of a given cluster in a given time window;
+\item \code{share_clusert_max} is the highest value of \code{share_cluster_window} for a given cluster across all individual time windows;
+\item \code{length_cluster} is the number of time windows a cluster exists.
 }
 
 #' @examples}

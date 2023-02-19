@@ -18,7 +18,7 @@
 #'
 #' @param grouping_columns
 #' The column(s) you want to use to calculate the tf-idf. These columns will become your
-#' "document" unit in the [bind_tf_idf()][tidytext::bind_tf_idf()] function. For instance,
+#' "document" unit in the [tidytext::bind_tf_idf()][tidytext::bind_tf_idf()] function. For instance,
 #' if you run the function on a unique tibble graph, you may want to compute the tf-idf
 #' depending on the clusters your nodes are belonging. You have to take care that the
 #' identifier of the variable you are using to compute the tf-idf is unique for each group
@@ -29,13 +29,13 @@
 #' the details for more information).
 #'
 #' @param n_gram
-#' The maximum n you want for tokenizing your ngrams (see [unnest_tokens()][tidytext::unnest_tokens()]
+#' The maximum n you want for tokenizing your ngrams (see [tidytext::unnest_tokens()][tidytext::unnest_tokens()]
 #' for more information). 2 by default, i.e. only unigrams and bigrams will be extracted.
 #'
 #' @param stopwords_type
 #' The type of stopwords list you want to use to remove stopwords from your ngrams.
 #' The "smart" list is chosen by default, but see other possilities with
-#' [stopwords_getsources][stopwords::stopwords_getsources()].
+#' [stopwords::stopwords_getsources][stopwords::stopwords_getsources()].
 #'
 #' @param stopwords_vector
 #' Use your own stopwords list, in a vector of strings format.
@@ -126,13 +126,7 @@
 #' tfidf[[1]]
 #'
 #' @export
-#' @import data.table
-#' @import tidygraph
-#' @import dplyr
-#' @import tidyr
-#' @import stringr
-#' @import tidytext
-#' @import textstem
+
 extract_tfidf <- function(data,
                           text_columns,
                           grouping_columns,
@@ -143,7 +137,7 @@ extract_tfidf <- function(data,
                           clean_word_method = c("lemmatize", "stemming", "none"),
                           ngrams_filter = 5L,
                           nb_terms = 5L){
-  row_id <- text <- . <- term <- total_term <- document <- tf_idf <- NULL
+  row_id <- text <- . <- term <- total_term <- document <- tf_idf <- word <- NULL
 
   if(! is.null(stopwords_vector) & ! is.character(stopwords_vector)){
     stop("The stopwords list is not a vector of strings.")
@@ -154,14 +148,17 @@ extract_tfidf <- function(data,
   }
   if(inherits(data, "tbl_graph")){ # in case we have only one network
     dt <- data %N>%
-      data.table::as.data.table()
+      as.data.frame()
+    data.table::setDT(dt)
   } else if (inherits(data, "list")){ # for a list of network
     dt <- lapply(data, function(tbl) tbl %N>%
-                   data.table::as.data.table()) %>%
+                   as.data.frame()) %>%
       data.table::rbindlist(idcol = "list_names")
+    data.table::setDT(dt)
     if(grouping_across_list == TRUE) grouping_columns <- c("list_names", grouping_columns) # Double paste0 in case grouping_columns already gather multiple columns
   } else if (inherits(data, "data.frame")){ # the third case is the one for which we have already a data.frame
-    dt <- data.table::as.data.table(data)
+    dt <- data
+    data.table::setDT(dt)
   } else {
     cli::cli_abort(c("The data object you enter in the function is neither",
                      "*" = "a tibble graph (a {.emph tbl_graph} from {.pkg tidygraph});",
@@ -202,5 +199,7 @@ extract_tfidf <- function(data,
     filter(n > 1) %>%
     dplyr::group_by(document) %>%
     dplyr::slice_max(order_by = tf_idf, n = nb_terms, with_ties = FALSE) %>%
-    data.table::as.data.table()
+    data.table::as.data.table() %>%
+    dplyr::ungroup() %>%
+    select(-document)
 }

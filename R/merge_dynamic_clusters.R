@@ -88,9 +88,7 @@
 #' temporal_networks[[1]]
 #'
 #' @export
-#' @import data.table
-#' @import tidygraph
-#' @import dplyr
+
 merge_dynamic_clusters <- function(list_graph = NA,
                                    cluster_id = NA,
                                    node_id = NA,
@@ -122,9 +120,11 @@ merge_dynamic_clusters <- function(list_graph = NA,
   names(list_graph) <- all_years
 
   # get the number of unique communities
-  all_nodes <- lapply(list_graph, function(tbl) tbl %N>% data.table::as.data.table()) %>%
+  all_nodes <- lapply(list_graph, function(tbl) tbl %N>%
+                        data.table::as.data.table()) %>%
     data.table::rbindlist(idcol = "network_num")
-  n_com_unique <- all_nodes[, .N, .(cluster_id, network_num), env = list(cluster_id = cluster_id)][,.N]
+  n_com_unique <- all_nodes[, .N, .(cluster_id, network_num),
+                            env = list(cluster_id = cluster_id)][,.N]
 
   unique_ids <- paste0("cl_",1:n_com_unique) # generate a number of unique ids equal to the maximum number of communities
 
@@ -137,7 +137,8 @@ merge_dynamic_clusters <- function(list_graph = NA,
       dt_year <- all_nodes[network_num == as.character(Year), env = list(Year = Year)] %>%
         .[,.SD,.SDcols = c(node_id, cluster_id)] %>%  # extract the nodes of the period
         .[order(cluster_id), env = list(cluster_id = cluster_id)] #just to have a more informative numerotation of cluster then
-      n_com <- dt_year[, .N, cluster_id, env = list(cluster_id = cluster_id)][,.N] # number of communities
+      n_com <- dt_year[, .N, cluster_id,
+                       env = list(cluster_id = cluster_id)][,.N] # number of communities
       id_com_corr <- data.table(intertemporal_name = unique_ids[1:n_com],
                                 dt_year[, .SD,.SDcols = cluster_id] %>% unique) #give a unique ids to com
       unique_ids <- unique_ids[-c(1:n_com)] #remove ids taken from list
@@ -146,7 +147,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
         unique
 
       intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        tidygraph::left_join(dt_year, by = cluster_id)
+        dplyr::left_join(dt_year, by = cluster_id)
     }
 
     ######################### For other years, we need to take the previous years and give new names to community of the new year  **********************
@@ -169,7 +170,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
       id_com_corr <- data.table(new_cluster_column = unique_ids[1:n_com],
                                 dt_year2[, .SD,.SDcols = cluster_id] %>% unique) #give a unique ids to com that not 1,2,3...
       unique_ids <- unique_ids[-c(1:n_com)] #remove ids taken from list
-      setnames(dt_year2, cluster_id, "present_id_com")   # this is the nodes from the present
+      data.table::setnames(dt_year2, cluster_id, "present_id_com")   # this is the nodes from the present
 
       ######################### Find the evolution of past communities  **********************
 
@@ -198,7 +199,8 @@ merge_dynamic_clusters <- function(list_graph = NA,
       dt_list2 <- dt_list2[,.N, .(present_id_com, past_id_com, n_nodes)]
       dt_list2[, share := N/n_nodes]
 
-      origin_of_present <- dt_list2[share > threshold_similarity, same_origin := TRUE, env = list(threshold_similarity = threshold_similarity)] # if above the treshold, then a communities mostly originate from past community
+      origin_of_present <- dt_list2[share > threshold_similarity, same_origin := TRUE,
+                                    env = list(threshold_similarity = threshold_similarity)] # if above the treshold, then a communities mostly originate from past community
       origin_of_present <- origin_of_present[,.SD,.SDcols = c("present_id_com", "past_id_com", "same_origin")]
 
       ######################### Compare communities across time according to tresholds **********************
@@ -214,7 +216,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
       compare <- compare[same_evolution == TRUE & same_origin == TRUE]   # we keep communities that respect both tresholds
       compare[past_id_com.x == past_id_com.y, intertemporal_name := paste0(past_id_com.x)] # we past the name of the old communities as present communities
       compare <- compare[past_id_com.x == past_id_com.y, .SD,.SDcols = c("present_id_com", "intertemporal_name")] # we only keep name for rows where both communities are the same (i.e., one community meeting both tresholds)
-      setnames(compare, "present_id_com", cluster_id)
+      data.table::setnames(compare, "present_id_com", cluster_id)
 
       ######################### Inject new names **********************
 
@@ -223,7 +225,7 @@ merge_dynamic_clusters <- function(list_graph = NA,
       final_names <- final_names[, .SD, .SDcols = c(cluster_id, "intertemporal_name")]
 
       intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        tidygraph::left_join(final_names, by = cluster_id)
+        dplyr::left_join(final_names, by = cluster_id)
     }
   }
   names(intertemporal_naming) <- old_list_name
@@ -247,13 +249,13 @@ add_dynamic_cluster_to_edges <- function(graph,
 
   for(i in c("_from", "_to")){ # add cluster to "from" and "to" columns
     join_dt <- cluster_correspondance %>%
-      rename("{new_name_col}{i}" := new_name_col,
+      dplyr::rename("{new_name_col}{i}" := new_name_col,
              "{cluster_id}{i}" := cluster_id)
 
     graph <- graph %E>%
-      left_join(join_dt, by = paste0(cluster_id, i))
+      dplyr::left_join(join_dt, by = paste0(cluster_id, i))
   }
 
   graph <- graph %E>%
-    left_join(cluster_correspondance, by = cluster_id)
+    dplyr::left_join(cluster_correspondance, by = cluster_id)
 }

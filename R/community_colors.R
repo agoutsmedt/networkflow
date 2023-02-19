@@ -20,10 +20,10 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
   #' `color_edges` column in the edges side.
   #'
   #' @export
-  #' @import magrittr
   #' @import tidygraph
   #' @import dplyr
-  #' @import DescTools
+
+  lifecycle::deprecate_warn("0.1.0", "community_colors()", "color_networks()")
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
@@ -52,6 +52,18 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
   graph <- graph %>% # mix color
     activate(edges) %>%
     mutate(color_com_ID_to = .N()$color[to], color_com_ID_from = .N()$color[from]) %>%
-    mutate(color_edges = DescTools::MixColor(color_com_ID_to, color_com_ID_from, amount1 = 0.5))
+    mutate(color_edges = mixcolor(color_com_ID_to, color_com_ID_from, amount1 = 0.5))
 
+}
+
+# Copy from DescTools package, function MixColor (avoiding one more dependency)
+mixcolor <- function (col1, col2, amount1 = 0.5)
+{
+  .mix <- function(col1, col2, amount1 = 0.5) {
+    mix <- apply(col2rgb(c(col1, col2), alpha = TRUE), 1,
+                 function(x) amount1 * x[1] + (1 - amount1) * x[2])
+    do.call("rgb", c(as.list(mix), maxColorValue = 255))
+  }
+  m <- suppressWarnings(cbind(col1, col2, amount1))
+  apply(m, 1, function(x) .mix(col1 = x[1], col2 = x[2], amount1 = as.numeric(x[3])))
 }
