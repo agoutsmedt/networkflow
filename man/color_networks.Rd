@@ -79,7 +79,7 @@ objective_function = "modularity",
 clustering_method = "leiden")
 
 temporal_networks <- color_networks(graphs = temporal_networks,
-column_to_color = "dynamic_cluster_leiden",
+column_to_color = "cluster_leiden",
 color = NULL)
 
 temporal_networks[[1]]

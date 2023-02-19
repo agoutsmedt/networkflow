@@ -77,13 +77,7 @@
 #' temporal_networks [[1]]
 #'
 #' @export
-#' @import magrittr
-#' @import tidygraph
-#' @import dplyr
-#' @import ggraph
-#' @import lifecycle
-#' @import cli
-#'
+
 layout_networks <- function(graphs,
                             node_id,
                             layout,
@@ -135,26 +129,26 @@ compute_dynamic_coordinates <- function(graphs,
   for (i in 2:length(graphs)){
     past_coords <- graphs[[i-1]] %N>%
       dplyr::as_tibble() %>%
-      dplyr::select(all_of(node_id), x, y)
+      dplyr::select(dplyr::all_of(node_id), x, y)
 
     graphs[[i]] <- graphs[[i]] %N>%
-      dplyr::select(-any_of(c("x", "y"))) %>%
+      dplyr::select(-dplyr::any_of(c("x", "y"))) %>%
       dplyr::left_join(past_coords, by = node_id)
 
     input_coords <- graphs[[i]] %N>%
       dplyr::as_tibble() %>%
-      dplyr::mutate(across(.cols = all_of(c("x","y")), ~replace_na(., 0))) %>%
+      dplyr::mutate(dplyr::across(.cols = dplyr::all_of(c("x","y")), ~tidyr::replace_na(., 0))) %>%
       dplyr::select(x, y) %>%
       as.matrix
 
     graphs[[i]] <- graphs[[i]] %N>%
-      select(-x, -y)
+      dplyr::select(-x, -y)
 
     coords <- ggraph::create_layout(graphs[[i]],
                                     layout = layout,
                                     coords = input_coords,
                                     ...) %>%
-      dplyr::select(all_of(node_id), x, y)
+      dplyr::select(dplyr::all_of(node_id), x, y)
 
     graphs[[i]] <- graphs[[i]] %N>%
       dplyr::left_join(coords, by = node_id)
@@ -177,7 +171,7 @@ join_coordinates <- function(graphs,
   coords <- ggraph::create_layout(graphs,
                                   layout = layout,
                                   ...) %>%
-    dplyr::select(all_of(node_id), x, y)
+    dplyr::select(dplyr::all_of(node_id), x, y)
 
   graphs <- graphs %N>%
     dplyr::select(-any_of(c("x", "y"))) %>%

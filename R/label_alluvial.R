@@ -22,7 +22,7 @@ label_alluvial <- function(alluv_dt = NA,
   #' @import tidygraph
   #' @import dplyr
 
-  . <- Window <- head <- x <- intertemporal_name_label <- NULL
+  . <- Window <- head <- x <- intertemporal_name_label <- N <- NULL
 
   label <- copy(alluv_dt)
   label <- label[,.N,.(intertemporal_cluster_label_column, window_column), env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]

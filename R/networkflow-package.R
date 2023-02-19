@@ -3,8 +3,13 @@
 
 ## usethis namespace: start
 #' @import data.table
-#' @import tidygraph
+#' @importFrom grDevices col2rgb
 #' @importFrom lifecycle deprecated
 #' @importFrom Rdpack reprompt
+#' @importFrom tidygraph %E>%
+#' @importFrom tidygraph %N>%
+#' @importFrom tidygraph .N
 ## usethis namespace: end
 NULL
+
+

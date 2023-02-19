@@ -30,8 +30,6 @@ networks_to_alluv <- function(list_graph = NA,
   #'  #' @examples
   #'
   #' @export
-  #' @import data.table
-  #' @import tidygraph
 
   . <- y_alluv <- Window <- share_cluster_alluv <- intertemporal_name <- tot_window_leiden <- tot_window <- share_cluster_window <- share_cluster_max <- head <- N <- nodes <- NULL
 
