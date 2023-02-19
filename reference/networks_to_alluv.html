@@ -73,8 +73,9 @@
 
 
 <dt>intertemporal_cluster_column</dt>
-<dd><p>The column with the identifier of the inter-temporal cluster. By default, "intertemporal_name", as it is
-the name of the column created with <a href="intertemporal_cluster_naming.html">intertemporal_cluster_naming()</a>.</p></dd>
+<dd><p>The column with the identifier of the inter-temporal cluster. If you have used
+<a href="add_clusters.html">add_clusters()</a> and <a href="merge_dynamic_clusters.html">merge_dynamic_clusters()</a>,
+it is of the form <code>dynamic_cluster_{clustering_method}</code>.</p></dd>
 
 
 <dt>node_key</dt>
@@ -83,10 +84,10 @@ the name of the column created with <a href="intertemporal_cluster_naming.html">
 
 <dt>summary_cl_stats</dt>
 <dd><p>If set to TRUE, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
-can be particularly useful to filter smaller communities when plotting according to different variables:</p><ul><li><p>share_cl_alluv is the share of a given cluster across all time windows;</p></li>
-<li><p>share_cl_window is the share of a given cluster in a given time window;</p></li>
-<li><p>share_cl_max is the highest value of share_cl_window for a given cluster across all individual time windows;</p></li>
-<li><p>length_cl is the number of time windows a cluster exists.</p></li>
+can be particularly useful to filter smaller communities when plotting according to different variables:</p><ul><li><p><code>share_cluster_alluv</code> is the percentage share of a given cluster across all time windows;</p></li>
+<li><p><code>share_cluster_window</code> is the percentage share of a given cluster in a given time window;</p></li>
+<li><p><code>share_clusert_max</code> is the highest value of <code>share_cluster_window</code> for a given cluster across all individual time windows;</p></li>
+<li><p><code>length_cluster</code> is the number of time windows a cluster exists.</p></li>
 </ul><p>#' @examples</p></dd>
 
 </dl></div>

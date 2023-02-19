@@ -91,7 +91,8 @@ recent network.</p></dd>
 
 
 <dt>cluster_id</dt>
-<dd><p>The column with the identifier of the cluster.</p></dd>
+<dd><p>The column with the identifier of the cluster. If you have used
+<a href="add_clusters.html">add_clusters()</a>, it is of the form <code>cluster_{clustering_method}</code>.</p></dd>
 
 
 <dt>node_id</dt>
@@ -126,7 +127,7 @@ then partial threshold similarity is more desirable.</p></dd>
     
 
 <p>The function returns the same list of networks used as input in <code>list_graph</code> but with
-a new column <code>dynamic_{column_id}</code> (i.e, the name of the new column depends of the column
+a new column <code>dynamic_{cluster_id}</code> (i.e, the name of the new column depends of the column
 that served as input). The column is the result of the inter-graphs grouping of the
 original clusters of the <code>cluster_id</code>. The dynamic clusters are also merged with the
 different <code>cluster_id</code> columns of the edges data.</p>
@@ -294,7 +295,7 @@ different <code>cluster_id</code> columns of the edges data.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"39.6%"</span> of the network.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Cluster detection for the </span><span style="color: #0000BB; font-weight: bold;">"1999-2008"</span><span style="font-weight: bold;"> period</span> <span style="color: #00BBBB;">────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">4</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"39.1%"</span> of the network.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"39.1%"</span> of the network.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Cluster detection for the </span><span style="color: #0000BB; font-weight: bold;">"2000-2009"</span><span style="font-weight: bold;"> period</span> <span style="color: #00BBBB;">────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"49%"</span> of the network.</span>

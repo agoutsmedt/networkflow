@@ -121,30 +121,12 @@ component</a> of your network. This could be done in one step using the
 <code>networkflow</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/agoutsmedt/networkflow" class="external-link">networkflow</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'DescTools::%like%' by 'data.table::%like%'</span></span>
-<span><span class="co">#&gt; when loading 'networkflow'</span></span>
 <span><span class="co">#&gt; Warning: replacing previous import 'data.table::last' by 'dplyr::last' when</span></span>
 <span><span class="co">#&gt; loading 'networkflow'</span></span>
 <span><span class="co">#&gt; Warning: replacing previous import 'data.table::first' by 'dplyr::first' when</span></span>
 <span><span class="co">#&gt; loading 'networkflow'</span></span>
 <span><span class="co">#&gt; Warning: replacing previous import 'data.table::between' by 'dplyr::between'</span></span>
 <span><span class="co">#&gt; when loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'dplyr::union' by 'igraph::union' when</span></span>
-<span><span class="co">#&gt; loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'dplyr::as_data_frame' by</span></span>
-<span><span class="co">#&gt; 'igraph::as_data_frame' when loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'dplyr::groups' by 'igraph::groups' when</span></span>
-<span><span class="co">#&gt; loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'DescTools::%c%' by 'igraph::%c%' when</span></span>
-<span><span class="co">#&gt; loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'cli::tree' by 'igraph::tree' when loading</span></span>
-<span><span class="co">#&gt; 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'igraph::groups' by 'tidygraph::groups' when</span></span>
-<span><span class="co">#&gt; loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'magrittr::extract' by 'tidyr::extract' when</span></span>
-<span><span class="co">#&gt; loading 'networkflow'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'igraph::crossing' by 'tidyr::crossing' when</span></span>
-<span><span class="co">#&gt; loading 'networkflow'</span></span>
 <span></span>
 <span><span class="co">## basic example code</span></span>
 <span></span>
@@ -236,31 +218,7 @@ community).</p>
 <span></span>
 <span><span class="co"># finding communities</span></span>
 <span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leiden_workflow.html">leiden_workflow</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `leiden_workflow()` was deprecated in networkflow 0.1.0.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `add_clusters()` instead.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tbl_graph: 145 nodes and 2593 edges</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # An undirected simple graph with 1 component</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Edge Data: 2,593 × 8 (active)</span></span></span>
-<span><span class="co">#&gt;    from    to weight Source   Target com_ID_to com_ID_from Com_ID</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     4     5 0.146  <span style="text-decoration: underline;">214</span>927  2<span style="text-decoration: underline;">207</span>578 02        05          06    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4    65 0.040<span style="text-decoration: underline;">8</span> <span style="text-decoration: underline;">214</span>927  5<span style="text-decoration: underline;">982</span>867 02        05          06    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4    46 0.097<span style="text-decoration: underline;">3</span> <span style="text-decoration: underline;">214</span>927  8<span style="text-decoration: underline;">456</span>979 05        05          05    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     4     6 0.298  <span style="text-decoration: underline;">214</span>927 10<span style="text-decoration: underline;">729</span>971 05        05          05    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     4   113 0.047<span style="text-decoration: underline;">1</span> <span style="text-decoration: underline;">214</span>927 16<span style="text-decoration: underline;">008</span>556 02        05          06    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>     4    62 0.044<span style="text-decoration: underline;">7</span> <span style="text-decoration: underline;">214</span>927 16<span style="text-decoration: underline;">167</span>977 02        05          06    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2,587 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Node Data: 145 × 8</span></span></span>
-<span><span class="co">#&gt;   Id       Author      Year Author_date     Title       Journal   Com_ID Size_c…</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 96284971 ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANESI-S-2003 Expectatio… <span style="color: #949494;">"</span>The Rev… 03       0.331</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 37095547 ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOGLU-H-1980 Inflation … <span style="color: #949494;">"</span>Journal… 02       0.490</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 46282251 ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOGLU-H-1982 WAGES AND … <span style="color: #949494;">"</span>JOURNAL… 02       0.490</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 142 more rows</span></span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></code></pre></div>
 <p>You can observe that the function also gives the size of the
 community, by calculating the share of total nodes that are in each
 community.</p>
@@ -280,30 +238,7 @@ resolution with <code>res_2</code> and a third one with
 <span></span>
 <span><span class="co"># finding communities</span></span>
 <span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/leiden_workflow.html">leiden_workflow</a></span><span class="op">(</span><span class="va">graph</span>, res_1 <span class="op">=</span> <span class="fl">0.5</span>, res_2 <span class="op">=</span> <span class="fl">2</span>, res_3 <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tbl_graph: 145 nodes and 2593 edges</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # An undirected simple graph with 1 component</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Edge Data: 2,593 × 14 (active)</span></span></span>
-<span><span class="co">#&gt;    from    to weight Source Target com_ID… com_ID… Com_ID Com_ID… Com_ID…</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     4     5 0.146  <span style="text-decoration: underline;">214</span>927 2.21<span style="color: #949494;">e</span>6 03      02      04     09      09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4    65 0.040<span style="text-decoration: underline;">8</span> <span style="text-decoration: underline;">214</span>927 5.98<span style="color: #949494;">e</span>6 03      02      04     02      09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4    46 0.097<span style="text-decoration: underline;">3</span> <span style="text-decoration: underline;">214</span>927 8.46<span style="color: #949494;">e</span>6 02      02      02     09      09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     4     6 0.298  <span style="text-decoration: underline;">214</span>927 1.07<span style="color: #949494;">e</span>7 02      02      02     09      09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     4   113 0.047<span style="text-decoration: underline;">1</span> <span style="text-decoration: underline;">214</span>927 1.60<span style="color: #949494;">e</span>7 03      02      04     06      09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>     4    62 0.044<span style="text-decoration: underline;">7</span> <span style="text-decoration: underline;">214</span>927 1.62<span style="color: #949494;">e</span>7 03      02      04     02      09     </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2,587 more rows, and 4 more variables: Com_ID_2 &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   Com_ID_3_to &lt;chr&gt;, Com_ID_3_from &lt;chr&gt;, Com_ID_3 &lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Node Data: 145 × 10</span></span></span>
-<span><span class="co">#&gt;   Id       Author      Year Author… Title Journal Com_ID Size_c… Com_ID… Com_ID…</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 96284971 ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANE… Expe… <span style="color: #949494;">"</span>The R… 02       0.510 09      10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 37095547 ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOG… Infl… <span style="color: #949494;">"</span>Journ… 03       0.490 06      06     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 46282251 ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOG… WAGE… <span style="color: #949494;">"</span>JOURN… 03       0.490 06      06     </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 142 more rows</span></span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></code></pre></div>
 <p>Once you have detected different communities in your network, you are
 well on the way of the projection of your graph, but two important steps
 should be implemented before. First, you have to attribute some colors
@@ -326,31 +261,7 @@ their edge will have a mix of the two communities colors.&lt;/p&gt;"><sup>2</sup
 <span></span>
 <span><span class="co"># attributing colors</span></span>
 <span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/community_colors.html">community_colors</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">palette</span>, community_column <span class="op">=</span> <span class="st">"Com_ID"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Item 2 has 56 rows but longest item has 500; recycled with remainder.</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(Com_ID)`</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tbl_graph: 145 nodes and 2593 edges</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # An undirected simple graph with 1 component</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Edge Data: 2,593 × 11 (active)</span></span></span>
-<span><span class="co">#&gt;    from    to weight Source Target com_ID… com_ID… Com_ID color_… color_…</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     4     5 0.146  <span style="text-decoration: underline;">214</span>927 2.21<span style="color: #949494;">e</span>6 02      05      06     #01A5D8 #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4    65 0.040<span style="text-decoration: underline;">8</span> <span style="text-decoration: underline;">214</span>927 5.98<span style="color: #949494;">e</span>6 02      05      06     #01A5D8 #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4    46 0.097<span style="text-decoration: underline;">3</span> <span style="text-decoration: underline;">214</span>927 8.46<span style="color: #949494;">e</span>6 05      05      05     #E0AF0C #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     4     6 0.298  <span style="text-decoration: underline;">214</span>927 1.07<span style="color: #949494;">e</span>7 05      05      05     #E0AF0C #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     4   113 0.047<span style="text-decoration: underline;">1</span> <span style="text-decoration: underline;">214</span>927 1.60<span style="color: #949494;">e</span>7 02      05      06     #01A5D8 #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>     4    62 0.044<span style="text-decoration: underline;">7</span> <span style="text-decoration: underline;">214</span>927 1.62<span style="color: #949494;">e</span>7 02      05      06     #01A5D8 #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2,587 more rows, and 1 more variable: color_edges &lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Node Data: 145 × 9</span></span></span>
-<span><span class="co">#&gt;   Id       Author      Year Author_date     Title   Journal Com_ID Size_c… color</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 96284971 ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANESI-S-2003 Expect… <span style="color: #949494;">"</span>The R… 03       0.331 #DA3…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 37095547 ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOGLU-H-1980 Inflat… <span style="color: #949494;">"</span>Journ… 02       0.490 #01A…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 46282251 ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOGLU-H-1982 WAGES … <span style="color: #949494;">"</span>JOURN… 02       0.490 #01A…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 142 more rows</span></span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></code></pre></div>
 <p>What you want to do next is to give a name automatically to your
 community. The <code><a href="../reference/community_names.html">community_names()</a></code> function allows you to do
 that: it gives to the community the label of the node, within the
@@ -361,53 +272,17 @@ community will take as a name the label of its highest degree node.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidygraph.data-imaginist.com" class="external-link">tidygraph</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'tidygraph'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter</span></span>
 <span></span>
 <span><span class="co"># calculating the degree of nodes</span></span>
-<span> <span class="va">graph</span> <span class="op">&lt;-</span> <span class="va">graph</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>   <span class="fu"><a href="https://tidygraph.data-imaginist.com/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span><span class="va">nodes</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span> <span class="va">graph</span> <span class="op">&lt;-</span> <span class="va">graph</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>   <span class="fu"><a href="https://tidygraph.data-imaginist.com/reference/activate.html" class="external-link">activate</a></span><span class="op">(</span><span class="va">nodes</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>degree <span class="op">=</span> <span class="fu"><a href="https://tidygraph.data-imaginist.com/reference/centrality.html" class="external-link">centrality_degree</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span> </span>
 <span><span class="co"># giving names to communities</span></span>
 <span> <span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/community_names.html">community_names</a></span><span class="op">(</span><span class="va">graph</span>, ordering_column <span class="op">=</span> <span class="st">"degree"</span>, naming <span class="op">=</span> <span class="st">"Author_date"</span>, community_column <span class="op">=</span> <span class="st">"Com_ID"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `community_names()` was deprecated in networkflow 0.1.0.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `name_clusters()` instead.</span></span>
 <span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tbl_graph: 145 nodes and 2593 edges</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # An undirected simple graph with 1 component</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Node Data: 145 × 11 (active)</span></span></span>
-<span><span class="co">#&gt;   Id       Author   Year Label Title Journal Com_ID Size_c… color degree Commun…</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 96284971 ALBANE…  <span style="text-decoration: underline;">2</span>003 ALBA… Expe… <span style="color: #949494;">"</span>The R… 03      0.331  #DA3…     47 03-VEL…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 37095547 ATESOG…  <span style="text-decoration: underline;">1</span>980 ATES… Infl… <span style="color: #949494;">"</span>Journ… 02      0.490  #01A…     11 02-GOR…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 46282251 ATESOG…  <span style="text-decoration: underline;">1</span>982 ATES… WAGE… <span style="color: #949494;">"</span>JOURN… 02      0.490  #01A…      9 02-GOR…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 214927   BALL-L   <span style="text-decoration: underline;">1</span>991 BALL… The … <span style="color: #949494;">"</span>Journ… 05      0.055<span style="text-decoration: underline;">2</span> #E0A…     25 05-DEL…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2207578  BALL-L   <span style="text-decoration: underline;">1</span>995 BALL… Rela… <span style="color: #949494;">"</span>The Q… 02      0.490  #01A…     39 02-GOR…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10729971 BALL-L   <span style="text-decoration: underline;">1</span>995 BALL… Time… <span style="color: #949494;">"</span>Journ… 05      0.055<span style="text-decoration: underline;">2</span> #E0A…     33 05-DEL…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 139 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#</span></span></span>
-<span><span class="co"><span style="color: #949494;">#&gt; # Edge Data: 2,593 × 11</span></span></span>
-<span><span class="co">#&gt;    from    to weight Source Target com_ID… com_ID… Com_ID color_… color_…</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     4     5 0.146  <span style="text-decoration: underline;">214</span>927 2.21<span style="color: #949494;">e</span>6 02      05      06     #01A5D8 #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4    65 0.040<span style="text-decoration: underline;">8</span> <span style="text-decoration: underline;">214</span>927 5.98<span style="color: #949494;">e</span>6 02      05      06     #01A5D8 #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4    46 0.097<span style="text-decoration: underline;">3</span> <span style="text-decoration: underline;">214</span>927 8.46<span style="color: #949494;">e</span>6 05      05      05     #E0AF0C #E0AF0C</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2,590 more rows, and 1 more variable: color_edges &lt;chr&gt;</span></span></span></code></pre></div>
+<span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="third-step-plotting-the-network">Third step: plotting the network<a class="anchor" aria-label="anchor" href="#third-step-plotting-the-network"></a>
