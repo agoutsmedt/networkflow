@@ -39,7 +39,7 @@ you can choose, for instance, the columns with the author of the article and the
 date of publication.}
 
 \item{label_name}{The name of the column with cluster names, that will be created by the function.
-"label" by default.}
+"cluster_label" by default.}
 
 \item{tidygraph_function}{For the \code{tidygraph_functions} method (see the details), the centrality measure to be
 chosen among the measures implemented in in \code{tidygraph}  (see \code{tidygraph::centrality()}).}
@@ -113,7 +113,8 @@ cooccurrence_method = "coupling_similarity",
 time_window = 20,
 edges_threshold = 1,
 overlapping_window = TRUE,
-filter_components = TRUE)
+filter_components = TRUE,
+verbose = FALSE)
 
 temporal_networks <- add_clusters(temporal_networks,
 objective_function = "modularity",
@@ -142,7 +143,6 @@ temporal_networks_with_names <- name_clusters(graphs = temporal_networks,
 method = "tf-idf",
 name_merged_clusters = TRUE,
 cluster_id = "dynamic_cluster_leiden",
-label_columns = c("Author", "Year"),
 text_columns = "Title",
 nb_terms_label = 5,
 clean_word_method = "lemmatise")

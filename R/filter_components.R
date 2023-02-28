@@ -34,9 +34,6 @@ filter_components <- function(graphs,
   #'
   #' @return The same tidygraph object or list of tidygraph objects with nodes
   #'
-  #' @import magrittr
-  #' @import tidygraph
-  #' @import dplyr
   #' @export
   if(inherits(graphs, "list")){
     list <- TRUE
@@ -75,19 +72,19 @@ filter_components <- function(graphs,
                     size_components = n()) %>%
       dplyr::group_by(components_att) %>%
       dplyr::mutate(size_components = n()/size_components) %>%
-      ungroup()
+      dplyr::ungroup()
 
     highest_component <- graph %N>%
       as.data.frame() %>%
-      slice_max(order_by = components_att, n = 1, with_ties = FALSE) %>%
-      .$components_att
+      dplyr::slice_max(order_by = components_att, n = 1, with_ties = FALSE) %>%
+      dplyr::pull(components_att)
 
     if(highest_component > nb_components){ #needed only if there is more components than the number of component selected
       share_component <- graph %N>%
         as.data.frame() %>%
-        filter(components_att == nb_components + 1) %>%
-        slice_max(order_by = size_components, n = 1, with_ties = FALSE) %>%
-        .$size_components %>%
+        dplyr::filter(components_att == nb_components + 1) %>%
+        dplyr::slice_max(order_by = size_components, n = 1, with_ties = FALSE) %>%
+        dplyr::pull(size_components) %>%
         round(4)
       if(share_component > threshold_alert){
         if(list == TRUE) cli::cli_h1("Component filtering for the {.val {graph %N>% as.data.frame() %>% .$time_window %>% unique()}} period")

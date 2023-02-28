@@ -8,7 +8,11 @@ networks_to_alluv(
   list_graph = NA,
   intertemporal_cluster_column = "intertemporal_name",
   node_key = NA,
-  summary_cl_stats = FALSE
+  summary_cl_stats = TRUE,
+  keep_color = TRUE,
+  color_column = "color",
+  keep_cluster_label = TRUE,
+  cluster_label_column = "cluster_label"
 )
 }
 \arguments{
@@ -20,17 +24,83 @@ it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
 \item{node_key}{The column with the unique identifier of each node.}
 
-\item{summary_cl_stats}{If set to TRUE, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
+\item{summary_cl_stats}{If set to \code{TRUE}, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
 can be particularly useful to filter smaller communities when plotting according to different variables:
 \itemize{
 \item \code{share_cluster_alluv} is the percentage share of a given cluster across all time windows;
 \item \code{share_cluster_window} is the percentage share of a given cluster in a given time window;
-\item \code{share_clusert_max} is the highest value of \code{share_cluster_window} for a given cluster across all individual time windows;
+\item \code{share_cluster_max} is the highest value of \code{share_cluster_window} for a given cluster across all individual time windows;
 \item \code{length_cluster} is the number of time windows a cluster exists.
-}
+}}
 
-#' @examples}
+\item{keep_color}{Set to \code{TRUE} (by default) if you want to keep the column with the color associated to
+the different categories of \code{intertemporal_cluster_column}. Such a column exists in your
+list of tibble graphs if you have use \link[=color_networks]{color_networks()}.}
+
+\item{color_column}{The name of the column with the colors of the categories in \code{intertemporal_cluster_column}.
+By default, "color", as it is the column name resulting from the use of
+\link[=color_networks]{color_networks()}.}
+
+\item{keep_cluster_label}{Set to \code{TRUE} if you want to keep the column with a name/label associated to the
+different categories of \code{intertemporal_cluster_column}. Such a column exists in your
+list of tibble graphs if you have use \link[=name_clusters]{name_clusters()}.}
+
+\item{cluster_label_column}{The name of the column with the name/label associated to the categories in
+\code{intertemporal_cluster_column}. By default, "cluster_label", as it is the column name
+resulting from the use of \link[=name_clusters]{name_clusters()}.}
 }
 \description{
 This function creates a data.frame that can be easily plotted with ggalluvial from a list of networks.
+}
+\examples{
+library(networkflow)
+
+nodes <- Nodes_stagflation |>
+dplyr::rename(ID_Art = ItemID_Ref) |>
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation |>
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+temporal_networks <- build_dynamic_networks(nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+cooccurrence_method = "coupling_similarity",
+time_window = 20,
+edges_threshold = 1,
+overlapping_window = TRUE,
+filter_components = TRUE,
+verbose = FALSE)
+
+temporal_networks <- add_clusters(temporal_networks,
+objective_function = "modularity",
+clustering_method = "leiden",
+verbose = FALSE)
+
+temporal_networks <- merge_dynamic_clusters(temporal_networks,
+cluster_id = "cluster_leiden",
+node_id = "ID_Art",
+threshold_similarity = 0.51,
+similarity_type = "partial")
+
+temporal_networks <- name_clusters(graphs = temporal_networks,
+method = "tf-idf",
+name_merged_clusters = TRUE,
+cluster_id = "dynamic_cluster_leiden",
+text_columns = "Title",
+nb_terms_label = 5,
+clean_word_method = "lemmatise")
+
+temporal_networks <- color_networks(graphs = temporal_networks,
+column_to_color = "dynamic_cluster_leiden",
+color = NULL)
+
+alluv_dt <- networks_to_alluv(temporal_networks,
+intertemporal_cluster_column = "dynamic_cluster_leiden",
+node_key = "ID_Art")
+
+alluv_dt[1:5]
+
 }

@@ -35,7 +35,7 @@
 #'
 #' @param label_name
 #' The name of the column with cluster names, that will be created by the function.
-#' "label" by default.
+#' "cluster_label" by default.
 #'
 #' @param tidygraph_function
 #' For the `tidygraph_functions` method (see the details), the centrality measure to be
@@ -107,7 +107,8 @@
 #' time_window = 20,
 #' edges_threshold = 1,
 #' overlapping_window = TRUE,
-#' filter_components = TRUE)
+#' filter_components = TRUE,
+#' verbose = FALSE)
 #'
 #' temporal_networks <- add_clusters(temporal_networks,
 #' objective_function = "modularity",
@@ -136,7 +137,6 @@
 #' method = "tf-idf",
 #' name_merged_clusters = TRUE,
 #' cluster_id = "dynamic_cluster_leiden",
-#' label_columns = c("Author", "Year"),
 #' text_columns = "Title",
 #' nb_terms_label = 5,
 #' clean_word_method = "lemmatise")
@@ -195,8 +195,8 @@ name_clusters <- function(graphs,
           dplyr::as_tibble() %>%
           dplyr::group_by(across({{ cluster_id }})) %>%
           dplyr::slice_max(order_by = .data[[order_by]], n = 1, with_ties = FALSE) %>%
-          tidyr::unite({{ label_name }}, all_of(label_columns), sep = "_") %>%
-          dplyr::select(all_of(cluster_id), all_of(label_name))
+          tidyr::unite({{ label_name }}, dplyr::all_of(label_columns), sep = "_") %>%
+          dplyr::select(dplyr::all_of(cluster_id), dplyr::all_of(label_name))
       } else if(method == "tf-idf"){
         labels <- extract_tfidf(graphs[[i]],
                                 grouping_columns = cluster_id,
@@ -205,7 +205,7 @@ name_clusters <- function(graphs,
                                 ...) %>%
           .[, (label_name) := paste0(term, collapse = ", "), by = cluster_id,
             env = list(cluster_id = cluster_id)] %>%
-          dplyr::select(all_of(cluster_id), all_of(label_name)) %>%
+          dplyr::select(dplyr::all_of(cluster_id), dplyr::all_of(label_name)) %>%
           unique
       } else {
         cli::cli_abort(c("The {.emph method} chosen does not exist. Please choose between: ",
@@ -227,8 +227,8 @@ name_clusters <- function(graphs,
       labels <- dt %>%
         dplyr::group_by(across({{ cluster_id }})) %>%
         dplyr::slice_max(order_by = .data[[order_by]], n = 1, with_ties = FALSE) %>%
-        tidyr::unite({{ label_name }}, all_of(label_columns), sep = "_") %>%
-        dplyr::select(all_of(cluster_id), all_of(label_name))
+        tidyr::unite({{ label_name }}, dplyr::all_of(label_columns), sep = "_") %>%
+        dplyr::select(dplyr::all_of(cluster_id), dplyr::all_of(label_name))
     } else if(method == "tf-idf"){
       labels <- extract_tfidf(dt,
                               grouping_columns = cluster_id,
@@ -237,7 +237,7 @@ name_clusters <- function(graphs,
                               ...) %>%
         .[, (label_name) := paste0(term, collapse = ", "), by = cluster_id,
           env = list(cluster_id = cluster_id)] %>%
-        dplyr::select(all_of(cluster_id), all_of(label_name)) %>%
+        dplyr::select(dplyr::all_of(cluster_id), dplyr::all_of(label_name)) %>%
         unique
     }
     graphs <- lapply(graphs, function(tbl) tbl %N>%

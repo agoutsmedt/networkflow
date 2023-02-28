@@ -12,8 +12,8 @@
   #' You can chose a column with a categorical variable
   #'
   #' @param graphs
-  #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/), a list of tibble
-  #' graphs or a data frame.
+  #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a list of tibble
+  #' graphs.
   #'
   #' @param column_to_color
   #' The column of the categorical variable to use to color nodes and edges. For instance,

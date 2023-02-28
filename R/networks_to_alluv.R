@@ -1,7 +1,11 @@
 networks_to_alluv <- function(list_graph = NA,
                               intertemporal_cluster_column = "intertemporal_name",
                               node_key = NA,
-                              summary_cl_stats = FALSE){
+                              summary_cl_stats = TRUE,
+                              keep_color = TRUE,
+                              color_column = "color",
+                              keep_cluster_label = TRUE,
+                              cluster_label_column = "cluster_label"){
 
   #' Create a data.frame suitable for alluvial graph projection
   #'
@@ -19,27 +23,108 @@ networks_to_alluv <- function(list_graph = NA,
   #' The column with the unique identifier of each node.
   #'
   #' @param summary_cl_stats
-  #' If set to TRUE, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
+  #' If set to `TRUE`, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
   #' can be particularly useful to filter smaller communities when plotting according to different variables:
   #'
   #' - `share_cluster_alluv` is the percentage share of a given cluster across all time windows;
-  #' -  `share_cluster_window` is the percentage share of a given cluster in a given time window;
-  #' - `share_clusert_max` is the highest value of `share_cluster_window` for a given cluster across all individual time windows;
+  #' - `share_cluster_window` is the percentage share of a given cluster in a given time window;
+  #' - `share_cluster_max` is the highest value of `share_cluster_window` for a given cluster across all individual time windows;
   #' - `length_cluster` is the number of time windows a cluster exists.
   #'
-  #'  #' @examples
+  #' @param keep_color
+  #' Set to `TRUE` (by default) if you want to keep the column with the color associated to
+  #' the different categories of `intertemporal_cluster_column`. Such a column exists in your
+  #' list of tibble graphs if you have use [color_networks()][networkflow::color_networks()].
+  #'
+  #' @param color_column
+  #' The name of the column with the colors of the categories in `intertemporal_cluster_column`.
+  #' By default, "color", as it is the column name resulting from the use of
+  #' [color_networks()][networkflow::color_networks()].
+  #'
+  #' @param keep_cluster_label
+  #' Set to `TRUE` if you want to keep the column with a name/label associated to the
+  #' different categories of `intertemporal_cluster_column`. Such a column exists in your
+  #' list of tibble graphs if you have use [name_clusters()][networkflow::name_clusters()].
+  #'
+  #' @param cluster_label_column
+  #' The name of the column with the name/label associated to the categories in
+  #' `intertemporal_cluster_column`. By default, "cluster_label", as it is the column name
+  #' resulting from the use of [name_clusters()][networkflow::name_clusters()].
+  #'
+  #' @examples
+  #' library(networkflow)
+  #'
+  #' nodes <- Nodes_stagflation |>
+  #' dplyr::rename(ID_Art = ItemID_Ref) |>
+  #' dplyr::filter(Type == "Stagflation")
+  #'
+  #' references <- Ref_stagflation |>
+  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+  #'
+  #' temporal_networks <- build_dynamic_networks(nodes = nodes,
+  #' directed_edges = references,
+  #' source_id = "ID_Art",
+  #' target_id = "ItemID_Ref",
+  #' time_variable = "Year",
+  #' cooccurrence_method = "coupling_similarity",
+  #' time_window = 20,
+  #' edges_threshold = 1,
+  #' overlapping_window = TRUE,
+  #' filter_components = TRUE,
+  #' verbose = FALSE)
+  #'
+  #' temporal_networks <- add_clusters(temporal_networks,
+  #' objective_function = "modularity",
+  #' clustering_method = "leiden",
+  #' verbose = FALSE)
+  #'
+  #' temporal_networks <- merge_dynamic_clusters(temporal_networks,
+  #' cluster_id = "cluster_leiden",
+  #' node_id = "ID_Art",
+  #' threshold_similarity = 0.51,
+  #' similarity_type = "partial")
+  #'
+  #' temporal_networks <- name_clusters(graphs = temporal_networks,
+  #' method = "tf-idf",
+  #' name_merged_clusters = TRUE,
+  #' cluster_id = "dynamic_cluster_leiden",
+  #' text_columns = "Title",
+  #' nb_terms_label = 5,
+  #' clean_word_method = "lemmatise")
+  #'
+  #' temporal_networks <- color_networks(graphs = temporal_networks,
+  #' column_to_color = "dynamic_cluster_leiden",
+  #' color = NULL)
+  #'
+  #' alluv_dt <- networks_to_alluv(temporal_networks,
+  #' intertemporal_cluster_column = "dynamic_cluster_leiden",
+  #' node_key = "ID_Art")
+  #'
+  #' alluv_dt[1:5]
   #'
   #' @export
 
   . <- y_alluv <- Window <- share_cluster_alluv <- intertemporal_name <- tot_window_leiden <- tot_window <- share_cluster_window <- share_cluster_max <- head <- N <- nodes <- NULL
 
-  networks <- lapply(list_graph,
-                     function(tbl)(tbl %N>% as.data.table))
-  networks <- lapply(networks,
-                     function(dt)(dt[, .SD, .SDcols = c(node_key, intertemporal_cluster_column)]))
+  columns <- c(node_key,
+               intertemporal_cluster_column,
+               if(!is.null(color_column) & keep_color) color_column,
+               if(!is.null(cluster_label_column) & keep_cluster_label) cluster_label_column)
 
-  alluv_dt <- rbindlist(networks, idcol = "Window")
-#  alluv_dt[,y_alluv:=1/.N, Window]
+  alluv_dt <- lapply(list_graph,
+                     function(tbl)(tbl %N>% data.table::as.data.table())) %>%
+    data.table::rbindlist(idcol = "Window") %>%
+    dplyr::select(Window, dplyr::any_of(columns)) # We keep all the need columns
+
+  if(!is.null(color_column) | keep_color == FALSE){
+    cli::cli_alert_info("You did not use any {.emph color} column. If you want to plot the alluvial, you can use {.fn color_alluvial}.")
+  }
+  if(! color_column %in% colnames(alluv_dt) & keep_color){
+    cli::cli_alert_info("The column \"{.emph {color_column}}\" does not exist in the list of graphs provided. No color kept for clusters.")
+  }
+  if(! cluster_label_column %in% colnames(alluv_dt) & keep_cluster_label){
+    cli::cli_alert_info("The column \"{.emph {cluster_label_column}}\" does not exist in the list of graphs provided. No name kept for clusters.")
+  }
 
   if(summary_cl_stats == TRUE){
     alluv_dt[,share_cluster_alluv:= round(.N/alluv_dt[,.N], 4) * 100, intertemporal_cluster_column,
@@ -56,10 +141,10 @@ networks_to_alluv <- function(list_graph = NA,
     n_years <- alluv_dt[, head(.SD, 1), .(Window, intertemporal_cluster_column),
                         env = list(intertemporal_cluster_column = intertemporal_cluster_column)][,.N, intertemporal_cluster_column, env = list(intertemporal_cluster_column = intertemporal_cluster_column)]
     n_years <- n_years %>% rename(length_cluster = N)
-#    setkey(c(intertemporal_cluster_column))
+
     alluv_dt <- merge(alluv_dt,
                       n_years,
-                      by = c(intertemporal_cluster_column),
+                      by = intertemporal_cluster_column,
                       all.x = TRUE) %>%  # length of cl
       .[order(Window)]
   }

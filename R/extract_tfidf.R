@@ -186,20 +186,20 @@ extract_tfidf <- function(data,
     {if(clean_word_method == "stemming") .[, (columns) := lapply(.SD, textstem::stem_words), .SDcols = columns] else .} %>%
     dplyr::filter(dplyr::if_all(starts_with("word_"), ~ ! . %in% stopwords_vector),
                   dplyr::if_all(starts_with("word_"), ~ ! stringr::str_detect(., "^[:digit:]+$"))) %>%
-    tidyr::unite(term, starts_with("word_"), sep = " ") %>%
+    tidyr::unite(term, dplyr::starts_with("word_"), sep = " ") %>%
     .[, term := stringr::str_trim(term, "both")] %>%
     dplyr::select(dplyr::all_of(grouping_columns), term) %>%
     .[, total_term := .N, by = term] %>%
     dplyr::filter(total_term >= ngrams_filter) %>%
-    tidyr::unite(document, all_of(grouping_columns), sep = "_", remove = FALSE) %>%
+    tidyr::unite(document, dplyr::all_of(grouping_columns), sep = "_", remove = FALSE) %>%
     .[, n := .N, by = .(term, document)] %>%
-    dplyr::select(document, all_of(grouping_columns), term, n) %>%
+    dplyr::select(document, dplyr::all_of(grouping_columns), term, n) %>%
     unique %>%
     tidytext::bind_tf_idf(term, document, n) %>%
-    filter(n > 1) %>%
+    dplyr::filter(n > 1) %>%
     dplyr::group_by(document) %>%
     dplyr::slice_max(order_by = tf_idf, n = nb_terms, with_ties = FALSE) %>%
     data.table::as.data.table() %>%
     dplyr::ungroup() %>%
-    select(-document)
+    dplyr::select(-document)
 }

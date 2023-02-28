@@ -12,8 +12,8 @@ color_networks(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
-graphs or a data frame.}
+\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
+graphs.}
 
 \item{column_to_color}{The column of the categorical variable to use to color nodes and edges. For instance,
 the \verb{cluster_\{clustering_method\}} created with \link[=add_clusters]{add_clusters()}

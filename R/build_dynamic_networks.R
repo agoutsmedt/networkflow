@@ -122,8 +122,6 @@
 #' temporal_networks[[1]]
 #'
 #' @export
-#' @import data.table
-#' @import tidygraph
 #' @import biblionetwork
 build_dynamic_networks <- function(nodes = NULL,
                                    directed_edges = NULL,
