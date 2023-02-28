@@ -114,10 +114,6 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #' overlapping_window = TRUE)
   #'
   #' @export
-  #' @import data.table
-  #' @import tidygraph
-  #' @import biblionetwork
-  #' @import lifecycle
 
   size <- node_size <- N <- method <- NULL
   lifecycle::deprecate_warn("0.1.0", "dynamic_network_cooccurrence()", "build_dynamic_networks()")
@@ -235,20 +231,17 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
     }
 
     # coupling
-    biblio_functions <- data.table::data.table(method = cooccurrence_methods,
-                                               biblio_function = c("biblio_coupling", "coupling_strength", "coupling_similarity"))
-    biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]]
-
-    if(verbose == TRUE) cat(paste0("The method use for co-occurence is the ", cooccurrence_method," method. The edge threshold is:", edges_threshold, ".\n"))
-    edges_of_the_year <- data.table::substitute2(
-      biblionetwork::fun(dt = edges_of_the_year,
-                         source = source_column,
-                         ref = target_column,
-                         weight_threshold = edges_threshold),
-      env = list(fun = biblio_function,
-                 source_column = I(source_column),
-                 target_column = I(target_column),
-                 edges_threshold = edges_threshold)) %>%
+    biblio_functions <- data.table::data.table(biblio_function = c(rlang::expr(biblionetwork::biblio_coupling),
+                                                                   rlang::expr(biblionetwork::coupling_strength),
+                                                                   rlang::expr(biblionetwork::coupling_similarity)),
+                                               method = c("coupling_angle",
+                                                          "coupling_strength",
+                                                          "coupling_similarity"))
+    biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]][[1]]
+    edges_of_the_year <- rlang::expr((!!biblio_function)(dt = edges_of_the_year,
+                                                         source = rlang::inject(source_id),
+                                                         ref = rlang::inject(target_id),
+                                                         weight_threshold = rlang::inject(edges_threshold))) %>%
       eval()
 
     # remove nodes with no edges

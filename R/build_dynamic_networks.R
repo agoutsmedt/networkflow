@@ -122,7 +122,6 @@
 #' temporal_networks[[1]]
 #'
 #' @export
-#' @import biblionetwork
 build_dynamic_networks <- function(nodes = NULL,
                                    directed_edges = NULL,
                                    source_id = NULL,
@@ -274,19 +273,17 @@ build_dynamic_networks <- function(nodes = NULL,
     }
 
     # coupling
-    biblio_functions <- data.table::data.table(method = cooccurrence_methods,
-                                               biblio_function = c("biblio_coupling", "coupling_strength", "coupling_similarity"))
-    biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]]
-
-    edges_of_the_year <- data.table::substitute2(
-      biblionetwork::fun(dt = edges_of_the_year,
-                         source = source_id,
-                         ref = target_id,
-                         weight_threshold = edges_threshold),
-      env = list(fun = biblio_function,
-                 source_id = I(source_id),
-                 target_id = I(target_id),
-                 edges_threshold = edges_threshold)) %>%
+    biblio_functions <- data.table::data.table(biblio_function = c(rlang::expr(biblionetwork::biblio_coupling),
+                                                                   rlang::expr(biblionetwork::coupling_strength),
+                                                                   rlang::expr(biblionetwork::coupling_similarity)),
+                                               method = c("coupling_angle",
+                                                          "coupling_strength",
+                                                          "coupling_similarity"))
+    biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]][[1]]
+    edges_of_the_year <- rlang::expr((!!biblio_function)(dt = edges_of_the_year,
+                                    source = rlang::inject(source_id),
+                                    ref = rlang::inject(target_id),
+                                    weight_threshold = rlang::inject(edges_threshold))) %>%
       eval()
 
     # remove nodes with no edges

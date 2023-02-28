@@ -90,9 +90,6 @@ intertemporal_cluster_naming <- function(list_graph = NA,
   #' similarity_type = "partial")
   #'
   #' @export
-  #' @import data.table
-  #' @import tidygraph
-  #' @import dplyr
 
   lifecycle::deprecate_warn("0.1.0", "intertemporal_cluster_naming()", "merge_dynamic_clusters()")
 
@@ -145,7 +142,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
         unique
 
       intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        tidygraph::left_join(dt_year)
+        dplyr::left_join(dt_year)
     }
 
     ######################### For other years, we need to take the previous years and give new names to community of the new year  **********************
@@ -156,19 +153,19 @@ intertemporal_cluster_naming <- function(list_graph = NA,
 
       dt_year <- intertemporal_naming[[paste0(Year-1)]] %N>%
         dplyr::rename("past_id_com" = intertemporal_name) %>%
-        dplyr::select(all_of(c(node_key, "past_id_com"))) %>% # this is the nodes from the past
+        dplyr::select(dplyr::all_of(c(node_key, "past_id_com"))) %>% # this is the nodes from the past
         data.table::as.data.table()
 
       ######################### Communities from present  **********************
 
       dt_year2 <- list_graph[[paste0(Year)]] %N>%
-        dplyr::select(all_of(c(node_key, cluster_column))) %>%
+        dplyr::select(dplyr::all_of(c(node_key, cluster_column))) %>%
         data.table::as.data.table()
       n_com <- dt_year2[, .N, cluster_column, env = list(cluster_column = cluster_column)][,.N] # number of communities
-      id_com_corr <- data.table(new_cluster_column = unique_ids[1:n_com],
+      id_com_corr <- data.table::data.table(new_cluster_column = unique_ids[1:n_com],
                                 dt_year2[, .SD,.SDcols = cluster_column] %>% unique) #give a unique ids to com that not 1,2,3...
       unique_ids <- unique_ids[-c(1:n_com)] #remove ids taken from list
-      setnames(dt_year2, cluster_column, "present_id_com")   # this is the nodes from the present
+      data.table::setnames(dt_year2, cluster_column, "present_id_com")   # this is the nodes from the present
 
       ######################### Find the evolution of past communities  **********************
 
@@ -222,7 +219,7 @@ intertemporal_cluster_naming <- function(list_graph = NA,
       final_names <- final_names[, .SD, .SDcols = c(cluster_column, "intertemporal_name")]
 
       intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        tidygraph::left_join(final_names)
+        dplyr::left_join(final_names)
     }
   }
   names(intertemporal_naming) <- old_list_name

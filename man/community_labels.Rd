@@ -31,9 +31,11 @@ set to \code{TRUE}) and a pair of coordinates to project these names on your vis
 keeps the color of the community and its size.
 }
 \description{
-A simple function to calculate the mean of coordinates x and y for each community. These coordinates
-are to be used to plot the name of the community on the graph visualisation.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 }
 \details{
+A simple function to calculate the mean of coordinates x and y for each community. These coordinates
+are to be used to plot the name of the community on the graph visualisation.
+
 You have to run this function only after having calculating (x,y) coordinates for your nodes.
 }

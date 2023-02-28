@@ -121,7 +121,7 @@
 #' name_merged_clusters = FALSE,
 #' cluster_id = "cluster_leiden",
 #' label_columns = c("Author", "Year"),
-#' tidygraph_function = centrality_pagerank())
+#' tidygraph_function = tidygraph::centrality_pagerank())
 #'
 #' temporal_networks_with_names[[1]]
 #'
@@ -176,11 +176,14 @@ name_clusters <- function(graphs,
 
 
   if(method == "tidygraph_functions"){
+    fun <- rlang::enexpr(tidygraph_function)
+    if(! "tidygraph" %in% names(utils::sessionInfo()$otherPkgs) & ! grepl("tidygraph", rlang::as_label(fun))){
+      cli::cli_abort("You need to load {.pkg tidygraph} to use the {.val tidygraph_functions} method.")
+    }
     if(name_merged_clusters == TRUE){
       cli::cli_abort("The {.val tidygraph_functions} method is inappropriate as you have set {.emph name_merged_clusters} to {.val TRUE}.
                  The {.val tidygraph_functions} method only works at the graph level as it depends on the structure of the corresponding network.")
     }
-    fun <- enexpr(tidygraph_function)
     order_by <- rlang::as_label(fun) %>%
       stringr::str_extract("centrality_.+(?=\\()")
 
@@ -188,13 +191,18 @@ name_clusters <- function(graphs,
                        dplyr::mutate({{ order_by }} := eval(fun)))
   }
 
+  if(method == "given_column" & is.null(order_by)){
+    cli::cli_abort("The {.emph order_by} parameter cannot be {.code NULL} with the {.val given_column} method.")
+  }
+
   if(name_merged_clusters == FALSE){
     for(i in 1:length(graphs)){
       if(method %in% c("tidygraph_functions", "given_column")){
+        order_by <- rlang::ensym(order_by)
         labels <- graphs[[i]] %N>%
           dplyr::as_tibble() %>%
-          dplyr::group_by(across({{ cluster_id }})) %>%
-          dplyr::slice_max(order_by = .data[[order_by]], n = 1, with_ties = FALSE) %>%
+          dplyr::group_by(dplyr::across({{ cluster_id }})) %>%
+          dplyr::slice_max(order_by = eval(order_by), n = 1, with_ties = FALSE) %>%
           tidyr::unite({{ label_name }}, dplyr::all_of(label_columns), sep = "_") %>%
           dplyr::select(dplyr::all_of(cluster_id), dplyr::all_of(label_name))
       } else if(method == "tf-idf"){
@@ -225,8 +233,8 @@ name_clusters <- function(graphs,
 
     if(method == "given_column"){
       labels <- dt %>%
-        dplyr::group_by(across({{ cluster_id }})) %>%
-        dplyr::slice_max(order_by = .data[[order_by]], n = 1, with_ties = FALSE) %>%
+        dplyr::group_by(dplyr::across({{ cluster_id }})) %>%
+        dplyr::slice_max(order_by = eval(order_by), n = 1, with_ties = FALSE) %>%
         tidyr::unite({{ label_name }}, dplyr::all_of(label_columns), sep = "_") %>%
         dplyr::select(dplyr::all_of(cluster_id), dplyr::all_of(label_name))
     } else if(method == "tf-idf"){

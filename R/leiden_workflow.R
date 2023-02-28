@@ -46,9 +46,6 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
   #' \insertAllCited{}
   #'
   #' @export
-  #' @import magrittr
-  #' @import tidygraph
-  #' @import dplyr
   #' @importFrom Rdpack reprompt
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()

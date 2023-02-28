@@ -69,9 +69,9 @@ filter_components <- function(graphs,
     # attributing a number to the different components (1 is the biggest components)
     graph <- graph %N>%
       dplyr::mutate(components_att = tidygraph::group_components(type = "weak"),
-                    size_components = n()) %>%
+                    size_components = dplyr::n()) %>%
       dplyr::group_by(components_att) %>%
-      dplyr::mutate(size_components = n()/size_components) %>%
+      dplyr::mutate(size_components = dplyr::n()/size_components) %>%
       dplyr::ungroup()
 
     highest_component <- graph %N>%

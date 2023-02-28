@@ -137,7 +137,7 @@ extract_tfidf <- function(data,
                           clean_word_method = c("lemmatize", "stemming", "none"),
                           ngrams_filter = 5L,
                           nb_terms = 5L){
-  row_id <- text <- . <- term <- total_term <- document <- tf_idf <- word <- NULL
+  row_id <- text <- . <- n <- term <- total_term <- document <- tf_idf <- word <- NULL
 
   if(! is.null(stopwords_vector) & ! is.character(stopwords_vector)){
     stop("The stopwords list is not a vector of strings.")
@@ -184,8 +184,8 @@ extract_tfidf <- function(data,
     .[, (columns) := lapply(.SD, function(x) ifelse(is.na(x), "", x)), .SDcols = columns] %>%  # replacing na value
     {if(clean_word_method == "lemmatize") .[, (columns) := lapply(.SD, textstem::lemmatize_words), .SDcols = columns] else .} %>%
     {if(clean_word_method == "stemming") .[, (columns) := lapply(.SD, textstem::stem_words), .SDcols = columns] else .} %>%
-    dplyr::filter(dplyr::if_all(starts_with("word_"), ~ ! . %in% stopwords_vector),
-                  dplyr::if_all(starts_with("word_"), ~ ! stringr::str_detect(., "^[:digit:]+$"))) %>%
+    dplyr::filter(dplyr::if_all(dplyr::starts_with("word_"), ~ ! . %in% stopwords_vector),
+                  dplyr::if_all(dplyr::starts_with("word_"), ~ ! stringr::str_detect(., "^[:digit:]+$"))) %>%
     tidyr::unite(term, dplyr::starts_with("word_"), sep = " ") %>%
     .[, term := stringr::str_trim(term, "both")] %>%
     dplyr::select(dplyr::all_of(grouping_columns), term) %>%

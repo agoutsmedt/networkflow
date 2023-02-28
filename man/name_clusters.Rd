@@ -127,7 +127,7 @@ method = "tidygraph_functions",
 name_merged_clusters = FALSE,
 cluster_id = "cluster_leiden",
 label_columns = c("Author", "Year"),
-tidygraph_function = centrality_pagerank())
+tidygraph_function = tidygraph::centrality_pagerank())
 
 temporal_networks_with_names[[1]]
 

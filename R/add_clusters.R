@@ -180,7 +180,7 @@ add_clusters <- function(graphs,
   }
   if(inherits(graphs, "tbl_graph")){
     list <- FALSE
-    cluster_graph <-   detect_cluster(graphs,
+    cluster_graph <- detect_cluster(graphs,
                                       clustering_method = clustering_method,
                                       objective_function = objective_function,
                                       resolution = resolution,
@@ -213,18 +213,18 @@ group_leiden <- function(graph = graph,
 
 # extracting the appropriate clustering function depending on the method chosen
 extract_clustering_method <- function(clustering_method = clustering_method){
-  . <- objective_function <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <-   graph <- NULL
+  . <- objective_function <- functions <- n_groups <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <-   graph <- NULL
 
   function_table <- dplyr::tribble(
     ~ method, ~functions,
     "leiden", rlang::expr(group_leiden(graph, objective_function = objective_function, weights = weights, resolution = resolution, n_iterations = n_iterations, node_weights = node_weights)),
-    "louvain", rlang::expr(group_louvain(weights = weights)),
-    "fast_greedy", rlang::expr(group_fast_greedy(weights = weights, n_groups = n_groups)),
-    "infomap", rlang::expr(group_infomap(weights = weights, node_weights = node_weights, trials = trials)),
-    "walktrap", rlang::expr(group_walktrap(weights = weights, steps = steps, n_groups = n_groups)))
+    "louvain", rlang::expr(tidygraph::group_louvain(weights = weights)),
+    "fast_greedy", rlang::expr(tidygraph::group_fast_greedy(weights = weights, n_groups = n_groups)),
+    "infomap", rlang::expr(tidygraph::group_infomap(weights = weights, node_weights = node_weights, trials = trials)),
+    "walktrap", rlang::expr(tidygraph::group_walktrap(weights = weights, steps = steps, n_groups = n_groups)))
   fun <- function_table %>%
-    filter(method == clustering_method) %>%
-    .[["functions"]] %>%
+    dplyr::filter(method == clustering_method) %>%
+    dplyr::pull(functions) %>%
     .[[1]]
 
   return(fun)
@@ -251,20 +251,23 @@ detect_cluster <- function(graph,
   }
   fun <- extract_clustering_method(clustering_method)
   cluster_col <- paste0("cluster_", clustering_method)
+  cluster_col <- rlang::ensym(cluster_col)
+  cluster_col_from <- paste0(cluster_col, "_from")
+  cluster_col_to <- paste0(cluster_col, "_to")
   size_col <- paste0("size_cluster_", clustering_method)
 
   graph <- graph %N>%
     dplyr::mutate({{ cluster_col }} := eval(fun),
-           {{ cluster_col }} := sprintf("%02d", as.integer(.data[[cluster_col]])),
-           {{ size_col }} := n()) %>%
-    dplyr::group_by(across({{ cluster_col }})) %>%
-    dplyr::mutate({{ size_col }} := n()/.data[[size_col]]) %>%
+                  {{ cluster_col }} := sprintf("%02d", eval(cluster_col)),
+                  {{ size_col }} := dplyr::n()) %>%
+    dplyr::group_by(dplyr::across({{ cluster_col }})) %>%
+    dplyr::mutate({{ size_col }} := dplyr::n()/eval(rlang::ensym(size_col))) %>%
     dplyr::ungroup() %E>%
     dplyr::mutate("{ cluster_col }_from" := .N()[[cluster_col]][from],
                   "{ cluster_col }_to" := .N()[[cluster_col]][to],
-                  {{ cluster_col }} := if_else(.data[[paste0(cluster_col, "_from")]] == .data[[paste0(cluster_col, "_to")]],
-                                               .data[[paste0(cluster_col, "_from")]],
-                                               "00"))
+                  {{ cluster_col }} := ifelse(eval(rlang::ensym(cluster_col_from)) == eval(rlang::ensym(cluster_col_to)),
+                                              eval(rlang::ensym(cluster_col_from)),
+                                              "00"))
   if(verbose == TRUE){
     nb_clusters <- graph %N>%
       dplyr::pull(cluster_col) %>%
@@ -276,7 +279,7 @@ detect_cluster <- function(graph,
       max() %>%
       round(3) * 100
 
-    if(list == TRUE) cli::cli_h1("Cluster detection for the {.val {graph %N>% as.data.frame() %>% .$time_window %>% unique()}} period")
+    if(list == TRUE) cli::cli_h1("Cluster detection for the {.val {graph %N>% as.data.frame() %>% dplyr::pull(time_window) %>% unique()}} period")
     cli::cli_alert_info("The {.emph {clustering_method}} method detected {.val {nb_clusters}} clusters. The biggest cluster represents {.val {max_size}%} of the network.")
   }
   return(graph)

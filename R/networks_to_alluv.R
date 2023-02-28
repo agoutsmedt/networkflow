@@ -140,7 +140,8 @@ networks_to_alluv <- function(list_graph = NA,
 
     n_years <- alluv_dt[, head(.SD, 1), .(Window, intertemporal_cluster_column),
                         env = list(intertemporal_cluster_column = intertemporal_cluster_column)][,.N, intertemporal_cluster_column, env = list(intertemporal_cluster_column = intertemporal_cluster_column)]
-    n_years <- n_years %>% rename(length_cluster = N)
+    n_years <- n_years %>%
+      dplyr::rename(length_cluster = N)
 
     alluv_dt <- merge(alluv_dt,
                       n_years,

@@ -20,8 +20,6 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
   #' `color_edges` column in the edges side.
   #'
   #' @export
-  #' @import tidygraph
-  #' @import dplyr
 
   lifecycle::deprecate_warn("0.1.0", "community_colors()", "color_networks()")
 
@@ -30,9 +28,8 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
   nodes <- Com_ID <- edges <- to <- from <- color_com_ID_to <- color_com_ID_from <- NULL
 
 
-  graph <- graph %>%
-    activate(nodes) %>%
-    rename(Com_ID = {{ community_column }})
+  graph <- graph %N>%
+    dplyr::rename(Com_ID = {{ community_column }})
 
   # Setup Colors
   color <- data.table::data.table(
@@ -40,19 +37,17 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
     color = palette)
 
   color <- color %>%
-    mutate(Com_ID = sprintf("%02d", Com_ID)) %>%
-    mutate(Com_ID = as.character(Com_ID))
+    dplyr::mutate(Com_ID = sprintf("%02d", Com_ID)) %>%
+    dplyr::mutate(Com_ID = as.character(Com_ID))
 
   # Add color to nodes
-  graph <- graph %>%
-    activate(nodes) %>%
-    left_join(color)
+  graph <- graph %N>%
+    dplyr::left_join(color)
 
   # Mix color for edges of different color
-  graph <- graph %>% # mix color
-    activate(edges) %>%
-    mutate(color_com_ID_to = .N()$color[to], color_com_ID_from = .N()$color[from]) %>%
-    mutate(color_edges = mixcolor(color_com_ID_to, color_com_ID_from, amount1 = 0.5))
+  graph <- graph %E>% # mix color
+    dplyr::mutate(color_com_ID_to = .N()$color[to], color_com_ID_from = .N()$color[from]) %>%
+    dplyr::mutate(color_edges = mixcolor(color_com_ID_to, color_com_ID_from, amount1 = 0.5))
 
 }
 
@@ -60,7 +55,7 @@ community_colors <- function(graph, palette, community_column = "Com_ID"){
 mixcolor <- function (col1, col2, amount1 = 0.5)
 {
   .mix <- function(col1, col2, amount1 = 0.5) {
-    mix <- apply(col2rgb(c(col1, col2), alpha = TRUE), 1,
+    mix <- apply(grDevices::col2rgb(c(col1, col2), alpha = TRUE), 1,
                  function(x) amount1 * x[1] + (1 - amount1) * x[2])
     do.call("rgb", c(as.list(mix), maxColorValue = 255))
   }

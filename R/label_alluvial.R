@@ -18,18 +18,19 @@ label_alluvial <- function(alluv_dt = NA,
   #' the name of the column created with [intertemporal_cluster_naming()][networkflow::intertemporal_cluster_naming()].
   #'
   #' @export
-  #' @import data.table
-  #' @import tidygraph
-  #' @import dplyr
 
   . <- Window <- head <- x <- intertemporal_name_label <- N <- NULL
 
-  label <- copy(alluv_dt)
-  label <- label[,.N,.(intertemporal_cluster_label_column, window_column), env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]
-  label <- label[,Window:=round(mean(as.numeric(window_column))),intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]
-  label <- label[, head(.SD, 1), .(intertemporal_cluster_label_column), env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column)]
+  label <- data.table::copy(alluv_dt)
+  label <- label[,.N,.(intertemporal_cluster_label_column, window_column),
+                 env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]
+  label <- label[,Window:=round(mean(as.numeric(window_column))),intertemporal_cluster_label_column,
+                 env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column, window_column = window_column)]
+  label <- label[, head(.SD, 1), .(intertemporal_cluster_label_column),
+                 env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column)]
   label[,N:=NULL]
-  label[,intertemporal_name_label:=intertemporal_cluster_label_column, env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column) ]
+  label[,intertemporal_name_label:=intertemporal_cluster_label_column,
+        env = list(intertemporal_cluster_label_column = intertemporal_cluster_label_column) ]
 
   alluv_dt <- merge(alluv_dt, label, by=c(intertemporal_cluster_label_column, window_column), all.x = TRUE)
 

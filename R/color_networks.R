@@ -91,11 +91,13 @@ color_networks <- function(graphs,
                                                     data.table::as.data.table() %>%
                                                     .[, .SD, .SDcols = c(column_to_color)])) %>%
       data.table::rbindlist(idcol = "window") %>%
-      {if(unique_color_across_list) tidyr::unite(., {{ column_to_color }}, dplyr::everything()) else select(., -window)}
+      {if(unique_color_across_list) tidyr::unite(., {{ column_to_color }}, dplyr::everything()) else dplyr::select(., -window)}
   } else{
     if(inherits(graphs, "tbl_graph")){
       unique_graph <- TRUE
-      variable_list <- graphs %N>% as.data.table %>% .[, .SD, .SDcols = c(column_to_color)]
+      variable_list <- graphs %N>%
+        data.table::as.data.table %>%
+        .[, .SD, .SDcols = c(column_to_color)]
       graphs <- list(graphs) #If it's graph alone, make it into the list so the next part of the function work
 
     } else {
@@ -119,7 +121,7 @@ color_networks <- function(graphs,
       cli::cli_alert_info("The number of colors provided is different from the number of categories to color.
                         You need a vector with {.val {n_colors}} color(s). The function will proceed by repeating provided colors or remove unecessary ones.")
     }
-    main_colors_table <- data.table(
+    main_colors_table <- data.table::data.table(
       categories = variable_list,
       color = rep(color, length.out = n_colors))
   } else {
@@ -145,7 +147,7 @@ color_networks <- function(graphs,
                    as.character(grDevices::palette.colors(8, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
         cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and 7 from the {.emph Okabe-Ito} palette. As more than 14 colors are needed, the colors will be recycled.")
       }
-      main_colors_table <- data.table(
+      main_colors_table <- data.table::data.table(
         categories = variable_list,
         color = rep(color, length.out = n_colors))
     }
@@ -157,7 +159,7 @@ color_networks <- function(graphs,
   if(unique_color_across_list){
     main_colors_table <- main_colors_table %>%
       tidyr::separate({{column_to_color}}, c("window", column_to_color), sep = "_") %>%
-      tidyr::nest(data = all_of(c(column_to_color, "color"))) %>%
+      tidyr::nest(data = dplyr::all_of(c(column_to_color, "color"))) %>%
       dplyr::pull(data)
     for(i in 1:length(graphs)){
       graphs[[i]] <- graphs[[i]] %N>%

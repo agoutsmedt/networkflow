@@ -1,6 +1,8 @@
 community_labels <- function(graph, biggest_community = FALSE, community_threshold = 0.01, community_name_column = "Community_name", community_size_column = "Size_com"){
   #' Calculating the Coordinates for Projecting Community Labels
   #'
+  #' `r lifecycle::badge("deprecated")`
+  #'
   #' A simple function to calculate the mean of coordinates x and y for each community. These coordinates
   #' are to be used to plot the name of the community on the graph visualisation.
   #'
@@ -29,33 +31,29 @@ community_labels <- function(graph, biggest_community = FALSE, community_thresho
   #' keeps the color of the community and its size.
   #'
   #' @export
-  #' @import tidygraph
-  #' @import magrittr
-  #' @import dplyr
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
   # See https://www.r-bloggers.com/2019/08/no-visible-binding-for-global-variable/
   nodes <- x <- Size_com <- y <- color <- Community_name <- NULL
 
   # Top nodes per community for the variable chosen
-  label_com <- graph %>%
-    activate(nodes) %>%
-    mutate(community_name_column = .data[[community_name_column]],
-           community_size_column = .data[[community_size_column]])  %>%
-    as_tibble()
+  label_com <- graph %N>%
+    dplyr::mutate(community_name_column = eval(rlang::ensym(community_name_column)),
+           community_size_column = eval(rlang::ensym(community_size_column)))  %>%
+    dplyr::as_tibble()
 
   # Keeping only the biggest communites if the parameter is TRUE
   if(biggest_community == TRUE){
     label_com <- label_com %>%
-      filter(Size_com > community_threshold)
+      dplyr::filter(Size_com > community_threshold)
   }
 
   # Keeping the n top nodes per community
   label_com <- label_com %>%
-    group_by(Community_name) %>%
-    mutate(x = mean(x), y = mean(y)) %>%
-    select(Community_name,x,y,color,Size_com) %>%
-    as_tibble() %>%
+    dplyr::group_by(Community_name) %>%
+    dplyr::mutate(x = mean(x), y = mean(y)) %>%
+    dplyr::select(Community_name,x,y,color,Size_com) %>%
+    dplyr::as_tibble() %>%
     unique()
 
   return(label_com)

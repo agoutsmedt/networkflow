@@ -40,9 +40,6 @@ community_names <- function(graph, ordering_column, naming = "Label", community_
   #' and `Community_3_name` if you have run the [leiden_workflow()] function for more than one resolution.
   #'
   #' @export
-  #' @import tidygraph
-  #' @import magrittr
-  #' @import dplyr
 
   lifecycle::deprecate_warn("0.1.0", "community_names()", "name_clusters()")
 
@@ -52,42 +49,38 @@ community_names <- function(graph, ordering_column, naming = "Label", community_
 
   # Finding the nodes with the highest strength per community and building a df with community numbers
   # and the label of the node with the highest Strength.
-  graph <- graph %>%
-    activate(nodes)  %>%
-    rename(Label = {{naming}},
-           Com_ID = {{community_column}}) %>%
-    mutate(ordering_column = .data[[ordering_column]])
 
-  Community_names <- graph %>%
-    activate(nodes)  %>%
-    as_tibble() %>%
-    arrange(Com_ID, desc(ordering_column)) %>%
-    mutate(Community_name = Label) %>%
-    select(Community_name, Com_ID) %>%
-    group_by(Com_ID) %>%
-    slice(1) %>%
-    mutate(Community_name = paste0(Com_ID,"-",Community_name))
+  graph <- graph %N>%
+    dplyr::rename(Label = {{naming}},
+           Com_ID = {{community_column}}) %>%
+    dplyr::mutate(ordering_column = eval(rlang::ensym(ordering_column)))
+
+  Community_names <- graph %N>%
+    dplyr::as_tibble() %>%
+    dplyr::arrange(Com_ID, dplyr::desc(ordering_column)) %>%
+    dplyr::mutate(Community_name = Label) %>%
+    dplyr::select(Community_name, Com_ID) %>%
+    dplyr::group_by(Com_ID) %>%
+    dplyr::slice(1) %>%
+    dplyr::mutate(Community_name = paste0(Com_ID,"-",Community_name))
 
   # adding the name as an attribute to the nodes.
-  graph <- graph %>%
-    activate(nodes) %>%
-    inner_join(Community_names, by = "Com_ID")
+  graph <- graph %N>%
+    dplyr::inner_join(Community_names, by = "Com_ID")
 
   # Reproducing the same operation for Com_ID_2 if it exists
   if(!is.null(igraph::V(graph)$Com_ID_2)){
-    Community_names <- graph %>%
-      activate(nodes) %>%
-      as_tibble()  %>%
-      arrange(Com_ID, desc(ordering_column)) %>%
-      mutate(Community_2_name = Label) %>%
-      select(Community_2_name, Com_ID_2) %>%
-      group_by(Com_ID_2) %>%
-      slice(1) %>%
-      mutate(Community_2_name = paste0(Com_ID_2,"-",Community_2_name))
+    Community_names <- graph %N>%
+      dplyr::as_tibble()  %>%
+      dplyr::arrange(Com_ID, dplyr::desc(ordering_column)) %>%
+      dplyr::mutate(Community_2_name = Label) %>%
+      dplyr::select(Community_2_name, Com_ID_2) %>%
+      dplyr::group_by(Com_ID_2) %>%
+      dplyr::slice(1) %>%
+      dplyr::mutate(Community_2_name = paste0(Com_ID_2,"-",Community_2_name))
 
-    graph <- graph %>%
-      activate(nodes) %>%
-      inner_join(Community_names, by = "Com_ID_2")
+    graph <- graph %N>%
+      dplyr::inner_join(Community_names, by = "Com_ID_2")
 
  #   graph <- graph %>%
   #    activate(edges) %>%
@@ -96,19 +89,17 @@ community_names <- function(graph, ordering_column, naming = "Label", community_
 
   # Reproducing the same operation for Com_ID_3 if it exists
   if(!is.null(igraph::V(graph)$Com_ID_3)){
-    Community_names <- graph %>%
-      activate(nodes) %>%
-      as_tibble()  %>%
-      arrange(Com_ID, desc(ordering_column)) %>%
-      mutate(Community_3_name = Label) %>%
-      select(Community_3_name, Com_ID_3) %>%
-      group_by(Com_ID_3) %>%
-      slice(1) %>%
-      mutate(Community_3_name = paste0(Com_ID_3,"-",Community_3_name))
+    Community_names <- graph %N>%
+      dplyr::as_tibble()  %>%
+      dplyr::arrange(Com_ID, dplyr::desc(ordering_column)) %>%
+      dplyr::mutate(Community_3_name = Label) %>%
+      dplyr::select(Community_3_name, Com_ID_3) %>%
+      dplyr::group_by(Com_ID_3) %>%
+      dplyr::slice(1) %>%
+      dplyr::mutate(Community_3_name = paste0(Com_ID_3,"-",Community_3_name))
 
-    graph <- graph %>%
-      activate(nodes) %>%
-      inner_join(Community_names, by = "Com_ID_3")
+    graph <- graph %N>%
+      dplyr::inner_join(Community_names, by = "Com_ID_3")
 
   #  graph <- graph %>%
    #   activate(edges) %>%
@@ -116,7 +107,7 @@ community_names <- function(graph, ordering_column, naming = "Label", community_
   }
 
   graph <- graph %>%
-    select(-ordering_column)
+    dplyr::select(-ordering_column)
 
   return(graph)
 }

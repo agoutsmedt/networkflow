@@ -37,6 +37,7 @@ the whole network. Informations like coordinates (x,y) and community identifier 
 for using the data.table in a visualisation.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 A simple function for keeping a number n of nodes with the highest chosen statistics value
 per communities and a number n of nodes with the highest chosen statistics value within
 the whole network. This is used to display only the most important nodes on your graph visualisation.

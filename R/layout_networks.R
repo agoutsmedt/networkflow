@@ -174,7 +174,7 @@ join_coordinates <- function(graphs,
     dplyr::select(dplyr::all_of(node_id), x, y)
 
   graphs <- graphs %N>%
-    dplyr::select(-any_of(c("x", "y"))) %>%
+    dplyr::select(-dplyr::any_of(c("x", "y"))) %>%
     dplyr::left_join(coords, by = node_id)
 
   if(save_coordinates == TRUE){

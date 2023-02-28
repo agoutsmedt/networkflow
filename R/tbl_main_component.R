@@ -35,7 +35,6 @@ tbl_main_component <- function(edges, nodes, nb_components = 1, threshold_alert 
   #'
   #' @return A tidygraph object with a list of nodes and a list of edges.
   #'
-  #' @import magrittr
   #' @export
 
   # Listing the variables not in the global environment to avoid a "note" saying "no visible binding for global variable ..." when using check()
@@ -47,8 +46,7 @@ tbl_main_component <- function(edges, nodes, nb_components = 1, threshold_alert 
   graph <- tidygraph::tbl_graph(nodes, edges, ...)
 
   # attributing a number to the different components (1 is the biggest components)
-  graph <- graph %>%
-    tidygraph::activate(nodes) %>%
+  graph <- graph %N>%
     dplyr::mutate(components_att = tidygraph::group_components(type = "weak")) %>%
     dplyr::rename_at(1, ~"Id") # renamed the first column to a standard format
 

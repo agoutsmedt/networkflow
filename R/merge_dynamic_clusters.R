@@ -158,13 +158,13 @@ merge_dynamic_clusters <- function(list_graph = NA,
 
       dt_year <- intertemporal_naming[[paste0(Year-1)]] %N>%
         dplyr::rename("past_id_com" = intertemporal_name) %>%
-        dplyr::select(all_of(c(node_id, "past_id_com"))) %>% # this is the nodes from the past
+        dplyr::select(dplyr::all_of(c(node_id, "past_id_com"))) %>% # this is the nodes from the past
         data.table::as.data.table()
 
       ######################### Communities from present  **********************
 
       dt_year2 <- list_graph[[paste0(Year)]] %N>%
-        dplyr::select(all_of(c(node_id, cluster_id))) %>%
+        dplyr::select(dplyr::all_of(c(node_id, cluster_id))) %>%
         data.table::as.data.table()
       n_com <- dt_year2[, .N, cluster_id, env = list(cluster_id = cluster_id)][,.N] # number of communities
       id_com_corr <- data.table(new_cluster_column = unique_ids[1:n_com],

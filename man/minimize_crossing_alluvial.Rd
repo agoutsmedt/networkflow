@@ -22,7 +22,7 @@ it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
 \item{window_column}{The column with your time windows.
 
-#' @examples}
+@examples}
 }
 \description{
 This function transform the node_key into a factor ordered by a newly created column named "minimize_crossing_order".
