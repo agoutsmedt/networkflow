@@ -1,19 +1,29 @@
 
-  #' Color Nodes and Edges of Networks
+  #' Color Nodes and Edges of Networks or Alluvial
+  #'
   #'
   #' @description
   #' `r lifecycle::badge("experimental")`
   #'
-  #' This function takes as input a tibble graph (from [tidygraph](https://tidygraph.data-imaginist.com/))
-  #' or a list of tibble graphs and creates a color column for graphs edges and nodes, for the selected
-  #' categorical variable (most likely a cluster column). You may either provide the color palette,
-  #' provide a data.frame associating the different values of the categorical variable with
+  #' `color_networks()` takes as input a tibble graph (from [tidygraph](https://tidygraph.data-imaginist.com/))
+  #' or a list of tibble graphs and associates a color for each graphs' edges and nodes,
+  #' depending on a chosen categorical variable in `columnr_to_color` (most likely a cluster column).
+  #'
+  #' `color_alluvial()` takes a data.frame and associates a color to each value of the chosen
+  #' categorical variable in `column_to_color`. This function may be used with any data.frame
+  #' even if it aims at coloring alluvial data frame created with
+  #' [networks_to_alluv()][networkflow::networks_to_alluv()].
+  #'
+  #' You may either provide the color palette,
+  #' provide a data frame associating the different values of the categorical variable with
   #' colors, or let the function provide colors (see details).
-  #' You can chose a column with a categorical variable
   #'
   #' @param graphs
   #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a list of tibble
   #' graphs.
+  #'
+  #' @param alluvial
+  #' A data.frame created with [networks_to_alluv()][networkflow::networks_to_alluv()]
   #'
   #' @param column_to_color
   #' The column of the categorical variable to use to color nodes and edges. For instance,
@@ -64,11 +74,13 @@
   #' time_window = 20,
   #' edges_threshold = 1,
   #' overlapping_window = TRUE,
-  #' filter_components = TRUE)
+  #' filter_components = TRUE,
+  #' verbose = FALSE)
   #'
   #' temporal_networks <- add_clusters(temporal_networks,
   #' objective_function = "modularity",
-  #' clustering_method = "leiden")
+  #' clustering_method = "leiden",
+  #' verbose = FALSE)
   #'
   #' temporal_networks <- color_networks(graphs = temporal_networks,
   #' column_to_color = "cluster_leiden",
@@ -155,7 +167,7 @@ color_networks <- function(graphs,
 
 
   # Third, we color the nodes, depending on the type of clusters
-  setnames(main_colors_table, "categories", column_to_color, skip_absent = TRUE)
+  data.table::setnames(main_colors_table, "categories", column_to_color, skip_absent = TRUE)
   if(unique_color_across_list){
     main_colors_table <- main_colors_table %>%
       tidyr::separate({{column_to_color}}, c("window", column_to_color), sep = "_") %>%
@@ -190,4 +202,73 @@ mixcolor <- function (col1, col2, amount1 = 0.5)
   }
   m <- suppressWarnings(cbind(col1, col2, amount1))
   apply(m, 1, function(x) .mix(col1 = x[1], col2 = x[2], amount1 = as.numeric(x[3])))
+}
+
+
+#' @rdname color_networks
+#' @export
+#'
+color_alluvial <- function(alluvial,
+                           column_to_color,
+                           color = NULL)
+{
+  . <- N <- NULL
+
+  if(inherits(alluvial, "data.frame") == FALSE){
+    cli::cli_abort("Your {.field alluvial} data is not a data.frame.")
+  }
+
+  variable_list <- data.table::as.data.table(alluvial) %>%
+    .[, .N, .(column_to_color),
+      env = list(column_to_color = column_to_color)] %>%
+    .[order(-N)] %>%
+    dplyr::pull(column_to_color)
+
+  n_colors <- length(variable_list)
+
+  # Second, we gather a list of color
+  if(inherits(color, "character")){
+    # Verify that the user have given the correct number of colors.
+    if(length(color) != n_colors){
+      cli::cli_alert_info("The number of colors provided is different from the number of categories to color.
+                        You need a vector with {.val {n_colors}} color(s). The function will proceed by repeating provided colors or remove unecessary ones.")
+    }
+    main_colors_table <- data.table::data.table(
+      categories = variable_list,
+      color = rep(color, length.out = n_colors))
+  } else {
+    if(inherits(color, "data.frame")){
+      # Verify that the user have given the correct number of colors.
+      if(length(color[[1]]) != n_colors){
+        cli::cli_alert_info("The length of the data.frame provided is different from the number of categories to color.
+                          You need a table with {.val {n_colors}} distinct values for {.emph {column_to_color}} and only one unique color per value of {.emph {column_to_color}}.
+                          {.val NA} is used for {.emph color} in case of missing categories to color.")
+      }
+      main_colors_table <- color
+    } else {
+      cli::cli_alert_info("{.field color} is neither a vector of color characters, nor a data.frame. We will proceed with base R colors.")
+      if(n_colors <= 7){ # 8 colors in ggplot2 but we remove the black one
+        color <- grDevices::palette.colors(n_colors + 1, "ggplot2")[-1] # remove the black
+        cli::cli_alert_info("We draw {.val {n_colors}} colors from the {.emph ggplot2} palette.")
+      } else if(n_colors <= 14){
+        color <- c(grDevices::palette.colors(8, "ggplot2")[-1],
+                   as.character(grDevices::palette.colors(n_colors - 6, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
+        cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and {.val {n_colors - 7}} colors from the {.emph Okabe-Ito} palette.")
+      } else {
+        color <- c(grDevices::palette.colors(7, "ggplot2")[-1],
+                   as.character(grDevices::palette.colors(8, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
+        cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and 7 from the {.emph Okabe-Ito} palette. As more than 14 colors are needed, the colors will be recycled.")
+      }
+      main_colors_table <- data.table::data.table(
+        categories = variable_list,
+        color = rep(color, length.out = n_colors))
+    }
+  }
+
+  # Third, we color the clusters, depending on the type of clusters
+  data.table::setnames(main_colors_table, "categories", column_to_color, skip_absent = TRUE)
+  alluvial <- alluvial %>%
+    dplyr::left_join(main_colors_table, by = column_to_color)
+
+  return(alluvial)
 }

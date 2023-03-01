@@ -112,7 +112,8 @@
 #'
 #' temporal_networks <- add_clusters(temporal_networks,
 #' objective_function = "modularity",
-#' clustering_method = "leiden")
+#' clustering_method = "leiden",
+#' verbose = FALSE)
 #'
 #' # You can name the clusters in each tibble graphs:
 #'

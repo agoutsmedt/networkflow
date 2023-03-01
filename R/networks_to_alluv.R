@@ -150,6 +150,7 @@ networks_to_alluv <- function(list_graph = NA,
       .[order(Window)]
   }
   alluv_dt[, y_alluv :=1/.N, Window]
+
   return (alluv_dt)
 }
 

@@ -122,10 +122,10 @@
 #' temporal_networks[[1]]
 #'
 #' @export
-build_dynamic_networks <- function(nodes = NULL,
-                                   directed_edges = NULL,
-                                   source_id = NULL,
-                                   target_id = NULL,
+build_dynamic_networks <- function(nodes,
+                                   directed_edges,
+                                   source_id,
+                                   target_id,
                                    time_variable = NULL,
                                    time_window = NULL,
                                    cooccurrence_method = c("coupling_angle","coupling_strength","coupling_similarity"),
@@ -313,10 +313,10 @@ build_dynamic_networks <- function(nodes = NULL,
 #' @rdname build_dynamic_networks
 #' @export
 
-build_network <- function(nodes = NULL,
-                          directed_edges = NULL,
-                          source_id = NULL,
-                          target_id = NULL,
+build_network <- function(nodes,
+                          directed_edges,
+                          source_id,
+                          target_id,
                           cooccurrence_method = c("coupling_angle","coupling_strength","coupling_similarity"),
                           edges_threshold = 1,
                           compute_size = FALSE,

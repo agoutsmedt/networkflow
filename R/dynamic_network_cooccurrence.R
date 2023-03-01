@@ -239,8 +239,8 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
                                                           "coupling_similarity"))
     biblio_function <- biblio_functions[method == cooccurrence_method][["biblio_function"]][[1]]
     edges_of_the_year <- rlang::expr((!!biblio_function)(dt = edges_of_the_year,
-                                                         source = rlang::inject(source_id),
-                                                         ref = rlang::inject(target_id),
+                                                         source = rlang::inject(source_column),
+                                                         ref = rlang::inject(target_column),
                                                          weight_threshold = rlang::inject(edges_threshold))) %>%
       eval()
 

@@ -2,7 +2,8 @@
 % Please edit documentation in R/color_networks.R
 \name{color_networks}
 \alias{color_networks}
-\title{Color Nodes and Edges of Networks}
+\alias{color_alluvial}
+\title{Color Nodes and Edges of Networks or Alluvial}
 \usage{
 color_networks(
   graphs,
@@ -10,6 +11,8 @@ color_networks(
   color = NULL,
   unique_color_across_list = FALSE
 )
+
+color_alluvial(alluvial, column_to_color, color = NULL)
 }
 \arguments{
 \item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
@@ -30,6 +33,8 @@ be considered as a different variable in different graphs and thus receive a dif
 color. In other words, if set to \code{TRUE} cluster "01" in two different graphs will
 have two different colors. If set to \code{FALSE} (by default), cluster "01" will have
 the same color in every graphs it exists.}
+
+\item{alluvial}{A data.frame created with \link[=networks_to_alluv]{networks_to_alluv()}}
 }
 \value{
 The same tibble graph or list of tibble graphs as input, but with a new \code{color}
@@ -38,12 +43,18 @@ column for both nodes and edges.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
-or a list of tibble graphs and creates a color column for graphs edges and nodes, for the selected
-categorical variable (most likely a cluster column). You may either provide the color palette,
-provide a data.frame associating the different values of the categorical variable with
+\code{color_networks()} takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
+or a list of tibble graphs and associates a color for each graphs' edges and nodes,
+depending on a chosen categorical variable in \code{columnr_to_color} (most likely a cluster column).
+
+\code{color_alluvial()} takes a data.frame and associates a color to each value of the chosen
+categorical variable in \code{column_to_color}. This function may be used with any data.frame
+even if it aims at coloring alluvial data frame created with
+\link[=networks_to_alluv]{networks_to_alluv()}.
+
+You may either provide the color palette,
+provide a data frame associating the different values of the categorical variable with
 colors, or let the function provide colors (see details).
-You can chose a column with a categorical variable
 }
 \details{
 The best practice is to provide a list of colors equals to the number of categorical
@@ -72,11 +83,13 @@ cooccurrence_method = "coupling_similarity",
 time_window = 20,
 edges_threshold = 1,
 overlapping_window = TRUE,
-filter_components = TRUE)
+filter_components = TRUE,
+verbose = FALSE)
 
 temporal_networks <- add_clusters(temporal_networks,
 objective_function = "modularity",
-clustering_method = "leiden")
+clustering_method = "leiden",
+verbose = FALSE)
 
 temporal_networks <- color_networks(graphs = temporal_networks,
 column_to_color = "cluster_leiden",
