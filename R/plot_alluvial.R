@@ -128,16 +128,14 @@ plot_alluvial <- function(alluv_dt,
                                            y = y_alluv,
                                            stratum = !!stratum_column,
                                            alluvium = !!alluvium_column,
-                                           fill = !!color_variable,
-                                           label = !!label_column)) +
-      ggalluvial::geom_stratum(alpha =1, size=1/10, show.legend = FALSE) +
+                                           fill = !!color_variable)) +
+      ggalluvial::geom_stratum(alpha = 1, show.legend = FALSE) +
       ggalluvial::geom_flow(show.legend = FALSE) +
-      ggplot2::theme_minimal() +
       {if(! is.null(color_column)) ggplot2::scale_fill_identity()} +
-      {if("label_x" %in% colnames(alluv_dt)) ggrepel::geom_label_repel(data = dplyr::filter(alluv_dt, ! is.na(label_x)),
+      {if("label_x" %in% colnames(alluv_dt)) ggrepel::geom_label_repel(ggplot2::aes(label = label_x),
                                                                        stat = ggalluvial::StatStratum,
                                                                        show.legend = FALSE)} +
-      ggplot2::ggtitle(""))
+      ggplot2::theme_minimal())
 
 
   if(print_plot_code){

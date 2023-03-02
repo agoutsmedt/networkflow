@@ -116,7 +116,7 @@ networks_to_alluv <- function(list_graph = NA,
     data.table::rbindlist(idcol = "window") %>%
     dplyr::select(window, dplyr::any_of(columns)) # We keep all the need columns
 
-  if(!is.null(color_column) | keep_color == FALSE){
+  if(is.null(color_column) | keep_color == FALSE){
     cli::cli_alert_info("You did not use any {.emph color} column. If you want to plot the alluvial, you can use {.fn color_alluvial}.")
   }
   if(! color_column %in% colnames(alluv_dt) & keep_color){
@@ -149,7 +149,7 @@ networks_to_alluv <- function(list_graph = NA,
                       all.x = TRUE) %>%  # length of cl
       .[order(window)]
   }
-  alluv_dt[, y_alluv :=1/.N, window]
+  alluv_dt[, y_alluv := 1/.N, window]
 
   return (alluv_dt)
 }
