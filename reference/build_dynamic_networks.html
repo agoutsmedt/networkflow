@@ -80,10 +80,10 @@ build a single network or multiple networks over different time windows.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">build_dynamic_networks</span><span class="op">(</span></span>
-<span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  directed_edges <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  source_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  target_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">nodes</span>,</span>
+<span>  <span class="va">directed_edges</span>,</span>
+<span>  <span class="va">source_id</span>,</span>
+<span>  <span class="va">target_id</span>,</span>
 <span>  time_variable <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  time_window <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cooccurrence_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupling_angle"</span>, <span class="st">"coupling_strength"</span>, <span class="st">"coupling_similarity"</span><span class="op">)</span>,</span>
@@ -97,10 +97,10 @@ build a single network or multiple networks over different time windows.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">build_network</span><span class="op">(</span></span>
-<span>  nodes <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  directed_edges <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  source_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  target_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">nodes</span>,</span>
+<span>  <span class="va">directed_edges</span>,</span>
+<span>  <span class="va">source_id</span>,</span>
+<span>  <span class="va">target_id</span>,</span>
 <span>  cooccurrence_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupling_angle"</span>, <span class="st">"coupling_strength"</span>, <span class="st">"coupling_similarity"</span><span class="op">)</span>,</span>
 <span>  edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  compute_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>

@@ -76,12 +76,6 @@
     <loc>https://agoutsmedt.github.io/networkflow/reference/intertemporal_cluster_naming.html</loc>
   </url>
   <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/label_alluvial.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/label_networks.html</loc>
-  </url>
-  <url>
     <loc>https://agoutsmedt.github.io/networkflow/reference/layout_networks.html</loc>
   </url>
   <url>
@@ -110,6 +104,9 @@
   </url>
   <url>
     <loc>https://agoutsmedt.github.io/networkflow/reference/plot_networks.html</loc>
+  </url>
+  <url>
+    <loc>https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.html</loc>
   </url>
   <url>
     <loc>https://agoutsmedt.github.io/networkflow/reference/tbl_main_component.html</loc>

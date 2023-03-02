@@ -95,7 +95,7 @@ colors, or let the function provide colors (see details).</p>
 <span>  unique_color_across_list <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">color_alluvial</span><span class="op">(</span><span class="va">alluvial</span>, <span class="va">column_to_color</span>, color <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">color_alluvial</span><span class="op">(</span><span class="va">alluv_dt</span>, <span class="va">column_to_color</span>, color <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -127,8 +127,8 @@ have two different colors. If set to <code>FALSE</code> (by default), cluster "0
 the same color in every graphs it exists.</p></dd>
 
 
-<dt>alluvial</dt>
-<dd><p>A data.frame created with <a href="networks_to_alluv.html">networks_to_alluv()</a></p></dd>
+<dt>alluv_dt</dt>
+<dd><p>A data.frame of an alluvial created with <a href="networks_to_alluv.html">networks_to_alluv()</a></p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -181,9 +181,9 @@ the colors of the two palettes will be recycled.</p>
 <span class="r-in"><span><span class="va">temporal_networks</span> <span class="op">&lt;-</span> <span class="fu">color_networks</span><span class="op">(</span>graphs <span class="op">=</span> <span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>column_to_color <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span></span>
 <span class="r-in"><span>color <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="font-style: italic;">unique_color_across_list</span> has been set to <span style="color: #0000BB;">FALSE</span>. There are <span style="color: #0000BB;">6</span> different categories to color.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="font-style: italic;">unique_color_across_list</span> has been set to <span style="color: #0000BB;">FALSE</span>. There are <span style="color: #0000BB;">7</span> different categories to color.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BB00;">color</span> is neither a vector of color characters, nor a data.frame. We will proceed with base R colors.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> We draw <span style="color: #0000BB;">6</span> colors from the <span style="font-style: italic;">ggplot2</span> palette.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> We draw <span style="color: #0000BB;">7</span> colors from the <span style="font-style: italic;">ggplot2</span> palette.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tbl_graph: 74 nodes and 446 edges</span></span>
@@ -191,14 +191,14 @@ the colors of the two palettes will be recycled.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># An undirected simple graph with 1 component</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 446 × 9 (active)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to   weight Source  Target     cluster_l… cluster_l… cluster… color_…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     6    11 0.001<span style="text-decoration: underline;">58</span>  1021902 1111111122 02         02         02       #00BA3…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6    45 0.000<span style="text-decoration: underline;">173</span> 1021902 1111111128 02         03         00       #7C985…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     6    66 0.000<span style="text-decoration: underline;">430</span> 1021902 1111111134 02         03         00       #7C985…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     6    35 0.000<span style="text-decoration: underline;">644</span> 1021902 1111111146 02         02         02       #00BA3…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     6    20 0.000<span style="text-decoration: underline;">126</span> 1021902 1111111180 02         04         00       #00BC7…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     6    42 0.000<span style="text-decoration: underline;">614</span> 1021902 1111111182 02         02         02       #00BA3…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to   weight Source  Target     cluster_le… cluster_l… cluster… color </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     6    11 0.001<span style="text-decoration: underline;">58</span>  1021902 1111111122 02          02         02       #00BA…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6    45 0.000<span style="text-decoration: underline;">173</span> 1021902 1111111128 02          03         00       #7C98…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     6    66 0.000<span style="text-decoration: underline;">430</span> 1021902 1111111134 02          03         00       #7C98…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     6    35 0.000<span style="text-decoration: underline;">644</span> 1021902 1111111146 02          02         02       #00BA…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     6    20 0.000<span style="text-decoration: underline;">126</span> 1021902 1111111180 02          04         00       #00BC…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     6    42 0.000<span style="text-decoration: underline;">614</span> 1021902 1111111182 02          02         02       #00BA…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 440 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 74 × 11</span></span>
