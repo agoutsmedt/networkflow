@@ -1,95 +1,149 @@
-plot_alluvial <- function(alluv_dt = NA,
-                          window_column = "Window",
-                          y_alluv_column = "y_alluv",
-                          stratum_column = "intertemporal_name",
-                          alluvium_column = "ID_Art",
-                          color = NA,
-                          label_column = "intertemporal_name_label",
-                          order_column = "minimize_crossing_order")
-{
-  #' Plot the alluvial after having followed the workflow of networkflow.
+
+  #' Plot the Alluvial
   #'
   #' @description
   #' An easy way to plot the alluvial by using the columns created by the different function of networkflow.
   #'
   #' @param alluv_dt
-  #' Data.frame of the alluvial created using the networkflow::networks_to_alluv function
+  #' A data.frame of an alluvial created with [networks_to_alluv()][networkflow::networks_to_alluv()].
   #'
-  #' @param window_column
-  #' The column with your time windows.
+  #' @param intertemporal_cluster_column
+  #' The column with the identifier of inter-temporal clusters. If you have used
+  #' [add_clusters()][networkflow::add_clusters()] and [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()],
+  #' it is of the form `dynamic_cluster_{clustering_method}`.
   #'
-  #' @param y_alluv_column
-  #' The name of the column with y values created with [networks_to_alluv()][networkflow::networks_to_alluv()]
-  #'
-  #' @param stratum_column
-  #' The column with the identifier or label of the inter-temporal cluster. By default, "intertemporal_name", as it is
-  #' the name of the column created with [intertemporal_cluster_naming()][networkflow::intertemporal_cluster_naming()].
-  #'
-  #' @param alluvium_column
+  #' @param node_id
   #' The column with the unique identifier of each node.
   #'
+  #' @param window_column
+  #' The column of the alluvial with your time window. By default, "window", as created by
+  #' [networks_to_alluv()][networkflow::networks_to_alluv()].
+  #'
+  #' @param color_column
+  #' The column with the colors associated to the  categories of `intertemporal_cluster_column`.
+  #' By default, "color", as the result of [color_alluvial()][networkflow::color_alluvial()].
+  #'
+  #' @param color_alluvial
+  #' If no color has been set for the categories of `intertemporal_cluster_column`, you
+  #' can attribute them colors by setting `color_alluvial` to `TRUE`.
+  #' [color_alluvial()][networkflow::color_alluvial()] will be used.
+  #'
   #' @param color
-  #' The colors you want to use in your alluvial
-  #' It can be a vector of colors or a two columns data.frame with the first column as the distinct observations of the stratum_column and a second column with the vector of colors you want to use
+  #' If `color_alluvial`is `TRUE`, the parameter `color` will be used to color the categories of the
+  #' `intertemporal_cluster_column`. It may be a vector of colors (in a character format)
+  #' or a two columns data frame with the first column as
+  #' the distinct observations of the `intertemporal_cluster_column` and a second column with the
+  #' vector of colors you want to use. If `NULL` colors will be automatically chosen by
+  #' [color_alluvial()][networkflow::color_alluvial()]?
   #'
-  #' @param label_column
-  #' The name of the column with labels created with [label_alluvial()][networkflow::label_alluvial()]
   #'
-  #' @param order_column
-  #' The name of the column with the order of the stratum in a way that minimize crossing created with [minimize_crossing_alluvial()][networkflow::minimize_crossing_alluvial()]
+  #' @param minimize_crossing
+  #' If `TRUE`, [minimize_crossing_alluvial()][networkflow::minimize_crossing_alluvial()] is
+  #' run to reorder the `intertemporal_cluster_colum` to limit overlapping in the plot.
+  #'
+  #' @param prepare_label
+  #' If `TRUE`, [prepare_label_alluvial()][networkflow::prepare_label_alluvial()] is used
+  #' to create a column `label_x` with
+  #'
+  #' @param cluster_label_column
+  #' If `prepare_label` is `TRUE`, [label_alluvial()][networkflow::label_alluvial()] is
+  #' used and the values of `cluster_label_column` are taken to be displayed as label.
+  #' By default, "cluster_label", as it is
+  #' the default name of the column created with [name_clusters()][networkflow::name_clusters()].
+  #' But you may also use the same column as in `intertemporal_cluster_column`.
+  #'
+  #' @param print_plot_code
+  #' Set to `TRUE` if you want the ggplot2 code to be printing. It is useful if you are not
+  #' totally satisfied of the plot and want to manipulate the code yourself.
   #'
   #' @export
 
-
+plot_alluvial <- function(alluv_dt,
+                          intertemporal_cluster_column,
+                          node_id,
+                          window_column = "window",
+                          color_column = "color",
+                          color_alluvial = FALSE,
+                          color = NULL,
+                          minimize_crossing = FALSE,
+                          prepare_label = FALSE,
+                          cluster_label_column = "cluster_label",
+                          print_plot_code = FALSE)
+{
   . <- N <- NULL
 
-  # So ggplot accepts columns defined in the functions
-  window_column_plot <- rlang::ensym(window_column)
-  y_alluv_column_plot <- rlang::ensym(y_alluv_column)
-  stratum_column_plot <- rlang::ensym(stratum_column)
-  alluvium_column_plot <- rlang::ensym(alluvium_column)
-  label_column_plot <- rlang::ensym(label_column)
+  if(color_alluvial){
+    cli::cli_alert_info("{.emph color_alluvial} is {.code TRUE}. {.fun color_alluvial} is used to color the alluvial.")
+    alluv_dt <- color_alluvial(alluv_dt,
+                               column_to_color = intertemporal_cluster_column,
+                               color = color)
+    color_column <- "color"
+  }
+  if(minimize_crossing){
+    cli::cli_alert_info("{.emph minimize_crossing} is {.code TRUE}. {.fun minimize_crossing_alluvial} is used to rearrange cluster order for a better visualisation.")
+    alluv_dt <- minimize_crossing_alluvial(alluv_dt = alluv_dt,
+                                           intertemporal_cluster_column = intertemporal_cluster_column,
+                                           node_id = node_id)
+  }
 
-  # # List of clusters to color
-  # variable_list <- alluv_dt[, .N, .(stratum_column), env = list(stratum_column = stratum_column)][order(-N)][[1]]
-  # n_colors <- length(variable_list)
-  #
-  # if(inherits(color, "vector")){
-  #   color_list <- color
-  #   # Verify that the user have given the correct number of colors.
-  #   if(length(color_list) != n_colors){warning("You have given an incomplete number of colors. You need a vector with ", print(n_colors), " color(s). The function will proceed by repeating provided colors or remove unecessary ones.")}
-  #   main_colors_table <- data.table(
-  #     intertemporal_name = variable_list,
-  #     main_colors = rep(color_list, length.out = n_colors))
-  # } else {
-  #   if(inherits(color, "data.frame")){
-  #     # Verify that the user have given the correct number of colors.
-  #     if(length(color[[1]]) != n_colors | length(color[[2]]) != n_colors){warning("You have given an incomplete number of colors or an incomplete list of distinct column_to_color values. You need a table with ", print(n_colors), " color(s) and an equal number of distinct values for column_to_color The function will proceed with missing colors in the network.")}
-  #     main_colors_table <- color
-  #   } else {
-  #     warning("Your {.field color} is neither a vector of color characters, nor a data.frame. The function will proceed with a RColorBrewer palettes with 19 distinct colors")
-  #     color_list <- c(RColorBrewer::brewer.pal(7, name = "Dark2"), RColorBrewer::brewer.pal(12, name = "Paired"))
-  #     main_colors_table <- data.table(
-  #       observation = variable_list,
-  #       color = rep(color_list, length.out = n_colors))
-  #   }
-  # }
-  #
-  # setnames(main_colors_table, "observation", stratum_column)
-  # alluv_plot <- merge(alluv_dt, main_colors_table, by = stratum_column, all.x = TRUE)
+  if(prepare_label){
+    cli::cli_alert_info("{.emph prepare_label} is {.code TRUE}. {.fun prepare_label_alluvial} is used to create and position a label for each cluster.")
+    alluv_dt <- prepare_label_alluvial(alluv_dt,
+                                       cluster_label_column = cluster_label_column)
+  }
 
-  alluv_plot$intertemporal_name <- forcats::fct_reorder(alluv_plot$intertemporal_name, alluv_plot$minimize_crossing_order,min, .desc = TRUE)
+  window_column <- rlang::ensym(window_column)
+  stratum_column <- rlang::ensym(intertemporal_cluster_column)
+  alluvium_column <- rlang::ensym(node_id)
 
-  alluv_plot < - ggplot2::ggplot(alluv_plot,
-                                 ggplot2::aes(x = !!window_column_plot, y = !!y_alluv_column_plot, stratum = !!stratum_column_plot, alluvium = !!alluvium_column_plot, fill = color, label = !!stratum_column_plot)) +
-    ggalluvial::geom_stratum(alpha =1, size=1/10) +
-    ggalluvial::geom_flow() +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::theme_minimal() +
-    ggplot2::scale_fill_identity() +
-    ggplot2::ggtitle("") +
-    ggrepel::geom_label_repel(stat = "stratum", ggplot2::aes(label = !!label_column_plot))
+  if("label_x" %in% colnames(alluv_dt)) {
+    label_column <- rlang::ensym(cluster_label_column)
+  }
 
-  return(alluv_plot)
+  if(is.null(color_column)){
+    cli::cli_alert_info("{.emph color_alluvial} is {.code FALSE} and no {.emph color_column} has been given.
+                        Colors will be determined automatically by {.pkg ggplot2}.")
+    color_variable <- stratum_column
+  } else{
+    if(color_column %in% colnames(alluv_dt)){
+      color_variable <- rlang::ensym(color_column)
+    } else {
+      cli::cli_alert_info("{.emph color_alluvial} is {.code FALSE} and the column {.emph {color_column}} does not exist in the alluvial.
+                          Colors will be determined automatically by {.pkg ggplot2}.")
+      color_variable <- stratum_column
+      color_column <- NULL # That was a false color column that we can remove
+    }
+  }
 
+  if("minimize_crossing_order" %in% colnames(alluv_dt)){
+    alluv_dt[[intertemporal_cluster_column]] <- forcats::fct_reorder(alluv_dt[[intertemporal_cluster_column]],
+                                                            alluv_dt[["minimize_crossing_order"]],
+                                                            min,
+                                                            .desc = TRUE)
+
+  }
+
+  plot_alluvial <- rlang::expr(
+    ggplot2::ggplot(alluv_dt, ggplot2::aes(x = !!window_column,
+                                           y = y_alluv,
+                                           stratum = !!stratum_column,
+                                           alluvium = !!alluvium_column,
+                                           fill = !!color_variable,
+                                           label = !!label_column)) +
+      ggalluvial::geom_stratum(alpha =1, size=1/10, show.legend = FALSE) +
+      ggalluvial::geom_flow(show.legend = FALSE) +
+      ggplot2::theme_minimal() +
+      {if(! is.null(color_column)) ggplot2::scale_fill_identity()} +
+      {if("label_x" %in% colnames(alluv_dt)) ggrepel::geom_label_repel(data = dplyr::filter(alluv_dt, ! is.na(label_x)),
+                                                                       stat = ggalluvial::StatStratum,
+                                                                       show.legend = FALSE)} +
+      ggplot2::ggtitle(""))
+
+
+  if(print_plot_code){
+    cli::cli_h1("{.pkg ggplo2} code used to produce the plot")
+    print(plot_alluvial)
+  }
+
+  eval(plot_alluvial)
 }

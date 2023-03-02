@@ -1,6 +1,6 @@
 networks_to_alluv <- function(list_graph = NA,
                               intertemporal_cluster_column = "intertemporal_name",
-                              node_key = NA,
+                              node_id = NA,
                               summary_cl_stats = TRUE,
                               keep_color = TRUE,
                               color_column = "color",
@@ -19,7 +19,7 @@ networks_to_alluv <- function(list_graph = NA,
   #' [add_clusters()][networkflow::add_clusters()] and [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()],
   #' it is of the form `dynamic_cluster_{clustering_method}`.
   #'
-  #' @param node_key
+  #' @param node_id
   #' The column with the unique identifier of each node.
   #'
   #' @param summary_cl_stats
@@ -98,23 +98,23 @@ networks_to_alluv <- function(list_graph = NA,
   #'
   #' alluv_dt <- networks_to_alluv(temporal_networks,
   #' intertemporal_cluster_column = "dynamic_cluster_leiden",
-  #' node_key = "ID_Art")
+  #' node_id = "ID_Art")
   #'
   #' alluv_dt[1:5]
   #'
   #' @export
 
-  . <- y_alluv <- Window <- share_cluster_alluv <- intertemporal_name <- tot_window_leiden <- tot_window <- share_cluster_window <- share_cluster_max <- head <- N <- nodes <- NULL
+  . <- y_alluv <- window <- share_cluster_alluv <- intertemporal_name <- tot_window_leiden <- tot_window <- share_cluster_window <- share_cluster_max <- head <- N <- nodes <- NULL
 
-  columns <- c(node_key,
+  columns <- c(node_id,
                intertemporal_cluster_column,
                if(!is.null(color_column) & keep_color) color_column,
                if(!is.null(cluster_label_column) & keep_cluster_label) cluster_label_column)
 
   alluv_dt <- lapply(list_graph,
                      function(tbl)(tbl %N>% data.table::as.data.table())) %>%
-    data.table::rbindlist(idcol = "Window") %>%
-    dplyr::select(Window, dplyr::any_of(columns)) # We keep all the need columns
+    data.table::rbindlist(idcol = "window") %>%
+    dplyr::select(window, dplyr::any_of(columns)) # We keep all the need columns
 
   if(!is.null(color_column) | keep_color == FALSE){
     cli::cli_alert_info("You did not use any {.emph color} column. If you want to plot the alluvial, you can use {.fn color_alluvial}.")
@@ -129,16 +129,16 @@ networks_to_alluv <- function(list_graph = NA,
   if(summary_cl_stats == TRUE){
     alluv_dt[,share_cluster_alluv:= round(.N/alluv_dt[,.N], 4) * 100, intertemporal_cluster_column,
              env = list(intertemporal_cluster_column = intertemporal_cluster_column)] # share of cl in alluv
-    alluv_dt[,tot_window_leiden := .N, .(Window,intertemporal_cluster_column),
+    alluv_dt[,tot_window_leiden := .N, .(window,intertemporal_cluster_column),
              env = list(intertemporal_cluster_column = intertemporal_cluster_column)]
-    alluv_dt[,tot_window := .N, .(Window)]
+    alluv_dt[,tot_window := .N, .(window)]
     alluv_dt[,share_cluster_window := round(tot_window_leiden/tot_window, 4) * 100] # share of cl in time window
     alluv_dt[,share_cluster_max := max(share_cluster_window), intertemporal_cluster_column,
              env = list(intertemporal_cluster_column = intertemporal_cluster_column)] # max share of cl in all time windows
     alluv_dt[,tot_window_leiden := NULL]
     alluv_dt[,tot_window := NULL]
 
-    n_years <- alluv_dt[, head(.SD, 1), .(Window, intertemporal_cluster_column),
+    n_years <- alluv_dt[, head(.SD, 1), .(window, intertemporal_cluster_column),
                         env = list(intertemporal_cluster_column = intertemporal_cluster_column)][,.N, intertemporal_cluster_column, env = list(intertemporal_cluster_column = intertemporal_cluster_column)]
     n_years <- n_years %>%
       dplyr::rename(length_cluster = N)
@@ -147,9 +147,9 @@ networks_to_alluv <- function(list_graph = NA,
                       n_years,
                       by = intertemporal_cluster_column,
                       all.x = TRUE) %>%  # length of cl
-      .[order(Window)]
+      .[order(window)]
   }
-  alluv_dt[, y_alluv :=1/.N, Window]
+  alluv_dt[, y_alluv :=1/.N, window]
 
   return (alluv_dt)
 }

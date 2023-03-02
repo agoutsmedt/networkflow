@@ -1,11 +1,11 @@
-minimize_crossing_alluvial <- function(alluv_dt = NULL,
+minimize_crossing_alluvial <- function(alluv_dt ,
                                        intertemporal_cluster_column = NULL,
-                                       node_key = NULL,
-                                       window_column = "Window"){
+                                       node_id = NULL,
+                                       window_column = "window"){
 
   #' Order the rectangles of the alluvial in a way that minimize crossing of flow
   #'
-  #' This function transform the node_key into a factor ordered by a newly created column named "minimize_crossing_order".
+  #' This function transform the node_id into a factor ordered by a newly created column named "minimize_crossing_order".
   #'
   #' @param alluv_dt
   #' Data.frame of the alluvial created using the networkflow::networks_to_alluv function
@@ -15,7 +15,7 @@ minimize_crossing_alluvial <- function(alluv_dt = NULL,
   #' [add_clusters()][networkflow::add_clusters()] and [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()],
   #' it is of the form `dynamic_cluster_{clustering_method}`.
   #'
-  #' @param node_key
+  #' @param node_id
   #' The column with the unique identifier of each node. This is the alluvium of the alluvial.
   #'
   #' @param window_column
@@ -28,9 +28,9 @@ minimize_crossing_alluvial <- function(alluv_dt = NULL,
   . <- N <- Origin <- Source <- Window <- cl_id <- cosine_strength <- fct_reorder <- head <- link_strength <- minimize_crossing_order <- nodes <- nodes_id <- order_column_raw <- tot_window_leiden_Origin <- tot_window_leiden_Source <- weight <- NULL
 
   dt <- data.table::copy(alluv_dt)
-  dt <- dt[, .SD, .SDcols = c(intertemporal_cluster_column, node_key, window_column)]
-  dt[, c(intertemporal_cluster_column, node_key, window_column) := lapply(.SD, as.character), .SDcols = c(intertemporal_cluster_column, node_key, window_column)]
-  data.table::setnames(dt, c(intertemporal_cluster_column, node_key, window_column), c("cl_id", "nodes_id", "Window"))
+  dt <- dt[, .SD, .SDcols = c(intertemporal_cluster_column, node_id, window_column)]
+  dt[, c(intertemporal_cluster_column, node_id, window_column) := lapply(.SD, as.character), .SDcols = c(intertemporal_cluster_column, node_id, window_column)]
+  data.table::setnames(dt, c(intertemporal_cluster_column, node_id, window_column), c("cl_id", "nodes_id", "Window"))
 
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
   #### Create a network of communities ####
@@ -105,7 +105,7 @@ minimize_crossing_alluvial <- function(alluv_dt = NULL,
 
   alluv_dt_meta <- merge(alluv_dt, community_order[, .SD, .SDcols = c(intertemporal_cluster_column, "minimize_crossing_order")], by = intertemporal_cluster_column, all.x = TRUE)
 
-  alluv_dt_meta[[intertemporal_cluster_column]] <- forcats::fct_reorder(alluv_dt_meta[[intertemporal_cluster_column]], alluv_dt_meta[["minimize_crossing_order"]], min, .desc = TRUE)
+ # alluv_dt_meta[[intertemporal_cluster_column]] <- forcats::fct_reorder(alluv_dt_meta[[intertemporal_cluster_column]], alluv_dt_meta[["minimize_crossing_order"]], min, .desc = TRUE)
 
   return(alluv_dt_meta)
 }

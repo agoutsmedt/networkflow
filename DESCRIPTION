@@ -40,22 +40,21 @@ Imports:
     tidyr,
     forcats,
     ggplot2,
-    stringr,
     ggraph,
     igraph,
     lifecycle,
     Rdpack,
-    textstem,
     tidygraph,
     tidytext,
     ggalluvial,
-    ggrepel,
     magrittr,
     rlang,
     grDevices
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggrepel,
+    textstem
 VignetteBuilder: 
     knitr
 RdMacros:

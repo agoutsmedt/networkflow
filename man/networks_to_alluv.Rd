@@ -7,7 +7,7 @@
 networks_to_alluv(
   list_graph = NA,
   intertemporal_cluster_column = "intertemporal_name",
-  node_key = NA,
+  node_id = NA,
   summary_cl_stats = TRUE,
   keep_color = TRUE,
   color_column = "color",
@@ -22,7 +22,7 @@ networks_to_alluv(
 \link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
 it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
-\item{node_key}{The column with the unique identifier of each node.}
+\item{node_id}{The column with the unique identifier of each node.}
 
 \item{summary_cl_stats}{If set to \code{TRUE}, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
 can be particularly useful to filter smaller communities when plotting according to different variables:
@@ -99,7 +99,7 @@ color = NULL)
 
 alluv_dt <- networks_to_alluv(temporal_networks,
 intertemporal_cluster_column = "dynamic_cluster_leiden",
-node_key = "ID_Art")
+node_id = "ID_Art")
 
 alluv_dt[1:5]
 

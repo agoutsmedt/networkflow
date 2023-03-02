@@ -12,7 +12,7 @@ color_networks(
   unique_color_across_list = FALSE
 )
 
-color_alluvial(alluvial, column_to_color, color = NULL)
+color_alluvial(alluv_dt, column_to_color, color = NULL)
 }
 \arguments{
 \item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
@@ -34,7 +34,7 @@ color. In other words, if set to \code{TRUE} cluster "01" in two different graph
 have two different colors. If set to \code{FALSE} (by default), cluster "01" will have
 the same color in every graphs it exists.}
 
-\item{alluvial}{A data.frame created with \link[=networks_to_alluv]{networks_to_alluv()}}
+\item{alluv_dt}{A data.frame of an alluvial created with \link[=networks_to_alluv]{networks_to_alluv()}}
 }
 \value{
 The same tibble graph or list of tibble graphs as input, but with a new \code{color}

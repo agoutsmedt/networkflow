@@ -185,9 +185,9 @@ extract_tfidf <- function(data,
     {if(clean_word_method == "lemmatize") .[, (columns) := lapply(.SD, textstem::lemmatize_words), .SDcols = columns] else .} %>%
     {if(clean_word_method == "stemming") .[, (columns) := lapply(.SD, textstem::stem_words), .SDcols = columns] else .} %>%
     dplyr::filter(dplyr::if_all(dplyr::starts_with("word_"), ~ ! . %in% stopwords_vector),
-                  dplyr::if_all(dplyr::starts_with("word_"), ~ ! stringr::str_detect(., "^[:digit:]+$"))) %>%
+                  dplyr::if_all(dplyr::starts_with("word_"), ~ ! grepl("^\\d+$", .))) %>%
     tidyr::unite(term, dplyr::starts_with("word_"), sep = " ") %>%
-    .[, term := stringr::str_trim(term, "both")] %>%
+    .[, term := trimws(term, "both")] %>%
     dplyr::select(dplyr::all_of(grouping_columns), term) %>%
     .[, total_term := .N, by = term] %>%
     dplyr::filter(total_term >= ngrams_filter) %>%

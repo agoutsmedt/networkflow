@@ -5,10 +5,10 @@
 \title{Order the rectangles of the alluvial in a way that minimize crossing of flow}
 \usage{
 minimize_crossing_alluvial(
-  alluv_dt = NULL,
+  alluv_dt,
   intertemporal_cluster_column = NULL,
-  node_key = NULL,
-  window_column = "Window"
+  node_id = NULL,
+  window_column = "window"
 )
 }
 \arguments{
@@ -18,12 +18,12 @@ minimize_crossing_alluvial(
 \link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
 it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
-\item{node_key}{The column with the unique identifier of each node. This is the alluvium of the alluvial.}
+\item{node_id}{The column with the unique identifier of each node. This is the alluvium of the alluvial.}
 
 \item{window_column}{The column with your time windows.
 
 @examples}
 }
 \description{
-This function transform the node_key into a factor ordered by a newly created column named "minimize_crossing_order".
+This function transform the node_id into a factor ordered by a newly created column named "minimize_crossing_order".
 }

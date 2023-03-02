@@ -27,8 +27,8 @@ reference:
   - layout_networks
   - minimize_crossing_alluvial
   - color_networks
-  - label_alluvial
-  - label_networks
+  - prepare_label_alluvial
+  - prepare_label_networks
   - plot_alluvial
   - plot_networks
 

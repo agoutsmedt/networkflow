@@ -2,42 +2,60 @@
 % Please edit documentation in R/plot_networks.R
 \name{plot_networks}
 \alias{plot_networks}
-\title{Plot your network or list of networks after having followed the workflow of networkflow.}
+\title{Plot your Networks}
 \usage{
 plot_networks(
-  graphs = NA,
-  networkflow_label_column = TRUE,
-  label_column = NA,
-  x_coordinates_column = "x",
-  y_coordinates_column = "y",
-  color_nodes_column = "color",
-  color_edges_column = "color_edges",
-  weight_column = "weight",
-  node_size_column = "size",
-  time_variable = NA
+  graphs,
+  x = "x",
+  y = "y",
+  cluster_label_column = "cluster_label",
+  node_size_column = "node_size",
+  color_column = "color",
+  color_networks = FALSE,
+  color = NULL,
+  print_plot_code = FALSE
 )
 }
 \arguments{
-\item{graphs}{A network or a list of networks.}
+\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
+graphs.}
 
-\item{networkflow_label_column}{Do you want to use the label created with the \link[=label_networks]{label_networks()} function ? TRUE or FALSE.}
+\item{x, y}{The columns of your tibble graph or list of tibble graphs
+with the x and y coordinates of your nodes (for instance, the coordinates
+produce by \link[=layout_networks]{layout_networks()}).}
 
-\item{label_column}{If networkflow_label_column is TRUE, this parameters is not used. If you want to plot labels for individual nodes you can use this parameters to chose the column to use as label.}
+\item{cluster_label_column}{The values of the column are taken to be displayed as labels.
+By default, "cluster_label", as it is
+the default name of the column created with \link[=name_clusters]{name_clusters()}.
+But you may also use the column produced with \link[=add_clusters]{add_clusters()}.}
 
-\item{x_coordinates_column}{The column with the x coordinates of your nodes.}
+\item{node_size_column}{The column with numeric values to be used for the size of nodes. By default, "node_size",
+as the column created by \link[=build_dynamic_networks]{build_dynamic_networks()}
+or \link[=build_network]{build_network()} when \code{compute_size} set to \code{TRUE} in
+these functions. If \code{NULL}, the size of every nodes is set to 1.}
 
-\item{y_coordinates_column}{The column with the y coordinates of your nodes.}
+\item{color_column}{The column with the colors associated to the  categories of \code{cluster_label_column}.
+By default, "color", as the result of \link[=color_networks]{color_networks()}.}
 
-\item{color_nodes_column}{The column with the colors of your nodes.}
+\item{color_networks}{If no color has been set for the categories of \code{cluster_label_column}, you
+can attribute them colors by setting \code{color_networks} to \code{TRUE}.
+\link[=color_networks]{color_networks()} will be used.}
 
-\item{color_edges_column}{The column with the colors of your edges.}
+\item{color}{If \code{color_networks}is \code{TRUE}, the parameter \code{color} will be used to color the categories of the
+\code{cluster_label_column}. It may be a vector of colors (in a character format)
+or a two columns data frame with the first column as
+the distinct observations of the \code{cluster_label_column} and a second column with the
+vector of colors you want to use. If \code{NULL} colors will be automatically chosen by
+\link[=color_networks]{color_networks()}.}
 
-\item{weight_column}{The column with the weight of edges.}
-
-\item{node_size_column}{The column with the size of nodes.}
-
-\item{time_variable}{The column with the temporal variable of your individual nodes. Will only be used for the title of the plot.}
+\item{print_plot_code}{Set to \code{TRUE} if you want the ggplot2 code to be printing. It is useful if you are not
+totally satisfied of the plot and want to manipulate the code yourself.}
 }
 \description{
-An easy way to plot the your networks by using the columns created by the different function of networkflow.
+An easy way to plot your networks by using the columns created by the different function of networkflow.
+}
+\details{
+If you have not used \link[=prepare_label_networks]{prepare_label_networks()},
+the function will be automatically used to produce coordinates to each category of
+\code{cluster_label_column}.
 }

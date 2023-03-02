@@ -22,8 +22,8 @@
   #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a list of tibble
   #' graphs.
   #'
-  #' @param alluvial
-  #' A data.frame created with [networks_to_alluv()][networkflow::networks_to_alluv()]
+  #' @param alluv_dt
+  #' A data.frame of an alluvial created with [networks_to_alluv()][networkflow::networks_to_alluv()]
   #'
   #' @param column_to_color
   #' The column of the categorical variable to use to color nodes and edges. For instance,
@@ -130,8 +130,8 @@ color_networks <- function(graphs,
   if(inherits(color, "character")){
     # Verify that the user have given the correct number of colors.
     if(length(color) != n_colors){
-      cli::cli_alert_info("The number of colors provided is different from the number of categories to color.
-                        You need a vector with {.val {n_colors}} color(s). The function will proceed by repeating provided colors or remove unecessary ones.")
+      cli::cli_alert_info("The number of colors provided ({.val {length(color)}}) is different from the number of categories to color ({.val {n_colors}}).
+                        The function will proceed by repeating provided colors or remove unecessary ones.")
     }
     main_colors_table <- data.table::data.table(
       categories = variable_list,
@@ -184,7 +184,7 @@ color_networks <- function(graphs,
 
   # Coloring Edges
   graphs <- lapply(graphs, function(tbl) tbl %E>%
-                     dplyr::mutate(color_edges = mixcolor(.N()$color[to], .N()$color[from], amount1 = 0.5)))
+                     dplyr::mutate(color = mixcolor(.N()$color[to], .N()$color[from], amount1 = 0.5)))
 
   if(unique_graph==TRUE){ # return one graph if this was not a list from the start
     graphs <- graphs[[1]]}
@@ -208,17 +208,17 @@ mixcolor <- function (col1, col2, amount1 = 0.5)
 #' @rdname color_networks
 #' @export
 #'
-color_alluvial <- function(alluvial,
+color_alluvial <- function(alluv_dt,
                            column_to_color,
                            color = NULL)
 {
-  . <- N <- NULL
+  . <- N  <- NULL
 
-  if(inherits(alluvial, "data.frame") == FALSE){
+  if(! inherits(alluv_dt, "data.frame")){
     cli::cli_abort("Your {.field alluvial} data is not a data.frame.")
   }
 
-  variable_list <- data.table::as.data.table(alluvial) %>%
+  variable_list <- data.table::as.data.table(alluv_dt) %>%
     .[, .N, .(column_to_color),
       env = list(column_to_color = column_to_color)] %>%
     .[order(-N)] %>%
@@ -267,8 +267,8 @@ color_alluvial <- function(alluvial,
 
   # Third, we color the clusters, depending on the type of clusters
   data.table::setnames(main_colors_table, "categories", column_to_color, skip_absent = TRUE)
-  alluvial <- alluvial %>%
+  alluv_dt <- alluv_dt %>%
     dplyr::left_join(main_colors_table, by = column_to_color)
 
-  return(alluvial)
+  return(alluv_dt)
 }
