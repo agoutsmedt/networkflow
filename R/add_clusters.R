@@ -181,16 +181,17 @@ add_clusters <- function(graphs,
   if(inherits(graphs, "tbl_graph")){
     list <- FALSE
     cluster_graph <- detect_cluster(graphs,
-                                      clustering_method = clustering_method,
-                                      objective_function = objective_function,
-                                      resolution = resolution,
-                                      n_iterations = n_iterations,
-                                      n_groups = n_groups,
-                                      node_weights = node_weights,
-                                      trials = trials,
-                                      steps = steps,
-                                      list = list,
-                                      verbose = verbose)
+                                    weights = weights,
+                                    clustering_method = clustering_method,
+                                    objective_function = objective_function,
+                                    resolution = resolution,
+                                    n_iterations = n_iterations,
+                                    n_groups = n_groups,
+                                    node_weights = node_weights,
+                                    trials = trials,
+                                    steps = steps,
+                                    list = list,
+                                    verbose = verbose)
     return(cluster_graph)
   }
 }
