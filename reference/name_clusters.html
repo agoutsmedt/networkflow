@@ -213,31 +213,13 @@ tibble graphs will share the same name.</p>
 <span class="r-in"><span>cluster_id <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span></span>
 <span class="r-in"><span>label_columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Author"</span>, <span class="st">"Year"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>tidygraph_function <span class="op">=</span> <span class="fu">tidygraph</span><span class="fu">::</span><span class="fu"><a href="https://tidygraph.data-imaginist.com/reference/centrality.html" class="external-link">centrality_pagerank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mutate(d_tmp, ...):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `cluster_label = ifelse(is.na(eval(ensym(label_name))),</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   "no_name", eval(ensym(label_name)))`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `ensym()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "ensym"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks_with_names</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tbl_graph: 74 nodes and 446 edges</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># An undirected simple graph with 1 component</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 446 × 9 (active)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to   weight Source  Target     cluster_l… cluster_… cluster… cluster…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     6    11 0.001<span style="text-decoration: underline;">58</span>  1021902 1111111122 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6    45 0.000<span style="text-decoration: underline;">173</span> 1021902 1111111128 02         03        00       <span style="color: #BB0000;">NA</span>      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     6    66 0.000<span style="text-decoration: underline;">430</span> 1021902 1111111134 02         03        00       <span style="color: #BB0000;">NA</span>      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     6    35 0.000<span style="text-decoration: underline;">644</span> 1021902 1111111146 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     6    20 0.000<span style="text-decoration: underline;">126</span> 1021902 1111111180 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     6    42 0.000<span style="text-decoration: underline;">614</span> 1021902 1111111182 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 440 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 74 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID_Art Author  Year Author… Title Journal Type  time_w… cluste… size_c…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 16182… GORDO…  <span style="text-decoration: underline;">1</span>975 GORDON… ALTE… BROOKI… Stag… 1975-1… 01        0.203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 26283… GORDO…  <span style="text-decoration: underline;">1</span>975 GORDON… THE … BROOKI… Stag… 1975-1… 01        0.203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 16182… OKUN-A  <span style="text-decoration: underline;">1</span>975 OKUN-A… INFL… BROOKI… Stag… 1975-1… 02        0.297</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 71 more rows, and 2 more variables: centrality_pagerank &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   cluster_label &lt;chr&gt;</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'temporal_networks_with_names' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or you can name the dynamic clusters:</span></span></span>
 <span class="r-in"><span></span></span>
@@ -255,32 +237,13 @@ tibble graphs will share the same name.</p>
 <span class="r-in"><span>nb_terms_label <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>clean_word_method <span class="op">=</span> <span class="st">"lemmatise"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Invalid .internal.selfref detected and fixed by taking a (shallow) copy of the data.table so that := can add this new column by reference. At an earlier point, this data.table has been copied by R (or was created manually using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Check that is.data.table(DT) == TRUE. Otherwise, :=, `:=`(...) and let(...) are defined for use in j, once only and in particular ways. See help(":=").</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mutate(d_tmp, ...):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `cluster_label = ifelse(is.na(eval(ensym(label_name))),</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   "no_name", eval(ensym(label_name)))`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `ensym()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "ensym"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks_with_names</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tbl_graph: 74 nodes and 446 edges</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># An undirected simple graph with 1 component</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 446 × 9 (active)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to   weight Source  Target     cluster_l… cluster_… cluster… cluster…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     6    11 0.001<span style="text-decoration: underline;">58</span>  1021902 1111111122 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6    45 0.000<span style="text-decoration: underline;">173</span> 1021902 1111111128 02         03        00       <span style="color: #BB0000;">NA</span>      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     6    66 0.000<span style="text-decoration: underline;">430</span> 1021902 1111111134 02         03        00       <span style="color: #BB0000;">NA</span>      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     6    35 0.000<span style="text-decoration: underline;">644</span> 1021902 1111111146 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     6    20 0.000<span style="text-decoration: underline;">126</span> 1021902 1111111180 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     6    42 0.000<span style="text-decoration: underline;">614</span> 1021902 1111111182 02         02        02       WACHTER…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 440 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 74 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID_Art Author  Year Author… Title Journal Type  time_w… cluste… size_c…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 16182… GORDO…  <span style="text-decoration: underline;">1</span>975 GORDON… ALTE… BROOKI… Stag… 1975-1… 01        0.203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 26283… GORDO…  <span style="text-decoration: underline;">1</span>975 GORDON… THE … BROOKI… Stag… 1975-1… 01        0.203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 16182… OKUN-A  <span style="text-decoration: underline;">1</span>975 OKUN-A… INFL… BROOKI… Stag… 1975-1… 02        0.297</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 71 more rows, and 2 more variables: centrality_pagerank &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   cluster_label &lt;chr&gt;</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'temporal_networks_with_names' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

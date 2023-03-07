@@ -346,7 +346,7 @@ the top of your grouping variables.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"39.6%"</span> of the network.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Cluster detection for the </span><span style="color: #0000BB; font-weight: bold;">"1999-2008"</span><span style="font-weight: bold;"> period</span> <span style="color: #00BBBB;">────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"39.1%"</span> of the network.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">4</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"39.1%"</span> of the network.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Cluster detection for the </span><span style="color: #0000BB; font-weight: bold;">"2000-2009"</span><span style="font-weight: bold;"> period</span> <span style="color: #00BBBB;">────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"49%"</span> of the network.</span>
@@ -370,10 +370,81 @@ the top of your grouping variables.</p>
 <span class="r-in"><span>grouping_across_list <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>clean_word_method <span class="op">=</span> <span class="st">"lemmatise"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Invalid .internal.selfref detected and fixed by taking a (shallow) copy of the data.table so that := can add this new column by reference. At an earlier point, this data.table has been copied by R (or was created manually using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Check that is.data.table(DT) == TRUE. Otherwise, :=, `:=`(...) and let(...) are defined for use in j, once only and in particular ways. See help(":=").</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tfidf</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'tfidf' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1] "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [7] "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [13] "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [19] "1975-1984" "1975-1984" "1975-1984" "1976-1985" "1976-1985" "1976-1985"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [25] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [31] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [37] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [43] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1977-1986"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [49] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [55] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [61] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [67] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [73] "1977-1986" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [79] "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [85] "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [91] "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [97] "1978-1987" "1978-1987" "1978-1987" "1979-1988" "1979-1988" "1979-1988"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [103] "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [109] "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [115] "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [121] "1979-1988" "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [127] "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [133] "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1981-1990" "1981-1990"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [139] "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [145] "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [151] "1981-1990" "1981-1990" "1982-1991" "1982-1991" "1982-1991" "1982-1991"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [157] "1982-1991" "1982-1991" "1982-1991" "1982-1991" "1982-1991" "1982-1991"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [163] "1982-1991" "1982-1991" "1982-1991" "1983-1992" "1983-1992" "1983-1992"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [169] "1983-1992" "1983-1992" "1983-1992" "1983-1992" "1983-1992" "1983-1992"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [175] "1983-1992" "1983-1992" "1983-1992" "1984-1993" "1984-1993" "1984-1993"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [181] "1984-1993" "1984-1993" "1984-1993" "1984-1993" "1984-1993" "1984-1993"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [187] "1984-1993" "1984-1993" "1985-1994" "1985-1994" "1985-1994" "1985-1994"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [193] "1986-1995" "1986-1995" "1986-1995" "1987-1996" "1987-1996" "1987-1996"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [199] "1987-1996" "1988-1997" "1988-1997" "1988-1997" "1988-1997" "1988-1997"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [205] "1988-1997" "1988-1997" "1988-1997" "1989-1998" "1989-1998" "1989-1998"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [211] "1989-1998" "1989-1998" "1989-1998" "1989-1998" "1989-1998" "1990-1999"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [217] "1990-1999" "1990-1999" "1990-1999" "1990-1999" "1990-1999" "1990-1999"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [223] "1990-1999" "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1991-2000"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [229] "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1991-2000"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [235] "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [241] "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [247] "1992-2001" "1992-2001" "1992-2001" "1993-2002" "1993-2002" "1993-2002"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [253] "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [259] "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [265] "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [271] "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [277] "1994-2003" "1994-2003" "1994-2003" "1995-2004" "1995-2004" "1995-2004"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [283] "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [289] "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [295] "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [301] "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [307] "1996-2005" "1996-2005" "1996-2005" "1997-2006" "1997-2006" "1997-2006"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [313] "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [319] "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [325] "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [331] "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [337] "1998-2007" "1998-2007" "1998-2007" "1999-2008" "1999-2008" "1999-2008"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [343] "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [349] "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [355] "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008" "2000-2009"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [361] "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [367] "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [373] "2000-2009" "2000-2009" "2001-2010" "2001-2010" "2001-2010" "2001-2010"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [379] "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [385] "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2002-2011"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [391] "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [397] "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [403] "2002-2011" "2002-2011" "2003-2012" "2003-2012" "2003-2012" "2003-2012"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [409] "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [415] "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2004-2013"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [421] "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [427] "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [433] "2004-2013" "2004-2013"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
