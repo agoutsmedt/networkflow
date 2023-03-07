@@ -148,17 +148,14 @@ extract_tfidf <- function(data,
   }
   if(inherits(data, "tbl_graph")){ # in case we have only one network
     dt <- data %N>%
-      as.data.frame()
-    data.table::setDT(dt)
+      data.table::as.data.table()
   } else if (inherits(data, "list")){ # for a list of network
     dt <- lapply(data, function(tbl) tbl %N>%
-                   as.data.frame()) %>%
+                   data.table::as.data.table()) %>%
       data.table::rbindlist(idcol = "list_names")
-    data.table::setDT(dt)
     if(grouping_across_list == TRUE) grouping_columns <- c("list_names", grouping_columns) # Double paste0 in case grouping_columns already gather multiple columns
   } else if (inherits(data, "data.frame")){ # the third case is the one for which we have already a data.frame
-    dt <- data
-    data.table::setDT(dt)
+    dt <- as.data.table(data)
   } else {
     cli::cli_abort(c("The data object you enter in the function is neither",
                      "*" = "a tibble graph (a {.emph tbl_graph} from {.pkg tidygraph});",
@@ -187,11 +184,13 @@ extract_tfidf <- function(data,
     dplyr::filter(dplyr::if_all(dplyr::starts_with("word_"), ~ ! . %in% stopwords_vector),
                   dplyr::if_all(dplyr::starts_with("word_"), ~ ! grepl("^\\d+$", .))) %>%
     tidyr::unite(term, dplyr::starts_with("word_"), sep = " ") %>%
+    data.table::as.data.table() %>%
     .[, term := trimws(term, "both")] %>%
     dplyr::select(dplyr::all_of(grouping_columns), term) %>%
     .[, total_term := .N, by = term] %>%
     dplyr::filter(total_term >= ngrams_filter) %>%
     tidyr::unite(document, dplyr::all_of(grouping_columns), sep = "_", remove = FALSE) %>%
+    data.table::as.data.table() %>%
     .[, n := .N, by = .(term, document)] %>%
     dplyr::select(document, dplyr::all_of(grouping_columns), term, n) %>%
     unique %>%
@@ -199,7 +198,9 @@ extract_tfidf <- function(data,
     dplyr::filter(n > 1) %>%
     dplyr::group_by(document) %>%
     dplyr::slice_max(order_by = tf_idf, n = nb_terms, with_ties = FALSE) %>%
-    data.table::as.data.table() %>%
     dplyr::ungroup() %>%
-    dplyr::select(-document)
+    dplyr::select(-document) %>%
+    data.table::as.data.table()
+
+  return(term_list)
 }

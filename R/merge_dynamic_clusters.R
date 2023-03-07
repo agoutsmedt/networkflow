@@ -89,11 +89,11 @@
 #'
 #' @export
 
-merge_dynamic_clusters <- function(list_graph = NA,
-                                   cluster_id = NA,
-                                   node_id = NA,
+merge_dynamic_clusters <- function(list_graph,
+                                   cluster_id,
+                                   node_id ,
                                    threshold_similarity = 0.5001,
-                                   similarity_type = c("complete, partial")){
+                                   similarity_type = c("complete", "partial")){
 
   if(!similarity_type %in% c("complete","partial")){
     cli::cli_abort(c("You must choose a similarity type between 'complete' and 'partial': ",

@@ -108,7 +108,7 @@ color_networks <- function(graphs,
     if(inherits(graphs, "tbl_graph")){
       unique_graph <- TRUE
       variable_list <- graphs %N>%
-        data.table::as.data.table %>%
+        data.table::as.data.table() %>%
         .[, .SD, .SDcols = c(column_to_color)]
       graphs <- list(graphs) #If it's graph alone, make it into the list so the next part of the function work
 
@@ -179,7 +179,7 @@ color_networks <- function(graphs,
     }
   } else {
     graphs <- lapply(graphs, function(tbl) tbl %N>%
-                       dplyr::left_join(main_colors_table, by = column_to_color)) # %>% mutate(color = ifelse(is.na(color), "grey", color)))
+                       dplyr::left_join(main_colors_table, by = column_to_color))
   }
 
   # Coloring Edges

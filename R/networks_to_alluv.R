@@ -1,7 +1,7 @@
-networks_to_alluv <- function(list_graph = NA,
-                              intertemporal_cluster_column = "intertemporal_name",
-                              node_id = NA,
-                              summary_cl_stats = TRUE,
+networks_to_alluv <- function(graphs,
+                              intertemporal_cluster_column,
+                              node_id,
+                              summary_cluster_stats = TRUE,
                               keep_color = TRUE,
                               color_column = "color",
                               keep_cluster_label = TRUE,
@@ -11,8 +11,9 @@ networks_to_alluv <- function(list_graph = NA,
   #'
   #' This function creates a data.frame that can be easily plotted with ggalluvial from a list of networks.
   #'
-  #' @param list_graph
-  #' Your list with all networks
+  #' @param graphs
+  #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a list of tibble
+  #' graphs.
   #'
   #' @param intertemporal_cluster_column
   #' The column with the identifier of the inter-temporal cluster. If you have used
@@ -22,7 +23,7 @@ networks_to_alluv <- function(list_graph = NA,
   #' @param node_id
   #' The column with the unique identifier of each node.
   #'
-  #' @param summary_cl_stats
+  #' @param summary_cluster_stats
   #' If set to `TRUE`, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
   #' can be particularly useful to filter smaller communities when plotting according to different variables:
   #'
@@ -111,7 +112,7 @@ networks_to_alluv <- function(list_graph = NA,
                if(!is.null(color_column) & keep_color) color_column,
                if(!is.null(cluster_label_column) & keep_cluster_label) cluster_label_column)
 
-  alluv_dt <- lapply(list_graph,
+  alluv_dt <- lapply(graphs,
                      function(tbl)(tbl %N>% data.table::as.data.table())) %>%
     data.table::rbindlist(idcol = "window") %>%
     dplyr::select(window, dplyr::any_of(columns)) # We keep all the need columns
@@ -126,7 +127,7 @@ networks_to_alluv <- function(list_graph = NA,
     cli::cli_alert_info("The column \"{.emph {cluster_label_column}}\" does not exist in the list of graphs provided. No name kept for clusters.")
   }
 
-  if(summary_cl_stats == TRUE){
+  if(summary_cluster_stats){
     alluv_dt[,share_cluster_alluv:= round(.N/alluv_dt[,.N], 4) * 100, intertemporal_cluster_column,
              env = list(intertemporal_cluster_column = intertemporal_cluster_column)] # share of cl in alluv
     alluv_dt[,tot_window_leiden := .N, .(window,intertemporal_cluster_column),
