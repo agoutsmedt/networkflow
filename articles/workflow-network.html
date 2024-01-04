@@ -9,8 +9,8 @@
 ">
 <title>A Workflow for network analysis • networkflow</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="A Workflow for network analysis">
 <meta property="og:description" content="Introduction to the standards function of the networkflow package for building, manipulating plotting, and analysing a network.
@@ -127,21 +127,28 @@ component</a> of your network. This could be done in one step using the
 <span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tbl_main_component.html">tbl_main_component</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">Nodes_coupling</span>, edges <span class="op">=</span> <span class="va">Edges_coupling</span>, directed <span class="op">=</span> <span class="cn">FALSE</span>, node_key <span class="op">=</span> <span class="st">"ItemID_Ref"</span>, nb_components <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: `tbl_main_component()` was deprecated in networkflow 0.1.0.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Please use `filter_components()` instead.</span></span>
+<span><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span><span class="co">#&gt; generated.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tbl_graph: 145 nodes and 2593 edges</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; # An undirected simple graph with 1 component</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; # Node Data: 145 × 6 (active)</span></span></span>
-<span><span class="co">#&gt;   Id       Author      Year Author_date     Title                 Journal       </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 96284971 ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANESI-S-2003 Expectation traps an… <span style="color: #949494;">"</span>The Review o…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 37095547 ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOGLU-H-1980 Inflation and its ac… <span style="color: #949494;">"</span>Journal of P…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 46282251 ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOGLU-H-1982 WAGES AND STAGFLATION <span style="color: #949494;">"</span>JOURNAL OF P…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 214927   BALL-L      <span style="text-decoration: underline;">1</span>991 BALL-L-1991     The Genesis of Infla… <span style="color: #949494;">"</span>Journal of M…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2207578  BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995a    Relative-Price Chang… <span style="color: #949494;">"</span>The Quarterl…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10729971 BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995b    Time-consistent poli… <span style="color: #949494;">"</span>Journal of M…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 139 more rows</span></span></span>
+<span><span class="co">#&gt;    Id        Author      Year Author_date      Title                     Journal</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 96284971  ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANESI-S-2003  Expectation traps and mo… <span style="color: #949494;">"</span>The R…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 37095547  ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOGLU-H-1980  Inflation and its accele… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 46282251  ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOGLU-H-1982  WAGES AND STAGFLATION     <span style="color: #949494;">"</span>JOURN…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 214927    BALL-L      <span style="text-decoration: underline;">1</span>991 BALL-L-1991      The Genesis of Inflation… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 2207578   BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995a     Relative-Price Changes a… <span style="color: #949494;">"</span>The Q…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 10729971  BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995b     Time-consistent policy a… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 95575910  BARSKY-R    <span style="text-decoration: underline;">2</span>002 BARSKY-R-2002    Do we really know that o… <span style="color: #949494;">"</span>NBER …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 105203318 BARSKY-R    <span style="text-decoration: underline;">2</span>004 BARSKY-R-2004    Oil and the Macroeconomy… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 140987361 BENATI-L    <span style="text-decoration: underline;">2</span>011 BENATI-L-2011    Would the Bundesbank hav… <span style="color: #949494;">"</span>JOURN…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 43590636  BERNANKE-B  <span style="text-decoration: underline;">1</span>997 BERNANKE-B-1997a Systematic monetary poli… <span style="color: #949494;">"</span>Brook…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 135 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; # Edge Data: 2,593 × 5</span></span></span>
 <span><span class="co">#&gt;    from    to weight Source  Target</span></span>
@@ -149,7 +156,7 @@ component</a> of your network. This could be done in one step using the
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     4     5 0.146  <span style="text-decoration: underline;">214</span>927 2<span style="text-decoration: underline;">207</span>578</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4    65 0.040<span style="text-decoration: underline;">8</span> <span style="text-decoration: underline;">214</span>927 5<span style="text-decoration: underline;">982</span>867</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4    46 0.097<span style="text-decoration: underline;">3</span> <span style="text-decoration: underline;">214</span>927 8<span style="text-decoration: underline;">456</span>979</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2,590 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2,590 more rows</span></span></span></code></pre></div>
 <p>The parameter <code>nb_components</code> allows you to choose the
 number of components you want to keep. For obvious reasons, it is
 settled to 1 by default.</p>
@@ -174,15 +181,19 @@ avoid removing relatively big components.</p>
 <span><span class="co"><span style="color: #949494;">#&gt; # An undirected simple graph with 1 component</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; #</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; # Node Data: 145 × 6 (active)</span></span></span>
-<span><span class="co">#&gt;   Id       Author      Year Author_date     Title                 Journal       </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 96284971 ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANESI-S-2003 Expectation traps an… <span style="color: #949494;">"</span>The Review o…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 37095547 ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOGLU-H-1980 Inflation and its ac… <span style="color: #949494;">"</span>Journal of P…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 46282251 ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOGLU-H-1982 WAGES AND STAGFLATION <span style="color: #949494;">"</span>JOURNAL OF P…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 214927   BALL-L      <span style="text-decoration: underline;">1</span>991 BALL-L-1991     The Genesis of Infla… <span style="color: #949494;">"</span>Journal of M…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2207578  BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995a    Relative-Price Chang… <span style="color: #949494;">"</span>The Quarterl…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 10729971 BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995b    Time-consistent poli… <span style="color: #949494;">"</span>Journal of M…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 139 more rows</span></span></span>
+<span><span class="co">#&gt;    Id        Author      Year Author_date      Title                     Journal</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 96284971  ALBANESI-S  <span style="text-decoration: underline;">2</span>003 ALBANESI-S-2003  Expectation traps and mo… <span style="color: #949494;">"</span>The R…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 37095547  ATESOGLU-H  <span style="text-decoration: underline;">1</span>980 ATESOGLU-H-1980  Inflation and its accele… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 46282251  ATESOGLU-H  <span style="text-decoration: underline;">1</span>982 ATESOGLU-H-1982  WAGES AND STAGFLATION     <span style="color: #949494;">"</span>JOURN…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 214927    BALL-L      <span style="text-decoration: underline;">1</span>991 BALL-L-1991      The Genesis of Inflation… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 2207578   BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995a     Relative-Price Changes a… <span style="color: #949494;">"</span>The Q…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 10729971  BALL-L      <span style="text-decoration: underline;">1</span>995 BALL-L-1995b     Time-consistent policy a… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 95575910  BARSKY-R    <span style="text-decoration: underline;">2</span>002 BARSKY-R-2002    Do we really know that o… <span style="color: #949494;">"</span>NBER …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 105203318 BARSKY-R    <span style="text-decoration: underline;">2</span>004 BARSKY-R-2004    Oil and the Macroeconomy… <span style="color: #949494;">"</span>Journ…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 140987361 BENATI-L    <span style="text-decoration: underline;">2</span>011 BENATI-L-2011    Would the Bundesbank hav… <span style="color: #949494;">"</span>JOURN…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 43590636  BERNANKE-B  <span style="text-decoration: underline;">1</span>997 BERNANKE-B-1997a Systematic monetary poli… <span style="color: #949494;">"</span>Brook…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 135 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#</span></span></span>
 <span><span class="co"><span style="color: #949494;">#&gt; # Edge Data: 2,593 × 5</span></span></span>
 <span><span class="co">#&gt;    from    to weight Source  Target</span></span>
@@ -190,7 +201,7 @@ avoid removing relatively big components.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     4     5 0.146  <span style="text-decoration: underline;">214</span>927 2<span style="text-decoration: underline;">207</span>578</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4    65 0.040<span style="text-decoration: underline;">8</span> <span style="text-decoration: underline;">214</span>927 5<span style="text-decoration: underline;">982</span>867</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4    46 0.097<span style="text-decoration: underline;">3</span> <span style="text-decoration: underline;">214</span>927 8<span style="text-decoration: underline;">456</span>979</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with 2,590 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2,590 more rows</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="second-step-finding-communities">Second step: finding communities<a class="anchor" aria-label="anchor" href="#second-step-finding-communities"></a>
