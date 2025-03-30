@@ -1,117 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/404.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/articles/exploring_dynamic_networks.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/articles/workflow-network.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/index.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/Authors_stagflation.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/Edges_coupling.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/Nodes_coupling.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/Ref_stagflation.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/add_clusters.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/color_networks.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/community_colors.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/community_labels.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/community_names.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/dynamic_network_cooccurrence.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/filter_components.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/intertemporal_cluster_naming.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/layout_networks.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/leiden_workflow.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/name_clusters.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/networkflow-package.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/plot_networks.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/tbl_main_component.html</loc>
-  </url>
-  <url>
-    <loc>https://agoutsmedt.github.io/networkflow/reference/top_nodes.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://agoutsmedt.github.io/networkflow/404.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/LICENSE-text.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/LICENSE.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/articles/exploring_dynamic_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/articles/index.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/articles/workflow-network.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/authors.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/index.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/news/index.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/Authors_stagflation.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/Edges_coupling.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/Nodes_coupling.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/Ref_stagflation.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/add_clusters.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/color_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/community_colors.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/community_labels.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/community_names.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/dynamic_network_cooccurrence.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/filter_components.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/index.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/intertemporal_cluster_naming.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/layout_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/leiden_workflow.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/name_clusters.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/networkflow-package.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/pipe.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/plot_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/tbl_main_component.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/top_nodes.html</loc></url>
 </urlset>
+
