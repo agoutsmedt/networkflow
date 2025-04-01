@@ -347,6 +347,7 @@ the top of your grouping variables.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Cluster detection for the </span><span style="color: #0000BB; font-weight: bold;">"2004-2013"</span><span style="font-weight: bold;"> period</span> <span style="color: #00BBBB;">────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The <span style="font-style: italic;">leiden</span> method detected <span style="color: #0000BB;">3</span> clusters. The biggest cluster represents <span style="color: #0000BB;">"54.8%"</span> of the network.</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/quanteda/stopwords" class="external-link">stopwords</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tfidf</span> <span class="op">&lt;-</span> <span class="fu">extract_tfidf</span><span class="op">(</span><span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>n_gram <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>text_columns <span class="op">=</span> <span class="st">"Title"</span>,</span></span>

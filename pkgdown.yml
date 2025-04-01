@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   exploring_dynamic_networks: exploring_dynamic_networks.html
   workflow-network: workflow-network.html
-last_built: 2025-03-30T13:15Z
+last_built: 2025-04-01T18:40Z
 urls:
   reference: https://agoutsmedt.github.io/networkflow/reference
   article: https://agoutsmedt.github.io/networkflow/articles

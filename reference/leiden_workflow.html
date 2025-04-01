@@ -59,7 +59,7 @@ a different community, the edge takes as attribute the total number of communiti
 <p>This function has been superseded by the more general <code><a href="add_clusters.html">networkflow::add_clusters()</a></code>.
 This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
 traag2019networkflow which creates a partition. The <code>Leiden_workflow</code> functhion uses
-find_partition() from the <a href="https://cran.r-project.org/web/packages/leidenAlg/index.html" class="external-link">leidenAlg</a>
+<code>find_partition()</code> from the <a href="https://cran.r-project.org/web/packages/leidenAlg/index.html" class="external-link">leidenAlg</a>
 package. The function then associates each node to its
 corresponding community number. It also creates a community attribute for edges: to each edge is associated
 a corresponding community number, if the two nodes connected by the edge belong to the same community. If nodes have

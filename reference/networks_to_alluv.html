@@ -45,10 +45,10 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">networks_to_alluv</span><span class="op">(</span></span>
-<span>  list_graph <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  intertemporal_cluster_column <span class="op">=</span> <span class="st">"intertemporal_name"</span>,</span>
-<span>  node_id <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  summary_cl_stats <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">graphs</span>,</span>
+<span>  <span class="va">intertemporal_cluster_column</span>,</span>
+<span>  <span class="va">node_id</span>,</span>
+<span>  summary_cluster_stats <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  keep_color <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  color_column <span class="op">=</span> <span class="st">"color"</span>,</span>
 <span>  keep_cluster_label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -60,8 +60,9 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-list-graph">list_graph<a class="anchor" aria-label="anchor" href="#arg-list-graph"></a></dt>
-<dd><p>Your list with all networks</p></dd>
+<dl><dt id="arg-graphs">graphs<a class="anchor" aria-label="anchor" href="#arg-graphs"></a></dt>
+<dd><p>A tibble graph from <a href="https://tidygraph.data-imaginist.com/" class="external-link">tidygraph</a> or a list of tibble
+graphs.</p></dd>
 
 
 <dt id="arg-intertemporal-cluster-column">intertemporal_cluster_column<a class="anchor" aria-label="anchor" href="#arg-intertemporal-cluster-column"></a></dt>
@@ -74,7 +75,7 @@ it is of the form <code>dynamic_cluster_{clustering_method}</code>.</p></dd>
 <dd><p>The column with the unique identifier of each node.</p></dd>
 
 
-<dt id="arg-summary-cl-stats">summary_cl_stats<a class="anchor" aria-label="anchor" href="#arg-summary-cl-stats"></a></dt>
+<dt id="arg-summary-cluster-stats">summary_cluster_stats<a class="anchor" aria-label="anchor" href="#arg-summary-cluster-stats"></a></dt>
 <dd><p>If set to <code>TRUE</code>, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
 can be particularly useful to filter smaller communities when plotting according to different variables:</p><ul><li><p><code>share_cluster_alluv</code> is the percentage share of a given cluster across all time windows;</p></li>
 <li><p><code>share_cluster_window</code> is the percentage share of a given cluster in a given time window;</p></li>
@@ -150,10 +151,6 @@ resulting from the use of <a href="name_clusters.html">name_clusters()</a>.</p><
 <span class="r-in"><span>nb_terms_label <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>clean_word_method <span class="op">=</span> <span class="st">"lemmatise"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A shallow copy of this data.table was taken so that := can add or remove 2 columns by reference. At an earlier point, this data.table was copied by R (or was created manually using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. It's also not unusual for data.table-agnostic packages to produce tables affected by this issue. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mutate(d_tmp, ...):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `cluster_label = ifelse(is.na(eval(ensym(label_name))),</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   "no_name", eval(ensym(label_name)))`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `ensym()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> could not find function "ensym"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="color_networks.html">color_networks</a></span><span class="op">(</span>graphs <span class="op">=</span> <span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>column_to_color <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
@@ -165,16 +162,22 @@ resulting from the use of <a href="name_clusters.html">name_clusters()</a>.</p><
 <span class="r-in"><span><span class="va">alluv_dt</span> <span class="op">&lt;-</span> <span class="fu">networks_to_alluv</span><span class="op">(</span><span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>intertemporal_cluster_column <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
 <span class="r-in"><span>node_id <span class="op">=</span> <span class="st">"ID_Art"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The column "<span style="font-style: italic;">cluster_label</span>" does not exist in the list of graphs provided. No name kept for clusters.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">alluv_dt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    dynamic_cluster_leiden    window     ID_Art   color share_cluster_alluv</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    &lt;char&gt;    &lt;char&gt;     &lt;char&gt;  &lt;char&gt;               &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:                   cl_1 1975-1994   16182155 #F564E3                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                   cl_1 1975-1994   26283591 #F564E3                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                   cl_1 1975-1994   31895842 #F564E3                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                   cl_1 1975-1994 1111111131 #F564E3                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                   cl_1 1975-1994 1111111150 #F564E3                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    dynamic_cluster_leiden    window     ID_Art   color</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    &lt;char&gt;    &lt;char&gt;     &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:                   cl_1 1975-1994   16182155 #F564E3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                   cl_1 1975-1994   26283591 #F564E3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                   cl_1 1975-1994   31895842 #F564E3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                   cl_1 1975-1994 1111111131 #F564E3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                   cl_1 1975-1994 1111111150 #F564E3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                              cluster_label share_cluster_alluv</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                     &lt;char&gt;               &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: controls, controls program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: controls, controls program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: controls, controls program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: controls, controls program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: controls, controls program, program, price level, level                6.22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    share_cluster_window share_cluster_max length_cluster    y_alluv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;num&gt;             &lt;num&gt;          &lt;int&gt;      &lt;num&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:                17.57             18.31              7 0.01351351</span>
