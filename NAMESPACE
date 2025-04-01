@@ -3,6 +3,7 @@
 export("%>%")
 export(add_clusters)
 export(build_dynamic_networks)
+export(build_dynamic_networks2)
 export(build_network)
 export(color_alluvial)
 export(color_networks)

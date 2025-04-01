@@ -2,6 +2,7 @@
 % Please edit documentation in R/build_dynamic_networks.R
 \name{build_dynamic_networks}
 \alias{build_dynamic_networks}
+\alias{build_dynamic_networks2}
 \alias{build_network}
 \title{Creating One or Multiple Networks from a List of Nodes and Directed Edges}
 \usage{
@@ -15,6 +16,26 @@ build_dynamic_networks(
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   overlapping_window = FALSE,
   edges_threshold = 1,
+  compute_size = FALSE,
+  keep_singleton = FALSE,
+  filter_components = FALSE,
+  ...,
+  verbose = TRUE
+)
+
+build_dynamic_networks2(
+  nodes,
+  directed_edges,
+  source_id,
+  target_id,
+  time_variable = NULL,
+  time_window = NULL,
+  backbone_method = c("statistical", "structured"),
+  statistical_method = c("sdsm", "fdsm", "fixedfill", "fixedfrow", "fixedcol"),
+  alpha = alpha,
+  coupling_measure = c("coupling_angle", "coupling_strength", "coupling_similarity"),
+  edges_threshold = 1,
+  overlapping_window = FALSE,
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,

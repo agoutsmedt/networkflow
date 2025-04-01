@@ -49,13 +49,15 @@ Imports:
     ggalluvial,
     magrittr,
     rlang,
-    grDevices
+    grDevices,
+    stringr
 Suggests: 
     knitr,
     rmarkdown,
     ggrepel,
     stopwords,
-    textstem
+    textstem,
+    backbone
 VignetteBuilder: 
     knitr
 RdMacros:
