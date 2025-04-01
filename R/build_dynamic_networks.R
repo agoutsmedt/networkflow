@@ -500,6 +500,7 @@ build_dynamic_networks2 <- function(nodes,
 
   edges <- data.table::copy(directed_edges)
   edges <- edges[, .SD, .SDcols = c(source_id, target_id)] # we keep only the columns we need
+  edges <- unique(edges) # in case there are some duplicates
   edges[, c(source_id, target_id) := lapply(.SD, as.character), .SDcols = c(source_id, target_id)] # we need to have character columns
 
   ######################### Dynamics networks *********************

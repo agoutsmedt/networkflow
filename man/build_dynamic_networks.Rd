@@ -121,6 +121,18 @@ it will keep only the main component.}
 \item{...}{Additional arguments from \code{networkflow::filter_components()}.}
 
 \item{verbose}{Set to \code{FALSE} if you don't want the function to display different sort of information.}
+
+\item{backbone_method}{Method used to extract the network backbone. Choose between:
+\itemize{
+\item \code{"structured"}: uses cooccurrence measures from the \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} package;
+\item \code{"statistical"}: uses statistical models from the \href{https://github.com/djmurphy533/backbone}{backbone} package.
+}}
+
+\item{statistical_method}{For \code{backbone_method = "statistical"}, select the null model: one of
+\code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedfrow"}, \code{"fixedcol"}.}
+
+\item{alpha}{Significance threshold for statistical backbone extraction. Required if
+\code{backbone_method = "statistical"}.}
 }
 \value{
 If \code{time_window} is \code{NULL}, the function computes only
