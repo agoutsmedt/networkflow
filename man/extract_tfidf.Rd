@@ -125,6 +125,7 @@ temporal_networks <- add_clusters(temporal_networks,
 objective_function = "modularity",
 clustering_method = "leiden")
 
+library(stopwords)
 tfidf <- extract_tfidf(temporal_networks,
 n_gram = 4,
 text_columns = "Title",

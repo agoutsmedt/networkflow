@@ -8,7 +8,7 @@ leiden_workflow <- function(graph, res_1 = 1, res_2 = NULL, res_3 = NULL, niter 
   #' This function has been superseded by the more general `networkflow::add_clusters()`.
   #' This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
   #' \insertCite{traag2019}{networkflow} which creates a partition. The `Leiden_workflow` functhion uses
-  #' [find_partition()][leidenAlg::find_partition()] from the [leidenAlg](https://cran.r-project.org/web/packages/leidenAlg/index.html)
+  #' `find_partition()` from the [leidenAlg](https://cran.r-project.org/web/packages/leidenAlg/index.html)
   #' package. The function then associates each node to its
   #' corresponding community number. It also creates a community attribute for edges: to each edge is associated
   #' a corresponding community number, if the two nodes connected by the edge belong to the same community. If nodes have

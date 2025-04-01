@@ -5,11 +5,11 @@
 \title{Find Similar Clusters across Multiple Temporal Networks}
 \usage{
 merge_dynamic_clusters(
-  list_graph = NA,
-  cluster_id = NA,
-  node_id = NA,
+  list_graph,
+  cluster_id,
+  node_id,
   threshold_similarity = 0.5001,
-  similarity_type = c("complete, partial")
+  similarity_type = c("complete", "partial")
 )
 }
 \arguments{

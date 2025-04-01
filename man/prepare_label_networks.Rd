@@ -13,7 +13,7 @@ prepare_label_networks(
 )
 
 prepare_label_alluvial(
-  alluv_dt = NA,
+  alluv_dt,
   window_column = "window",
   cluster_label_column = "cluster_label"
 )

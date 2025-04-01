@@ -165,15 +165,17 @@ plot_network <- function(graph,
                          cluster_label_column = cluster_label_column,
                          node_size_column = node_size_column,
                          print_plot_code = print_plot_code){
+  . <- weight <- label_x <- label_y <- NULL
+
   if(! "weight" %in% colnames(graph %E>% as.data.frame())){
     cli::cli_alert_info("No column `weight` found in edges data. All weight will equal 1.")
     graph <- graph %E>%
-      mutate(weight = 1)
+      dplyr::mutate(weight = 1)
   }
   if(! node_size_column %in% colnames(graph %N>% as.data.frame()) | is.null(node_size_column)){
     cli::cli_alert_info("No column `weight` found in edges data. All weight will equal 1.")
     graph <- graph %N>%
-      mutate(node_size = 1)
+      dplyr::mutate(node_size = 1)
     node_size_column <- "node_size"
     node_size_column_plot <- rlang::ensym(node_size_column)
   } else {

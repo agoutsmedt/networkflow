@@ -224,9 +224,9 @@ name_clusters <- function(graphs,
       }
       graphs[[i]] <- graphs[[i]] %N>%
         dplyr::left_join(labels, by = cluster_id) %>%
-        mutate({{label_name}} := ifelse(is.na(eval(ensym(label_name))),
+        dplyr::mutate({{label_name}} := ifelse(is.na(eval(rlang::ensym(label_name))),
                                         "no_name",
-                                        eval(ensym(label_name)))) %E>%
+                                        eval(rlang::ensym(label_name)))) %E>%
         dplyr::left_join(labels, by = cluster_id)
     }
     if(unique_graph == TRUE) graphs <- graphs[[1]]
@@ -254,9 +254,9 @@ name_clusters <- function(graphs,
     }
     graphs <- lapply(graphs, function(tbl) tbl %N>%
                        dplyr::left_join(labels, by = cluster_id) %>%
-                       mutate({{label_name}} := ifelse(is.na(eval(ensym(label_name))),
+                       dplyr::mutate({{label_name}} := ifelse(is.na(eval(rlang::ensym(label_name))),
                                                        "no_name",
-                                                       eval(ensym(label_name)))) %E>%
+                                                       eval(rlang::ensym(label_name)))) %E>%
                        dplyr::left_join(labels, by = cluster_id))
   }
 

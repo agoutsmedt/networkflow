@@ -32,7 +32,7 @@ each edge.
 This function has been superseded by the more general \code{networkflow::add_clusters()}.
 This function takes as input a tidygraph graph It then runs the Leiden detection community algorithm
 \insertCite{traag2019}{networkflow} which creates a partition. The \code{Leiden_workflow} functhion uses
-\link[leidenAlg:find_partition]{find_partition()} from the \href{https://cran.r-project.org/web/packages/leidenAlg/index.html}{leidenAlg}
+\code{find_partition()} from the \href{https://cran.r-project.org/web/packages/leidenAlg/index.html}{leidenAlg}
 package. The function then associates each node to its
 corresponding community number. It also creates a community attribute for edges: to each edge is associated
 a corresponding community number, if the two nodes connected by the edge belong to the same community. If nodes have

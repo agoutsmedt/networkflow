@@ -5,10 +5,10 @@
 \title{Create a data.frame suitable for alluvial graph projection}
 \usage{
 networks_to_alluv(
-  list_graph = NA,
-  intertemporal_cluster_column = "intertemporal_name",
-  node_id = NA,
-  summary_cl_stats = TRUE,
+  graphs,
+  intertemporal_cluster_column,
+  node_id,
+  summary_cluster_stats = TRUE,
   keep_color = TRUE,
   color_column = "color",
   keep_cluster_label = TRUE,
@@ -16,7 +16,8 @@ networks_to_alluv(
 )
 }
 \arguments{
-\item{list_graph}{Your list with all networks}
+\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
+graphs.}
 
 \item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. If you have used
 \link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
@@ -24,7 +25,7 @@ it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
 
 \item{node_id}{The column with the unique identifier of each node.}
 
-\item{summary_cl_stats}{If set to \code{TRUE}, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
+\item{summary_cluster_stats}{If set to \code{TRUE}, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
 can be particularly useful to filter smaller communities when plotting according to different variables:
 \itemize{
 \item \code{share_cluster_alluv} is the percentage share of a given cluster across all time windows;

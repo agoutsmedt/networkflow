@@ -46,7 +46,7 @@
   #' to create a column `label_x` with
   #'
   #' @param cluster_label_column
-  #' If `prepare_label` is `TRUE`, [label_alluvial()][networkflow::label_alluvial()] is
+  #' If `prepare_label` is `TRUE`, [prepare_label_alluvial()][networkflow::prepare_label_alluvial()] is
   #' used and the values of `cluster_label_column` are taken to be displayed as label.
   #' By default, "cluster_label", as it is
   #' the default name of the column created with [name_clusters()][networkflow::name_clusters()].
@@ -70,7 +70,7 @@ plot_alluvial <- function(alluv_dt,
                           cluster_label_column = "cluster_label",
                           print_plot_code = FALSE)
 {
-  . <- N <- NULL
+  . <- N <- y_alluv <- label_x <- NULL
 
   if(color_alluvial){
     cli::cli_alert_info("{.emph color_alluvial} is {.code TRUE}. {.fun color_alluvial} is used to color the alluvial.")

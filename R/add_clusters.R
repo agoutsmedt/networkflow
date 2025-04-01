@@ -132,7 +132,7 @@ add_clusters <- function(graphs,
   #'
   #'
   #' @references
-  #' \insertAllCited{}
+  #'   \insertAllCited{}
   #'
   #' @export
   #'

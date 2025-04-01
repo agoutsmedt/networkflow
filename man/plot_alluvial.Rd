@@ -50,7 +50,7 @@ run to reorder the \code{intertemporal_cluster_colum} to limit overlapping in th
 \item{prepare_label}{If \code{TRUE}, \link[=prepare_label_alluvial]{prepare_label_alluvial()} is used
 to create a column \code{label_x} with}
 
-\item{cluster_label_column}{If \code{prepare_label} is \code{TRUE}, \link[=label_alluvial]{label_alluvial()} is
+\item{cluster_label_column}{If \code{prepare_label} is \code{TRUE}, \link[=prepare_label_alluvial]{prepare_label_alluvial()} is
 used and the values of \code{cluster_label_column} are taken to be displayed as label.
 By default, "cluster_label", as it is
 the default name of the column created with \link[=name_clusters]{name_clusters()}.

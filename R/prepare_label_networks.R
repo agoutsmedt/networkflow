@@ -80,14 +80,14 @@ prepare_label_alluvial <- function(alluv_dt,
                                    cluster_label_column = "cluster_label")
 {
 
-  . <- NULL
+  . <- label_alluvial <- NULL
 
   label <- data.table::copy(alluv_dt)
   # We take the median window and we set the label here
   label <- label[, .N, .(cluster_label_column, window_column),
                  env = list(cluster_label_column = cluster_label_column,
                             window_column = window_column)] %>%
-    .[, label_alluvial := round(median(1:.N), 0) == 1:.N, .(cluster_label_column),
+    .[, label_alluvial := round(stats::median(1:.N), 0) == 1:.N, .(cluster_label_column),
                  env = list(cluster_label_column = cluster_label_column,
                             window_column = window_column)] %>%
     .[label_alluvial == TRUE] %>%
