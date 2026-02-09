@@ -11,9 +11,9 @@ build_dynamic_networks2(
   target_id,
   time_variable = NULL,
   time_window = NULL,
-  backbone_method = c("statistical", "structured"),
-  statistical_method = c("sdsm", "fdsm", "fixedfill", "fixedfrow", "fixedcol"),
-  alpha = alpha,
+  backbone_method = c("structured", "statistical"),
+  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
+  alpha = NULL,
   coupling_measure = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
   overlapping_window = FALSE,
@@ -21,6 +21,7 @@ build_dynamic_networks2(
   keep_singleton = FALSE,
   filter_components = FALSE,
   ...,
+  backbone_args = list(),
   verbose = TRUE
 )
 }
@@ -43,13 +44,16 @@ of articles with identifiers, authors, publication year, etc.}
 \itemize{
 \item \code{"structured"}: uses cooccurrence measures from the \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} package;
 \item \code{"statistical"}: uses statistical models from the \href{https://github.com/djmurphy533/backbone}{backbone} package.
+Defaults to \code{"structured"}.
 }}
 
-\item{statistical_method}{For \code{backbone_method = "statistical"}, select the null model: one of
-\code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedfrow"}, \code{"fixedcol"}.}
+\item{model}{Null model used by the \href{https://github.com/zpneal/backbone}{backbone}
+package: one of \code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"}. Required if
+\code{backbone_method = "statistical"}. These correspond to model names in \code{backbone} and are passed
+through to the selected backbone function.}
 
 \item{alpha}{Significance threshold for statistical backbone extraction. Required if
-\code{backbone_method = "statistical"}.}
+\code{backbone_method = "statistical"}. Lower values keep fewer edges (stricter filtering).}
 
 \item{coupling_measure}{For \code{backbone_method = "structured"}, choose the cooccurrence method:
 \itemize{
@@ -70,6 +74,11 @@ of articles with identifiers, authors, publication year, etc.}
 
 \item{...}{Additional arguments passed to \code{filter_components()}.}
 
+\item{backbone_args}{Optional list of additional arguments passed to
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}. Use this to set parameters like \code{mtc},
+\code{signed}, \code{missing_as_zero}, or \code{trials}. If \code{backbone_args} includes \code{alpha} or
+\code{model}, those values override the corresponding function arguments.}
+
 \item{verbose}{Logical. If \code{TRUE}, displays progress messages.}
 }
 \value{
@@ -83,22 +92,68 @@ of articles with identifiers, authors, publication year, etc.}
 
 \code{build_dynamic_networks2()} builds one or several networks (as tidygraph objects)
 from a table of nodes and directed edges, with support for both structured cooccurrence
-methods and statistical backbone extraction using the \href{https://github.com/zpneal/backbone}{backbone} package.
+methods and statistical backbone extraction using the \href{https://github.com/zpneal/backbone}{backbone}
+package \insertCite{neal2022}{networkflow}.
 The function is useful for constructing bibliometric or affiliation networks across
 static or dynamic time windows.
 }
 \details{
 \code{build_dynamic_networks2()} generalizes \code{build_dynamic_networks()} by adding support for
-statistical backbone extraction using null models from the \code{backbone} package. The cooccurence methods used in
-\code{build_dynamic_networks()} can be viewed as deterministic methods to extract the network backbone. The backbone is defined as the significant edges in the network.
+statistical backbone extraction using null models from the \code{backbone} package
+\insertCite{neal2022}{networkflow}. The cooccurence methods used in
+\code{build_dynamic_networks()} can be viewed as deterministic (structured) methods to extract
+the network backbone. The backbone is defined as the significant edges in the network.
 
 As with \code{build_dynamic_networks()}, the function constructs networks for each time window. If \code{time_variable} and \code{time_window} are defined, the function constructs networks
 for each time window (sliding or non-overlapping). Otherwise, it builds a single static network.
 
 If \code{backbone_method = "structured"}, cooccurrence edges are computed using bibliometric coupling
 techniques. The term structured refers to deterministic methods based on thresholding cooccurrence measures.
-If \code{backbone_method = "statistical"}, the function constructs a bipartite incidence matrix
-and extracts statistically significant edges using one of the null models from the \code{backbone} package.
+If \code{backbone_method = "statistical"}, the function applies a \code{backbone} null model to the
+edgelist for each time window and keeps only statistically significant edges at the chosen \code{alpha}.
+The model is selected via \code{model} and follows \code{backbone}'s nomenclature: \code{"sdsm"}, \code{"fdsm"},
+\code{"fixedfill"}, \code{"fixedrow"}, or \code{"fixedcol"}. Only these models are currently supported.
+}
+\examples{
+library(networkflow)
+
+nodes <- Nodes_stagflation |>
+dplyr::rename(ID_Art = ItemID_Ref) |>
+dplyr::filter(Type == "Stagflation")
+
+references <- Ref_stagflation |>
+dplyr::rename(ID_Art = Citing_ItemID_Ref)
+
+# Structured backbone (cooccurrence)
+net_structured <- build_dynamic_networks2(
+nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+time_window = 20,
+backbone_method = "structured",
+coupling_measure = "coupling_similarity",
+edges_threshold = 1
+)
+
+# Statistical backbone (backbone package)
+net_statistical <- build_dynamic_networks2(
+nodes = nodes,
+directed_edges = references,
+source_id = "ID_Art",
+target_id = "ItemID_Ref",
+time_variable = "Year",
+time_window = 20,
+backbone_method = "statistical",
+model = "sdsm",
+alpha = 0.05,
+backbone_args = list(mtc = "holm")
+)
+
+}
+\references{
+\insertAllCited{}
 }
 \seealso{
 \code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[backbone:sdsm]{backbone::sdsm()}}

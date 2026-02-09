@@ -30,9 +30,9 @@ build_dynamic_networks2(
   target_id,
   time_variable = NULL,
   time_window = NULL,
-  backbone_method = c("statistical", "structured"),
-  statistical_method = c("sdsm", "fdsm", "fixedfill", "fixedfrow", "fixedcol"),
-  alpha = alpha,
+  backbone_method = c("structured", "statistical"),
+  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
+  alpha = NULL,
   coupling_measure = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
   overlapping_window = FALSE,
@@ -40,6 +40,7 @@ build_dynamic_networks2(
   keep_singleton = FALSE,
   filter_components = FALSE,
   ...,
+  backbone_args = list(),
   verbose = TRUE
 )
 
@@ -128,11 +129,11 @@ it will keep only the main component.}
 \item \code{"statistical"}: uses statistical models from the \href{https://github.com/djmurphy533/backbone}{backbone} package.
 }}
 
-\item{statistical_method}{For \code{backbone_method = "statistical"}, select the null model: one of
-\code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedfrow"}, \code{"fixedcol"}.}
-
 \item{alpha}{Significance threshold for statistical backbone extraction. Required if
 \code{backbone_method = "statistical"}.}
+
+\item{statistical_method}{For \code{backbone_method = "statistical"}, select the null model: one of
+\code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedfrow"}, \code{"fixedcol"}.}
 }
 \value{
 If \code{time_window} is \code{NULL}, the function computes only
