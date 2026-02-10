@@ -120,7 +120,7 @@
 #' - A single tidygraph object if `time_window` is `NULL`;
 #' - A list of tidygraph objects (one per time window) otherwise.
 #'
-#' @seealso [biblionetwork::biblio_coupling()], [backbone::sdsm()]
+#' @seealso [biblionetwork::biblio_coupling()], [backbone::backbone_from_projection()]
 #'
 #' @references
 #'   \insertAllCited{}

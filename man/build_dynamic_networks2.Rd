@@ -156,5 +156,5 @@ backbone_args = list(mtc = "holm")
 \insertAllCited{}
 }
 \seealso{
-\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[backbone:sdsm]{backbone::sdsm()}}
+\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}
 }

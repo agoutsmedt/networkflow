@@ -54,6 +54,10 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
+    shiny,
+    ggiraph,
+    DT,
+    shinycssloaders,
     ggrepel,
     stopwords,
     textstem,
@@ -68,3 +72,5 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+
+

@@ -23,7 +23,7 @@ launch_network_app(
 
 \item{cluster_information}{Character vector of node metadata columns to display in the data table.}
 
-\item{cluster_tooltip}{Optional. Text string to display when hovering over cluster labels.}
+\item{cluster_tooltip}{Optional. Fixed text string to display when hovering over cluster labels (not a column name).}
 
 \item{node_id}{Column name identifying node IDs.}
 
@@ -33,7 +33,7 @@ launch_network_app(
 
 \item{color}{Optional. Column name used to color nodes. If \code{NULL}, colors are automatically assigned using \code{networkflow::color_networks(column_to_color = cluster_id)}.}
 
-\item{layout}{Character. Name of a layout to compute node coordinates (e.g. \code{"kk"}, \code{"fr"}). If specified, this replaces any existing layout.}
+\item{layout}{Character. Name of a layout to compute node coordinates (e.g. \code{"kk"}, \code{"fr"}). If specified, this replaces any existing layout. If \code{NULL}, existing \code{x}/\code{y} coordinates are used.}
 }
 \value{
 A Shiny app interface for exploring the network.
@@ -44,6 +44,7 @@ A Shiny app interface for exploring the network.
 This function launches an interactive Shiny application for visualizing and exploring a network graph represented as a \code{tbl_graph} object.
 It supports node and cluster interactivity with tooltips, dynamic sizing, and customizable coloring.
 Users can inspect clusters interactively and explore associated node metadata in a searchable datatable.
+The app is designed for cluster/module exploration, so \code{cluster_id} and \code{cluster_information} are required.
 
 If the graph does not contain a layout (columns \code{x} and \code{y}) the function will compute coordinates using
 \code{networkflow::layout_networks()} with the specified layout algorithm.  If a layout name is provided, it will replace any existing layout in the graph.
@@ -76,6 +77,7 @@ g <- add_clusters(
   objective_function = "modularity"
 )
 
+\dontrun{
 launch_network_app(
   graph_tbl = g,
   cluster_id = "cluster_leiden",
@@ -87,6 +89,7 @@ launch_network_app(
   color = NULL,
   layout = "kk"
 )
+}
 
 # Dynamic networks
 g_list <- build_dynamic_networks(
@@ -109,6 +112,7 @@ g_list <- add_clusters(
   objective_function = "modularity"
 )
 
+\dontrun{
 launch_network_app(
   graph_tbl = g_list,
   cluster_id = "cluster_leiden",
@@ -119,4 +123,5 @@ launch_network_app(
   color = NULL,
   layout = "kk"
 )
+}
 }
