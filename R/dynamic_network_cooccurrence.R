@@ -94,18 +94,16 @@ dynamic_network_cooccurrence <- function(nodes = NULL,
   #' of tidygraph networks, for each time window.
   #'
   #' @examples
-  #' nodes <- Nodes_stagflation |>
-  #' dplyr::rename(ID_Art = ItemID_Ref) |>
-  #' dplyr::filter(Type == "Stagflation")
-  #'
-  #' references <- Ref_stagflation |>
-  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
-  #'
-  #' temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
-  #' directed_edges = references,
-  #' source_column = "ID_Art",
-  #' target_column = "ItemID_Ref",
-  #' time_variable = "Year",
+#' nodes <- networkflow::Nodes_stagflation |>
+#' dplyr::filter(source_type == "Stagflation")
+#'
+#' references <- networkflow::Ref_stagflation
+#'
+#' temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
+#' directed_edges = references,
+#' source_column = "source_id",
+#' target_column = "target_id",
+  #' time_variable = "source_year",
   #' cooccurrence_method = "coupling_similarity",
   #' time_window = NULL,
   #' edges_threshold = 1,

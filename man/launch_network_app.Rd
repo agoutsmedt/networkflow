@@ -53,18 +53,18 @@ If the graph does not contain a layout (columns \code{x} and \code{y}) the funct
 library(networkflow)
 library(dplyr)
 
-nodes <- Nodes_stagflation |>
-  dplyr::filter(Type == "Stagflation") |>
-  dplyr::rename(ID_Art = ItemID_Ref)
+nodes <- networkflow::Nodes_stagflation |>
+  dplyr::filter(source_type == "Stagflation") |>
+  dplyr::mutate(source_id = as.character(source_id))
 
-references <- Ref_stagflation |>
-  dplyr::rename(ID_Art = Citing_ItemID_Ref)
+references <- networkflow::Ref_stagflation
 
 g <- build_network(
   nodes = nodes,
   directed_edges = references,
-  source_id = "ID_Art",
-  target_id = "ItemID_Ref",
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,
   compute_size = FALSE,
@@ -81,10 +81,10 @@ g <- add_clusters(
 launch_network_app(
   graph_tbl = g,
   cluster_id = "cluster_leiden",
-  cluster_information = c("Author", "Title", "Year", "Journal"),
+  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
   cluster_tooltip = "Cluster",
-  node_id = "ID_Art",
-  node_tooltip = "Author_date",
+  node_id = "source_id",
+  node_tooltip = "source_label",
   node_size = NULL,
   color = NULL,
   layout = "kk"
@@ -95,9 +95,9 @@ launch_network_app(
 g_list <- build_dynamic_networks(
   nodes = nodes,
   directed_edges = references,
-  source_id = "ID_Art",
-  target_id = "ItemID_Ref",
-  time_variable = "Year",
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
   time_window = 20,
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,
@@ -116,9 +116,9 @@ g_list <- add_clusters(
 launch_network_app(
   graph_tbl = g_list,
   cluster_id = "cluster_leiden",
-  cluster_information = c("Author", "Title", "Year", "Journal"),
-  node_id = "ID_Art",
-  node_tooltip = "Author_date",
+  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
+  node_id = "source_id",
+  node_tooltip = "source_label",
   node_size = NULL,
   color = NULL,
   layout = "kk"

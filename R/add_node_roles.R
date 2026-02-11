@@ -36,18 +36,16 @@
 #' @examples
 #' library(networkflow)
 #'
-#' nodes <- Nodes_stagflation |>
-#' dplyr::rename(ID_Art = ItemID_Ref) |>
-#' dplyr::filter(Type == "Stagflation")
+#' nodes <- networkflow::Nodes_stagflation |>
+#'   dplyr::filter(source_type == "Stagflation")
 #'
-#' references <- Ref_stagflation |>
-#' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+#' references <- networkflow::Ref_stagflation
 #'
 #' temporal_networks <- build_dynamic_networks(nodes = nodes,
 #' directed_edges = references,
-#' source_id = "ID_Art",
-#' target_id = "ItemID_Ref",
-#' time_variable = "Year",
+#' source_id = "source_id",
+#' target_id = "target_id",
+#' time_variable = "source_year",
 #' cooccurrence_method = "coupling_similarity",
 #' time_window = 20,
 #' edges_threshold = 1,
@@ -274,3 +272,4 @@ add_node_roles_one <- function(
     dplyr::left_join(roles_tbl, by = ".node_id") %>%
     dplyr::select(-.node_id)
 }
+

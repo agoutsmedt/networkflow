@@ -105,7 +105,7 @@ for the edges, called \code{cluster_leiden_from}, \code{cluster_leiden_to} and \
 
 The function also
 automatically calculates the percentage of total nodes that are gathered in each
-cluster, in the column \code{size_com}.
+cluster, in the column \verb{size_cluster_\{clustering_method\}}.
 
 To make plotting easier later, a zero is put before one-digit cluster identifier
 (cluster 5 becomes "05"; cluster 10 becomes "10"). Attributing a cluster identifier to edges
@@ -115,18 +115,16 @@ or a different color from both nodes, if the nodes belong to different clusters.
 \examples{
 library(networkflow)
 
-nodes <- Nodes_stagflation |>
-dplyr::rename(ID_Art = ItemID_Ref) |>
-dplyr::filter(Type == "Stagflation")
+nodes <- networkflow::Nodes_stagflation |>
+  dplyr::filter(source_type == "Stagflation")
 
-references <- Ref_stagflation |>
-dplyr::rename(ID_Art = Citing_ItemID_Ref)
+references <- networkflow::Ref_stagflation
 
 temporal_networks <- build_dynamic_networks(nodes = nodes,
 directed_edges = references,
-source_id = "ID_Art",
-target_id = "ItemID_Ref",
-time_variable = "Year",
+source_id = "source_id",
+target_id = "target_id",
+time_variable = "source_year",
 cooccurrence_method = "coupling_similarity",
 time_window = 20,
 edges_threshold = 1,

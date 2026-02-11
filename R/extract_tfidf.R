@@ -94,18 +94,16 @@
 #' the top of your grouping variables.
 #'
 #' @examples
-#' nodes <- Nodes_stagflation |>
-#' dplyr::rename(ID_Art = ItemID_Ref) |>
-#' dplyr::filter(Type == "Stagflation")
+#' nodes <- networkflow::Nodes_stagflation |>
+#'   dplyr::filter(source_type == "Stagflation")
 #'
-#' references <- Ref_stagflation |>
-#' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+#' references <- networkflow::Ref_stagflation
 #'
 #' temporal_networks <- build_dynamic_networks(nodes = nodes,
 #' directed_edges = references,
-#' source_id = "ID_Art",
-#' target_id = "ItemID_Ref",
-#' time_variable = "Year",
+#' source_id = "source_id",
+#' target_id = "target_id",
+#' time_variable = "source_year",
 #' cooccurrence_method = "coupling_similarity",
 #' time_window = 10,
 #' edges_threshold = 1,
@@ -119,10 +117,10 @@
 #' library(stopwords)
 #' tfidf <- extract_tfidf(temporal_networks,
 #' n_gram = 4,
-#' text_columns = "Title",
+#' text_columns = "source_title",
 #' grouping_columns = "cluster_leiden",
 #' grouping_across_list = TRUE,
-#' clean_word_method = "lemmatise")
+#' clean_word_method = "lemmatize")
 #'
 #' tfidf[[1]]
 #'
@@ -205,3 +203,4 @@ extract_tfidf <- function(data,
 
   return(term_list)
 }
+

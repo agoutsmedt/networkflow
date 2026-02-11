@@ -5,11 +5,11 @@
 \alias{Authors_stagflation}
 \title{List Of Authors Of The Articles and Books Explaining the 1970s US Stagflation.}
 \format{
-A data frame with 558 rows and 7 variables:
+A data frame with 231 rows and 3 variables:
 \describe{
-\item{ItemID_Ref}{Identifier of the document published by the author}
-\item{Author}{Author of the document}
-\item{Order}{Use this as a label for nodes}
+\item{source_id}{Identifier of the document published by the author}
+\item{author_name}{Author of the document}
+\item{author_order}{Author order in the document author list}
 }
 }
 \source{

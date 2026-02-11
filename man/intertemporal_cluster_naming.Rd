@@ -63,18 +63,16 @@ library(biblionetwork)
 library(magrittr)
 library(tidygraph)
 
-nodes <- Nodes_stagflation \%>\%
-dplyr::rename(ID_Art = ItemID_Ref) \%>\%
-dplyr::filter(Type == "Stagflation")
+nodes <- networkflow::Nodes_stagflation \%>\%
+dplyr::filter(source_type == "Stagflation")
 
-references <- Ref_stagflation \%>\%
-dplyr::rename(ID_Art = Citing_ItemID_Ref)
+references <- networkflow::Ref_stagflation
 
 temporal_networks <- dynamic_network_cooccurrence(nodes = nodes,
 directed_edges = references,
-source_column = "ID_Art",
-target_column = "ItemID_Ref",
-time_variable = "Year",
+source_column = "source_id",
+target_column = "target_id",
+time_variable = "source_year",
 cooccurrence_method = "coupling_similarity",
 time_window = 15,
 edges_threshold = 1,
@@ -88,7 +86,7 @@ temporal_networks <- lapply(temporal_networks,
 
 intertemporal_cluster_naming(temporal_networks,
 cluster_column = "clusters",
-node_key = "ID_Art",
+node_key = "source_id",
 threshold_similarity = 0.51,
 similarity_type = "partial")
 

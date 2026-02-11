@@ -7,12 +7,12 @@
 #'
 #' @format A data frame with 154 rows and 6 variables:
 #' \describe{
-#'   \item{ItemID_Ref}{Identifier of the document on stagflation, in character format}
-#'   \item{Author}{Author of the document on stagflation}
-#'   \item{Author_date}{Use this as a label for nodes}
-#'   \item{Year}{Year of publication of the document}
-#'   \item{Title}{Title of the document}
-#'   \item{Journal}{Journal of publication of the document (if an article)}
+#'   \item{source_id}{Identifier of the document on stagflation, in character format}
+#'   \item{source_author}{Author of the document on stagflation}
+#'   \item{source_label}{Use this as a label for nodes}
+#'   \item{source_year}{Year of publication of the document}
+#'   \item{source_title}{Title of the document}
+#'   \item{source_journal}{Journal of publication of the document (if an article)}
 #' }
 #' @source Created from `Nodes_stagflation.rda`
 

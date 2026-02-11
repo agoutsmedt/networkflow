@@ -66,18 +66,16 @@ the user: \code{threshold_similarity}, \code{cluster_colum} and \code{similarity
 \examples{
 library(networkflow)
 
-nodes <- Nodes_stagflation |>
-dplyr::rename(ID_Art = ItemID_Ref) |>
-dplyr::filter(Type == "Stagflation")
+nodes <- networkflow::Nodes_stagflation |>
+  dplyr::filter(source_type == "Stagflation")
 
-references <- Ref_stagflation |>
-dplyr::rename(ID_Art = Citing_ItemID_Ref)
+references <- networkflow::Ref_stagflation
 
 temporal_networks <- build_dynamic_networks(nodes = nodes,
 directed_edges = references,
-source_id = "ID_Art",
-target_id = "ItemID_Ref",
-time_variable = "Year",
+source_id = "source_id",
+target_id = "target_id",
+time_variable = "source_year",
 cooccurrence_method = "coupling_similarity",
 time_window = 10,
 edges_threshold = 1,
@@ -90,7 +88,7 @@ clustering_method = "leiden")
 
 temporal_networks <- merge_dynamic_clusters(temporal_networks,
 cluster_id = "cluster_leiden",
-node_id = "ID_Art",
+node_id = "source_id",
 threshold_similarity = 0.51,
 similarity_type = "partial")
 
