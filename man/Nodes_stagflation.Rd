@@ -5,15 +5,15 @@
 \alias{Nodes_stagflation}
 \title{Articles and Books Explaining the 1970s US Stagflation.}
 \format{
-A data frame with 558 rows and 7 variables:
+A data frame with 654 rows and 7 variables:
 \describe{
-\item{ItemID_Ref}{Identifier of the document}
-\item{Author}{Author of the document}
-\item{Author_date}{Use this as a label for nodes}
-\item{Year}{Year of publication of the document}
-\item{Title}{Title of the document}
-\item{Journal}{Journal of publication of the document (if an article)}
-\item{Type}{If "Stagflation", the document is listed as an explanation of the US stagflation.
+\item{source_id}{Identifier of the document}
+\item{source_author}{Author of the document}
+\item{source_label}{Use this as a label for nodes}
+\item{source_year}{Year of publication of the document}
+\item{source_title}{Title of the document}
+\item{source_journal}{Journal of publication of the document (if an article)}
+\item{source_type}{If "Stagflation", the document is listed as an explanation of the US stagflation.
 If "Non-Stagflation", the document is cited by a document explaining the stagflation}
 }
 }

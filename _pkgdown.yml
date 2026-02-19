@@ -10,15 +10,18 @@ reference:
     Functions for creating one or multiple networks and to filter the networks.
   contents:
   - build_dynamic_networks
+  - build_network
   - filter_components
 
 - title: "Step 2: Clustering"
   desc: >
-    Functions for detected clusters and manipulate them.
+    Functions for detecting clusters and interpreting them.
   contents:
   - add_clusters
   - merge_dynamic_clusters
   - name_clusters
+  - add_node_roles
+  - extract_tfidf
 
 - title: "Step 3: Plot networks"
   desc: >
@@ -31,16 +34,12 @@ reference:
   - prepare_label_networks
   - plot_alluvial
   - plot_networks
+  - launch_network_app
 
-- title: "Step 4: Analysis networks"
-  desc: >
-    Functions for exploring the content of the networks.
-  contents:
-  - extract_tfidf
 
 - title: "Included datasets"
   desc: "Data on articles about stagflation from Goutsmedt (2021) 'From the Stagflation to the Great Inflation'"
-- contents:
+  contents:
   - contains("stagflation")
   - ends_with("coupling")
 

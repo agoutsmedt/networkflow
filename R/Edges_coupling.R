@@ -1,10 +1,10 @@
 #' Edges For Bibliographic Coupling Network Of Articles and Books Explaining the 1970s US Stagflation.
 #'
 #' A dataset containing the edges of the bibliographic coupling network of articles and books on stagflation.
-#' Built by using [Ref_stagflation]: `biblionetwork::biblio_coupling(Ref_stagflation,"Citing_ItemID_Ref","ItemID_Ref")`.
+#' Built by using [Ref_stagflation]: `biblionetwork::biblio_coupling(Ref_stagflation,"source_id","target_id")`.
 #' Could be used with [Nodes_coupling] to create a network with tidygraph.
 #'
-#' @format A data frame with 154 rows and 6 variables:
+#' @format A data frame with 2593 rows and 5 variables:
 #' \describe{
 #'   \item{from}{Identifier of the Source document on stagflation, in character format}
 #'   \item{to}{Identifier of the Target document on stagflation, in character format}

@@ -55,18 +55,16 @@ networks_to_alluv <- function(graphs,
   #' @examples
   #' library(networkflow)
   #'
-  #' nodes <- Nodes_stagflation |>
-  #' dplyr::rename(ID_Art = ItemID_Ref) |>
-  #' dplyr::filter(Type == "Stagflation")
+  #' nodes <- networkflow::Nodes_stagflation |>
+  #'   dplyr::filter(source_type == "Stagflation")
   #'
-  #' references <- Ref_stagflation |>
-  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+  #' references <- networkflow::Ref_stagflation
   #'
   #' temporal_networks <- build_dynamic_networks(nodes = nodes,
   #' directed_edges = references,
-  #' source_id = "ID_Art",
-  #' target_id = "ItemID_Ref",
-  #' time_variable = "Year",
+  #' source_id = "source_id",
+  #' target_id = "target_id",
+  #' time_variable = "source_year",
   #' cooccurrence_method = "coupling_similarity",
   #' time_window = 20,
   #' edges_threshold = 1,
@@ -81,7 +79,7 @@ networks_to_alluv <- function(graphs,
   #'
   #' temporal_networks <- merge_dynamic_clusters(temporal_networks,
   #' cluster_id = "cluster_leiden",
-  #' node_id = "ID_Art",
+  #' node_id = "source_id",
   #' threshold_similarity = 0.51,
   #' similarity_type = "partial")
   #'
@@ -89,9 +87,9 @@ networks_to_alluv <- function(graphs,
   #' method = "tf-idf",
   #' name_merged_clusters = TRUE,
   #' cluster_id = "dynamic_cluster_leiden",
-  #' text_columns = "Title",
+  #' text_columns = "source_title",
   #' nb_terms_label = 5,
-  #' clean_word_method = "lemmatise")
+  #' clean_word_method = "lemmatize")
   #'
   #' temporal_networks <- color_networks(graphs = temporal_networks,
   #' column_to_color = "dynamic_cluster_leiden",
@@ -99,7 +97,7 @@ networks_to_alluv <- function(graphs,
   #'
   #' alluv_dt <- networks_to_alluv(temporal_networks,
   #' intertemporal_cluster_column = "dynamic_cluster_leiden",
-  #' node_id = "ID_Art")
+  #' node_id = "source_id")
   #'
   #' alluv_dt[1:5]
   #'
@@ -154,4 +152,5 @@ networks_to_alluv <- function(graphs,
 
   return (alluv_dt)
 }
+
 

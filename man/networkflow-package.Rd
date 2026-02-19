@@ -6,7 +6,7 @@
 \alias{networkflow-package}
 \title{networkflow: Functions For A Workflow To Manipulate Networks}
 \description{
-This package proposes a series of function to make it easier and quicker to work on networks. It mainly targets working on bibliometric networks (see the [biblionetwork](https://github.com/agoutsmedt/biblionetwork) package for creating such networks). This package heavily relies on [igraph](https://igraph.org/r/) and [tidygraph](https://tidygraph.data-imaginist.com/index.html), and aims at producing ready-made networks for projecting them using [ggraph](https://ggraph.data-imaginist.com/). This package does not invent nothing new, properly speaking, but it allows the users to follow more quickly and easily the main steps of network manipulation, from creating the graph to projecting it. It is inspired by what could be done with [GEPHI](https://gephi.org/): the package allows the use of the Leiden community detection algorithm, as well as of the Force Atlas 2 layout, both being unavailable in igraph (and so in tidygraph).
+Provides a workflow to build, analyze, and visualize projected networks from tabular data. The package supports dynamic analysis across time windows, including cluster detection and cross-period cluster matching. It also covers network construction, interpretation, static plotting, and interactive exploration through a 'shiny' app. Although designed for projected networks (e.g., article -> reference), it can be used more generally with 'tbl_graph' objects.
 }
 \seealso{
 Useful links:
@@ -23,6 +23,7 @@ Useful links:
 Authors:
 \itemize{
   \item Alexandre Truc \email{alexandre.truc77@gmail.com} (\href{https://orcid.org/0000-0002-1328-7819}{ORCID})
+  \item Thomas Delcey (\href{https://orcid.org/0000-0003-0546-1474}{ORCID})
 }
 
 }

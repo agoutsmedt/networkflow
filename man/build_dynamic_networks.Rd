@@ -2,9 +2,7 @@
 % Please edit documentation in R/build_dynamic_networks.R
 \name{build_dynamic_networks}
 \alias{build_dynamic_networks}
-\alias{build_dynamic_networks2}
-\alias{build_network}
-\title{Creating One or Multiple Networks from a List of Nodes and Directed Edges}
+\title{Build One or Multiple Networks from Bipartite Links}
 \usage{
 build_dynamic_networks(
   nodes,
@@ -13,27 +11,10 @@ build_dynamic_networks(
   target_id,
   time_variable = NULL,
   time_window = NULL,
-  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
-  overlapping_window = FALSE,
-  edges_threshold = 1,
-  compute_size = FALSE,
-  keep_singleton = FALSE,
-  filter_components = FALSE,
-  ...,
-  verbose = TRUE
-)
-
-build_dynamic_networks2(
-  nodes,
-  directed_edges,
-  source_id,
-  target_id,
-  time_variable = NULL,
-  time_window = NULL,
-  backbone_method = c("structured", "statistical"),
+  projection_method = c("structured", "statistical"),
   model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
   alpha = NULL,
-  coupling_measure = c("coupling_angle", "coupling_strength", "coupling_similarity"),
+  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
   overlapping_window = FALSE,
   compute_size = FALSE,
@@ -43,139 +24,132 @@ build_dynamic_networks2(
   backbone_args = list(),
   verbose = TRUE
 )
-
-build_network(
-  nodes,
-  directed_edges,
-  source_id,
-  target_id,
-  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
-  edges_threshold = 1,
-  compute_size = FALSE,
-  keep_singleton = FALSE,
-  filter_components = FALSE,
-  ...
-)
 }
 \arguments{
-\item{nodes}{The table with all the nodes and their metadata. For instance, if your nodes are
-articles, this table is likely to contain the year of publication, the name of the authors,
-the title of the article, etc... The table must have one row per node.}
+\item{nodes}{Table of nodes and their metadata. One row per node. For example, a table
+of articles with identifiers, authors, publication year, etc.}
 
-\item{directed_edges}{The table with of all the elements to which your nodes are connected. If your nodes are
-articles, the \code{directed_edges} table can contain the list of the references cited
-by these articles, the authors that have written these articles, or the affiliations
-of the authors of these articles.}
+\item{directed_edges}{Table of bipartite links between \code{source_id} nodes and
+\code{target_id} entities (e.g., article -> reference, author -> paper).}
 
-\item{source_id}{The quoted name of the column with the unique identifier of each node. For instance,
-for a bibliographic coupling network, the id of your citing documents. It corresponds
-to the \code{source} argument of \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}
-functions.}
+\item{source_id}{Quoted name of the source-side node identifier.}
 
-\item{target_id}{The quoted name of the column with the unique identifier of each element connected to the node (for
-instance, the identifier of the reference cited by your node if the node is an article).
-It corresponds to the \code{ref} argument of
-\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} functions.}
+\item{target_id}{Quoted name of the target-side identifier linked to each source node.}
 
-\item{time_variable}{The column with the temporal variable you want to use to build your windows for the
-succession of networks. By default, \code{time_variable} is \code{NULL} and the function
-will only build one network without taking into account any temporal variable.}
+\item{time_variable}{Optional name of the column with a temporal variable (e.g., publication year).}
 
-\item{time_window}{The length of your network relatively of the unity of the \code{time_variable} column. If you
-use a variable in years as \code{time_variable} and you set \code{time_window} at 5, the function
-will build network on five year windows. By default, \code{time_window} is \code{NULL} and the
-function will only build one network.}
+\item{time_window}{Optional size of the time window (in units of \code{time_variable}) to construct temporal networks.}
 
-\item{cooccurrence_method}{Choose a cooccurrence method to build your indirect edges table. The function propose
-three methods that depends on the \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork package}
-and three methods that are implemented in it:
-\itemize{
-\item the coupling angle measure (see \code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}} for documentation);
-\item the coupling strength measure (\code{\link[biblionetwork:coupling_strength]{biblionetwork::coupling_strength()}});
-\item the coupling similarity measure (\code{\link[biblionetwork:coupling_similarity]{biblionetwork:: coupling_similarity()}}).
-}}
-
-\item{overlapping_window}{Set to \code{FALSE} by default. If set to \code{TRUE}, and if \code{time_variable} and \code{time_window} not
-\code{NULL}, the function will create a succession of networks for moving time windows. The windows are
-moving one unit per one unit of the \code{time_variable}. For instance, for years, if \code{time_window}
-set to 5, it creates networks for successive time windows like 1970-1974, 1971-1975, 1972-1976, etc.}
-
-\item{edges_threshold}{Threshold value for building your edges. With a higher threshold, only the stronger links
-will be kept. See the \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork package}
-documentation and the \code{cooccurrence_method} parameter.}
-
-\item{compute_size}{Set to \code{FALSE} by default. If \code{TRUE}, the function uses the \code{directed_edges} data
-to calculate how many directed edges a node receives (as a target). If \code{directed_edges}
-is a table of direct citations, the functions calculates the number of time a node
-is cited by the other nodes. You need to have the \code{target_id} in the \code{nodes} table
-to make the link with the targetted nodes in the \code{directed_edges} table.}
-
-\item{keep_singleton}{Set to \code{FALSE} by default. If \code{TRUE}, the function removes the nodes that have no
-undirected edges, i.e. no cooccurrence with any other nodes. In graphical terms,
-these nodes are alone in the network, with no link with other nodes.}
-
-\item{filter_components}{Set to  \code{TRUE} if you want to run \code{networkflow::filter_components()}
-to filter the components of the network(s) and keep only the biggest component(s). If
-you don't change the defaults parameters of \code{networkflow::filter_components()},
-it will keep only the main component.}
-
-\item{...}{Additional arguments from \code{networkflow::filter_components()}.}
-
-\item{verbose}{Set to \code{FALSE} if you don't want the function to display different sort of information.}
-
-\item{backbone_method}{Method used to extract the network backbone. Choose between:
+\item{projection_method}{method used to extract the network backbone. Choose between:
 \itemize{
 \item \code{"structured"}: uses cooccurrence measures from the \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} package;
-\item \code{"statistical"}: uses statistical models from the \href{https://github.com/djmurphy533/backbone}{backbone} package.
+\item \code{"statistical"}: uses statistical models from the \href{https://github.com/zpneal/backbone}{backbone} package.
+Defaults to \code{"structured"}. The \code{"statistical"} method can be computationally slow on large networks.
 }}
 
-\item{alpha}{Significance threshold for statistical backbone extraction. Required if
-\code{backbone_method = "statistical"}.}
+\item{model}{Statistical null model from \href{https://github.com/zpneal/backbone}{backbone}:
+one of \code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"}.
+Required if \code{projection_method = "statistical"}.}
 
-\item{statistical_method}{For \code{backbone_method = "statistical"}, select the null model: one of
-\code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedfrow"}, \code{"fixedcol"}.}
+\item{alpha}{Significance threshold for statistical backbone filtering. Required if
+\code{projection_method = "statistical"}. Lower values keep fewer edges.}
+
+\item{cooccurrence_method}{For \code{projection_method = "structured"}, choose the coupling method:
+\itemize{
+\item \code{"coupling_angle"}
+\item \code{"coupling_strength"};
+\item \code{"coupling_similarity"}.
+}}
+
+\item{edges_threshold}{Threshold used to filter weak edges in structured mode.}
+
+\item{overlapping_window}{Logical. If \code{TRUE}, builds networks using rolling time windows.}
+
+\item{compute_size}{Logical. If \code{TRUE}, computes the number of incoming edges per node (e.g., citation count).}
+
+\item{keep_singleton}{Logical. If \code{FALSE}, removes nodes with no edges in the final network.}
+
+\item{filter_components}{Logical. If \code{TRUE}, keeps only the main component(s) using \code{networkflow::filter_components()}.}
+
+\item{...}{Additional arguments passed to \code{filter_components()}.}
+
+\item{backbone_args}{Optional list of additional arguments passed to the
+backbone extraction call. If \code{backbone_args} includes \code{alpha} or \code{model},
+those values override function arguments.}
+
+\item{verbose}{Logical. If \code{TRUE}, displays progress messages.}
 }
 \value{
-If \code{time_window} is \code{NULL}, the function computes only
-one network and return a tidygraph object built with \link[tidygraph:tbl_graph]{tbl_graph()}.
-If \code{time_variable} and \code{time_window} are not \code{NULL}, the function returns a list
-of tidygraph networks, for each time window.
+\itemize{
+\item A single tidygraph object if \code{time_window} is \code{NULL};
+\item A list of tidygraph objects (one per time window) otherwise.
+}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-\code{build_network()} creates a network from a table of nodes and its
-directed edges. That is a special case of the more general \code{build_dynamic_networks()}.
-This function creates one or several tibble graphs (built with
-\href{https://tidygraph.data-imaginist.com/}{tidygraph}) from a table of nodes and its
-directed edges. For instance, for bibliometric networks, you can give a list of
-articles and the list of the references these articles cite. You can use it to
-build a single network or multiple networks over different time windows.
+\code{build_dynamic_networks()} builds one or several \code{tbl_graph} networks from a
+node table (\code{source_id}) and a bipartite link table (\code{source_id} -> \code{target_id}). \code{build_network()} is a wrapper for a single network.
+
+It supports two backbone extraction methods:
+\itemize{
+\item structured filtering using coupling/cooccurrence measures from
+\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork};
+\item statistical filtering using null models from
+\href{https://github.com/zpneal/backbone}{backbone} \insertCite{neal2022}{networkflow}.
+}
+
+The function can build a single network or multiple networks across time windows.
 }
 \details{
-\code{build_network()} has been added for convenience but it is just
-a special case of the more general \code{build_dynamic_networks()}, with
+The function uses bipartite links (\code{source_id} -> \code{target_id}) to produce
+source-side networks.
+
+If \code{time_variable} and \code{time_window} are provided, it builds one network per
+time window (rolling or non-overlapping). Otherwise it builds a single network.
+
+\code{projection_method = "structured"} applies coupling/cooccurrence filtering.
+\code{projection_method = "statistical"} applies a statistical backbone model.
 }
 \examples{
 library(networkflow)
 
-nodes <- Nodes_stagflation |>
-dplyr::rename(ID_Art = ItemID_Ref) |>
-dplyr::filter(Type == "Stagflation")
+nodes <- networkflow::Nodes_stagflation |>
+  dplyr::filter(source_type == "Stagflation")
 
-references <- Ref_stagflation |>
-dplyr::rename(ID_Art = Citing_ItemID_Ref)
+references <- networkflow::Ref_stagflation
 
-temporal_networks <- build_dynamic_networks(nodes = nodes,
+# Structured backbone (cooccurrence)
+net_structured <- build_dynamic_networks(
+nodes = nodes,
 directed_edges = references,
-source_id = "ID_Art",
-target_id = "ItemID_Ref",
-time_variable = "Year",
-cooccurrence_method = "coupling_similarity",
+source_id = "source_id",
+target_id = "target_id",
+time_variable = "source_year",
 time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE)
+projection_method = "structured",
+cooccurrence_method = "coupling_similarity",
+edges_threshold = 1
+)
 
-temporal_networks[[1]]
+# Statistical backbone (backbone package)
+net_statistical <- build_dynamic_networks(
+nodes = nodes,
+directed_edges = references,
+source_id = "source_id",
+target_id = "target_id",
+time_variable = "source_year",
+time_window = 20,
+projection_method = "statistical",
+model = "sdsm",
+alpha = 0.05,
+backbone_args = list(mtc = "holm")
+)
 
+}
+\references{
+\insertAllCited{}
+}
+\seealso{
+\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[backbone:backbone]{backbone::backbone()}}
 }

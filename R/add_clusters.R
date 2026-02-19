@@ -1,16 +1,23 @@
-add_clusters <- function(graphs,
-                         weights = NULL,
-                         clustering_method = c("leiden", "louvain", "fast_greedy", "infomap", "walktrap"),
-                         objective_function = c("modularity", "CPM"), #leiden
-                         resolution = 1, #leiden
-                         n_iterations = 1000, #leiden
-                         n_groups = NULL, #fast_greedy & walktrap
-                         node_weights = NULL, #infomap & Leiden
-                         trials = 10, #infomap
-                         steps = 4, #walktrap
-                         verbose = TRUE,
-                         seed = NA
-                         ){
+add_clusters <- function(
+  graphs,
+  weights = NULL,
+  clustering_method = c(
+    "leiden",
+    "louvain",
+    "fast_greedy",
+    "infomap",
+    "walktrap"
+  ),
+  objective_function = c("modularity", "CPM"), #leiden
+  resolution = 1, #leiden
+  n_iterations = 1000, #leiden
+  n_groups = NULL, #fast_greedy & walktrap
+  node_weights = NULL, #infomap & Leiden
+  trials = 10, #infomap
+  steps = 4, #walktrap
+  verbose = TRUE,
+  seed = NA
+) {
   #' Detect and Add Clusters to Graphs
   #'
   #' @description
@@ -93,7 +100,7 @@ add_clusters <- function(graphs,
   #' for the edges, called `cluster_leiden_from`, `cluster_leiden_to` and `cluster_leiden`.
   #' @details The function also
   #' automatically calculates the percentage of total nodes that are gathered in each
-  #' cluster, in the column `size_com`.
+  #' cluster, in the column `size_cluster_{clustering_method}`.
   #' @details To make plotting easier later, a zero is put before one-digit cluster identifier
   #' (cluster 5 becomes "05"; cluster 10 becomes "10"). Attributing a cluster identifier to edges
   #' allow for giving edges the same color of the nodes they are connecting together if the two nodes have the same color,
@@ -106,18 +113,16 @@ add_clusters <- function(graphs,
   #' @examples
   #' library(networkflow)
   #'
-  #' nodes <- Nodes_stagflation |>
-  #' dplyr::rename(ID_Art = ItemID_Ref) |>
-  #' dplyr::filter(Type == "Stagflation")
+  #' nodes <- networkflow::Nodes_stagflation |>
+  #'   dplyr::filter(source_type == "Stagflation")
   #'
-  #' references <- Ref_stagflation |>
-  #' dplyr::rename(ID_Art = Citing_ItemID_Ref)
+  #' references <- networkflow::Ref_stagflation
   #'
   #' temporal_networks <- build_dynamic_networks(nodes = nodes,
   #' directed_edges = references,
-  #' source_id = "ID_Art",
-  #' target_id = "ItemID_Ref",
-  #' time_variable = "Year",
+  #' source_id = "source_id",
+  #' target_id = "target_id",
+  #' time_variable = "source_year",
   #' cooccurrence_method = "coupling_similarity",
   #' time_window = 20,
   #' edges_threshold = 1,
@@ -137,92 +142,116 @@ add_clusters <- function(graphs,
   #' @export
   #'
 
-  if(length(clustering_method) > 1){
-    cli::cli_abort(c("You did not choose any clustering method! You have the choice between: ",
-                   "*" = "\"leiden\";",
-                   "*" = "\"louvain\";",
-                   "*" = "\"fast_greedy\";",
-                   "*" = "\"infomap\";",
-                   "*" = "\"walktrap\"."))
+  if (length(clustering_method) > 1) {
+    cli::cli_abort(c(
+      "You did not choose any clustering method! You have the choice between: ",
+      "*" = "\"leiden\";",
+      "*" = "\"louvain\";",
+      "*" = "\"fast_greedy\";",
+      "*" = "\"infomap\";",
+      "*" = "\"walktrap\"."
+    ))
   }
-  if(! clustering_method %in% c("leiden", "louvain", "fast_greedy", "infomap", "walktrap")){
-    cli::cli_abort("The method you have chosen is not implemented within the function.")
+  if (
+    !clustering_method %in%
+      c("leiden", "louvain", "fast_greedy", "infomap", "walktrap")
+  ) {
+    cli::cli_abort(
+      "The method you have chosen is not implemented within the function."
+    )
   }
-  if(length(objective_function) > 1 & clustering_method == "leiden"){
-    cli::cli_abort(c("You did not choose any objective function for the Leiden algorithm. You have the choice between: ",
-                   "*" = "\"CPM\";",
-                   "*" = "\"modularity\"."))
-  if(clustering_method %in% c("leiden", "louvain", "fast_greedy", "infomap", "walktrap")){
-  cli::cli_alert_info("You are using the {.emph {.strong {clustering_method}}} clustering method.")
+  if (length(objective_function) > 1 & clustering_method == "leiden") {
+    cli::cli_abort(c(
+      "You did not choose any objective function for the Leiden algorithm. You have the choice between: ",
+      "*" = "\"CPM\";",
+      "*" = "\"modularity\"."
+    ))
+    if (
+      clustering_method %in%
+        c("leiden", "louvain", "fast_greedy", "infomap", "walktrap")
+    ) {
+      cli::cli_alert_info(
+        "You are using the {.emph {.strong {clustering_method}}} clustering method."
+      )
+    }
   }
 
-  }
-
-  if(!is.na(seed)){
+  if (!is.na(seed)) {
     set.seed(seed)
   }
 
-  if(inherits(graphs, "list")){
+  if (inherits(graphs, "list")) {
     list <- TRUE
-    cluster_list_graph <- lapply(graphs, function(graph) detect_cluster(graph,
-                                                                        weights = weights,
-                                                                        clustering_method = clustering_method,
-                                                                        objective_function = objective_function,
-                                                                        resolution = resolution,
-                                                                        n_iterations = n_iterations,
-                                                                        n_groups = n_groups,
-                                                                        node_weights = node_weights,
-                                                                        trials = trials,
-                                                                        steps = steps,
-                                                                        list = list,
-                                                                        verbose = verbose))
+    cluster_list_graph <- lapply(graphs, function(graph) {
+      detect_cluster(
+        graph,
+        weights = weights,
+        clustering_method = clustering_method,
+        objective_function = objective_function,
+        resolution = resolution,
+        n_iterations = n_iterations,
+        n_groups = n_groups,
+        node_weights = node_weights,
+        trials = trials,
+        steps = steps,
+        list = list,
+        verbose = verbose
+      )
+    })
     return(cluster_list_graph)
   }
-  if(inherits(graphs, "tbl_graph")){
+  if (inherits(graphs, "tbl_graph")) {
     list <- FALSE
-    cluster_graph <- detect_cluster(graphs,
-                                    weights = weights,
-                                    clustering_method = clustering_method,
-                                    objective_function = objective_function,
-                                    resolution = resolution,
-                                    n_iterations = n_iterations,
-                                    n_groups = n_groups,
-                                    node_weights = node_weights,
-                                    trials = trials,
-                                    steps = steps,
-                                    list = list,
-                                    verbose = verbose)
+    cluster_graph <- detect_cluster(
+      graphs,
+      weights = weights,
+      clustering_method = clustering_method,
+      objective_function = objective_function,
+      resolution = resolution,
+      n_iterations = n_iterations,
+      n_groups = n_groups,
+      node_weights = node_weights,
+      trials = trials,
+      steps = steps,
+      list = list,
+      verbose = verbose
+    )
     return(cluster_graph)
   }
 }
 
 # function in the tidygraph style to import Leiden community detection
-group_leiden <- function(graph = graph,
-                         objective_function = objective_function,
-                         weights = weights,
-                         resolution = resolution,
-                         n_iterations = n_iterations,
-                         node_weights = node_weights){
-  igraph::cluster_leiden(graph,
-                         resolution_parameter = resolution,
-                         objective_function = objective_function,
-                         weights = weights,
-                         n_iterations = n_iterations,
-                         vertex_weights = node_weights) %>%
+group_leiden <- function(
+  graph = graph,
+  objective_function = objective_function,
+  weights = weights,
+  resolution = resolution,
+  n_iterations = n_iterations,
+  node_weights = node_weights
+) {
+  igraph::cluster_leiden(
+    graph,
+    resolution_parameter = resolution,
+    objective_function = objective_function,
+    weights = weights,
+    n_iterations = n_iterations,
+    vertex_weights = node_weights
+  ) %>%
     igraph::membership()
 }
 
 # extracting the appropriate clustering function depending on the method chosen
-extract_clustering_method <- function(clustering_method = clustering_method){
-  . <- objective_function <- functions <- n_groups <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <-   graph <- NULL
+extract_clustering_method <- function(clustering_method = clustering_method) {
+  . <- objective_function <- functions <- n_groups <- weights <- resolution <- n_iterations <- node_weights <- trials <- steps <- method <- graph <- NULL
 
   function_table <- dplyr::tribble(
-    ~ method, ~functions,
-    "leiden", rlang::expr(group_leiden(graph, objective_function = objective_function, weights = weights, resolution = resolution, n_iterations = n_iterations, node_weights = node_weights)),
-    "louvain", rlang::expr(tidygraph::group_louvain(weights = weights)),
-    "fast_greedy", rlang::expr(tidygraph::group_fast_greedy(weights = weights, n_groups = n_groups)),
-    "infomap", rlang::expr(tidygraph::group_infomap(weights = weights, node_weights = node_weights, trials = trials)),
-    "walktrap", rlang::expr(tidygraph::group_walktrap(weights = weights, steps = steps, n_groups = n_groups)))
+    ~method       , ~functions                                                                                                                                                                      ,
+    "leiden"      , rlang::expr(group_leiden(graph, objective_function = objective_function, weights = weights, resolution = resolution, n_iterations = n_iterations, node_weights = node_weights)) ,
+    "louvain"     , rlang::expr(tidygraph::group_louvain(weights = weights))                                                                                                                        ,
+    "fast_greedy" , rlang::expr(tidygraph::group_fast_greedy(weights = weights, n_groups = n_groups))                                                                                               ,
+    "infomap"     , rlang::expr(tidygraph::group_infomap(weights = weights, node_weights = node_weights, trials = trials))                                                                          ,
+    "walktrap"    , rlang::expr(tidygraph::group_walktrap(weights = weights, steps = steps, n_groups = n_groups))
+  )
   fun <- function_table %>%
     dplyr::filter(method == clustering_method) %>%
     dplyr::pull(functions) %>%
@@ -232,21 +261,23 @@ extract_clustering_method <- function(clustering_method = clustering_method){
 }
 
 # function to detect the clusters on one graph
-detect_cluster <- function(graph,
-                           weights = weights,
-                           clustering_method = clustering_method,
-                           objective_function = objective_function,
-                           resolution = resolution,
-                           n_iterations = n_iterations,
-                           n_groups = n_groups,
-                           node_weights = node_weights,
-                           trials = trials,
-                           steps = steps,
-                           list = list,
-                           verbose = verbose){
+detect_cluster <- function(
+  graph,
+  weights = weights,
+  clustering_method = clustering_method,
+  objective_function = objective_function,
+  resolution = resolution,
+  n_iterations = n_iterations,
+  n_groups = n_groups,
+  node_weights = node_weights,
+  trials = trials,
+  steps = steps,
+  list = list,
+  verbose = verbose
+) {
   . <- from <- to <- NULL
 
-  if(clustering_method %in% c("infomap", "leiden") & !is.null(node_weights)){
+  if (clustering_method %in% c("infomap", "leiden") & !is.null(node_weights)) {
     node_weights <- graph %N>%
       dplyr::pull(node_weights)
   }
@@ -258,18 +289,27 @@ detect_cluster <- function(graph,
   size_col <- paste0("size_cluster_", clustering_method)
 
   graph <- graph %N>%
-    dplyr::mutate({{ cluster_col }} := eval(fun),
-                  {{ cluster_col }} := sprintf("%02d", eval(cluster_col)),
-                  {{ size_col }} := dplyr::n()) %>%
+    dplyr::mutate(
+      {{ cluster_col }} := eval(fun),
+      {{ cluster_col }} := sprintf("%02d", eval(cluster_col)),
+      {{ size_col }} := dplyr::n()
+    ) %>%
     dplyr::group_by(dplyr::across({{ cluster_col }})) %>%
-    dplyr::mutate({{ size_col }} := dplyr::n()/eval(rlang::ensym(size_col))) %>%
+    dplyr::mutate(
+      {{ size_col }} := dplyr::n() / eval(rlang::ensym(size_col))
+    ) %>%
     dplyr::ungroup() %E>%
-    dplyr::mutate("{ cluster_col }_from" := .N()[[cluster_col]][from],
-                  "{ cluster_col }_to" := .N()[[cluster_col]][to],
-                  {{ cluster_col }} := ifelse(eval(rlang::ensym(cluster_col_from)) == eval(rlang::ensym(cluster_col_to)),
-                                              eval(rlang::ensym(cluster_col_from)),
-                                              "00"))
-  if(verbose == TRUE){
+    dplyr::mutate(
+      "{ cluster_col }_from" := .N()[[cluster_col]][from],
+      "{ cluster_col }_to" := .N()[[cluster_col]][to],
+      {{ cluster_col }} := ifelse(
+        eval(rlang::ensym(cluster_col_from)) ==
+          eval(rlang::ensym(cluster_col_to)),
+        eval(rlang::ensym(cluster_col_from)),
+        "00"
+      )
+    )
+  if (verbose == TRUE) {
     nb_clusters <- graph %N>%
       dplyr::pull(cluster_col) %>%
       unique %>%
@@ -278,10 +318,18 @@ detect_cluster <- function(graph,
     max_size <- graph %N>%
       dplyr::pull(size_col) %>%
       max() %>%
-      round(3) * 100
+      round(3) *
+      100
 
-    if(list == TRUE) cli::cli_h1("Cluster detection for the {.val {graph %N>% as.data.frame() %>% dplyr::pull(time_window) %>% unique()}} period")
-    cli::cli_alert_info("The {.emph {clustering_method}} method detected {.val {nb_clusters}} clusters. The biggest cluster represents {.val {max_size}%} of the network.")
+    if (list == TRUE) {
+      cli::cli_h1(
+        "Cluster detection for the {.val {graph %N>% as.data.frame() %>% dplyr::pull(time_window) %>% unique()}} period"
+      )
+    }
+    cli::cli_alert_info(
+      "The {.emph {clustering_method}} method detected {.val {nb_clusters}} clusters. The biggest cluster represents {.val {max_size}%} of the network."
+    )
   }
   return(graph)
 }
+

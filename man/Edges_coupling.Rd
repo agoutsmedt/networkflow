@@ -5,7 +5,7 @@
 \alias{Edges_coupling}
 \title{Edges For Bibliographic Coupling Network Of Articles and Books Explaining the 1970s US Stagflation.}
 \format{
-A data frame with 154 rows and 6 variables:
+A data frame with 2593 rows and 5 variables:
 \describe{
 \item{from}{Identifier of the Source document on stagflation, in character format}
 \item{to}{Identifier of the Target document on stagflation, in character format}
@@ -22,7 +22,7 @@ Edges_coupling
 }
 \description{
 A dataset containing the edges of the bibliographic coupling network of articles and books on stagflation.
-Built by using \link{Ref_stagflation}: \code{biblionetwork::biblio_coupling(Ref_stagflation,"Citing_ItemID_Ref","ItemID_Ref")}.
+Built by using \link{Ref_stagflation}: \code{biblionetwork::biblio_coupling(Ref_stagflation,"source_id","target_id")}.
 Could be used with \link{Nodes_coupling} to create a network with tidygraph.
 }
 \keyword{datasets}
