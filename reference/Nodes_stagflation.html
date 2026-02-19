@@ -11,7 +11,7 @@ cited at least twice by the first set of articles and books (on the stagflation)
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,8 +22,7 @@ cited at least twice by the first set of articles and books (on the stagflation)
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/exploring_dynamic_networks.html">Exploring dynamic networks</a></li>
-    <li><a class="dropdown-item" href="../articles/workflow-network.html">A Workflow for network analysis</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/networkflow_presentation.html">Presentation of networkflow</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -55,25 +54,25 @@ cited at least twice by the first set of articles and books (on the stagflation)
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>A data frame with 558 rows and 7 variables:</p><dl><dt>ItemID_Ref</dt>
+    <p>A data frame with 654 rows and 7 variables:</p><dl><dt>source_id</dt>
 <dd><p>Identifier of the document</p></dd>
 
-<dt>Author</dt>
+<dt>source_author</dt>
 <dd><p>Author of the document</p></dd>
 
-<dt>Author_date</dt>
+<dt>source_label</dt>
 <dd><p>Use this as a label for nodes</p></dd>
 
-<dt>Year</dt>
+<dt>source_year</dt>
 <dd><p>Year of publication of the document</p></dd>
 
-<dt>Title</dt>
+<dt>source_title</dt>
 <dd><p>Title of the document</p></dd>
 
-<dt>Journal</dt>
+<dt>source_journal</dt>
 <dd><p>Journal of publication of the document (if an article)</p></dd>
 
-<dt>Type</dt>
+<dt>source_type</dt>
 <dd><p>If "Stagflation", the document is listed as an explanation of the US stagflation.
 If "Non-Stagflation", the document is cited by a document explaining the stagflation</p></dd>
 
@@ -90,11 +89,11 @@ Situation”. Revue d’Economie Politique, Forthcoming 2021.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Aurélien Goutsmedt, Alexandre Truc.</p>
+  <p>Developed by Aurélien Goutsmedt, Alexandre Truc, Thomas Delcey.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

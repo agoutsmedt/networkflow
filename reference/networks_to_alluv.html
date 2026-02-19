@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,8 +18,7 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/exploring_dynamic_networks.html">Exploring dynamic networks</a></li>
-    <li><a class="dropdown-item" href="../articles/workflow-network.html">A Workflow for network analysis</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/networkflow_presentation.html">Presentation of networkflow</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -113,18 +112,16 @@ resulting from the use of <a href="name_clusters.html">name_clusters()</a>.</p><
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/agoutsmedt/networkflow" class="external-link">networkflow</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="va">Nodes_stagflation</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>ID_Art <span class="op">=</span> <span class="va">ItemID_Ref</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Type</span> <span class="op">==</span> <span class="st">"Stagflation"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu">networkflow</span><span class="fu">::</span><span class="va"><a href="Nodes_stagflation.html">Nodes_stagflation</a></span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">source_type</span> <span class="op">==</span> <span class="st">"Stagflation"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">references</span> <span class="op">&lt;-</span> <span class="va">Ref_stagflation</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>ID_Art <span class="op">=</span> <span class="va">Citing_ItemID_Ref</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">references</span> <span class="op">&lt;-</span> <span class="fu">networkflow</span><span class="fu">::</span><span class="va"><a href="Ref_stagflation.html">Ref_stagflation</a></span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_dynamic_networks.html">build_dynamic_networks</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">nodes</span>,</span></span>
 <span class="r-in"><span>directed_edges <span class="op">=</span> <span class="va">references</span>,</span></span>
-<span class="r-in"><span>source_id <span class="op">=</span> <span class="st">"ID_Art"</span>,</span></span>
-<span class="r-in"><span>target_id <span class="op">=</span> <span class="st">"ItemID_Ref"</span>,</span></span>
-<span class="r-in"><span>time_variable <span class="op">=</span> <span class="st">"Year"</span>,</span></span>
+<span class="r-in"><span>source_id <span class="op">=</span> <span class="st">"source_id"</span>,</span></span>
+<span class="r-in"><span>target_id <span class="op">=</span> <span class="st">"target_id"</span>,</span></span>
+<span class="r-in"><span>time_variable <span class="op">=</span> <span class="st">"source_year"</span>,</span></span>
 <span class="r-in"><span>cooccurrence_method <span class="op">=</span> <span class="st">"coupling_similarity"</span>,</span></span>
 <span class="r-in"><span>time_window <span class="op">=</span> <span class="fl">20</span>,</span></span>
 <span class="r-in"><span>edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span></span>
@@ -139,7 +136,7 @@ resulting from the use of <a href="name_clusters.html">name_clusters()</a>.</p><
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="merge_dynamic_clusters.html">merge_dynamic_clusters</a></span><span class="op">(</span><span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>cluster_id <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span></span>
-<span class="r-in"><span>node_id <span class="op">=</span> <span class="st">"ID_Art"</span>,</span></span>
+<span class="r-in"><span>node_id <span class="op">=</span> <span class="st">"source_id"</span>,</span></span>
 <span class="r-in"><span>threshold_similarity <span class="op">=</span> <span class="fl">0.51</span>,</span></span>
 <span class="r-in"><span>similarity_type <span class="op">=</span> <span class="st">"partial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -147,37 +144,37 @@ resulting from the use of <a href="name_clusters.html">name_clusters()</a>.</p><
 <span class="r-in"><span>method <span class="op">=</span> <span class="st">"tf-idf"</span>,</span></span>
 <span class="r-in"><span>name_merged_clusters <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>cluster_id <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
-<span class="r-in"><span>text_columns <span class="op">=</span> <span class="st">"Title"</span>,</span></span>
+<span class="r-in"><span>text_columns <span class="op">=</span> <span class="st">"source_title"</span>,</span></span>
 <span class="r-in"><span>nb_terms_label <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>clean_word_method <span class="op">=</span> <span class="st">"lemmatise"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>clean_word_method <span class="op">=</span> <span class="st">"lemmatize"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A shallow copy of this data.table was taken so that := can add or remove 2 columns by reference. At an earlier point, this data.table was copied by R (or was created manually using structure() or similar). Avoid names&lt;- and attr&lt;- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. It's also not unusual for data.table-agnostic packages to produce tables affected by this issue. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="color_networks.html">color_networks</a></span><span class="op">(</span>graphs <span class="op">=</span> <span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>column_to_color <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
 <span class="r-in"><span>color <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="font-style: italic;">unique_color_across_list</span> has been set to <span style="color: #0000BB;">FALSE</span>. There are <span style="color: #0000BB;">14</span> different categories to color.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="font-style: italic;">unique_color_across_list</span> has been set to <span style="color: #0000BB;">FALSE</span>. There are <span style="color: #0000BB;">13</span> different categories to color.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BB00;">color</span> is neither a vector of color characters, nor a data.frame. We will proceed with base R colors.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> We draw 7 colors from the <span style="font-style: italic;">ggplot2</span> palette and <span style="color: #0000BB;">7</span> colors from the <span style="font-style: italic;">Okabe-Ito</span> palette.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> We draw 7 colors from the <span style="font-style: italic;">ggplot2</span> palette and <span style="color: #0000BB;">6</span> colors from the <span style="font-style: italic;">Okabe-Ito</span> palette.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">alluv_dt</span> <span class="op">&lt;-</span> <span class="fu">networks_to_alluv</span><span class="op">(</span><span class="va">temporal_networks</span>,</span></span>
 <span class="r-in"><span>intertemporal_cluster_column <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
-<span class="r-in"><span>node_id <span class="op">=</span> <span class="st">"ID_Art"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>node_id <span class="op">=</span> <span class="st">"source_id"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">alluv_dt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    dynamic_cluster_leiden    window     ID_Art   color</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    dynamic_cluster_leiden    window  source_id   color</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    &lt;char&gt;    &lt;char&gt;     &lt;char&gt;  &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:                   cl_1 1975-1994   16182155 #F564E3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                   cl_1 1975-1994   26283591 #F564E3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                   cl_1 1975-1994   31895842 #F564E3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                   cl_1 1975-1994 1111111131 #F564E3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                   cl_1 1975-1994 1111111150 #F564E3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                              cluster_label share_cluster_alluv</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                     &lt;char&gt;               &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: controls, controls program, program, price level, level                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: controls, controls program, program, price level, level                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: controls, controls program, program, price level, level                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: controls, controls program, program, price level, level                6.22</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: controls, controls program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:                   cl_1 1975-1994   16182155 #B79F00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                   cl_1 1975-1994   26283591 #B79F00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                   cl_1 1975-1994   31895842 #B79F00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                   cl_1 1975-1994 1111111131 #B79F00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                   cl_1 1975-1994 1111111150 #B79F00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                            cluster_label share_cluster_alluv</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                   &lt;char&gt;               &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: control, control program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: control, control program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: control, control program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: control, control program, program, price level, level                6.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: control, control program, program, price level, level                6.22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    share_cluster_window share_cluster_max length_cluster    y_alluv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;num&gt;             &lt;num&gt;          &lt;int&gt;      &lt;num&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:                17.57             18.31              7 0.01351351</span>
@@ -193,11 +190,11 @@ resulting from the use of <a href="name_clusters.html">name_clusters()</a>.</p><
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Aurélien Goutsmedt, Alexandre Truc.</p>
+  <p>Developed by Aurélien Goutsmedt, Alexandre Truc, Thomas Delcey.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

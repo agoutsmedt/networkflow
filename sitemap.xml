@@ -2,9 +2,9 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/404.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/LICENSE-text.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/LICENSE.html</loc></url>
-<url><loc>https://agoutsmedt.github.io/networkflow/articles/exploring_dynamic_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/TODOLIST_DEV.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/articles/index.html</loc></url>
-<url><loc>https://agoutsmedt.github.io/networkflow/articles/workflow-network.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/articles/networkflow_presentation.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/authors.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/index.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/news/index.html</loc></url>
@@ -14,7 +14,9 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/Ref_stagflation.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/add_clusters.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/add_node_roles.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/build_network.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/color_networks.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/community_colors.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/community_labels.html</loc></url>
@@ -24,6 +26,7 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/filter_components.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/index.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/intertemporal_cluster_naming.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/launch_network_app.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/layout_networks.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/leiden_workflow.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.html</loc></url>

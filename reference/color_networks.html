@@ -27,7 +27,7 @@ colors, or let the function provide colors (see details)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,8 +38,7 @@ colors, or let the function provide colors (see details)."></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/exploring_dynamic_networks.html">Exploring dynamic networks</a></li>
-    <li><a class="dropdown-item" href="../articles/workflow-network.html">A Workflow for network analysis</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/networkflow_presentation.html">Presentation of networkflow</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -138,18 +137,16 @@ the colors of the two palettes will be recycled.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/agoutsmedt/networkflow" class="external-link">networkflow</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="va">Nodes_stagflation</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>ID_Art <span class="op">=</span> <span class="va">ItemID_Ref</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Type</span> <span class="op">==</span> <span class="st">"Stagflation"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu">networkflow</span><span class="fu">::</span><span class="va"><a href="Nodes_stagflation.html">Nodes_stagflation</a></span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">source_type</span> <span class="op">==</span> <span class="st">"Stagflation"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">references</span> <span class="op">&lt;-</span> <span class="va">Ref_stagflation</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>ID_Art <span class="op">=</span> <span class="va">Citing_ItemID_Ref</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">references</span> <span class="op">&lt;-</span> <span class="fu">networkflow</span><span class="fu">::</span><span class="va"><a href="Ref_stagflation.html">Ref_stagflation</a></span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">temporal_networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_dynamic_networks.html">build_dynamic_networks</a></span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">nodes</span>,</span></span>
 <span class="r-in"><span>directed_edges <span class="op">=</span> <span class="va">references</span>,</span></span>
-<span class="r-in"><span>source_id <span class="op">=</span> <span class="st">"ID_Art"</span>,</span></span>
-<span class="r-in"><span>target_id <span class="op">=</span> <span class="st">"ItemID_Ref"</span>,</span></span>
-<span class="r-in"><span>time_variable <span class="op">=</span> <span class="st">"Year"</span>,</span></span>
+<span class="r-in"><span>source_id <span class="op">=</span> <span class="st">"source_id"</span>,</span></span>
+<span class="r-in"><span>target_id <span class="op">=</span> <span class="st">"target_id"</span>,</span></span>
+<span class="r-in"><span>time_variable <span class="op">=</span> <span class="st">"source_year"</span>,</span></span>
 <span class="r-in"><span>cooccurrence_method <span class="op">=</span> <span class="st">"coupling_similarity"</span>,</span></span>
 <span class="r-in"><span>time_window <span class="op">=</span> <span class="fl">20</span>,</span></span>
 <span class="r-in"><span>edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span></span>
@@ -191,13 +188,14 @@ the colors of the two palettes will be recycled.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: cluster_leiden &lt;chr&gt;, color &lt;chr&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 74 × 11</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID_Art Author  Year Author_date Title Journal Type  time_window cluster_leiden</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 16182… GORDO…  <span style="text-decoration: underline;">1</span>975 GORDON-R-1… ALTE… BROOKI… Stag… 1975-1994   01            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 26283… GORDO…  <span style="text-decoration: underline;">1</span>975 GORDON-R-1… THE … BROOKI… Stag… 1975-1994   01            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 16182… OKUN-A  <span style="text-decoration: underline;">1</span>975 OKUN-A-197… INFL… BROOKI… Stag… 1975-1994   02            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   source_id source_author source_year source_label   source_title source_journal</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 16182155  GORDON-R             <span style="text-decoration: underline;">1</span>975 GORDON-R-1975a ALTERNATIVE… BROOKINGS PAP…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 26283591  GORDON-R             <span style="text-decoration: underline;">1</span>975 GORDON-R-1975b THE IMPACT … BROOKINGS PAP…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 16182201  OKUN-A               <span style="text-decoration: underline;">1</span>975 OKUN-A-1975a   INFLATION: … BROOKINGS PAP…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 71 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: size_cluster_leiden &lt;dbl&gt;, color &lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 5 more variables: source_type &lt;chr&gt;, time_window &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   cluster_leiden &lt;chr&gt;, size_cluster_leiden &lt;dbl&gt;, color &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -206,11 +204,11 @@ the colors of the two palettes will be recycled.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Aurélien Goutsmedt, Alexandre Truc.</p>
+  <p>Developed by Aurélien Goutsmedt, Alexandre Truc, Thomas Delcey.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

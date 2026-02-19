@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,8 +18,7 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/exploring_dynamic_networks.html">Exploring dynamic networks</a></li>
-    <li><a class="dropdown-item" href="../articles/workflow-network.html">A Workflow for network analysis</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/networkflow_presentation.html">Presentation of networkflow</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -41,19 +40,26 @@
 
       <div class="section-desc"><p>Functions for creating one or multiple networks and to filter the networks.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
 
       <dl><dt>
 
-          <code><a href="build_dynamic_networks.html">build_dynamic_networks()</a></code> <code><a href="build_dynamic_networks.html">build_dynamic_networks2()</a></code> <code><a href="build_dynamic_networks.html">build_network()</a></code>
+          <code><a href="build_dynamic_networks.html">build_dynamic_networks()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
-        <dd>Creating One or Multiple Networks from a List of Nodes and Directed Edges</dd>
-      </dl><dl><dt>
+        <dd>Build One or Multiple Networks from Bipartite Links</dd>
+
+        <dt>
+
+          <code><a href="build_network.html">build_network()</a></code>
+
+        </dt>
+        <dd>Build a single network</dd>
+
+        <dt>
 
           <code><a href="filter_components.html">filter_components()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
@@ -62,10 +68,9 @@
       </dl></div><div class="section level2">
       <h2 id="step-clustering">Step 2: Clustering<a class="anchor" aria-label="anchor" href="#step-clustering"></a></h2>
 
-      <div class="section-desc"><p>Functions for detected clusters and manipulate them.</p></div>
+      <div class="section-desc"><p>Functions for detecting clusters and interpreting them.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -76,25 +81,40 @@
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Detect and Add Clusters to Graphs</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Find Similar Clusters across Multiple Temporal Networks</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="name_clusters.html">name_clusters()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Automatically Attributing Names to Clusters</dd>
+
+        <dt>
+
+          <code><a href="add_node_roles.html">add_node_roles()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Add Node Roles to Graphs</dd>
+
+        <dt>
+
+          <code><a href="extract_tfidf.html">extract_tfidf()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Extracting TF-IDF Values for Ngrams</dd>
       </dl></div><div class="section level2">
       <h2 id="step-plot-networks">Step 3: Plot networks<a class="anchor" aria-label="anchor" href="#step-plot-networks"></a></h2>
 
       <div class="section-desc"><p>Functions for preparing the plots of networks and for plotting them.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -105,60 +125,54 @@
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Calculate the Coordinates of Nodes</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code>
 
         </dt>
         <dd>Order the rectangles of the alluvial in a way that minimize crossing of flow</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="color_networks.html">color_networks()</a></code> <code><a href="color_networks.html">color_alluvial()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Color Nodes and Edges of Networks or Alluvial</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prepare_label_networks.html">prepare_label_networks()</a></code> <code><a href="prepare_label_networks.html">prepare_label_alluvial()</a></code>
 
         </dt>
         <dd>Creating and Positioning Labels for Plotting Networks or Alluvial</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_alluvial.html">plot_alluvial()</a></code>
 
         </dt>
         <dd>Plot the Alluvial</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="plot_networks.html">plot_networks()</a></code>
 
         </dt>
         <dd>Plot your Networks</dd>
-      </dl></div><div class="section level2">
-      <h2 id="step-analysis-networks">Step 4: Analysis networks<a class="anchor" aria-label="anchor" href="#step-analysis-networks"></a></h2>
 
-      <div class="section-desc"><p>Functions for exploring the content of the networks.</p></div>
+        <dt>
 
-
-    </div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="extract_tfidf.html">extract_tfidf()</a></code>
+          <code><a href="launch_network_app.html">launch_network_app()</a></code>
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
-        <dd>Extracting TF-IDF Values for Ngrams</dd>
+        <dd>Launch an Interactive Shiny App to Explore a Network Graph</dd>
       </dl></div><div class="section level2">
       <h2 id="included-datasets">Included datasets<a class="anchor" aria-label="anchor" href="#included-datasets"></a></h2>
 
       <div class="section-desc"><p>Data on articles about stagflation from Goutsmedt (2021) ‘From the Stagflation to the Great Inflation’</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -169,25 +183,29 @@
 
         </dt>
         <dd>List Of Authors Of The Articles and Books Explaining the 1970s US Stagflation.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="Nodes_stagflation.html">Nodes_stagflation</a></code>
 
         </dt>
         <dd>Articles and Books Explaining the 1970s US Stagflation.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="Ref_stagflation.html">Ref_stagflation</a></code>
 
         </dt>
         <dd>Articles and Books Explaining the 1970s US Stagflation.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="Edges_coupling.html">Edges_coupling</a></code>
 
         </dt>
         <dd>Edges For Bibliographic Coupling Network Of Articles and Books Explaining the 1970s US Stagflation.</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="Nodes_coupling.html">Nodes_coupling</a></code>
 
@@ -198,8 +216,7 @@
 
       <div class="section-desc"><p>Functions that have been replaced or will be replaced soon.</p></div>
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -210,49 +227,57 @@
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Creating Color Attribute For Network Communities</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="community_labels.html">community_labels()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Calculating the Coordinates for Projecting Community Labels</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="community_names.html">community_names()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Automatically Attributing Names to Communities</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="dynamic_network_cooccurrence.html">dynamic_network_cooccurrence()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Creating Dynamic Networks from a List of Nodes and Directed Edges</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="intertemporal_cluster_naming.html">intertemporal_cluster_naming()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Find Similar Clusters across Multiple Temporal Networks</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="leiden_workflow.html">leiden_workflow()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Add Leiden Communities to graph</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="networks_to_alluv.html">networks_to_alluv()</a></code>
 
         </dt>
         <dd>Create a data.frame suitable for alluvial graph projection</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="tbl_main_component.html">tbl_main_component()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
         </dt>
         <dd>Creating Graph And Keeping Main Component With Tidygraph From Edges And Nodes</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="top_nodes.html">top_nodes()</a></code>
           <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
@@ -264,11 +289,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Aurélien Goutsmedt, Alexandre Truc.</p>
+  <p>Developed by Aurélien Goutsmedt, Alexandre Truc, Thomas Delcey.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
