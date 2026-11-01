@@ -83,9 +83,8 @@ plot_networks(
 
 ## Value
 
-For a `tbl_graph`, a ggplot object. For a list of graphs, the list
-itself, in which each graph carries its plot in an element `plot`
-(`graphs[[1]]$plot`).
+For a `tbl_graph`, a ggplot object. For a list of graphs, a named list
+of ggplot objects, one per graph (e.g. per time window).
 
 ## Details
 

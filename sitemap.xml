@@ -25,6 +25,7 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/index.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/launch_network_app.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/layout_networks.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/name_clusters.html</loc></url>
@@ -32,6 +33,7 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/pipe.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/plot_networks.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.html</loc></url>
 </urlset>

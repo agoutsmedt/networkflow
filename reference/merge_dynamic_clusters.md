@@ -80,8 +80,7 @@ between clusters).
 
 **Which windows?** The rule needs nodes present in successive windows.
 In a network of documents (e.g. bibliographic coupling), each document
-has a single date, so successive windows (`overlapping_window = FALSE`
-in
+has a single date, so successive windows (the default of
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md))
 share no node and no cluster can be matched: use sliding windows.
 Successive windows work when nodes persist over time, as cited
@@ -139,7 +138,7 @@ networks <- build_dynamic_networks(
   verbose = FALSE
 )
 #> Warning: The last window is shorter than the others.
-#> ℹ The data end in 2013, but the last window ends in 2014.
+#> ℹ The data end in "2013", but the last window ends in "2014".
 networks <- add_clusters(
   networks,
   clustering_method = "leiden",
@@ -157,10 +156,9 @@ networks <- merge_dynamic_clusters(
 )
 #> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
 #> ℹ Clusters are matched through the nodes they share. In a network of documents
-#>   (coupling), each node has one date: use sliding windows (`overlapping_window
-#>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes
-#>   may have changed completely, or the threshold may leave a window without
-#>   edges.
+#>   (coupling), each node has one date: use sliding windows (`window_step = 1` in
+#>   `build_dynamic_networks()`). If windows already slide, the nodes may have
+#>   changed completely, or the threshold may leave a window without edges.
 networks[[2]]
 #> # A tbl_graph: 7 nodes and 6 edges
 #> #
@@ -168,14 +166,14 @@ networks[[2]]
 #> #
 #> # Node Data: 7 × 11 (active)
 #>   source_id  source_author source_year source_label  source_title source_journal
-#>   <chr>      <chr>               <int> <chr>         <chr>        <chr>         
-#> 1 1111111134 FISCHER-S            1985 FISCHER-S-19… SUPPLY SHOC… "JOURNAL OF M…
-#> 2 1184130    GISSER-M             1986 GISSER-M-1986 CRUDE OIL A… "JOURNAL OF M…
-#> 3 25481516   HAKES-DR             1988 HAKES-DR-1988 EVIDENCE OF… "REVIEW OF RA…
-#> 4 6714008    HELLIWELL-J          1988 HELLIWELL-J-… COMPARATIVE… "JOURNAL OF E…
-#> 5 214927     BALL-L               1991 BALL-L-1991   THE GENESIS… "JOURNAL OF M…
-#> 6 1111111176 TAYLOR-J             1992 TAYLOR-J-1992 THE GREAT I… "RESERVE BANK…
-#> 7 19627977   PARKIN-M             1993 PARKIN-M-1993 INFLATION I… "PRICE STABIL…
+#>   <chr>      <chr>         <chr>       <chr>         <chr>        <chr>         
+#> 1 214927     BALL-L        1991        BALL-L-1991   THE GENESIS… "JOURNAL OF M…
+#> 2 1111111134 FISCHER-S     1985        FISCHER-S-19… SUPPLY SHOC… "JOURNAL OF M…
+#> 3 1184130    GISSER-M      1986        GISSER-M-1986 CRUDE OIL A… "JOURNAL OF M…
+#> 4 25481516   HAKES-DR      1988        HAKES-DR-1988 EVIDENCE OF… "REVIEW OF RA…
+#> 5 6714008    HELLIWELL-J   1988        HELLIWELL-J-… COMPARATIVE… "JOURNAL OF E…
+#> 6 19627977   PARKIN-M      1993        PARKIN-M-1993 INFLATION I… "PRICE STABIL…
+#> 7 1111111176 TAYLOR-J      1992        TAYLOR-J-1992 THE GREAT I… "RESERVE BANK…
 #> # ℹ 5 more variables: source_type <chr>, time_window <chr>,
 #> #   cluster_leiden <chr>, size_cluster_leiden <dbl>,
 #> #   dynamic_cluster_leiden <chr>
@@ -183,8 +181,8 @@ networks[[2]]
 #> # Edge Data: 6 × 11
 #>    from    to   weight Source     Target   cluster_leiden_from cluster_leiden_to
 #>   <int> <int>    <dbl> <chr>      <chr>    <chr>               <chr>            
-#> 1     1     3 0.00185  1111111134 25481516 02                  02               
-#> 2     1     4 0.00130  1111111134 6714008  02                  02               
+#> 1     2     4 0.00185  1111111134 25481516 02                  02               
+#> 2     2     5 0.00130  1111111134 6714008  02                  02               
 #> 3     6     7 0.000305 1111111176 19627977 01                  01               
 #> # ℹ 3 more rows
 #> # ℹ 4 more variables: cluster_leiden <chr>, dynamic_cluster_leiden_from <chr>,

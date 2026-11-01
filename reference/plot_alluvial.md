@@ -122,7 +122,7 @@ networks <- build_dynamic_networks(
   verbose = FALSE
 )
 #> Warning: The last window is shorter than the others.
-#> ℹ The data end in 2013, but the last window ends in 2014.
+#> ℹ The data end in "2013", but the last window ends in "2014".
 networks <- add_clusters(
   networks,
   clustering_method = "leiden",
@@ -139,10 +139,9 @@ networks <- merge_dynamic_clusters(
 )
 #> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
 #> ℹ Clusters are matched through the nodes they share. In a network of documents
-#>   (coupling), each node has one date: use sliding windows (`overlapping_window
-#>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes
-#>   may have changed completely, or the threshold may leave a window without
-#>   edges.
+#>   (coupling), each node has one date: use sliding windows (`window_step = 1` in
+#>   `build_dynamic_networks()`). If windows already slide, the nodes may have
+#>   changed completely, or the threshold may leave a window without edges.
 alluv_dt <- networks_to_alluv(
   networks,
   intertemporal_cluster_column = "dynamic_cluster_leiden",

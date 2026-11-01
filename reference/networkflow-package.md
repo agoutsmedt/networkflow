@@ -23,6 +23,10 @@ time window) that the next step enriches.
   (Leiden, Louvain, Infomap...),
   [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
   (following clusters across windows),
+  [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+  and
+  [`plot_merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.md)
+  (how the result depends on the threshold),
   [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md),
   [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md),
   [`add_node_roles()`](https://agoutsmedt.github.io/networkflow/reference/add_node_roles.md).

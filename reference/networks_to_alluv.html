@@ -21,7 +21,7 @@ clusters."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -177,7 +177,7 @@ Alexandre Truc.</p>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The last window is shorter than the others.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The data end in <span style="color: #0000BB;">2013</span>, but the last window ends in <span style="color: #0000BB;">2014</span>.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The data end in <span style="color: #0000BB;">"2013"</span>, but the last window ends in <span style="color: #0000BB;">"2014"</span>.</span>
 <span class="r-in"><span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="add_clusters.html">add_clusters</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">networks</span>,</span></span>
 <span class="r-in"><span>  clustering_method <span class="op">=</span> <span class="st">"leiden"</span>,</span></span>
@@ -194,10 +194,9 @@ Alexandre Truc.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>3 pairs of consecutive windows share no node: their clusters cannot be matched.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Clusters are matched through the nodes they share. In a network of documents</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   (coupling), each node has one date: use sliding windows (`overlapping_window</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   may have changed completely, or the threshold may leave a window without</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   edges.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   (coupling), each node has one date: use sliding windows (`window_step = 1` in</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `build_dynamic_networks()`). If windows already slide, the nodes may have</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   changed completely, or the threshold may leave a window without edges.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">alluv_dt</span> <span class="op">&lt;-</span> <span class="fu">networks_to_alluv</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">networks</span>,</span></span>
@@ -209,11 +208,11 @@ Alexandre Truc.</p>
 <span class="r-in"><span><span class="va">alluv_dt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    dynamic_cluster_leiden    window  source_id share_cluster_alluv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    &lt;char&gt;    &lt;char&gt;     &lt;char&gt;               &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:                   cl_1 1975-1984 1111111141               17.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                   cl_1 1975-1984   14371908               17.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                   cl_1 1975-1984   31302737               17.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                   cl_1 1975-1984   18541214               17.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                   cl_1 1975-1984   20623867               17.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:                   cl_1 1975-1984    1172921               17.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                   cl_1 1975-1984    2901822               17.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                   cl_1 1975-1984 1111111128               17.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                   cl_1 1975-1984    1184127               17.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                   cl_1 1975-1984    7815498               17.36</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    share_cluster_window share_cluster_max length_cluster  y_alluv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;num&gt;             &lt;num&gt;          &lt;int&gt;    &lt;num&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:                39.06             39.06              1 0.015625</span>

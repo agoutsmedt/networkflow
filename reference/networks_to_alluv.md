@@ -123,7 +123,7 @@ networks <- build_dynamic_networks(
   verbose = FALSE
 )
 #> Warning: The last window is shorter than the others.
-#> ℹ The data end in 2013, but the last window ends in 2014.
+#> ℹ The data end in "2013", but the last window ends in "2014".
 networks <- add_clusters(
   networks,
   clustering_method = "leiden",
@@ -140,10 +140,9 @@ networks <- merge_dynamic_clusters(
 )
 #> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
 #> ℹ Clusters are matched through the nodes they share. In a network of documents
-#>   (coupling), each node has one date: use sliding windows (`overlapping_window
-#>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes
-#>   may have changed completely, or the threshold may leave a window without
-#>   edges.
+#>   (coupling), each node has one date: use sliding windows (`window_step = 1` in
+#>   `build_dynamic_networks()`). If windows already slide, the nodes may have
+#>   changed completely, or the threshold may leave a window without edges.
 
 alluv_dt <- networks_to_alluv(
   networks,
@@ -155,11 +154,11 @@ alluv_dt <- networks_to_alluv(
 alluv_dt[1:5]
 #>    dynamic_cluster_leiden    window  source_id share_cluster_alluv
 #>                    <char>    <char>     <char>               <num>
-#> 1:                   cl_1 1975-1984 1111111141               17.36
-#> 2:                   cl_1 1975-1984   14371908               17.36
-#> 3:                   cl_1 1975-1984   31302737               17.36
-#> 4:                   cl_1 1975-1984   18541214               17.36
-#> 5:                   cl_1 1975-1984   20623867               17.36
+#> 1:                   cl_1 1975-1984    1172921               17.36
+#> 2:                   cl_1 1975-1984    2901822               17.36
+#> 3:                   cl_1 1975-1984 1111111128               17.36
+#> 4:                   cl_1 1975-1984    1184127               17.36
+#> 5:                   cl_1 1975-1984    7815498               17.36
 #>    share_cluster_window share_cluster_max length_cluster  y_alluv
 #>                   <num>             <num>          <int>    <num>
 #> 1:                39.06             39.06              1 0.015625

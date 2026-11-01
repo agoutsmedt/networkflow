@@ -13,7 +13,7 @@ literature behind them."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -66,6 +66,8 @@ literature behind them.</p>
 <span>  <span class="va">directed_edges</span>,</span>
 <span>  <span class="va">source_id</span>,</span>
 <span>  <span class="va">target_id</span>,</span>
+<span>  document_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  projection_on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"source"</span>, <span class="st">"target"</span><span class="op">)</span>,</span>
 <span>  <span class="va">projection_method</span>,</span>
 <span>  cooccurrence_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupling_angle"</span>, <span class="st">"coupling_strength"</span>, <span class="st">"coupling_similarity"</span><span class="op">)</span>,</span>
 <span>  edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -75,8 +77,6 @@ literature behind them.</p>
 <span>  compute_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_singleton <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  filter_components <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  projection_on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"source"</span>, <span class="st">"target"</span><span class="op">)</span>,</span>
-<span>  document_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -105,6 +105,24 @@ become the nodes of the network. It must exist in both <code>nodes</code> and
 <dt id="arg-target-id">target_id<a class="anchor" aria-label="anchor" href="#arg-target-id"></a></dt>
 <dd><p>Character scalar, the column of <code>directed_edges</code> with the
 entities that create the links (e.g. references).</p></dd>
+
+
+<dt id="arg-document-id">document_id<a class="anchor" aria-label="anchor" href="#arg-document-id"></a></dt>
+<dd><p>Optional column of <code>directed_edges</code> identifying the
+document through which each link exists. With it, <code>source_id</code> entities
+are not documents but <em>entities that publish documents</em> (authors,
+journals, institutions) and a reference cited by several documents of an
+entity counts several times, following
+<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html" class="external-link">biblionetwork::coupling_entity()</a></code>. Only for <code>projection_method = "structured"</code> with <code>"coupling_angle"</code> or <code>"coupling_strength"</code>.</p></dd>
+
+
+<dt id="arg-projection-on">projection_on<a class="anchor" aria-label="anchor" href="#arg-projection-on"></a></dt>
+<dd><p><code>"source"</code> (default) links the <code>source_id</code> entities
+that share <code>target_id</code> entities (bibliographic coupling: articles
+sharing references). <code>"target"</code> links the <code>target_id</code> entities that
+share <code>source_id</code> entities (co-citation: cited documents linked when
+they are cited by the same documents). With <code>"target"</code>, <code>nodes</code> is keyed
+by <code>target_id</code>.</p></dd>
 
 
 <dt id="arg-projection-method">projection_method<a class="anchor" aria-label="anchor" href="#arg-projection-method"></a></dt>
@@ -154,24 +172,6 @@ edge are removed.</p></dd>
 <dt id="arg-filter-components">filter_components<a class="anchor" aria-label="anchor" href="#arg-filter-components"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, keeps only the main
 component(s) with <code><a href="filter_components.html">filter_components()</a></code>.</p></dd>
-
-
-<dt id="arg-projection-on">projection_on<a class="anchor" aria-label="anchor" href="#arg-projection-on"></a></dt>
-<dd><p><code>"source"</code> (default) links the <code>source_id</code> entities
-that share <code>target_id</code> entities (bibliographic coupling: articles
-sharing references). <code>"target"</code> links the <code>target_id</code> entities that
-share <code>source_id</code> entities (co-citation: cited documents linked when
-they are cited by the same documents). With <code>"target"</code>, <code>nodes</code> is keyed
-by <code>target_id</code>.</p></dd>
-
-
-<dt id="arg-document-id">document_id<a class="anchor" aria-label="anchor" href="#arg-document-id"></a></dt>
-<dd><p>Optional column of <code>directed_edges</code> identifying the
-document through which each link exists. With it, <code>source_id</code> entities
-are not documents but <em>entities that publish documents</em> (authors,
-journals, institutions) and a reference cited by several documents of an
-entity counts several times, following
-<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html" class="external-link">biblionetwork::coupling_entity()</a></code>. Only for <code>projection_method = "structured"</code> with <code>"coupling_angle"</code> or <code>"coupling_strength"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

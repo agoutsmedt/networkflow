@@ -32,7 +32,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  overlapping_window = TRUE,
+  window_step = 1,
   projection_method = "structured",
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,
@@ -96,9 +96,11 @@ documents, the second as a structure that recruits documents: which one
 fits depends on the question.
 
 The rule needs documents present in successive windows. With successive
-windows (`overlapping_window = FALSE`), a network of documents shares no
-document from one window to the next (each document has a single year),
-and no cluster can be matched: sliding windows are necessary here.
+windows (the default of
+[`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)),
+a network of documents shares no document from one window to the next
+(each document has a single year), and no cluster can be matched:
+sliding windows (`window_step = 1`) are necessary here.
 
 ``` r
 
@@ -112,61 +114,133 @@ networks <- merge_dynamic_clusters(
 )
 ```
 
-### How many dynamic clusters?
+### How sensitive are the dynamic clusters to the threshold?
 
 The threshold and the type of similarity decide how easily clusters are
-linked, hence how many distinct dynamic clusters the history contains.
+linked, hence how many dynamic clusters the history contains and how
+long they live.
+[`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+runs the matching for a grid of thresholds and both similarity types,
+and
+[`plot_merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.md)
+draws the result.
 
 ``` r
 
-settings <- expand.grid(
-  threshold = c(0.51, 0.6, 0.7, 0.8),
-  similarity_type = c("complete", "partial"),
-  stringsAsFactors = FALSE
+diagnostics <- merge_diagnostics(
+  window_networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  thresholds = c(0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9),
+  min_length = 3,
+  verbose = FALSE
 )
-settings$dynamic_clusters <- mapply(function(threshold, type) {
-  merged <- merge_dynamic_clusters(
-    window_networks,
-    cluster_id = "cluster_leiden",
-    node_id = "source_id",
-    threshold_similarity = threshold,
-    similarity_type = type
-  )
-  length(unique(unlist(lapply(merged, function(graph) {
-    as_tibble(graph, active = "nodes")$dynamic_cluster_leiden
-  }))))
-}, settings$threshold, settings$similarity_type)
-settings
+diagnostics[diagnostics$similarity_type == "partial",
+            c("threshold", "n_dynamic_clusters", "share_continued", "median_lifespan",
+              "n_persistent", "share_nodes_persistent")]
 ```
 
-      threshold similarity_type dynamic_clusters
-    1      0.51        complete               21
-    2      0.60        complete               33
-    3      0.70        complete               46
-    4      0.80        complete               62
-    5      0.51         partial               15
-    6      0.60         partial               23
-    7      0.70         partial               30
-    8      0.80         partial               41
+       threshold n_dynamic_clusters share_continued median_lifespan n_persistent
+    2       0.51                 13       0.9191919               7           11
+    4       0.55                 13       0.9191919               7           11
+    6       0.60                 20       0.8484848               5           14
+    8       0.65                 23       0.8181818               5           16
+    10      0.70                 27       0.7777778               3           17
+    12      0.75                 36       0.6868687               2           15
+    14      0.80                 41       0.6363636               2           13
+    16      0.90                 48       0.5656566               2           12
+       share_nodes_persistent
+    2               0.9838547
+    4               0.9838547
+    6               0.9182644
+    8               0.8920283
+    10              0.8607467
+    12              0.7003027
+    14              0.6427851
+    16              0.5398587
 
-The 104 window clusters reduce to a few dozen dynamic clusters or fewer.
-A stricter threshold breaks more continuities, and `"partial"` links
-more clusters than `"complete"`, since it ignores the documents that
-enter or leave the corpus. Studies that used networkflow chose
-thresholds just above 0.5 with partial similarity: 0.501 for Delcey et
-al. ([2026](#ref-delcey2026)), 0.55 for Duluins et al.
+``` r
+
+plot_merge_diagnostics(diagnostics)
+```
+
+[![Four panels against the threshold, from 0.51 to 0.9, one line for
+complete and one for partial similarity. The number of dynamic clusters
+rises with the threshold, the share of window clusters with a
+predecessor, the median lifespan and the share of nodes in clusters of
+three windows or more fall; complete similarity is more
+sensitive.](following-clusters-over-time_files/figure-html/fig-diagnostics-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-diagnostics-1.png "Figure 1: ")
+
+Figure 1
+
+The 104 window clusters become 20 dynamic clusters at 0.51 and 80 at 0.9
+with the complete similarity (13 and 48 with the partial one): the more
+demanding the threshold, the more clusters are considered new. The
+curves are flat between 0.51 and 0.55, so that values just above 0.5 are
+on a plateau: the continuities they produce do not depend on the exact
+threshold. They bend after 0.55, and the second view below shows what is
+lost. With the complete similarity, the median lifespan falls to one
+window at 0.75: every window then has its own clusters, which is the
+opposite of a history. The partial similarity is more tolerant, because
+it ignores the documents that enter or leave the corpus from one window
+to the next. This is the reason for the thresholds just above 0.5 with
+partial similarity in the studies that used networkflow: 0.501 for
+Delcey et al. ([2026](#ref-delcey2026)), 0.55 for Duluins et al.
 ([2026](#ref-duluins2026)). Whatever the choice, the continuities that a
 narrative relies on should survive close thresholds, and a different
 seed of the clustering.
 
-The rule has limits worth knowing. It compares a cluster only with the
-previous window, so a cluster that vanishes for one window and comes
-back gets a new identifier. Splits and merges are not recorded as such:
-the part that meets the double majority keeps the identifier, the others
-are new clusters. Methods that model these events explicitly, such as
-the alluvial diagrams of Rosvall and Bergstrom
-([2010](#ref-rosvall2010)) based on significance clustering, are an
-alternative for large networks.
+``` r
+
+plot_merge_diagnostics(diagnostics, view = "lifespans")
+```
+
+[![Stacked bars, one per threshold, for complete and partial similarity,
+showing the share of the nodes of all windows that belong to dynamic
+clusters living one window, two, three to five, six to ten, or more than
+ten. The share of one-window clusters grows with the
+threshold.](following-clusters-over-time_files/figure-html/fig-lifespans-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-lifespans-1.png "Figure 2: ")
+
+Figure 2
+
+The second view shows who pays for a high threshold: the nodes of long
+clusters, which become members of short ones. With the complete
+similarity, the clusters that live more than ten windows gather about
+half of the nodes at 0.55 but 13% at 0.6, and none at 0.65: the longest
+continuities of the history are cut into shorter pieces between 0.55 and
+0.65. With the partial similarity, such clusters still hold about 13% of
+the nodes at 0.9. The sensitivity of a continuity that matters for the
+story, here between 0.55 and 0.6, is exactly what the diagnostics are
+meant to reveal before it is hidden in a figure.
+
+### Other ways to follow clusters
+
+The rule of
+[`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
+is simple and transparent, with limits worth knowing. It compares a
+cluster only with the previous window, so a cluster that vanishes for
+one window and comes back gets a new identifier. Splits and merges are
+not recorded as such: the part that meets the double majority keeps the
+identifier, the others are new clusters. And the clusters of each window
+are detected independently, which adds instability between windows.
+Other approaches exist, and some could be tested on the same data:
+
+| Approach | Idea | Compared with the double majority |
+|----|----|----|
+| Overlap matching with a Jaccard threshold ([Greene et al. 2010](#ref-greene2010)) | Match the clusters of successive windows whose Jaccard similarity $`\lvert V_a \cap V_b \rvert / \lvert V_a \cup V_b \rvert`$ exceeds a threshold, and chain the matches into *dynamic communities*; splits and merges show up as one cluster matched to several. | Symmetric by construction, and gives a name to events; a one-to-one assignment (best match first) could replace the majority rule. |
+| Multislice community detection ([Mucha et al. 2010](#ref-mucha2010)) | Detect communities in all windows at once, in a network where each node is tied to itself in adjacent windows with a coupling weight $`\omega`$. Identifiers are shared by construction. | The coupling $`\omega`$ plays the role of the threshold, but clusters of one window are influenced by the neighbouring windows: more stable, less independent. It needs nodes present in several windows (co-citation, authors, journals rather than documents). |
+| Significance-clustered alluvial maps ([Rosvall and Bergstrom 2010](#ref-rosvall2010)) | Bootstrap the network to find which clusters are robust, then draw the flows between robust clusters. | Addresses the instability of each partition rather than the matching rule; heavier. |
+
+Two simpler checks are available with the tools of the package: running
+the whole pipeline with several seeds of the clustering and comparing
+the dynamic clusters with
+[`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md),
+and varying the window and its step (see the [first
+guide](https://agoutsmedt.github.io/networkflow/articles/from-references-to-networks.md)),
+since instability often comes from windows that are too short to contain
+a stable structure. Implementing the first two approaches in the
+package, as alternatives to the double majority with the same output
+columns, would allow comparing them on real corpora.
 
 ## Naming dynamic clusters
 
@@ -209,40 +283,51 @@ cluster_stats <- unique(alluv_dt[, c("dynamic_cluster_leiden", "cluster_label",
 cluster_stats[order(-cluster_stats$length_cluster), ]
 ```
 
-        dynamic_cluster_leiden                                      cluster_label
-                        <char>                                             <char>
-     1:                  cl_52               rule, great inflation, stabilization
-     2:                  cl_53                   rise, great inflation, peacetime
-     3:                  cl_67 monetary alternative, oil price, great stagflation
-     4:                   cl_1          productivity, productivity growth, growth
-     5:                   cl_3                  control, control program, program
-     6:                  cl_50                change, time consistent, consistent
-     7:                   cl_4 acceleration, acceleration evidence, postwar unite
-     8:                  cl_31            shock wage, wage stickiness, stickiness
-     9:                   cl_2                 unemployment, import, import price
-    10:                   cl_5            inflation employment, employment, stein
-    11:                   cl_6        wage, wage profit, macroeconomic adjustment
-    12:                  cl_46            great, disinflation, great disinflation
-    13:                  cl_38                social, social consensus, consensus
-    14:                  cl_30                international, energy, energy price
-    15:                  cl_35                        world inflation, oil, world
-        share_cluster_max length_cluster
-                    <num>          <int>
-     1:             55.26             18
-     2:             50.00             17
-     3:             37.04             13
-     4:             39.06             10
-     5:             22.22              7
-     6:             62.50              7
-     7:             14.58              6
-     8:             42.86              6
-     9:             26.56              5
-    10:              5.36              4
-    11:             35.42              4
-    12:             57.14              3
-    13:             33.33              2
-    14:             17.50              1
-    15:             22.22              1
+        dynamic_cluster_leiden
+                        <char>
+     1:                  cl_52
+     2:                  cl_55
+     3:                  cl_66
+     4:                   cl_1
+     5:                  cl_10
+     6:                   cl_3
+     7:                  cl_49
+     8:                   cl_2
+     9:                   cl_4
+    10:                   cl_5
+    11:                  cl_44
+    12:                  cl_39
+    13:                  cl_35
+                                                  cluster_label share_cluster_max
+                                                         <char>             <num>
+     1:                    rule, great inflation, stabilization             55.26
+     2:                        rise, great inflation, peacetime             47.92
+     3:                    monetary alternative, oil price, oil             37.04
+     4:               productivity, productivity growth, growth             39.06
+     5:                 shock wage, wage stickiness, stickiness             42.86
+     6:                       control, control program, program             22.22
+     7:          time consistent, consistent, consistent policy             62.50
+     8:                      unemployment, import, import price             26.56
+     9:      acceleration, acceleration evidence, postwar unite             10.42
+    10:                 inflation employment, employment, stein              5.36
+    11:                              disinflation, great, north             57.14
+    12: comparative macroeconomics, condition, condition create             33.33
+    13:                             world inflation, oil, world             22.22
+        length_cluster
+                 <int>
+     1:             18
+     2:             17
+     3:             13
+     4:             10
+     5:             10
+     6:              7
+     7:              7
+     8:              6
+     9:              6
+    10:              4
+    11:              3
+    12:              2
+    13:              1
 
 Clusters that exist in one or two windows, or remain small, clutter the
 plot. We keep the clusters that last at least three windows, give each a
@@ -272,13 +357,13 @@ plot_alluvial(
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-![Alluvial plot of the dynamic clusters of explanations of the
+[![Alluvial plot of the dynamic clusters of explanations of the
 stagflation, from the 1975-1984 window to the 2004-2013 window. Several
 clusters dominate the first windows and disappear in the late 1980s;
 three clusters appear in the 1990s and last until the
-end.](following-clusters-over-time_files/figure-html/fig-alluvial-1.png)
+end.](following-clusters-over-time_files/figure-html/fig-alluvial-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-alluvial-1.png "Figure 3: ")
 
-Figure 1
+Figure 3
 
 The plot draws the history that Goutsmedt ([2021](#ref-goutsmedt2021))
 tells with qualitative and quantitative methods. The early windows are
@@ -359,6 +444,16 @@ Goutsmedt, Aurélien, and Alexandre Truc. 2023. “An Independent European
 Macroeconomics? A History of European Macroeconomics Through the Lens of
 the European Economic Review.” *European Economic Review* 158: 104559.
 <https://doi.org/10.1016/j.euroecorev.2023.104559>.
+
+Greene, Derek, Dónal Doyle, and Pádraig Cunningham. 2010. “Tracking the
+Evolution of Communities in Dynamic Social Networks.” *2010
+International Conference on Advances in Social Networks Analysis and
+Mining*, 176–83. <https://doi.org/10.1109/ASONAM.2010.17>.
+
+Mucha, Peter J., Thomas Richardson, Kevin Macon, Mason A. Porter, and
+Jukka-Pekka Onnela. 2010. “Community Structure in Time-Dependent,
+Multiscale, and Multiplex Networks.” *Science* 328 (5980): 876–78.
+<https://doi.org/10.1126/science.1184819>.
 
 Rosvall, Martin, and Carl T. Bergstrom. 2010. “Mapping Change in Large
 Networks.” *PLoS ONE* 5 (1): e8694.

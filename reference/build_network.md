@@ -17,6 +17,8 @@ build_network(
   directed_edges,
   source_id,
   target_id,
+  document_id = NULL,
+  projection_on = c("source", "target"),
   projection_method,
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
@@ -26,8 +28,6 @@ build_network(
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
-  projection_on = c("source", "target"),
-  document_id = NULL,
   ...
 )
 ```
@@ -55,6 +55,26 @@ build_network(
 
   Character scalar, the column of `directed_edges` with the entities
   that create the links (e.g. references).
+
+- document_id:
+
+  Optional column of `directed_edges` identifying the document through
+  which each link exists. With it, `source_id` entities are not
+  documents but *entities that publish documents* (authors, journals,
+  institutions) and a reference cited by several documents of an entity
+  counts several times, following
+  [`biblionetwork::coupling_entity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html).
+  Only for `projection_method = "structured"` with `"coupling_angle"` or
+  `"coupling_strength"`.
+
+- projection_on:
+
+  `"source"` (default) links the `source_id` entities that share
+  `target_id` entities (bibliographic coupling: articles sharing
+  references). `"target"` links the `target_id` entities that share
+  `source_id` entities (co-citation: cited documents linked when they
+  are cited by the same documents). With `"target"`, `nodes` is keyed by
+  `target_id`.
 
 - projection_method:
 
@@ -103,26 +123,6 @@ build_network(
 
   Logical. If `TRUE`, keeps only the main component(s) with
   [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md).
-
-- projection_on:
-
-  `"source"` (default) links the `source_id` entities that share
-  `target_id` entities (bibliographic coupling: articles sharing
-  references). `"target"` links the `target_id` entities that share
-  `source_id` entities (co-citation: cited documents linked when they
-  are cited by the same documents). With `"target"`, `nodes` is keyed by
-  `target_id`.
-
-- document_id:
-
-  Optional column of `directed_edges` identifying the document through
-  which each link exists. With it, `source_id` entities are not
-  documents but *entities that publish documents* (authors, journals,
-  institutions) and a reference cited by several documents of an entity
-  counts several times, following
-  [`biblionetwork::coupling_entity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html).
-  Only for `projection_method = "structured"` with `"coupling_angle"` or
-  `"coupling_strength"`.
 
 - ...:
 

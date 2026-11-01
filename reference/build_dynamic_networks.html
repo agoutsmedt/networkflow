@@ -69,7 +69,7 @@ backbone package
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -147,23 +147,24 @@ under a null model of random co-occurrence, using the
 <span>  <span class="va">directed_edges</span>,</span>
 <span>  <span class="va">source_id</span>,</span>
 <span>  <span class="va">target_id</span>,</span>
-<span>  time_variable <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  time_window <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  document_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  projection_on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"source"</span>, <span class="st">"target"</span><span class="op">)</span>,</span>
 <span>  projection_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"structured"</span>, <span class="st">"statistical"</span><span class="op">)</span>,</span>
-<span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sdsm"</span>, <span class="st">"fdsm"</span>, <span class="st">"fixedfill"</span>, <span class="st">"fixedrow"</span>, <span class="st">"fixedcol"</span><span class="op">)</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cooccurrence_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupling_angle"</span>, <span class="st">"coupling_strength"</span>, <span class="st">"coupling_similarity"</span><span class="op">)</span>,</span>
 <span>  edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  overlapping_window <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sdsm"</span>, <span class="st">"fdsm"</span>, <span class="st">"fixedfill"</span>, <span class="st">"fixedrow"</span>, <span class="st">"fixedcol"</span><span class="op">)</span>,</span>
+<span>  alpha <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  backbone_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  time_variable <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time_in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nodes"</span>, <span class="st">"edges"</span><span class="op">)</span>,</span>
+<span>  time_unit <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time_window <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  window_step <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  compute_size <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_singleton <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  filter_components <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  backbone_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  projection_on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"source"</span>, <span class="st">"target"</span><span class="op">)</span>,</span>
-<span>  time_in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nodes"</span>, <span class="st">"edges"</span><span class="op">)</span>,</span>
-<span>  document_id <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -193,31 +194,27 @@ become the nodes of the network. It must exist in both <code>nodes</code> and
 entities that create the links (e.g. references).</p></dd>
 
 
-<dt id="arg-time-variable">time_variable<a class="anchor" aria-label="anchor" href="#arg-time-variable"></a></dt>
-<dd><p>Optional character scalar, a column of <code>nodes</code> with an
-integer time unit (e.g. the publication year). <code>NULL</code> builds a single
-network.</p></dd>
+<dt id="arg-document-id">document_id<a class="anchor" aria-label="anchor" href="#arg-document-id"></a></dt>
+<dd><p>Optional column of <code>directed_edges</code> identifying the
+document through which each link exists. With it, <code>source_id</code> entities
+are not documents but <em>entities that publish documents</em> (authors,
+journals, institutions) and a reference cited by several documents of an
+entity counts several times, following
+<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html" class="external-link">biblionetwork::coupling_entity()</a></code>. Only for <code>projection_method = "structured"</code> with <code>"coupling_angle"</code> or <code>"coupling_strength"</code>.</p></dd>
 
 
-<dt id="arg-time-window">time_window<a class="anchor" aria-label="anchor" href="#arg-time-window"></a></dt>
-<dd><p>Optional integer, the width of each window, in units of
-<code>time_variable</code>.</p></dd>
+<dt id="arg-projection-on">projection_on<a class="anchor" aria-label="anchor" href="#arg-projection-on"></a></dt>
+<dd><p><code>"source"</code> (default) links the <code>source_id</code> entities
+that share <code>target_id</code> entities (bibliographic coupling: articles
+sharing references). <code>"target"</code> links the <code>target_id</code> entities that
+share <code>source_id</code> entities (co-citation: cited documents linked when
+they are cited by the same documents). With <code>"target"</code>, <code>nodes</code> is keyed
+by <code>target_id</code>.</p></dd>
 
 
 <dt id="arg-projection-method">projection_method<a class="anchor" aria-label="anchor" href="#arg-projection-method"></a></dt>
 <dd><p><code>"structured"</code> (default) or <code>"statistical"</code>, see
 the description and the details.</p></dd>
-
-
-<dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
-<dd><p>For <code>projection_method = "statistical"</code>, the null model of
-<code><a href="https://rdrr.io/pkg/backbone/man/backbone_from_projection.html" class="external-link">backbone::backbone_from_projection()</a></code>: <code>"sdsm"</code>, <code>"fdsm"</code>,
-<code>"fixedfill"</code>, <code>"fixedrow"</code> or <code>"fixedcol"</code>.</p></dd>
-
-
-<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>For <code>projection_method = "statistical"</code>, the significance
-level of the test of each tie. Lower values keep fewer edges.</p></dd>
 
 
 <dt id="arg-cooccurrence-method">cooccurrence_method<a class="anchor" aria-label="anchor" href="#arg-cooccurrence-method"></a></dt>
@@ -232,10 +229,61 @@ There is no default: the choice must be explicit.</p></dd>
 number of shared targets for two sources to be linked (1 by default).</p></dd>
 
 
-<dt id="arg-overlapping-window">overlapping_window<a class="anchor" aria-label="anchor" href="#arg-overlapping-window"></a></dt>
-<dd><p>Logical. <code>FALSE</code> (default) cuts the period into
-successive windows (1975-1984, 1985-1994...); <code>TRUE</code> slides the window
-by one time unit (1975-1984, 1976-1985...).</p></dd>
+<dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
+<dd><p>For <code>projection_method = "statistical"</code>, the null model of
+<code><a href="https://rdrr.io/pkg/backbone/man/backbone_from_projection.html" class="external-link">backbone::backbone_from_projection()</a></code>: <code>"sdsm"</code>, <code>"fdsm"</code>,
+<code>"fixedfill"</code>, <code>"fixedrow"</code> or <code>"fixedcol"</code>.</p></dd>
+
+
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dd><p>For <code>projection_method = "statistical"</code>, the significance
+level of the test of each tie. Lower values keep fewer edges.</p></dd>
+
+
+<dt id="arg-backbone-args">backbone_args<a class="anchor" aria-label="anchor" href="#arg-backbone-args"></a></dt>
+<dd><p>Optional list of further arguments for
+<code><a href="https://rdrr.io/pkg/backbone/man/backbone_from_projection.html" class="external-link">backbone::backbone_from_projection()</a></code> (e.g. <code>mtc = "holm"</code> to correct
+for multiple tests). <code>alpha</code> or <code>model</code> given here override the
+arguments of the function.</p></dd>
+
+
+<dt id="arg-time-variable">time_variable<a class="anchor" aria-label="anchor" href="#arg-time-variable"></a></dt>
+<dd><p>Optional name of a column with the time of each node
+(or of each link, with <code>time_in = "edges"</code>): a number (e.g. a year), a
+<code>Date</code>, a <code>POSIXct</code>, or an ISO date written as text (<code>"2001-03"</code>,
+<code>"2001-03-15"</code>). Years written as text (<code>"2001"</code>) are numbers. Without
+it, a single network is built.</p></dd>
+
+
+<dt id="arg-time-in">time_in<a class="anchor" aria-label="anchor" href="#arg-time-in"></a></dt>
+<dd><p><code>"nodes"</code> (default): <code>time_variable</code> is a column of <code>nodes</code>
+and a window selects the nodes of the period. <code>"edges"</code>: <code>time_variable</code>
+is a column of <code>directed_edges</code> (e.g. the year of the citing document)
+and a window selects the links of the period, the nodes being those with
+a link in the window. Use <code>"edges"</code> for co-citation, whose period is the
+one of the citing documents, and for entities without a date of their
+own (authors).</p></dd>
+
+
+<dt id="arg-time-unit">time_unit<a class="anchor" aria-label="anchor" href="#arg-time-unit"></a></dt>
+<dd><p>For dates only: the unit in which windows are counted,
+<code>"year"</code> (default), <code>"quarter"</code>, <code>"month"</code>, <code>"week"</code> (starting on
+Mondays) or <code>"day"</code>. For numbers, the unit is the one of the variable
+and <code>time_unit</code> must stay <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-time-window">time_window<a class="anchor" aria-label="anchor" href="#arg-time-window"></a></dt>
+<dd><p>Optional whole number, the width of each window in
+<code>time_unit</code>s (or in units of the variable): 10 for ten years, 12 with
+<code>time_unit = "month"</code> for a year. <code>NULL</code> builds a single network.</p></dd>
+
+
+<dt id="arg-window-step">window_step<a class="anchor" aria-label="anchor" href="#arg-window-step"></a></dt>
+<dd><p>Optional whole number, the number of units between the
+starts of two windows. <code>NULL</code> (default) gives successive windows
+(<code>window_step = time_window</code>); <code>1</code> slides the window one unit at a time
+(1975-1984, 1976-1985...); <code>3</code> with <code>time_unit = "month"</code> and a window
+of 12 gives a yearly window every quarter.</p></dd>
 
 
 <dt id="arg-compute-size">compute_size<a class="anchor" aria-label="anchor" href="#arg-compute-size"></a></dt>
@@ -260,43 +308,8 @@ component(s) with <code><a href="filter_components.html">filter_components()</a>
 <code>nb_components</code>).</p></dd>
 
 
-<dt id="arg-backbone-args">backbone_args<a class="anchor" aria-label="anchor" href="#arg-backbone-args"></a></dt>
-<dd><p>Optional list of further arguments for
-<code><a href="https://rdrr.io/pkg/backbone/man/backbone_from_projection.html" class="external-link">backbone::backbone_from_projection()</a></code> (e.g. <code>mtc = "holm"</code> to correct
-for multiple tests). <code>alpha</code> or <code>model</code> given here override the
-arguments of the function.</p></dd>
-
-
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. If <code>TRUE</code> (default), reports the steps.</p></dd>
-
-
-<dt id="arg-projection-on">projection_on<a class="anchor" aria-label="anchor" href="#arg-projection-on"></a></dt>
-<dd><p><code>"source"</code> (default) links the <code>source_id</code> entities
-that share <code>target_id</code> entities (bibliographic coupling: articles
-sharing references). <code>"target"</code> links the <code>target_id</code> entities that
-share <code>source_id</code> entities (co-citation: cited documents linked when
-they are cited by the same documents). With <code>"target"</code>, <code>nodes</code> is keyed
-by <code>target_id</code>.</p></dd>
-
-
-<dt id="arg-time-in">time_in<a class="anchor" aria-label="anchor" href="#arg-time-in"></a></dt>
-<dd><p><code>"nodes"</code> (default): <code>time_variable</code> is a column of <code>nodes</code>
-and a window selects the nodes of the period. <code>"edges"</code>: <code>time_variable</code>
-is a column of <code>directed_edges</code> (e.g. the year of the citing document)
-and a window selects the links of the period, the nodes being those with
-a link in the window. Use <code>"edges"</code> for co-citation, whose period is the
-one of the citing documents, and for entities without a date of their
-own (authors).</p></dd>
-
-
-<dt id="arg-document-id">document_id<a class="anchor" aria-label="anchor" href="#arg-document-id"></a></dt>
-<dd><p>Optional column of <code>directed_edges</code> identifying the
-document through which each link exists. With it, <code>source_id</code> entities
-are not documents but <em>entities that publish documents</em> (authors,
-journals, institutions) and a reference cited by several documents of an
-entity counts several times, following
-<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html" class="external-link">biblionetwork::coupling_entity()</a></code>. Only for <code>projection_method = "structured"</code> with <code>"coupling_angle"</code> or <code>"coupling_strength"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -349,16 +362,22 @@ model) or exactly (<code>"fdsm"</code>), or only the total number of links
 are kept when the test is significant at level <code>alpha</code>; the resulting
 network is unweighted. This is slower, but each edge can be read as a tie
 unlikely to be due to chance.</p>
-<p><strong>Time windows.</strong> A window starting in year \(s\) gathers the nodes with
-\(s \le t &lt; s + w\), \(w\) being <code>time_window</code>, and only the links of
-these nodes: each network is computed as if the corpus were limited to the
-window. Sliding windows (<code>overlapping_window = TRUE</code>) smooth the evolution
-of the networks, at the price of many networks sharing most of their
-nodes; successive windows give independent snapshots. When the period is
-not a multiple of <code>time_window</code>, the last successive window is shorter and
-a warning is given. The choice of the window is substantive: it should be
-long enough for each network to have enough nodes (a few dozen at least)
-to show a structure, and short enough for changes to be visible.</p>
+<p><strong>Time windows.</strong> Time is counted in whole units: the values of a numeric
+variable, or years, quarters, months, weeks or days for dates. A window
+starting at unit \(s\) and \(w\) units wide (<code>time_window</code>) gathers
+the nodes (or links) with \(s \le t &lt; s + w\), and the network is
+computed as if the corpus were limited to them. A new window starts every
+<code>window_step</code> units: successive windows (the default) give independent
+snapshots, a step of 1 slides the window and smooths the evolution of the
+networks, at the price of many networks sharing most of their nodes. The
+last window may be shorter than the others when the period is not a
+multiple of the step (a warning is given); windows are labelled by their
+first and last unit (<code>"1975-1984"</code>, <code>"2001-01 to 2001-12"</code>). The choice of
+the window is substantive: long enough for each network to have enough
+nodes (a few dozen at least) to show a structure, and short enough for
+changes to be visible. For documents that follow each other quickly
+(central bank statements, news, posts), months or weeks make sense, with
+a window wide enough to contain enough documents.</p>
 <p><strong>Beyond bibliographic coupling.</strong> Nothing in the function is specific to
 citations. The two sides of the links can be any two kinds of entities:</p><ul><li><p><em>Co-citation</em> (Small 1973)
 : with <code>projection_on = "target"</code>, cited documents are linked when the same documents cite them.
@@ -454,27 +473,27 @@ The next steps of the pipeline are <code><a href="add_clusters.html">add_cluster
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># An undirected simple graph with 1 component</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 67 × 8 (active)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    source_id  source_author source_year source_label source_title source_journal</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 16182155   GORDON-R             <span style="text-decoration: underline;">1</span>975 GORDON-R-19… ALTERNATIVE… <span style="color: #949494;">"</span>BROOKINGS PA…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 26283591   GORDON-R             <span style="text-decoration: underline;">1</span>975 GORDON-R-19… THE IMPACT … <span style="color: #949494;">"</span>BROOKINGS PA…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 16182201   OKUN-A               <span style="text-decoration: underline;">1</span>975 OKUN-A-1975a INFLATION: … <span style="color: #949494;">"</span>BROOKINGS PA…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 47749045   BRONFENBRENN…        <span style="text-decoration: underline;">1</span>976 BRONFENBREN… ELEMENTS OF… <span style="color: #949494;">"</span>ZEITSCHRIFT …</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 1111111141 KARNOSKY-D           <span style="text-decoration: underline;">1</span>976 KARNOSKY-D-… THE LINK BE… <span style="color: #949494;">"</span>REVIEW<span style="color: #949494;">"</span>      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 1021902    FRIEDMAN-M           <span style="text-decoration: underline;">1</span>977 FRIEDMAN-M-… NOBEL LECTU… <span style="color: #949494;">"</span>THE JOURNAL …</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 5200398    GOLDSTEIN-M          <span style="text-decoration: underline;">1</span>977 GOLDSTEIN-M… DOWNWARD PR… <span style="color: #949494;">"</span>STAFF PAPERS<span style="color: #949494;">"</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 31895842   GORDON-R             <span style="text-decoration: underline;">1</span>977 GORDON-R-19… CAN THE INF… <span style="color: #949494;">"</span>BROOKINGS PA…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 14371908   RASCHE-R             <span style="text-decoration: underline;">1</span>977 RASCHE-R-19… THE EFFECTS… <span style="color: #949494;">""</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6013999    SHERMAN-H            <span style="text-decoration: underline;">1</span>977 SHERMAN-H-1… MONOPOLY PO… <span style="color: #949494;">"</span>JOURNAL OF E…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    source_id source_author  source_year source_label source_title source_journal</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 37095547  ATESOGLU-H     1980        ATESOGLU-H-… INFLATION A… <span style="color: #949494;">"</span>JOURNAL OF P…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 46282251  ATESOGLU-H     1982        ATESOGLU-H-… WAGES AND S… <span style="color: #949494;">"</span>JOURNAL OF P…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 42623802  BLAAS-W        1982        BLAAS-W-1982 INSTITUTION… <span style="color: #949494;">"</span>JOURNAL OF E…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 5240516   BLINDER-A      1979        BLINDER-A-1… ECONOMIC PO… <span style="color: #949494;">""</span>            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 25091445  BLINDER-A      1981        BLINDER-A-1… THE 1971-19… <span style="color: #949494;">""</span>            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 31895841  BLINDER-A      1982        BLINDER-A-1… THE ANATOMY… <span style="color: #949494;">"</span>INFLATION: C…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 1172921   BRANSON-W      1980        BRANSON-W-1… INTERNATION… <span style="color: #949494;">""</span>            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 47749045  BRONFENBRENNE… 1976        BRONFENBREN… ELEMENTS OF… <span style="color: #949494;">"</span>ZEITSCHRIFT …</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 14490177  BRUNNER-K      1980        BRUNNER-K-1… STAGFLATION… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 6119013   BRUNO-M        1979        BRUNO-M-197… MACRO-ECONO… <span style="color: #949494;">""</span>            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 57 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: source_type &lt;chr&gt;, time_window &lt;chr&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 405 × 5</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    from    to   weight Source  Target    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     6    11 0.001<span style="text-decoration: underline;">59</span>  1021902 1111111122</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6    45 0.000<span style="text-decoration: underline;">182</span> 1021902 1111111128</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     6    65 0.000<span style="text-decoration: underline;">461</span> 1021902 1111111134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    14    21 0.001<span style="text-decoration: underline;">59</span>  1021902 1111111122</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>    15    21 0.000<span style="text-decoration: underline;">182</span> 1021902 1111111128</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>    20    21 0.000<span style="text-decoration: underline;">461</span> 1021902 1111111134</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 402 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Co-citation: cited documents linked when the same documents cite them,</span></span></span>
@@ -591,7 +610,7 @@ The next steps of the pipeline are <code><a href="add_clusters.html">add_cluster
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The last window is shorter than the others.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The data end in <span style="color: #0000BB;">2013</span>, but the last window ends in <span style="color: #0000BB;">2014</span>.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The data end in <span style="color: #0000BB;">"2013"</span>, but the last window ends in <span style="color: #0000BB;">"2014"</span>.</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -14,13 +14,15 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="following-clusters-over-time_files/libs/quarto-html/popper.min.js"></script><script src="following-clusters-over-time_files/libs/quarto-html/tippy.umd.min.js"></script><link href="following-clusters-over-time_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="following-clusters-over-time_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<script src="following-clusters-over-time_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script><link href="following-clusters-over-time_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="following-clusters-over-time_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Following clusters over time">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -91,7 +93,7 @@
 <span>  target_id <span class="op">=</span> <span class="st">"target_id"</span>,</span>
 <span>  time_variable <span class="op">=</span> <span class="st">"source_year"</span>,</span>
 <span>  time_window <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  overlapping_window <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  window_step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  projection_method <span class="op">=</span> <span class="st">"structured"</span>,</span>
 <span>  cooccurrence_method <span class="op">=</span> <span class="st">"coupling_similarity"</span>,</span>
 <span>  edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -133,7 +135,7 @@
 <code>"partial"</code>: only the documents present in both windows count, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mi>a</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>V</mi><mi>a</mi></msub><mo>∩</mo><msub><mi>V</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">D_a = |V_a \cap V_t|</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mi>b</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>V</mi><mi>b</mi></msub><mo>∩</mo><msub><mi>V</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">D_b = |V_b \cap V_{t-1}|</annotation></semantics></math>.</li>
 </ul>
 <p>With sliding windows, window <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> loses the documents of the first year of window <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t-1</annotation></semantics></math> and gains those of a new year. With <code>"complete"</code>, a cluster that recruits many new documents, or loses many old ones, may lose its identifier because its composition changed. With <code>"partial"</code>, only the documents present in both windows are compared, and a cluster that keeps its members together keeps its identifier however many documents join it. The first view treats a cluster as a group of documents, the second as a structure that recruits documents: which one fits depends on the question.</p>
-<p>The rule needs documents present in successive windows. With successive windows (<code>overlapping_window = FALSE</code>), a network of documents shares no document from one window to the next (each document has a single year), and no cluster can be matched: sliding windows are necessary here.</p>
+<p>The rule needs documents present in successive windows. With successive windows (the default of <code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code>), a network of documents shares no document from one window to the next (each document has a single year), and no cluster can be matched: sliding windows (<code>window_step = 1</code>) are necessary here.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">window_networks</span> <span class="op">&lt;-</span> <span class="va">networks</span> <span class="co"># kept to compare other settings below</span></span>
@@ -145,48 +147,114 @@
 <span>  similarity_type <span class="op">=</span> <span class="st">"partial"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="level3"><h3 id="how-many-dynamic-clusters">How many dynamic clusters?<a class="anchor" aria-label="anchor" href="#how-many-dynamic-clusters"></a>
+</section><section class="level3"><h3 id="how-sensitive-are-the-dynamic-clusters-to-the-threshold">How sensitive are the dynamic clusters to the threshold?<a class="anchor" aria-label="anchor" href="#how-sensitive-are-the-dynamic-clusters-to-the-threshold"></a>
 </h3>
-<p>The threshold and the type of similarity decide how easily clusters are linked, hence how many distinct dynamic clusters the history contains.</p>
+<p>The threshold and the type of similarity decide how easily clusters are linked, hence how many dynamic clusters the history contains and how long they live. <code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> runs the matching for a grid of thresholds and both similarity types, and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> draws the result.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">settings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span></span>
-<span>  threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.51</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
-<span>  similarity_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"complete"</span>, <span class="st">"partial"</span><span class="op">)</span>,</span>
-<span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
+<code class="sourceCode R"><span><span class="va">diagnostics</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/merge_diagnostics.html">merge_diagnostics</a></span><span class="op">(</span></span>
+<span>  <span class="va">window_networks</span>,</span>
+<span>  cluster_id <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span>
+<span>  node_id <span class="op">=</span> <span class="st">"source_id"</span>,</span>
+<span>  thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.51</span>, <span class="fl">0.55</span>, <span class="fl">0.6</span>, <span class="fl">0.65</span>, <span class="fl">0.7</span>, <span class="fl">0.75</span>, <span class="fl">0.8</span>, <span class="fl">0.9</span><span class="op">)</span>,</span>
+<span>  min_length <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">settings</span><span class="op">$</span><span class="va">dynamic_clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">threshold</span>, <span class="va">type</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters</a></span><span class="op">(</span></span>
-<span>    <span class="va">window_networks</span>,</span>
-<span>    cluster_id <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span>
-<span>    node_id <span class="op">=</span> <span class="st">"source_id"</span>,</span>
-<span>    threshold_similarity <span class="op">=</span> <span class="va">threshold</span>,</span>
-<span>    similarity_type <span class="op">=</span> <span class="va">type</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">merged</span>, <span class="kw">function</span><span class="op">(</span><span class="va">graph</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">graph</span>, active <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">dynamic_cluster_leiden</span></span>
-<span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span>, <span class="va">settings</span><span class="op">$</span><span class="va">threshold</span>, <span class="va">settings</span><span class="op">$</span><span class="va">similarity_type</span><span class="op">)</span></span>
-<span><span class="va">settings</span></span></code></pre></div>
+<span><span class="va">diagnostics</span><span class="op">[</span><span class="va">diagnostics</span><span class="op">$</span><span class="va">similarity_type</span> <span class="op">==</span> <span class="st">"partial"</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"threshold"</span>, <span class="st">"n_dynamic_clusters"</span>, <span class="st">"share_continued"</span>, <span class="st">"median_lifespan"</span>,</span>
+<span>              <span class="st">"n_persistent"</span>, <span class="st">"share_nodes_persistent"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  threshold similarity_type dynamic_clusters
-1      0.51        complete               21
-2      0.60        complete               33
-3      0.70        complete               46
-4      0.80        complete               62
-5      0.51         partial               15
-6      0.60         partial               23
-7      0.70         partial               30
-8      0.80         partial               41</code></pre>
+<pre><code>   threshold n_dynamic_clusters share_continued median_lifespan n_persistent
+2       0.51                 13       0.9191919               7           11
+4       0.55                 13       0.9191919               7           11
+6       0.60                 20       0.8484848               5           14
+8       0.65                 23       0.8181818               5           16
+10      0.70                 27       0.7777778               3           17
+12      0.75                 36       0.6868687               2           15
+14      0.80                 41       0.6363636               2           13
+16      0.90                 48       0.5656566               2           12
+   share_nodes_persistent
+2               0.9838547
+4               0.9838547
+6               0.9182644
+8               0.8920283
+10              0.8607467
+12              0.7003027
+14              0.6427851
+16              0.5398587</code></pre>
 </div>
 </div>
-<p>The 104 window clusters reduce to a few dozen dynamic clusters or fewer. A stricter threshold breaks more continuities, and <code>"partial"</code> links more clusters than <code>"complete"</code>, since it ignores the documents that enter or leave the corpus. Studies that used networkflow chose thresholds just above 0.5 with partial similarity: 0.501 for <span class="citation" data-cites="delcey2026">Delcey et al. (<a href="#ref-delcey2026" role="doc-biblioref">2026</a>)</span>, 0.55 for <span class="citation" data-cites="duluins2026">Duluins et al. (<a href="#ref-duluins2026" role="doc-biblioref">2026</a>)</span>. Whatever the choice, the continuities that a narrative relies on should survive close thresholds, and a different seed of the clustering.</p>
-<p>The rule has limits worth knowing. It compares a cluster only with the previous window, so a cluster that vanishes for one window and comes back gets a new identifier. Splits and merges are not recorded as such: the part that meets the double majority keeps the identifier, the others are new clusters. Methods that model these events explicitly, such as the alluvial diagrams of <span class="citation" data-cites="rosvall2010">Rosvall and Bergstrom (<a href="#ref-rosvall2010" role="doc-biblioref">2010</a>)</span> based on significance clustering, are an alternative for large networks.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics</a></span><span class="op">(</span><span class="va">diagnostics</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-diagnostics" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Four panels against the threshold, from 0.51 to 0.9, one line for complete and one for partial similarity. The number of dynamic clusters rises with the threshold, the share of window clusters with a predecessor, the median lifespan and the share of nodes in clusters of three windows or more fall; complete similarity is more sensitive.">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="following-clusters-over-time_files/figure-html/fig-diagnostics-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: "><img src="following-clusters-over-time_files/figure-html/fig-diagnostics-1.png" id="fig-diagnostics" alt="Four panels against the threshold, from 0.51 to 0.9, one line for complete and one for partial similarity. The number of dynamic clusters rises with the threshold, the share of window clusters with a predecessor, the median lifespan and the share of nodes in clusters of three windows or more fall; complete similarity is more sensitive." width="1100"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 1
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>The 104 window clusters become 20 dynamic clusters at 0.51 and 80 at 0.9 with the complete similarity (13 and 48 with the partial one): the more demanding the threshold, the more clusters are considered new. The curves are flat between 0.51 and 0.55, so that values just above 0.5 are on a plateau: the continuities they produce do not depend on the exact threshold. They bend after 0.55, and the second view below shows what is lost. With the complete similarity, the median lifespan falls to one window at 0.75: every window then has its own clusters, which is the opposite of a history. The partial similarity is more tolerant, because it ignores the documents that enter or leave the corpus from one window to the next. This is the reason for the thresholds just above 0.5 with partial similarity in the studies that used networkflow: 0.501 for <span class="citation" data-cites="delcey2026">Delcey et al. (<a href="#ref-delcey2026" role="doc-biblioref">2026</a>)</span>, 0.55 for <span class="citation" data-cites="duluins2026">Duluins et al. (<a href="#ref-duluins2026" role="doc-biblioref">2026</a>)</span>. Whatever the choice, the continuities that a narrative relies on should survive close thresholds, and a different seed of the clustering.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics</a></span><span class="op">(</span><span class="va">diagnostics</span>, view <span class="op">=</span> <span class="st">"lifespans"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div id="fig-lifespans" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Stacked bars, one per threshold, for complete and partial similarity, showing the share of the nodes of all windows that belong to dynamic clusters living one window, two, three to five, six to ten, or more than ten. The share of one-window clusters grows with the threshold.">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-lifespans-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="following-clusters-over-time_files/figure-html/fig-lifespans-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: "><img src="following-clusters-over-time_files/figure-html/fig-lifespans-1.png" id="fig-lifespans" alt="Stacked bars, one per threshold, for complete and partial similarity, showing the share of the nodes of all windows that belong to dynamic clusters living one window, two, three to five, six to ten, or more than ten. The share of one-window clusters grows with the threshold." width="1100"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-lifespans-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 2
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>The second view shows who pays for a high threshold: the nodes of long clusters, which become members of short ones. With the complete similarity, the clusters that live more than ten windows gather about half of the nodes at 0.55 but 13% at 0.6, and none at 0.65: the longest continuities of the history are cut into shorter pieces between 0.55 and 0.65. With the partial similarity, such clusters still hold about 13% of the nodes at 0.9. The sensitivity of a continuity that matters for the story, here between 0.55 and 0.6, is exactly what the diagnostics are meant to reveal before it is hidden in a figure.</p>
+</section><section class="level3"><h3 id="other-ways-to-follow-clusters">Other ways to follow clusters<a class="anchor" aria-label="anchor" href="#other-ways-to-follow-clusters"></a>
+</h3>
+<p>The rule of <code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code> is simple and transparent, with limits worth knowing. It compares a cluster only with the previous window, so a cluster that vanishes for one window and comes back gets a new identifier. Splits and merges are not recorded as such: the part that meets the double majority keeps the identifier, the others are new clusters. And the clusters of each window are detected independently, which adds instability between windows. Other approaches exist, and some could be tested on the same data:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead><tr class="header">
+<th>Approach</th>
+<th>Idea</th>
+<th>Compared with the double majority</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Overlap matching with a Jaccard threshold <span class="citation" data-cites="greene2010">(<a href="#ref-greene2010" role="doc-biblioref">Greene et al. 2010</a>)</span>
+</td>
+<td>Match the clusters of successive windows whose Jaccard similarity <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><msub><mi>V</mi><mi>a</mi></msub><mo>∩</mo><msub><mi>V</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">|</mo><mi>/</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>V</mi><mi>a</mi></msub><mo>∪</mo><msub><mi>V</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\lvert V_a \cap V_b \rvert / \lvert V_a \cup V_b \rvert</annotation></semantics></math> exceeds a threshold, and chain the matches into <em>dynamic communities</em>; splits and merges show up as one cluster matched to several.</td>
+<td>Symmetric by construction, and gives a name to events; a one-to-one assignment (best match first) could replace the majority rule.</td>
+</tr>
+<tr class="even">
+<td>Multislice community detection <span class="citation" data-cites="mucha2010">(<a href="#ref-mucha2010" role="doc-biblioref">Mucha et al. 2010</a>)</span>
+</td>
+<td>Detect communities in all windows at once, in a network where each node is tied to itself in adjacent windows with a coupling weight <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math>. Identifiers are shared by construction.</td>
+<td>The coupling <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math> plays the role of the threshold, but clusters of one window are influenced by the neighbouring windows: more stable, less independent. It needs nodes present in several windows (co-citation, authors, journals rather than documents).</td>
+</tr>
+<tr class="odd">
+<td>Significance-clustered alluvial maps <span class="citation" data-cites="rosvall2010">(<a href="#ref-rosvall2010" role="doc-biblioref">Rosvall and Bergstrom 2010</a>)</span>
+</td>
+<td>Bootstrap the network to find which clusters are robust, then draw the flows between robust clusters.</td>
+<td>Addresses the instability of each partition rather than the matching rule; heavier.</td>
+</tr>
+</tbody>
+</table>
+<p>Two simpler checks are available with the tools of the package: running the whole pipeline with several seeds of the clustering and comparing the dynamic clusters with <code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code>, and varying the window and its step (see the <a href="from-references-to-networks.html">first guide</a>), since instability often comes from windows that are too short to contain a stable structure. Implementing the first two approaches in the package, as alternatives to the double majority with the same output columns, would allow comparing them on real corpora.</p>
 </section></section><section class="level2"><h2 id="naming-dynamic-clusters">Naming dynamic clusters<a class="anchor" aria-label="anchor" href="#naming-dynamic-clusters"></a>
 </h2>
 <p>Once clusters are linked, each dynamic cluster can be named on all its documents across windows (<code>name_merged_clusters = TRUE</code>), with the words of the titles that distinguish it from the other dynamic clusters.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/name_clusters.html">name_clusters</a></span><span class="op">(</span></span>
 <span>  <span class="va">networks</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"tf-idf"</span>,</span>
@@ -201,7 +269,7 @@
 </h2>
 <p>An alluvial plot shows the dynamic clusters as blocks in each window, with a height proportional to their share of the window, and flows that follow the documents from one window to the next. <code><a href="../reference/networks_to_alluv.html">networks_to_alluv()</a></code> stacks the node tables into the long table such a plot needs, with statistics on each cluster: its share of the whole history, its maximum share in a window, and the number of windows where it exists.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">alluv_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/networks_to_alluv.html">networks_to_alluv</a></span><span class="op">(</span></span>
 <span>  <span class="va">networks</span>,</span>
 <span>  intertemporal_cluster_column <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span>
@@ -211,45 +279,56 @@
 <span>                                     <span class="st">"share_cluster_max"</span>, <span class="st">"length_cluster"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">cluster_stats</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">cluster_stats</span><span class="op">$</span><span class="va">length_cluster</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    dynamic_cluster_leiden                                      cluster_label
-                    &lt;char&gt;                                             &lt;char&gt;
- 1:                  cl_52               rule, great inflation, stabilization
- 2:                  cl_53                   rise, great inflation, peacetime
- 3:                  cl_67 monetary alternative, oil price, great stagflation
- 4:                   cl_1          productivity, productivity growth, growth
- 5:                   cl_3                  control, control program, program
- 6:                  cl_50                change, time consistent, consistent
- 7:                   cl_4 acceleration, acceleration evidence, postwar unite
- 8:                  cl_31            shock wage, wage stickiness, stickiness
- 9:                   cl_2                 unemployment, import, import price
-10:                   cl_5            inflation employment, employment, stein
-11:                   cl_6        wage, wage profit, macroeconomic adjustment
-12:                  cl_46            great, disinflation, great disinflation
-13:                  cl_38                social, social consensus, consensus
-14:                  cl_30                international, energy, energy price
-15:                  cl_35                        world inflation, oil, world
-    share_cluster_max length_cluster
-                &lt;num&gt;          &lt;int&gt;
- 1:             55.26             18
- 2:             50.00             17
- 3:             37.04             13
- 4:             39.06             10
- 5:             22.22              7
- 6:             62.50              7
- 7:             14.58              6
- 8:             42.86              6
- 9:             26.56              5
-10:              5.36              4
-11:             35.42              4
-12:             57.14              3
-13:             33.33              2
-14:             17.50              1
-15:             22.22              1</code></pre>
+<pre><code>    dynamic_cluster_leiden
+                    &lt;char&gt;
+ 1:                  cl_52
+ 2:                  cl_55
+ 3:                  cl_66
+ 4:                   cl_1
+ 5:                  cl_10
+ 6:                   cl_3
+ 7:                  cl_49
+ 8:                   cl_2
+ 9:                   cl_4
+10:                   cl_5
+11:                  cl_44
+12:                  cl_39
+13:                  cl_35
+                                              cluster_label share_cluster_max
+                                                     &lt;char&gt;             &lt;num&gt;
+ 1:                    rule, great inflation, stabilization             55.26
+ 2:                        rise, great inflation, peacetime             47.92
+ 3:                    monetary alternative, oil price, oil             37.04
+ 4:               productivity, productivity growth, growth             39.06
+ 5:                 shock wage, wage stickiness, stickiness             42.86
+ 6:                       control, control program, program             22.22
+ 7:          time consistent, consistent, consistent policy             62.50
+ 8:                      unemployment, import, import price             26.56
+ 9:      acceleration, acceleration evidence, postwar unite             10.42
+10:                 inflation employment, employment, stein              5.36
+11:                              disinflation, great, north             57.14
+12: comparative macroeconomics, condition, condition create             33.33
+13:                             world inflation, oil, world             22.22
+    length_cluster
+             &lt;int&gt;
+ 1:             18
+ 2:             17
+ 3:             13
+ 4:             10
+ 5:             10
+ 6:              7
+ 7:              7
+ 8:              6
+ 9:              6
+10:              4
+11:              3
+12:              2
+13:              1</code></pre>
 </div>
 </div>
 <p>Clusters that exist in one or two windows, or remain small, clutter the plot. We keep the clusters that last at least three windows, give each a fixed colour, order the clusters to limit crossing flows (<code>minimize_crossing = TRUE</code>) and place each label in the middle of the cluster’s life (<code>prepare_label = TRUE</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">main_alluv</span> <span class="op">&lt;-</span> <span class="va">alluv_dt</span><span class="op">[</span><span class="va">alluv_dt</span><span class="op">$</span><span class="va">length_cluster</span> <span class="op">&gt;=</span> <span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="va">main_clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">main_alluv</span><span class="op">$</span><span class="va">dynamic_cluster_leiden</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">palette</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -269,12 +348,12 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Share of the window"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-alluvial" class="quarto-float quarto-figure quarto-figure-center" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end." width="1100">
+<div id="fig-alluvial" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end.">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-alluvial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="following-clusters-over-time_files/figure-html/fig-alluvial-1.png" id="fig-alluvial" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end." width="1100">
+<a href="following-clusters-over-time_files/figure-html/fig-alluvial-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure 3: "><img src="following-clusters-over-time_files/figure-html/fig-alluvial-1.png" id="fig-alluvial" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end." width="1100"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-alluvial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 1
+Figure 3
 </figcaption></figure>
 </div>
 </div>
@@ -285,7 +364,7 @@ Figure 1
 </h2>
 <p>To draw the networks of successive windows side by side, <code>layout_networks(compute_dynamic_coordinates = TRUE)</code> starts the layout of each window from the coordinates of the previous one, so that a document stays in the same region from one plot to the next. Giving the dynamic clusters the same colours as in the alluvial (<code><a href="../reference/color_networks.html">color_networks()</a></code> with the same palette) completes the picture: a cluster can be followed in the alluvial and located in each network.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/layout_networks.html">layout_networks</a></span><span class="op">(</span></span>
 <span>  <span class="va">networks</span>,</span>
@@ -312,6 +391,12 @@ Goutsmedt, Aurélien. 2021. <span>“From the Stagflation to the Great Inflation
 </div>
 <div id="ref-goutsmedt2023eer" class="csl-entry" role="listitem">
 Goutsmedt, Aurélien, and Alexandre Truc. 2023. <span>“An Independent <span>European</span> Macroeconomics? <span>A</span> History of <span>European</span> Macroeconomics Through the Lens of the <span>European Economic Review</span>.”</span> <em>European Economic Review</em> 158: 104559. <a href="https://doi.org/10.1016/j.euroecorev.2023.104559" class="external-link">https://doi.org/10.1016/j.euroecorev.2023.104559</a>.
+</div>
+<div id="ref-greene2010" class="csl-entry" role="listitem">
+Greene, Derek, Dónal Doyle, and Pádraig Cunningham. 2010. <span>“Tracking the Evolution of Communities in Dynamic Social Networks.”</span> <em>2010 International Conference on Advances in Social Networks Analysis and Mining</em>, 176–83. <a href="https://doi.org/10.1109/ASONAM.2010.17" class="external-link">https://doi.org/10.1109/ASONAM.2010.17</a>.
+</div>
+<div id="ref-mucha2010" class="csl-entry" role="listitem">
+Mucha, Peter J., Thomas Richardson, Kevin Macon, Mason A. Porter, and Jukka-Pekka Onnela. 2010. <span>“Community Structure in Time-Dependent, Multiscale, and Multiplex Networks.”</span> <em>Science</em> 328 (5980): 876–78. <a href="https://doi.org/10.1126/science.1184819" class="external-link">https://doi.org/10.1126/science.1184819</a>.
 </div>
 <div id="ref-rosvall2010" class="csl-entry" role="listitem">
 Rosvall, Martin, and Carl T. Bergstrom. 2010. <span>“Mapping Change in Large Networks.”</span> <em>PLoS ONE</em> 5 (1): e8694. <a href="https://doi.org/10.1371/journal.pone.0008694" class="external-link">https://doi.org/10.1371/journal.pone.0008694</a>.
@@ -400,7 +485,38 @@ Rosvall, Martin, and Carl T. Bergstrom. 2010. <span>“Mapping Change in Large N
       }
     }
   });
-  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+  </script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      }
+    });
+
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+
+  };
+
+})();
+          </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 

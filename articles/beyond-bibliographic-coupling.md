@@ -198,11 +198,11 @@ cocitation <- color_networks(
 plot_networks(cocitation, cluster_label_column = "cluster_label", node_size_column = "node_size")
 ```
 
-![Co-citation network of the works cited by the explanations of the
+[![Co-citation network of the works cited by the explanations of the
 stagflation, with nodes coloured by Leiden cluster, node size
 proportional to the number of citing documents, and each cluster
 labelled by its most cited
-work.](beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png)
+work.](beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png)](https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png "Figure 1: ")
 
 Figure 1
 

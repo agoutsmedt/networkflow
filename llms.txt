@@ -146,11 +146,11 @@ and
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
 project a two-mode table (e.g. articles and their references) onto a
 network of the first entities, for the whole corpus or one network per
-time window. Ties are weighted with the bibliometric similarity measures
-of biblionetwork ([Goutsmedt, Truc, and Claveau
-2023](#ref-goutsmedt2023biblionetwork)), or kept only when they are
-statistically significant under a null model, with the backbone package
-([Neal 2022](#ref-neal2022)).
+time window (in years, months or days, sliding by any step). Ties are
+weighted with the bibliometric similarity measures of biblionetwork
+([Goutsmedt, Truc, and Claveau 2023](#ref-goutsmedt2023biblionetwork)),
+or kept only when they are statistically significant under a null model,
+with the backbone package ([Neal 2022](#ref-neal2022)).
 [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
 keeps the main component(s).
 
@@ -159,7 +159,9 @@ keeps the main component(s).
 detects communities with Leiden ([Traag, Waltman, and Eck
 2019](#ref-traag2019)), Louvain, Infomap, walktrap or fast greedy.
 [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
-links the clusters of successive windows.
+links the clusters of successive windows, and
+[`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+shows how the result depends on the threshold.
 [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
 and
 [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
@@ -311,6 +313,12 @@ characterise the role of their members.
   **\[experimental\]** : Detect communities in networks
 - [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
   **\[experimental\]** : Follow clusters across time windows
+- [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+  **\[experimental\]** : Diagnose the threshold of the matching of
+  clusters across windows
+- [`plot_merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.md)
+  **\[experimental\]** : Plot the diagnostics of the matching of
+  clusters across windows
 - [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
   **\[experimental\]** : Give readable names to clusters
 - [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)

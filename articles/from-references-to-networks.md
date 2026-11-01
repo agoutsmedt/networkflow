@@ -105,12 +105,44 @@ answer different questions. Coupling groups the citing documents, and is
 fixed once they are published: it maps the *research fronts* of a
 period. Co-citation groups the cited works, and evolves as new articles
 cite them: it maps the *intellectual base* of a literature as its users
-see it. Comparing the clusters obtained on two million biomedical
+see it.
+
+A third relation is often used: **direct citation**, where documents are
+linked when one cites the other. It is not a projection (the nodes and
+the links concern the same entities), so it needs no function of the
+package: a `tbl_graph` built from the table of citations among the
+documents of the corpus can be given directly to
+[`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
+and the following steps. Which of the three relations represents a field
+best has been discussed for a long time, and the answer depends on the
+criterion. Comparing the clusters obtained on two million biomedical
 articles, Boyack and Klavans ([2010](#ref-boyack2010)) found that
 bibliographic coupling slightly outperformed co-citation in representing
-research fronts, direct citation being the least accurate; Yan and Ding
-([2012](#ref-yan2012)) show how the various scholarly networks
-(coupling, co-citation, co-authorship, co-words) relate to each other.
+research fronts, direct citation being the least accurate, with two
+measures of accuracy (textual coherence and the concentration of
+grants). With another criterion, the concentration of the references of
+articles with long bibliographies, Klavans and Boyack
+([2017](#ref-klavans2017)) found on the contrary that direct citation
+was more accurate than coupling and co-citation. Waltman and Eck
+([2012](#ref-waltman2012)) built a classification of almost ten million
+publications on direct citation only, noting that the exclusive reliance
+on direct citation relations is the main limit of their method, and
+Rivest et al. ([2021](#ref-rivest2021)) found direct citation, a simple
+label propagation approach, on par with a deep learning classification
+of more than 40 million articles. Sjögårde and Ahlgren
+([2024](#ref-sjogarde2024)) show that direct citation networks cluster
+better when citations are normalised. The relations can also be
+complementary: for the identification of research topics in computer
+science, Kleminski et al. ([2022](#ref-kleminski2022)) find that
+bibliographic coupling captures more unique information than direct
+citation or co-citation, and Yan and Ding ([2012](#ref-yan2012)) show
+how the various scholarly networks (coupling, co-citation,
+co-authorship, co-words) relate to each other. The choice of the
+relation is therefore a research choice, not a technical one: coupling
+is well suited to follow what a set of documents cites over time (as
+here), direct citation to classify very large corpora, co-citation to
+study the base that a literature draws on. It is worth checking that the
+main results of a study hold with a second relation.
 
 The same logic applies far beyond citations: authors and the papers they
 sign (co-authorship), accounts and the hashtags they use, members and
@@ -377,8 +409,43 @@ A network of the whole period mixes literatures that did not coexist.
 builds one network per time window: a window starting in year $`s`$
 gathers the documents published in $`[s, s + w - 1]`$, $`w`$ being
 `time_window`, and the network is computed as if the corpus were limited
-to them. Windows can be successive (`overlapping_window = FALSE`:
-1975-1984, 1985-1994…) or sliding (`TRUE`: 1975-1984, 1976-1985…).
+to them. A new window starts every `window_step` units. By default,
+windows follow each other (`window_step = time_window`: 1975-1984,
+1985-1994…); with `window_step = 1`, the window slides by one unit
+(1975-1984, 1976-1985…); with a step of 5 and a window of 10, each
+window shares half of its period with the next one. The step is a way to
+trade resolution in time for computing time and for the number of
+networks to read.
+
+**Months, weeks and days.** The unit is the one of the time variable
+when it is a number. When it is a date (`Date`, `POSIXct`, or an ISO
+date written as text such as `"2001-03-15"`), `time_unit` chooses the
+unit in which windows are counted: `"year"` (the default), `"quarter"`,
+`"month"`, `"week"` or `"day"`. For documents that follow each other
+quickly, such as the statements of central banks, the question is how
+many documents a window needs to contain: a network of twenty documents
+has no structure to detect. With monthly data, a window of 12 months
+sliding by 3 gives a yearly window every quarter:
+
+``` r
+
+build_dynamic_networks(
+  nodes = statements,            # one row per statement, with a `date` column
+  directed_edges = citations,
+  source_id = "statement_id",
+  target_id = "reference_id",
+  time_variable = "date",
+  time_unit = "month",
+  time_window = 12,
+  window_step = 3,
+  projection_method = "structured",
+  cooccurrence_method = "coupling_angle"
+)
+```
+
+Windows are named after their first and last unit
+(`"2001-01 to 2001-12"` for months, `"2001-Q1 to 2001-Q4"` for quarters,
+`"1975-1984"` for years). The column of the user is never modified.
 
 ``` r
 
@@ -389,7 +456,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  overlapping_window = TRUE,
+  window_step = 1,
   projection_method = "structured",
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,
@@ -420,10 +487,10 @@ ggplot(window_sizes, aes(start, nodes)) +
   theme_minimal(base_size = 16)
 ```
 
-![Number of documents in the main component of each ten-year window,
+[![Number of documents in the main component of each ten-year window,
 from 1975-1984 to 2004-2013: high in the first windows, very low for
 windows centred on the late 1980s, and rising again from the
-mid-1990s.](from-references-to-networks_files/figure-html/fig-window-size-1.png)
+mid-1990s.](from-references-to-networks_files/figure-html/fig-window-size-1.png)](https://agoutsmedt.github.io/networkflow/articles/from-references-to-networks_files/figure-html/fig-window-size-1.png "Figure 1: ")
 
 Figure 1
 
@@ -507,6 +574,17 @@ Kessler, M. M. 1963. “Bibliographic Coupling Between Scientific Papers.”
 *American Documentation* 14 (1): 10–25.
 <https://doi.org/10.1002/asi.5090140103>.
 
+Klavans, Richard, and Kevin W. Boyack. 2017. “Which Type of Citation
+Analysis Generates the Most Accurate Taxonomy of Scientific and
+Technical Knowledge?” *Journal of the Association for Information
+Science and Technology* 68 (4): 984–98.
+<https://doi.org/10.1002/asi.23734>.
+
+Kleminski, Rajmund, Przemysław Kazienko, and Tomasz Kajdanowicz. 2022.
+“Analysis of Direct Citation, Co-Citation and Bibliographic Coupling in
+Scientific Topic Identification.” *Journal of Information Science* 48
+(3): 349–73. <https://doi.org/10.1177/0165551520962775>.
+
 Neal, Zachary. 2014. “The Backbone of Bipartite Projections: Inferring
 Relationships from Co-Authorship, Co-Sponsorship, Co-Attendance and
 Other Co-Behaviors.” *Social Networks* 39: 84–97.
@@ -515,6 +593,11 @@ Other Co-Behaviors.” *Social Networks* 39: 84–97.
 Neal, Zachary P. 2022. “Backbone: An R Package to Extract Network
 Backbones.” *PLOS ONE* 17 (5): e0269137.
 <https://doi.org/10.1371/journal.pone.0269137>.
+
+Rivest, Maxime, Etienne Vignola-Gagné, and Éric Archambault. 2021.
+“Article-Level Classification of Scientific Publications: A Comparison
+of Deep Learning, Direct Citation and Bibliographic Coupling.” *PLOS
+ONE* 16 (5): e0251493. <https://doi.org/10.1371/journal.pone.0251493>.
 
 Sen, Subir K., and Shymal K. Gan. 1983. “A Mathematical Extension of the
 Idea of Bibliographic Coupling and Its Applications.” *Annals of Library
@@ -525,6 +608,11 @@ Shen, Si, Danhao Zhu, Ronald Rousseau, Xinning Su, and Dongbo Wang.
 *Journal of Informetrics* 13 (2): 605–15.
 <https://doi.org/10.1016/j.joi.2019.01.012>.
 
+Sjögårde, Peter, and Per Ahlgren. 2024. “Normalization of Direct
+Citations for Clustering in Publication-Level Networks: Evaluation of
+Six Approaches.” *Scientometrics* 129 (3): 1949–68.
+<https://doi.org/10.1007/s11192-024-04932-5>.
+
 Small, Henry. 1973. “Co-Citation in the Scientific Literature: A New
 Measure of the Relationship Between Two Documents.” *Journal of the
 American Society for Information Science* 24 (4): 265–69.
@@ -533,6 +621,11 @@ American Society for Information Science* 24 (4): 265–69.
 Vladutz, George, and James Cook. 1984. “Bibliographic Coupling and
 Subject Relatedness.” *Proceedings of the American Society for
 Information Science* 21: 204–7.
+
+Waltman, Ludo, and Nees Jan van Eck. 2012. “A New Methodology for
+Constructing a Publication-Level Classification System of Science.”
+*Journal of the American Society for Information Science and Technology*
+63 (12): 2378–92. <https://doi.org/10.1002/asi.22748>.
 
 Yan, Erjia, and Ying Ding. 2012. “Scholarly Network Similarities: How
 Bibliographic Coupling Networks, Citation Networks, Cocitation Networks,

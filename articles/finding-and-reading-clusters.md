@@ -10,6 +10,7 @@ guide](https://agoutsmedt.github.io/networkflow/articles/from-references-to-netw
 
 library(networkflow)
 library(ggplot2)
+library(dplyr)
 library(tidygraph)
 
 nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
@@ -140,11 +141,11 @@ ggplot(scan_long, aes(resolution, value)) +
   theme_minimal(base_size = 16)
 ```
 
-![Two panels against the resolution, from 0.5 to 2. Left: the number of
+[![Two panels against the resolution, from 0.5 to 2. Left: the number of
 clusters grows from 2 to about 12. Right: the mean adjusted Rand index
 between seeds stays close to 1, except a dip to about 0.75 at a
 resolution of
-1.5.](finding-and-reading-clusters_files/figure-html/fig-resolution-1.png)
+1.5.](finding-and-reading-clusters_files/figure-html/fig-resolution-1.png)](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters_files/figure-html/fig-resolution-1.png "Figure 1: ")
 
 Figure 1
 
@@ -301,20 +302,160 @@ ggplot(roles, aes(participation_coeff, within_module_z, colour = cluster_label))
   guides(colour = guide_legend(ncol = 2))
 ```
 
-![Scatter plot of the within-module degree z-score against the
+[![Scatter plot of the within-module degree z-score against the
 participation coefficient for each document, coloured by cluster. Most
 documents have z-scores between -2 and 2; a handful of documents above
 2.5 are hubs of their
-cluster.](finding-and-reading-clusters_files/figure-html/fig-roles-1.png)
+cluster.](finding-and-reading-clusters_files/figure-html/fig-roles-1.png)](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters_files/figure-html/fig-roles-1.png "Figure 2: ")
 
 Figure 2
 
 The shaded area holds the hubs of their cluster ($`z \geq 2.5`$, the
 threshold of Guimerà and Amaral). Documents on the right have ties
-spread over several clusters: they are good candidates to understand how
-literatures communicate. In small networks such as this one, the seven
-categories of Guimerà and Amaral are thinly populated, and the two
-measures are more useful as continuous indicators than as roles.
+spread over several clusters. The two measures combine into seven roles,
+which are easier to understand with documents in hand. Here are the
+documents that best illustrate the roles that exist in this network:
+
+``` r
+
+roles |>
+  filter(role_ga %in% c("R5 provincial hub", "R6 connector hub", "R3 non-hub connector", "R4 non-hub kinless")) |>
+  arrange(role_ga, desc(if_else(grepl("^R[567]", role_ga), within_module_z, participation_coeff))) |>
+  group_by(role_ga) |>
+  slice_head(n = 3) |>
+  ungroup() |>
+  transmute(role = role_ga, document = source_label, title = stringr::str_to_sentence(source_title),
+            cluster = cluster_label, z = round(within_module_z, 1), participation = round(participation_coeff, 2)) |>
+  as.data.frame()
+```
+
+                      role         document
+    1 R3 non-hub connector GOLDSTEIN-M-1977
+    2 R3 non-hub connector   BLINDER-A-2013
+    3 R3 non-hub connector   GORDON-R-1975b
+    4   R4 non-hub kinless    NITZAN-J-2001
+    5    R5 provincial hub  LANSING-K-2000a
+    6    R5 provincial hub  NORDHAUS-W-2007
+    7     R6 connector hub   PINDYCK-R-1980
+                                                                                                                            title
+    1 Downward price inflexibility, ratchet effects, and the inflationary impact of import price changes: some empirical evidence
+    2                                                             The supply-shock explanation of the great stagflation revisited
+    3                                                                                    The impact of aggregate demand on prices
+    4                                   Regimes of differential accumulation: mergers, stagflation and the logic of globalization
+    5                                                                                 Exploring the causes of the great inflation
+    6                                                                                        Who's afraid of a big bad oil shock?
+    7                                                                             Energy price increases and macroeconomic policy
+                                cluster    z participation
+    1 unemployment, import, stagflation -0.9          0.76
+    2 oil, oil price, great stagflation -0.6          0.76
+    3        import, great, alternative -0.5          0.73
+    4 unemployment, import, stagflation -1.1          0.81
+    5      great inflation, great, rule  3.5          0.30
+    6 oil, oil price, great stagflation  2.9          0.29
+    7         productivity, oil, supply  3.2          0.54
+
+How to read them depends on what the nodes and the ties are. Here, nodes
+are explanations of the stagflation and ties are shared references:
+
+- A **provincial hub** (R5) is the central document of a literature: it
+  shares references with most of the documents of its cluster and with
+  hardly any other. Lansing’s “Exploring the causes of the great
+  inflation”
+  2000. is one for the cluster on the great inflation, Nordhaus’s “Who’s
+        afraid of a big bad oil shock?” (2007) for the cluster on oil.
+        These are the documents to read first to enter a cluster.
+- A **connector hub** (R6) is central in its cluster and shares
+  references with others too. Pindyck’s “Energy price increases and
+  macroeconomic policy” (1980) is central in the cluster on
+  productivity, oil and supply while its references also belong to other
+  clusters: a document built on several literatures that remains well
+  embedded in one.
+- A **non-hub connector** (R3) has ties spread over several clusters
+  without being central in any: a bridge. Blinder’s “The supply-shock
+  explanation of the great stagflation revisited” (2013) belongs to the
+  cluster on oil but shares references with other clusters: it revisits
+  an explanation that earlier documents had built on other bases. In a
+  co-citation network, the same role belongs to works used by several
+  literatures.
+- A **non-hub kinless** document (R4) spreads its ties evenly over all
+  clusters. This is not a better bridge than R3: it may be an outlier.
+  The only one here, Nitzan’s article on “regimes of differential
+  accumulation” (2001), shares references with each of five clusters in
+  almost equal proportions (17 to 20% of its tie weight in each), and
+  its within-module degree is below the average of its own cluster: it
+  is tied to everybody a little and to nobody much.
+
+Roles are positions in a network, not judgements on the importance of a
+document. Moreover, they depend on the partition. We recompute the roles
+for three resolutions of Leiden and follow the five documents above:
+
+``` r
+
+resolutions <- c(0.75, 1, 1.5)
+by_resolution <- lapply(resolutions, function(resolution) {
+  graph <- network |>
+    add_clusters(clustering_method = "leiden", objective_function = "modularity",
+                 resolution = resolution, seed = 123, verbose = FALSE) |>
+    add_node_roles(module_col = "cluster_leiden")
+  as_tibble(graph, active = "nodes") |> mutate(resolution = resolution)
+})
+bind_rows(by_resolution) |>
+  group_by(resolution) |>
+  summarise(
+    clusters = n_distinct(cluster_leiden),
+    hubs = sum(role_ga %in% c("R5 provincial hub", "R6 connector hub", "R7 kinless hub")),
+    mean_participation = round(mean(participation_coeff), 2)
+  ) |>
+  as.data.frame()
+```
+
+      resolution clusters hubs mean_participation
+    1       0.75        5    2               0.31
+    2       1.00        6    3               0.39
+    3       1.50        8    3               0.52
+
+``` r
+
+bind_rows(by_resolution) |>
+  filter(source_label %in% c("LANSING-K-2000a", "NORDHAUS-W-2007", "PINDYCK-R-1980",
+                             "BLINDER-A-2013", "NITZAN-J-2001")) |>
+  select(document = source_label, resolution, role_ga) |>
+  tidyr::pivot_wider(names_from = resolution, values_from = role_ga, names_prefix = "resolution ") |>
+  as.data.frame()
+```
+
+             document      resolution 0.75         resolution 1
+    1  BLINDER-A-2013 R3 non-hub connector R3 non-hub connector
+    2 LANSING-K-2000a    R5 provincial hub    R5 provincial hub
+    3   NITZAN-J-2001 R3 non-hub connector   R4 non-hub kinless
+    4 NORDHAUS-W-2007        R2 peripheral    R5 provincial hub
+    5  PINDYCK-R-1980        R2 peripheral     R6 connector hub
+            resolution 1.5
+    1 R3 non-hub connector
+    2     R6 connector hub
+    3   R4 non-hub kinless
+    4    R5 provincial hub
+    5     R6 connector hub
+
+With smaller clusters, more ties cross clusters and the participation
+coefficients increase (the mean goes from 0.31 to 0.52). Blinder stays a
+connector at the three resolutions, and Lansing a hub, but Pindyck is
+only a peripheral document (R2) at 0.75 and a connector hub from 1. A
+role is therefore a statement about a document *relative to a given
+partition*: before interpreting a role in a text, check that it survives
+a reasonable change of resolution. Finally, the thresholds of Guimerà
+and Amaral were calibrated on metabolic networks. In a network of
+documents projected from references, a quarter of the pairs are tied,
+most documents have a participation above 0.05, and hubs are rare (three
+here): the roles are more useful as a way to find documents to read than
+as categories to count.
+
+The same measures mean different things for other nodes: in a
+co-citation network, a hub is a classic cited with most of the works of
+its literature and a connector a work used by several literatures; for
+authors coupled through their references (see [beyond bibliographic
+coupling](https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.md)),
+a connector is an author who cites several literatures.
 
 ## Drawing the network
 
@@ -353,10 +494,10 @@ plot_networks(
 )
 ```
 
-![Bibliographic coupling network of the documents explaining the 1970s
+[![Bibliographic coupling network of the documents explaining the 1970s
 stagflation, with nodes coloured by Leiden cluster and a label at the
 centre of each cluster made of its three most distinctive title
-words.](finding-and-reading-clusters_files/figure-html/fig-network-1.png)
+words.](finding-and-reading-clusters_files/figure-html/fig-network-1.png)](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters_files/figure-html/fig-network-1.png "Figure 3: ")
 
 Figure 3
 

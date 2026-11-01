@@ -44,23 +44,24 @@ build_dynamic_networks(
   directed_edges,
   source_id,
   target_id,
-  time_variable = NULL,
-  time_window = NULL,
+  document_id = NULL,
+  projection_on = c("source", "target"),
   projection_method = c("structured", "statistical"),
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
-  alpha = NULL,
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
-  overlapping_window = FALSE,
+  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
+  alpha = NULL,
+  backbone_args = list(),
+  time_variable = NULL,
+  time_in = c("nodes", "edges"),
+  time_unit = NULL,
+  time_window = NULL,
+  window_step = NULL,
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
   ...,
-  backbone_args = list(),
-  verbose = TRUE,
-  projection_on = c("source", "target"),
-  time_in = c("nodes", "edges"),
-  document_id = NULL
+  verbose = TRUE
 )
 ```
 
@@ -88,31 +89,30 @@ build_dynamic_networks(
   Character scalar, the column of `directed_edges` with the entities
   that create the links (e.g. references).
 
-- time_variable:
+- document_id:
 
-  Optional character scalar, a column of `nodes` with an integer time
-  unit (e.g. the publication year). `NULL` builds a single network.
+  Optional column of `directed_edges` identifying the document through
+  which each link exists. With it, `source_id` entities are not
+  documents but *entities that publish documents* (authors, journals,
+  institutions) and a reference cited by several documents of an entity
+  counts several times, following
+  [`biblionetwork::coupling_entity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html).
+  Only for `projection_method = "structured"` with `"coupling_angle"` or
+  `"coupling_strength"`.
 
-- time_window:
+- projection_on:
 
-  Optional integer, the width of each window, in units of
-  `time_variable`.
+  `"source"` (default) links the `source_id` entities that share
+  `target_id` entities (bibliographic coupling: articles sharing
+  references). `"target"` links the `target_id` entities that share
+  `source_id` entities (co-citation: cited documents linked when they
+  are cited by the same documents). With `"target"`, `nodes` is keyed by
+  `target_id`.
 
 - projection_method:
 
   `"structured"` (default) or `"statistical"`, see the description and
   the details.
-
-- model:
-
-  For `projection_method = "statistical"`, the null model of
-  [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html):
-  `"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"` or `"fixedcol"`.
-
-- alpha:
-
-  For `projection_method = "statistical"`, the significance level of the
-  test of each tie. Lower values keep fewer edges.
 
 - cooccurrence_method:
 
@@ -126,11 +126,62 @@ build_dynamic_networks(
   For `projection_method = "structured"`, the minimum number of shared
   targets for two sources to be linked (1 by default).
 
-- overlapping_window:
+- model:
 
-  Logical. `FALSE` (default) cuts the period into successive windows
-  (1975-1984, 1985-1994...); `TRUE` slides the window by one time unit
-  (1975-1984, 1976-1985...).
+  For `projection_method = "statistical"`, the null model of
+  [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html):
+  `"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"` or `"fixedcol"`.
+
+- alpha:
+
+  For `projection_method = "statistical"`, the significance level of the
+  test of each tie. Lower values keep fewer edges.
+
+- backbone_args:
+
+  Optional list of further arguments for
+  [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html)
+  (e.g. `mtc = "holm"` to correct for multiple tests). `alpha` or
+  `model` given here override the arguments of the function.
+
+- time_variable:
+
+  Optional name of a column with the time of each node (or of each link,
+  with `time_in = "edges"`): a number (e.g. a year), a `Date`, a
+  `POSIXct`, or an ISO date written as text (`"2001-03"`,
+  `"2001-03-15"`). Years written as text (`"2001"`) are numbers. Without
+  it, a single network is built.
+
+- time_in:
+
+  `"nodes"` (default): `time_variable` is a column of `nodes` and a
+  window selects the nodes of the period. `"edges"`: `time_variable` is
+  a column of `directed_edges` (e.g. the year of the citing document)
+  and a window selects the links of the period, the nodes being those
+  with a link in the window. Use `"edges"` for co-citation, whose period
+  is the one of the citing documents, and for entities without a date of
+  their own (authors).
+
+- time_unit:
+
+  For dates only: the unit in which windows are counted, `"year"`
+  (default), `"quarter"`, `"month"`, `"week"` (starting on Mondays) or
+  `"day"`. For numbers, the unit is the one of the variable and
+  `time_unit` must stay `NULL`.
+
+- time_window:
+
+  Optional whole number, the width of each window in `time_unit`s (or in
+  units of the variable): 10 for ten years, 12 with
+  `time_unit = "month"` for a year. `NULL` builds a single network.
+
+- window_step:
+
+  Optional whole number, the number of units between the starts of two
+  windows. `NULL` (default) gives successive windows
+  (`window_step = time_window`); `1` slides the window one unit at a
+  time (1975-1984, 1976-1985...); `3` with `time_unit = "month"` and a
+  window of 12 gives a yearly window every quarter.
 
 - compute_size:
 
@@ -154,46 +205,9 @@ build_dynamic_networks(
   [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
   (e.g. `nb_components`).
 
-- backbone_args:
-
-  Optional list of further arguments for
-  [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html)
-  (e.g. `mtc = "holm"` to correct for multiple tests). `alpha` or
-  `model` given here override the arguments of the function.
-
 - verbose:
 
   Logical. If `TRUE` (default), reports the steps.
-
-- projection_on:
-
-  `"source"` (default) links the `source_id` entities that share
-  `target_id` entities (bibliographic coupling: articles sharing
-  references). `"target"` links the `target_id` entities that share
-  `source_id` entities (co-citation: cited documents linked when they
-  are cited by the same documents). With `"target"`, `nodes` is keyed by
-  `target_id`.
-
-- time_in:
-
-  `"nodes"` (default): `time_variable` is a column of `nodes` and a
-  window selects the nodes of the period. `"edges"`: `time_variable` is
-  a column of `directed_edges` (e.g. the year of the citing document)
-  and a window selects the links of the period, the nodes being those
-  with a link in the window. Use `"edges"` for co-citation, whose period
-  is the one of the citing documents, and for entities without a date of
-  their own (authors).
-
-- document_id:
-
-  Optional column of `directed_edges` identifying the document through
-  which each link exists. With it, `source_id` entities are not
-  documents but *entities that publish documents* (authors, journals,
-  institutions) and a reference cited by several documents of an entity
-  counts several times, following
-  [`biblionetwork::coupling_entity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html).
-  Only for `projection_method = "structured"` with `"coupling_angle"` or
-  `"coupling_strength"`.
 
 ## Value
 
@@ -247,17 +261,23 @@ kept when the test is significant at level `alpha`; the resulting
 network is unweighted. This is slower, but each edge can be read as a
 tie unlikely to be due to chance.
 
-**Time windows.** A window starting in year \\s\\ gathers the nodes with
-\\s \le t \< s + w\\, \\w\\ being `time_window`, and only the links of
-these nodes: each network is computed as if the corpus were limited to
-the window. Sliding windows (`overlapping_window = TRUE`) smooth the
+**Time windows.** Time is counted in whole units: the values of a
+numeric variable, or years, quarters, months, weeks or days for dates. A
+window starting at unit \\s\\ and \\w\\ units wide (`time_window`)
+gathers the nodes (or links) with \\s \le t \< s + w\\, and the network
+is computed as if the corpus were limited to them. A new window starts
+every `window_step` units: successive windows (the default) give
+independent snapshots, a step of 1 slides the window and smooths the
 evolution of the networks, at the price of many networks sharing most of
-their nodes; successive windows give independent snapshots. When the
-period is not a multiple of `time_window`, the last successive window is
-shorter and a warning is given. The choice of the window is substantive:
-it should be long enough for each network to have enough nodes (a few
-dozen at least) to show a structure, and short enough for changes to be
-visible.
+their nodes. The last window may be shorter than the others when the
+period is not a multiple of the step (a warning is given); windows are
+labelled by their first and last unit (`"1975-1984"`,
+`"2001-01 to 2001-12"`). The choice of the window is substantive: long
+enough for each network to have enough nodes (a few dozen at least) to
+show a structure, and short enough for changes to be visible. For
+documents that follow each other quickly (central bank statements, news,
+posts), months or weeks make sense, with a window wide enough to contain
+enough documents.
 
 **Beyond bibliographic coupling.** Nothing in the function is specific
 to citations. The two sides of the links can be any two kinds of
@@ -377,27 +397,27 @@ networks[[1]]
 #> # An undirected simple graph with 1 component
 #> #
 #> # Node Data: 67 × 8 (active)
-#>    source_id  source_author source_year source_label source_title source_journal
-#>    <chr>      <chr>               <int> <chr>        <chr>        <chr>         
-#>  1 16182155   GORDON-R             1975 GORDON-R-19… ALTERNATIVE… "BROOKINGS PA…
-#>  2 26283591   GORDON-R             1975 GORDON-R-19… THE IMPACT … "BROOKINGS PA…
-#>  3 16182201   OKUN-A               1975 OKUN-A-1975a INFLATION: … "BROOKINGS PA…
-#>  4 47749045   BRONFENBRENN…        1976 BRONFENBREN… ELEMENTS OF… "ZEITSCHRIFT …
-#>  5 1111111141 KARNOSKY-D           1976 KARNOSKY-D-… THE LINK BE… "REVIEW"      
-#>  6 1021902    FRIEDMAN-M           1977 FRIEDMAN-M-… NOBEL LECTU… "THE JOURNAL …
-#>  7 5200398    GOLDSTEIN-M          1977 GOLDSTEIN-M… DOWNWARD PR… "STAFF PAPERS"
-#>  8 31895842   GORDON-R             1977 GORDON-R-19… CAN THE INF… "BROOKINGS PA…
-#>  9 14371908   RASCHE-R             1977 RASCHE-R-19… THE EFFECTS… ""            
-#> 10 6013999    SHERMAN-H            1977 SHERMAN-H-1… MONOPOLY PO… "JOURNAL OF E…
+#>    source_id source_author  source_year source_label source_title source_journal
+#>    <chr>     <chr>          <chr>       <chr>        <chr>        <chr>         
+#>  1 37095547  ATESOGLU-H     1980        ATESOGLU-H-… INFLATION A… "JOURNAL OF P…
+#>  2 46282251  ATESOGLU-H     1982        ATESOGLU-H-… WAGES AND S… "JOURNAL OF P…
+#>  3 42623802  BLAAS-W        1982        BLAAS-W-1982 INSTITUTION… "JOURNAL OF E…
+#>  4 5240516   BLINDER-A      1979        BLINDER-A-1… ECONOMIC PO… ""            
+#>  5 25091445  BLINDER-A      1981        BLINDER-A-1… THE 1971-19… ""            
+#>  6 31895841  BLINDER-A      1982        BLINDER-A-1… THE ANATOMY… "INFLATION: C…
+#>  7 1172921   BRANSON-W      1980        BRANSON-W-1… INTERNATION… ""            
+#>  8 47749045  BRONFENBRENNE… 1976        BRONFENBREN… ELEMENTS OF… "ZEITSCHRIFT …
+#>  9 14490177  BRUNNER-K      1980        BRUNNER-K-1… STAGFLATION… "JOURNAL OF M…
+#> 10 6119013   BRUNO-M        1979        BRUNO-M-197… MACRO-ECONO… ""            
 #> # ℹ 57 more rows
 #> # ℹ 2 more variables: source_type <chr>, time_window <chr>
 #> #
 #> # Edge Data: 405 × 5
 #>    from    to   weight Source  Target    
 #>   <int> <int>    <dbl> <chr>   <chr>     
-#> 1     6    11 0.00159  1021902 1111111122
-#> 2     6    45 0.000182 1021902 1111111128
-#> 3     6    65 0.000461 1021902 1111111134
+#> 1    14    21 0.00159  1021902 1111111122
+#> 2    15    21 0.000182 1021902 1111111128
+#> 3    20    21 0.000461 1021902 1111111134
 #> # ℹ 402 more rows
 
 # Co-citation: cited documents linked when the same documents cite them,
@@ -514,6 +534,6 @@ backbones <- build_dynamic_networks(
 )
 }
 #> Warning: The last window is shorter than the others.
-#> ℹ The data end in 2013, but the last window ends in 2014.
+#> ℹ The data end in "2013", but the last window ends in "2014".
 # }
 ```

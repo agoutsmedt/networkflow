@@ -51,7 +51,7 @@ at most one cluster. A cluster that meets no match gets a new identifier.'></hea
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -170,8 +170,7 @@ identifiers "cl_1", "cl_2"...) and edges the columns
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><strong>Which windows?</strong> The rule needs nodes present in successive windows.
 In a network of documents (e.g. bibliographic coupling), each document has
-a single date, so successive windows (<code>overlapping_window = FALSE</code> in
-<code><a href="build_dynamic_networks.html">build_dynamic_networks()</a></code>) share no node and no cluster can be matched:
+a single date, so successive windows (the default of <code><a href="build_dynamic_networks.html">build_dynamic_networks()</a></code>) share no node and no cluster can be matched:
 use sliding windows. Successive windows work when nodes persist over
 time, as cited references (co-citation), authors or journals do; two
 windows may still share no node when the literature changed completely.</p>
@@ -224,7 +223,7 @@ their evolution.</p></div>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The last window is shorter than the others.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The data end in <span style="color: #0000BB;">2013</span>, but the last window ends in <span style="color: #0000BB;">2014</span>.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The data end in <span style="color: #0000BB;">"2013"</span>, but the last window ends in <span style="color: #0000BB;">"2014"</span>.</span>
 <span class="r-in"><span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="add_clusters.html">add_clusters</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">networks</span>,</span></span>
 <span class="r-in"><span>  clustering_method <span class="op">=</span> <span class="st">"leiden"</span>,</span></span>
@@ -242,10 +241,9 @@ their evolution.</p></div>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>3 pairs of consecutive windows share no node: their clusters cannot be matched.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Clusters are matched through the nodes they share. In a network of documents</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   (coupling), each node has one date: use sliding windows (`overlapping_window</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   may have changed completely, or the threshold may leave a window without</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   edges.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   (coupling), each node has one date: use sliding windows (`window_step = 1` in</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `build_dynamic_networks()`). If windows already slide, the nodes may have</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   changed completely, or the threshold may leave a window without edges.</span>
 <span class="r-in"><span><span class="va">networks</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tbl_graph: 7 nodes and 6 edges</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
@@ -253,14 +251,14 @@ their evolution.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 7 × 11 (active)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   source_id  source_author source_year source_label  source_title source_journal</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 1111111134 FISCHER-S            <span style="text-decoration: underline;">1</span>985 FISCHER-S-19… SUPPLY SHOC… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1184130    GISSER-M             <span style="text-decoration: underline;">1</span>986 GISSER-M-1986 CRUDE OIL A… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 25481516   HAKES-DR             <span style="text-decoration: underline;">1</span>988 HAKES-DR-1988 EVIDENCE OF… <span style="color: #949494;">"</span>REVIEW OF RA…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 6714008    HELLIWELL-J          <span style="text-decoration: underline;">1</span>988 HELLIWELL-J-… COMPARATIVE… <span style="color: #949494;">"</span>JOURNAL OF E…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 214927     BALL-L               <span style="text-decoration: underline;">1</span>991 BALL-L-1991   THE GENESIS… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 1111111176 TAYLOR-J             <span style="text-decoration: underline;">1</span>992 TAYLOR-J-1992 THE GREAT I… <span style="color: #949494;">"</span>RESERVE BANK…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> 19627977   PARKIN-M             <span style="text-decoration: underline;">1</span>993 PARKIN-M-1993 INFLATION I… <span style="color: #949494;">"</span>PRICE STABIL…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 214927     BALL-L        1991        BALL-L-1991   THE GENESIS… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 1111111134 FISCHER-S     1985        FISCHER-S-19… SUPPLY SHOC… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 1184130    GISSER-M      1986        GISSER-M-1986 CRUDE OIL A… <span style="color: #949494;">"</span>JOURNAL OF M…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 25481516   HAKES-DR      1988        HAKES-DR-1988 EVIDENCE OF… <span style="color: #949494;">"</span>REVIEW OF RA…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 6714008    HELLIWELL-J   1988        HELLIWELL-J-… COMPARATIVE… <span style="color: #949494;">"</span>JOURNAL OF E…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 19627977   PARKIN-M      1993        PARKIN-M-1993 INFLATION I… <span style="color: #949494;">"</span>PRICE STABIL…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> 1111111176 TAYLOR-J      1992        TAYLOR-J-1992 THE GREAT I… <span style="color: #949494;">"</span>RESERVE BANK…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 5 more variables: source_type &lt;chr&gt;, time_window &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   cluster_leiden &lt;chr&gt;, size_cluster_leiden &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   dynamic_cluster_leiden &lt;chr&gt;</span></span>
@@ -268,8 +266,8 @@ their evolution.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 6 × 11</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    from    to   weight Source     Target   cluster_leiden_from cluster_leiden_to</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     3 0.001<span style="text-decoration: underline;">85</span>  1111111134 25481516 02                  02               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     1     4 0.001<span style="text-decoration: underline;">30</span>  1111111134 6714008  02                  02               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     2     4 0.001<span style="text-decoration: underline;">85</span>  1111111134 25481516 02                  02               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     2     5 0.001<span style="text-decoration: underline;">30</span>  1111111134 6714008  02                  02               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     6     7 0.000<span style="text-decoration: underline;">305</span> 1111111176 19627977 01                  01               </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 3 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: cluster_leiden &lt;chr&gt;, dynamic_cluster_leiden_from &lt;chr&gt;,</span></span>

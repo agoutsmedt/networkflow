@@ -14,13 +14,15 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="finding-and-reading-clusters_files/libs/quarto-html/popper.min.js"></script><script src="finding-and-reading-clusters_files/libs/quarto-html/tippy.umd.min.js"></script><link href="finding-and-reading-clusters_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="finding-and-reading-clusters_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<script src="finding-and-reading-clusters_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script><link href="finding-and-reading-clusters_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="finding-and-reading-clusters_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Finding and reading clusters">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -78,6 +80,7 @@
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/agoutsmedt/networkflow" class="external-link">networkflow</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidygraph.data-imaginist.com" class="external-link">tidygraph</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Nodes_stagflation</span>, <span class="va">source_type</span> <span class="op">==</span> <span class="st">"Stagflation"</span><span class="op">)</span></span>
@@ -161,9 +164,9 @@ Q = \frac{1}{2m} \sum_{i,j} \left( A_{ij} - \gamma \frac{k_i k_j}{2m} \right) \d
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Resolution"</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-resolution" class="quarto-float quarto-figure quarto-figure-center" alt="Two panels against the resolution, from 0.5 to 2. Left: the number of clusters grows from 2 to about 12. Right: the mean adjusted Rand index between seeds stays close to 1, except a dip to about 0.75 at a resolution of 1.5." width="1100">
+<div id="fig-resolution" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Two panels against the resolution, from 0.5 to 2. Left: the number of clusters grows from 2 to about 12. Right: the mean adjusted Rand index between seeds stays close to 1, except a dip to about 0.75 at a resolution of 1.5.">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-resolution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="finding-and-reading-clusters_files/figure-html/fig-resolution-1.png" id="fig-resolution" alt="Two panels against the resolution, from 0.5 to 2. Left: the number of clusters grows from 2 to about 12. Right: the mean adjusted Rand index between seeds stays close to 1, except a dip to about 0.75 at a resolution of 1.5." width="1100">
+<a href="finding-and-reading-clusters_files/figure-html/fig-resolution-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: "><img src="finding-and-reading-clusters_files/figure-html/fig-resolution-1.png" id="fig-resolution" alt="Two panels against the resolution, from 0.5 to 2. Left: the number of clusters grows from 2 to about 12. Right: the mean adjusted Rand index between seeds stays close to 1, except a dip to about 0.75 at a resolution of 1.5." width="1100"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-resolution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure 1
@@ -258,9 +261,9 @@ Figure 1
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-roles" class="quarto-float quarto-figure quarto-figure-center" alt="Scatter plot of the within-module degree z-score against the participation coefficient for each document, coloured by cluster. Most documents have z-scores between -2 and 2; a handful of documents above 2.5 are hubs of their cluster." width="1100">
+<div id="fig-roles" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Scatter plot of the within-module degree z-score against the participation coefficient for each document, coloured by cluster. Most documents have z-scores between -2 and 2; a handful of documents above 2.5 are hubs of their cluster.">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-roles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="finding-and-reading-clusters_files/figure-html/fig-roles-1.png" id="fig-roles" alt="Scatter plot of the within-module degree z-score against the participation coefficient for each document, coloured by cluster. Most documents have z-scores between -2 and 2; a handful of documents above 2.5 are hubs of their cluster." width="1100">
+<a href="finding-and-reading-clusters_files/figure-html/fig-roles-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: "><img src="finding-and-reading-clusters_files/figure-html/fig-roles-1.png" id="fig-roles" alt="Scatter plot of the within-module degree z-score against the participation coefficient for each document, coloured by cluster. Most documents have z-scores between -2 and 2; a handful of documents above 2.5 are hubs of their cluster." width="1100"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-roles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure 2
@@ -268,12 +271,110 @@ Figure 2
 </div>
 </div>
 </div>
-<p>The shaded area holds the hubs of their cluster (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>≥</mo><mn>2.5</mn></mrow><annotation encoding="application/x-tex">z \geq 2.5</annotation></semantics></math>, the threshold of Guimerà and Amaral). Documents on the right have ties spread over several clusters: they are good candidates to understand how literatures communicate. In small networks such as this one, the seven categories of Guimerà and Amaral are thinly populated, and the two measures are more useful as continuous indicators than as roles.</p>
+<p>The shaded area holds the hubs of their cluster (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>≥</mo><mn>2.5</mn></mrow><annotation encoding="application/x-tex">z \geq 2.5</annotation></semantics></math>, the threshold of Guimerà and Amaral). Documents on the right have ties spread over several clusters. The two measures combine into seven roles, which are easier to understand with documents in hand. Here are the documents that best illustrate the roles that exist in this network:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">roles</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">role_ga</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"R5 provincial hub"</span>, <span class="st">"R6 connector hub"</span>, <span class="st">"R3 non-hub connector"</span>, <span class="st">"R4 non-hub kinless"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">role_ga</span>, <span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^R[567]"</span>, <span class="va">role_ga</span><span class="op">)</span>, <span class="va">within_module_z</span>, <span class="va">participation_coeff</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">role_ga</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_head</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span>role <span class="op">=</span> <span class="va">role_ga</span>, document <span class="op">=</span> <span class="va">source_label</span>, title <span class="op">=</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/case.html" class="external-link">str_to_sentence</a></span><span class="op">(</span><span class="va">source_title</span><span class="op">)</span>,</span>
+<span>            cluster <span class="op">=</span> <span class="va">cluster_label</span>, z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">within_module_z</span>, <span class="fl">1</span><span class="op">)</span>, participation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">participation_coeff</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  role         document
+1 R3 non-hub connector GOLDSTEIN-M-1977
+2 R3 non-hub connector   BLINDER-A-2013
+3 R3 non-hub connector   GORDON-R-1975b
+4   R4 non-hub kinless    NITZAN-J-2001
+5    R5 provincial hub  LANSING-K-2000a
+6    R5 provincial hub  NORDHAUS-W-2007
+7     R6 connector hub   PINDYCK-R-1980
+                                                                                                                        title
+1 Downward price inflexibility, ratchet effects, and the inflationary impact of import price changes: some empirical evidence
+2                                                             The supply-shock explanation of the great stagflation revisited
+3                                                                                    The impact of aggregate demand on prices
+4                                   Regimes of differential accumulation: mergers, stagflation and the logic of globalization
+5                                                                                 Exploring the causes of the great inflation
+6                                                                                        Who's afraid of a big bad oil shock?
+7                                                                             Energy price increases and macroeconomic policy
+                            cluster    z participation
+1 unemployment, import, stagflation -0.9          0.76
+2 oil, oil price, great stagflation -0.6          0.76
+3        import, great, alternative -0.5          0.73
+4 unemployment, import, stagflation -1.1          0.81
+5      great inflation, great, rule  3.5          0.30
+6 oil, oil price, great stagflation  2.9          0.29
+7         productivity, oil, supply  3.2          0.54</code></pre>
+</div>
+</div>
+<p>How to read them depends on what the nodes and the ties are. Here, nodes are explanations of the stagflation and ties are shared references:</p>
+<ul>
+<li>A <strong>provincial hub</strong> (R5) is the central document of a literature: it shares references with most of the documents of its cluster and with hardly any other. Lansing’s “Exploring the causes of the great inflation”
+<ol start="2000" type="1">
+<li>is one for the cluster on the great inflation, Nordhaus’s “Who’s afraid of a big bad oil shock?” (2007) for the cluster on oil. These are the documents to read first to enter a cluster.</li>
+</ol>
+</li>
+<li>A <strong>connector hub</strong> (R6) is central in its cluster and shares references with others too. Pindyck’s “Energy price increases and macroeconomic policy” (1980) is central in the cluster on productivity, oil and supply while its references also belong to other clusters: a document built on several literatures that remains well embedded in one.</li>
+<li>A <strong>non-hub connector</strong> (R3) has ties spread over several clusters without being central in any: a bridge. Blinder’s “The supply-shock explanation of the great stagflation revisited” (2013) belongs to the cluster on oil but shares references with other clusters: it revisits an explanation that earlier documents had built on other bases. In a co-citation network, the same role belongs to works used by several literatures.</li>
+<li>A <strong>non-hub kinless</strong> document (R4) spreads its ties evenly over all clusters. This is not a better bridge than R3: it may be an outlier. The only one here, Nitzan’s article on “regimes of differential accumulation” (2001), shares references with each of five clusters in almost equal proportions (17 to 20% of its tie weight in each), and its within-module degree is below the average of its own cluster: it is tied to everybody a little and to nobody much.</li>
+</ul>
+<p>Roles are positions in a network, not judgements on the importance of a document. Moreover, they depend on the partition. We recompute the roles for three resolutions of Leiden and follow the five documents above:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">resolutions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.75</span>, <span class="fl">1</span>, <span class="fl">1.5</span><span class="op">)</span></span>
+<span><span class="va">by_resolution</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">resolutions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">resolution</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">graph</span> <span class="op">&lt;-</span> <span class="va">network</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/add_clusters.html">add_clusters</a></span><span class="op">(</span>clustering_method <span class="op">=</span> <span class="st">"leiden"</span>, objective_function <span class="op">=</span> <span class="st">"modularity"</span>,</span>
+<span>                 resolution <span class="op">=</span> <span class="va">resolution</span>, seed <span class="op">=</span> <span class="fl">123</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="../reference/add_node_roles.html">add_node_roles</a></span><span class="op">(</span>module_col <span class="op">=</span> <span class="st">"cluster_leiden"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">graph</span>, active <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>resolution <span class="op">=</span> <span class="va">resolution</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">by_resolution</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">resolution</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
+<span>    clusters <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">cluster_leiden</span><span class="op">)</span>,</span>
+<span>    hubs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">role_ga</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"R5 provincial hub"</span>, <span class="st">"R6 connector hub"</span>, <span class="st">"R7 kinless hub"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    mean_participation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">participation_coeff</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  resolution clusters hubs mean_participation
+1       0.75        5    2               0.31
+2       1.00        6    3               0.39
+3       1.50        8    3               0.52</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">by_resolution</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">source_label</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LANSING-K-2000a"</span>, <span class="st">"NORDHAUS-W-2007"</span>, <span class="st">"PINDYCK-R-1980"</span>,</span>
+<span>                             <span class="st">"BLINDER-A-2013"</span>, <span class="st">"NITZAN-J-2001"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>document <span class="op">=</span> <span class="va">source_label</span>, <span class="va">resolution</span>, <span class="va">role_ga</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">resolution</span>, values_from <span class="op">=</span> <span class="va">role_ga</span>, names_prefix <span class="op">=</span> <span class="st">"resolution "</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         document      resolution 0.75         resolution 1
+1  BLINDER-A-2013 R3 non-hub connector R3 non-hub connector
+2 LANSING-K-2000a    R5 provincial hub    R5 provincial hub
+3   NITZAN-J-2001 R3 non-hub connector   R4 non-hub kinless
+4 NORDHAUS-W-2007        R2 peripheral    R5 provincial hub
+5  PINDYCK-R-1980        R2 peripheral     R6 connector hub
+        resolution 1.5
+1 R3 non-hub connector
+2     R6 connector hub
+3   R4 non-hub kinless
+4    R5 provincial hub
+5     R6 connector hub</code></pre>
+</div>
+</div>
+<p>With smaller clusters, more ties cross clusters and the participation coefficients increase (the mean goes from 0.31 to 0.52). Blinder stays a connector at the three resolutions, and Lansing a hub, but Pindyck is only a peripheral document (R2) at 0.75 and a connector hub from 1. A role is therefore a statement about a document <em>relative to a given partition</em>: before interpreting a role in a text, check that it survives a reasonable change of resolution. Finally, the thresholds of Guimerà and Amaral were calibrated on metabolic networks. In a network of documents projected from references, a quarter of the pairs are tied, most documents have a participation above 0.05, and hubs are rare (three here): the roles are more useful as a way to find documents to read than as categories to count.</p>
+<p>The same measures mean different things for other nodes: in a co-citation network, a hub is a classic cited with most of the works of its literature and a connector a work used by several literatures; for authors coupled through their references (see <a href="beyond-bibliographic-coupling.html">beyond bibliographic coupling</a>), a connector is an author who cites several literatures.</p>
 </section></section><section class="level2"><h2 id="drawing-the-network">Drawing the network<a class="anchor" aria-label="anchor" href="#drawing-the-network"></a>
 </h2>
 <p>Plotting needs coordinates, colours and label positions. <code><a href="../reference/layout_networks.html">layout_networks()</a></code> computes coordinates with a force-directed layout: here Fruchterman-Reingold <span class="citation" data-cites="fruchterman1991">(<a href="#ref-fruchterman1991" role="doc-biblioref">Fruchterman and Reingold 1991</a>)</span>, which balances an attraction along edges, stronger for heavier edges, with a repulsion between all nodes. Kamada-Kawai (<code>"kk"</code>, <span class="citation" data-cites="kamada1989">Kamada and Kawai (<a href="#ref-kamada1989" role="doc-biblioref">1989</a>)</span>), which draws graph distances as geometric distances, is another common choice, with a trap: igraph reads the <code>weight</code> column as a <em>distance</em> for this layout, so that similarity weights pull weakly tied documents to the margins. With similarity weights, either use <code>"fr"</code> or ignore the weights (<code>weights = NA</code>). <code><a href="../reference/color_networks.html">color_networks()</a></code> gives each cluster a colour, and edges a mix of the colours of their ends. <code><a href="../reference/plot_networks.html">plot_networks()</a></code> assembles the figure.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/layout_networks.html">layout_networks</a></span><span class="op">(</span><span class="va">network</span>, node_id <span class="op">=</span> <span class="st">"source_id"</span>, layout <span class="op">=</span> <span class="st">"fr"</span><span class="op">)</span></span>
 <span><span class="va">n_clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">roles</span><span class="op">$</span><span class="va">cluster_leiden</span><span class="op">)</span><span class="op">)</span></span>
@@ -288,9 +389,9 @@ Figure 2
 <span>  node_size_column <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-network" class="quarto-float quarto-figure quarto-figure-center" alt="Bibliographic coupling network of the documents explaining the 1970s stagflation, with nodes coloured by Leiden cluster and a label at the centre of each cluster made of its three most distinctive title words." width="1100">
+<div id="fig-network" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Bibliographic coupling network of the documents explaining the 1970s stagflation, with nodes coloured by Leiden cluster and a label at the centre of each cluster made of its three most distinctive title words.">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-network-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="finding-and-reading-clusters_files/figure-html/fig-network-1.png" id="fig-network" alt="Bibliographic coupling network of the documents explaining the 1970s stagflation, with nodes coloured by Leiden cluster and a label at the centre of each cluster made of its three most distinctive title words." width="1100">
+<a href="finding-and-reading-clusters_files/figure-html/fig-network-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure 3: "><img src="finding-and-reading-clusters_files/figure-html/fig-network-1.png" id="fig-network" alt="Bibliographic coupling network of the documents explaining the 1970s stagflation, with nodes coloured by Leiden cluster and a label at the centre of each cluster made of its three most distinctive title words." width="1100"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-network-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure 3
@@ -301,7 +402,7 @@ Figure 3
 <p>Clusters drawn next to each other share more references than clusters at opposite ends, but distances in such a figure should not be measured: the layout is a compromise between many constraints, and another seed gives another, equally valid, picture.</p>
 <p>For a closer reading, <code><a href="../reference/launch_network_app.html">launch_network_app()</a></code> opens the same network in an interactive application: clicking a cluster lists its documents with their authors, titles and journals.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/launch_network_app.html">launch_network_app</a></span><span class="op">(</span></span>
 <span>  graph_tbl <span class="op">=</span> <span class="va">network</span>,</span>
 <span>  cluster_id <span class="op">=</span> <span class="st">"cluster_label"</span>,</span>
@@ -450,7 +551,38 @@ Traag, V. A., L. Waltman, and N. J. van Eck. 2019. <span>“From <span>Louvain</
       }
     }
   });
-  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+  </script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      }
+    });
+
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+
+  };
+
+})();
+          </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 

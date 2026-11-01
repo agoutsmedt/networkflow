@@ -23,6 +23,12 @@ characterise the role of their members.
   **\[experimental\]** : Detect communities in networks
 - [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
   **\[experimental\]** : Follow clusters across time windows
+- [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+  **\[experimental\]** : Diagnose the threshold of the matching of
+  clusters across windows
+- [`plot_merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.md)
+  **\[experimental\]** : Plot the diagnostics of the matching of
+  clusters across windows
 - [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
   **\[experimental\]** : Give readable names to clusters
 - [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
