@@ -29,7 +29,7 @@ BugReports: https://github.com/agoutsmedt/networkflow/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    biblionetwork,
+    biblionetwork (>= 0.1.1.9000),
     cli,
     data.table (>= 1.15.0),
     dplyr,

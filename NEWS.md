@@ -169,8 +169,9 @@
   on the website: "From references to networks", "Finding and reading
   clusters" and "Following clusters over time".
 - The README presents the pipeline and the research that used it.
-- `build_dynamic_networks()` warns that, in biblionetwork 0.1.x,
-  `"coupling_similarity"` is proportional to `"coupling_strength"`.
+- The documentation of `"coupling_similarity"` describes the idf-weighted
+  cosine of Shen et al. (2019), as computed by biblionetwork 0.1.1.9000 and
+  later (earlier versions computed it wrongly).
 - `filter_components()` is no longer described as deprecated: it is the
   replacement of `tbl_main_component()`.
 - `layout_networks()` documents that Kamada-Kawai reads edge weights as

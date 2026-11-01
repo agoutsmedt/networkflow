@@ -123,15 +123,17 @@
 #'   where a shared target counts less when it is linked to many sources,
 #'   in the spirit of an inverse document frequency:
 #'   \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};}
-#' - `"coupling_similarity"`, inspired by \insertCite{shen2019;textual}{networkflow},
-#'   which normalises the same weighted sum by the weighted size of each
-#'   bibliography, \eqn{S_i = \sum_{j \in R_i} \log(N / f_j)}:
-#'   \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{S_i S_k}.}
-#'   Warning: in biblionetwork 0.1.x, \eqn{S_i} is not computed as intended
-#'   (all references get the weight of the first one, so that
-#'   \eqn{S_i \propto L_i}), which makes `"coupling_similarity"`
-#'   proportional to `"coupling_strength"`. Until this is fixed in
-#'   biblionetwork, prefer `"coupling_strength"` or `"coupling_angle"`.
+#' - `"coupling_similarity"`, the idf-weighted cosine of
+#'   \insertCite{shen2019;textual}{networkflow}: each source is described by
+#'   a vector with one component per target, equal to
+#'   \eqn{\sqrt{\log(N / f_j)}}, and the weight is the cosine of the vectors
+#'   of two sources, with \eqn{S_i = \sum_{j \in R_i} \log(N / f_j)} the
+#'   weighted size of the bibliography:
+#'   \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.}
+#'   Like the coupling angle, it lies between 0 and 1; like the coupling
+#'   strength, it discounts the targets linked to many sources. (Versions
+#'   0.1.1 and earlier of biblionetwork computed this measure wrongly: use
+#'   biblionetwork 0.1.1.9000 or later.)
 #'
 #' Targets linked to a single source cannot create a tie and are dropped
 #' before the computation. The threshold applies to the raw count
