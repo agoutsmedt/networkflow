@@ -1,11 +1,23 @@
-# Add Node Roles to Graphs
+# Characterise the role of nodes within and between clusters
 
 **\[experimental\]**
 
-Adds node-level roles following (Guimera and Amaral 2005) to a tidygraph
-or a list of tidygraphs. The function computes within-module degree,
-participation coefficient, within-module z-score, and the seven role
-categories, and adds them as new node attributes.
+Two nodes of the same cluster can play very different roles: one may be
+tied to almost every member of its cluster, another may sit at the
+border and connect several clusters. `add_node_roles()` computes the two
+measures of the "functional cartography" of Guimerà and Nunes Amaral
+(2005) and classifies each node into one of their seven roles.
+
+With \\\kappa_i\\ the weight of the edges of node \\i\\ towards its own
+cluster \\s_i\\, the **within-module degree** z-score measures how
+strongly \\i\\ is connected to its cluster compared with the other
+members: \$\$z_i = \frac{\kappa_i -
+\bar{\kappa}\_{s_i}}{\sigma\_{\kappa\_{s_i}}}.\$\$ With \\k\_{is}\\ the
+weight of the edges of \\i\\ towards cluster \\s\\ and \\k_i\\ its total
+weight, the **participation coefficient** is close to 0 when all the
+ties of \\i\\ stay within one cluster, and close to 1 when they are
+spread evenly across clusters: \$\$P_i = 1 - \sum_s \left(
+\frac{k\_{is}}{k_i} \right)^2.\$\$
 
 ## Usage
 
@@ -22,105 +34,90 @@ add_node_roles(
 
 - graphs:
 
-  A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/)
-  or a list of tibble graphs.
+  A `tbl_graph` or a list of `tbl_graph`s with a cluster column.
 
 - module_col:
 
-  Name of the node column containing module/cluster identifiers.
+  Character scalar, the node column with the clusters. The default,
+  `"dynamic_cluster_leiden"`, fits the output of
+  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md);
+  use `"cluster_leiden"` after
+  [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
+  alone.
 
 - weight_col:
 
-  Name of the edge column containing weights.
+  Character scalar, the edge column with the weights (`"weight"` by
+  default). Use a column of ones for an unweighted analysis.
 
 - z_threshold:
 
-  Threshold for hub detection in the within-module z-score.
+  Number, the within-module z-score above which a node is a hub (2.5,
+  the value of Guimerà and Amaral).
 
 ## Value
 
-The same tibble graph or list of tibble graphs as input, with added node
-columns: `within_module_degree` (within-module edge weight sum),
-`within_module_z` (within-module degree z-score), `participation_coeff`
-(participation coefficient across modules), `role_ga` (Guimera-Amaral
-role label).
+The same object as `graphs` with four new node columns:
+`within_module_degree` (\\\kappa_i\\), `within_module_z` (\\z_i\\, 0
+when all members of the cluster have the same \\\kappa\\),
+`participation_coeff` (\\P_i\\, 0 for isolated nodes) and `role_ga` (the
+role).
 
 ## Details
 
-This function treats the graph as undirected. If your graph is directed,
-the function will ignore edge directions and compute roles based on the
-undirected version of the graph. The role classification is based on the
-within-module degree z-score and the participation coefficient,
-following the method proposed by Guimera and Amaral (2005). The
-`z_threshold` parameter can be adjusted to change the sensitivity of hub
-detection.
+The roles combine the two measures, with the thresholds of Guimerà and
+Nunes Amaral (2005) :
+
+|                      |                        |              |
+|----------------------|------------------------|--------------|
+| Role                 | \\z_i\\                | \\P_i\\      |
+| R1 ultra-peripheral  | below `z_threshold`    | below 0.05   |
+| R2 peripheral        | below `z_threshold`    | 0.05 to 0.62 |
+| R3 non-hub connector | below `z_threshold`    | 0.62 to 0.80 |
+| R4 non-hub kinless   | below `z_threshold`    | above 0.80   |
+| R5 provincial hub    | at least `z_threshold` | below 0.30   |
+| R6 connector hub     | at least `z_threshold` | 0.30 to 0.75 |
+| R7 kinless hub       | at least `z_threshold` | above 0.75   |
+
+The original measures count edges; here they use the edge weights
+(strengths), which is the natural generalisation for weighted projected
+networks. The graph is treated as undirected. The thresholds were
+calibrated on biological networks: in small bibliometric networks, few
+nodes pass \\z \geq 2.5\\, and the measures are best read as continuous
+indicators (who are the central members of a literature, which articles
+bridge two literatures) rather than as categories.
 
 ## References
 
-Guimera R, Amaral LAN (2005). “Functional cartography of complex
-metabolic networks.” *Nature*, **433**(7028), 895–900.
+Guimerà R, Nunes Amaral LA (2005). “Functional Cartography of Complex
+Metabolic Networks.” *Nature*, **433**(7028), 895–900.
 [doi:10.1038/nature03288](https://doi.org/10.1038/nature03288) .
 
 ## Examples
 
 ``` r
-library(networkflow)
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE,
-verbose = FALSE)
-
-temporal_networks <- add_clusters(temporal_networks,
-clustering_method = "leiden",
-objective_function = "modularity",
-verbose = FALSE)
-
-temporal_networks <- add_node_roles(temporal_networks,
-module_col = "cluster_leiden")
-
-temporal_networks[[1]]
-#> # A tbl_graph: 74 nodes and 446 edges
-#> #
-#> # An undirected simple graph with 1 component
-#> #
-#> # Node Data: 74 × 14 (active)
-#>    source_id  source_author source_year source_label source_title source_journal
-#>    <chr>      <chr>               <int> <chr>        <chr>        <chr>         
-#>  1 16182155   GORDON-R             1975 GORDON-R-19… ALTERNATIVE… "BROOKINGS PA…
-#>  2 26283591   GORDON-R             1975 GORDON-R-19… THE IMPACT … "BROOKINGS PA…
-#>  3 16182201   OKUN-A               1975 OKUN-A-1975a INFLATION: … "BROOKINGS PA…
-#>  4 47749045   BRONFENBRENN…        1976 BRONFENBREN… ELEMENTS OF… "ZEITSCHRIFT …
-#>  5 1111111141 KARNOSKY-D           1976 KARNOSKY-D-… THE LINK BE… "REVIEW"      
-#>  6 1021902    FRIEDMAN-M           1977 FRIEDMAN-M-… NOBEL LECTU… "THE JOURNAL …
-#>  7 5200398    GOLDSTEIN-M          1977 GOLDSTEIN-M… DOWNWARD PR… "STAFF PAPERS"
-#>  8 31895842   GORDON-R             1977 GORDON-R-19… CAN THE INF… "BROOKINGS PA…
-#>  9 14371908   RASCHE-R             1977 RASCHE-R-19… THE EFFECTS… ""            
-#> 10 6013999    SHERMAN-H            1977 SHERMAN-H-1… MONOPOLY PO… "JOURNAL OF E…
-#> # ℹ 64 more rows
-#> # ℹ 8 more variables: source_type <chr>, time_window <chr>,
-#> #   cluster_leiden <chr>, size_cluster_leiden <dbl>,
-#> #   within_module_degree <dbl>, within_module_z <dbl>,
-#> #   participation_coeff <dbl>, role_ga <chr>
-#> #
-#> # Edge Data: 446 × 8
-#>    from    to   weight Source  Target     cluster_leiden_from cluster_leiden_to
-#>   <int> <int>    <dbl> <chr>   <chr>      <chr>               <chr>            
-#> 1     6    11 0.00158  1021902 1111111122 02                  02               
-#> 2     6    45 0.000173 1021902 1111111128 02                  03               
-#> 3     6    66 0.000430 1021902 1111111134 02                  03               
-#> # ℹ 443 more rows
-#> # ℹ 1 more variable: cluster_leiden <chr>
+network <- add_node_roles(network, module_col = "cluster_leiden")
+table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
+#> 
+#>  R1 ultra-peripheral        R2 peripheral R3 non-hub connector 
+#>                    9                  107                   27 
+#>   R4 non-hub kinless    R5 provincial hub     R6 connector hub 
+#>                    1                    2                    1 
 ```

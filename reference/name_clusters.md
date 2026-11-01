@@ -1,11 +1,16 @@
-# Automatically Attributing Names to Clusters
+# Give readable names to clusters
 
 **\[experimental\]**
 
-The function gives a name to networks clusters. It also gives the edges
-the name of their cluster. The clusters are named according to the
-column chosen by the user (for instance, in the case nodes are articles,
-the name may be the author and date of an article).
+A cluster identifier ("01", "cl_12") says nothing about its content.
+`name_clusters()` gives each cluster a provisional label that helps
+reading plots and tables, with one of three methods: the words that
+distinguish the cluster from the others (`"tf-idf"`), or the metadata of
+its most central node (`"tidygraph_functions"`) or of its node with the
+highest value of a given column (`"given_column"`). These labels are
+starting points for interpretation, not the result of it: naming a
+cluster requires reading its documents, the references they share, and
+what distinguishes them from neighbouring clusters (Ding 2011) .
 
 ## Usage
 
@@ -29,232 +34,170 @@ name_clusters(
 
 - graphs:
 
-  A tibble graph (from
-  [tidygraph](https://tidygraph.data-imaginist.com/)) or a list of
-  tibble graphs.
+  A `tbl_graph` or a list of `tbl_graph`s.
 
 - method:
 
-  The method for finding the names, among `tidygraph_functions`,
-  `given_column`, and `tf-idf` (see the details). The `tf-idf` method is
-  chosen by default.
+  `"tf-idf"` (chosen when no method is given), `"tidygraph_functions"`
+  or `"given_column"` (see the details).
 
 - name_merged_clusters:
 
-  Set to `TRUE` if your clusters have been established for all your
-  tibble graphs and thus are unique. Typically, you have such clusters
-  after running
-  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md).
+  Logical. `TRUE` when `cluster_id` identifies clusters across a list of
+  graphs (the dynamic clusters of
+  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)):
+  each cluster then gets one name, computed on all its nodes in all
+  windows. `FALSE` (default) names the clusters of each graph
+  separately.
 
 - cluster_id:
 
-  The column you want to name. Generally, the column with the identifier
-  of the clusters, whether the simple cluster detected with
-  [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
-  or the merged clusters detected with
-  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md).
+  Character scalar, the node column with the clusters to name.
 
 - label_columns:
 
-  The column you want to be used to name the clusters. If the nodes are
-  article, you can choose, for instance, the columns with the author of
-  the article and the date of publication.
+  For `"tidygraph_functions"` and `"given_column"`, the node column(s)
+  used to build the label of the chosen node, joined by "\_" (e.g.
+  `c("source_author", "source_year")`).
 
 - label_name:
 
-  The name of the column with cluster names, that will be created by the
-  function. "cluster_label" by default.
+  Character scalar, the name of the new column (`"cluster_label"` by
+  default).
 
 - tidygraph_function:
 
-  For the `tidygraph_functions` method (see the details), the centrality
-  measure to be chosen among the measures implemented in in `tidygraph`
+  For `"tidygraph_functions"`, a call to a centrality function of
+  tidygraph, such as
+  [`tidygraph::centrality_pagerank()`](https://tidygraph.data-imaginist.com/reference/centrality.html)
   (see
-  [`tidygraph::centrality()`](https://tidygraph.data-imaginist.com/reference/centrality.html)).
+  [tidygraph::centrality](https://tidygraph.data-imaginist.com/reference/centrality.html)).
 
 - order_by:
 
-  For the `given_column` method, the column within the nodes list of
-  your tibble graph(s) you want to be used to classify nodes and choose
-  names. This must be a numeric column. For instance, you can use the
-  `node_size` column of your network if you have set `compute_size` to
-  `TRUE` in
+  For `"given_column"`, the numeric node column used to choose the node
+  (e.g. `"node_size"` from
   [`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
-  or
-  [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md).
+  with `compute_size = TRUE`, i.e. the most cited document of the
+  cluster).
 
 - text_columns:
 
-  For the `tf-idf` method, the columns with the text you want to
-  analyze. If you give multiple columns, they will be united to extract
-  the terms. This is a parameter of
+  For `"tf-idf"`, the node column(s) with text (titles, abstracts,
+  keywords), passed to
   [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md).
 
 - nb_terms_label:
 
-  For the `tf-idf` method, the number of terms you want to be used to
-  serve a the name of a cluster. Terms will be separated by a comma.
-  This is a parameter of
-  [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md).
+  For `"tf-idf"`, the number of terms in each label (3 by default),
+  separated by commas.
 
 - ...:
 
-  Additional arguments from `extract_tfidf`, outside of those referred
-  above as well as of `grouping_across_list` which is not relevant here.
+  For `"tf-idf"`, other arguments of
+  [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
+  (e.g. `clean_word_method`, `n_gram`, `ngrams_filter`).
 
 ## Value
 
-The same tibble graph or list of tibble graphs with a new column with
-the names of the clusters, for both nodes and edges. If you choose the
-`tidygraph_functions` method, the function also returns for nodes a
-column with the centrality measure computed.
+The same object as `graphs`, with a new node column `label_name`, also
+joined to the edges through their cluster column.
 
 ## Details
 
-The node to be used for naming the community is chosen depending on 3
-methods:
+**tf-idf.** Each cluster is treated as one document made of the texts of
+its nodes, and each term \\t\\ (word or n-gram) gets the weight
+\$\$\mathrm{tf}\_{tc} \times \mathrm{idf}\_t = \frac{n\_{tc}}{\sum_u
+n\_{uc}} \times \log\frac{C}{\mathrm{df}\_t}\$\$ (Spärck Jones 1972;
+Salton and Buckley 1988) , with \\n\_{tc}\\ the number of occurrences of
+\\t\\ in cluster \\c\\, \\C\\ the number of clusters and
+\\\mathrm{df}\_t\\ the number of clusters where \\t\\ appears. The label
+gathers the terms with the highest weight: frequent in the cluster, rare
+in the others. With `name_merged_clusters = FALSE`, the comparison is
+made within each graph, so clusters of different windows may get the
+same label.
 
-- the `tidygraph_functions` method: the name of a cluster comes from the
-  node, within the cluster, which has the highest centrality measure.
-  The user can choose the different centrality measure implemented in
-  `tidygraph` (see
-  [`tidygraph::centrality()`](https://tidygraph.data-imaginist.com/reference/centrality.html)
-  for details).
+**Most central node.** `"tidygraph_functions"` computes the centrality
+given in `tidygraph_function` on each graph (it is added as a node
+column) and labels each cluster with the node with the highest value.
+The centrality is computed on the whole graph, not within the cluster.
+This method needs a network structure and therefore cannot be used with
+`name_merged_clusters = TRUE`.
 
-- the `given_column` method: the user gives a column of the tibble
-  graph(s), with numeric values, that will be used to classify the nodes
-  and choose the name of each cluster. The `label_columns` of the node
-  with the highest numerical value in the cluster will be used to name
-  the cluster.
+**Given column.** `"given_column"` labels each cluster with its node
+with the highest `order_by` value: for an article network, typically its
+most cited article.
 
-- the `tf-idf` method: clusters are name according to the terms with the
-  highest tf-idf value for each cluster. The user furnishes one or
-  several columns with text, and the function extracts the term and
-  calculate the tf-idf value of each term, depending on all the
-  clusters. This method uses
-  [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md).
+Nodes of an unnamed cluster get "no_name".
 
-Please note that, when `name_merged_clusters` is set to `FALSE`, the
-TF-IDF is computed tibble graph by tibble graph. It means that it is
-more likely that clusters in different tibble graphs will share the same
-name.
+## References
+
+Ding Y (2011). “Community Detection: Topological vs. Topical.” *Journal
+of Informetrics*, **5**(4), 498–514.
+[doi:10.1016/j.joi.2011.02.006](https://doi.org/10.1016/j.joi.2011.02.006)
+.  
+  
+Salton G, Buckley C (1988). “Term-Weighting Approaches in Automatic Text
+Retrieval.” *Information Processing & Management*, **24**(5), 513–523.  
+  
+Spärck Jones K (1972). “A Statistical Interpretation of Term Specificity
+and Its Application in Retrieval.” *Journal of Documentation*,
+**28**(1), 11–21.
+
+## See also
+
+[`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
+to see more terms than the labels show.
 
 ## Examples
 
 ``` r
-library(networkflow)
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
+# The words of the titles that distinguish each cluster
+network <- name_clusters(
+  network,
+  method = "tf-idf",
+  cluster_id = "cluster_leiden",
+  text_columns = "source_title",
+  nb_terms_label = 3,
+  clean_word_method = "none"
+)
 
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE,
-verbose = FALSE)
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden",
-verbose = FALSE)
-
-# You can name the clusters in each tibble graphs:
-
-temporal_networks_with_names <- name_clusters(graphs = temporal_networks,
-method = "tidygraph_functions",
-name_merged_clusters = FALSE,
-cluster_id = "cluster_leiden",
-label_columns = c("source_author", "source_year"),
-tidygraph_function = tidygraph::centrality_pagerank())
-
-temporal_networks_with_names[[1]]
-#> # A tbl_graph: 74 nodes and 446 edges
-#> #
-#> # An undirected simple graph with 1 component
-#> #
-#> # Edge Data: 446 × 9 (active)
-#>     from    to   weight Source  Target     cluster_leiden_from cluster_leiden_to
-#>    <int> <int>    <dbl> <chr>   <chr>      <chr>               <chr>            
-#>  1     6    11 0.00158  1021902 1111111122 02                  02               
-#>  2     6    45 0.000173 1021902 1111111128 02                  03               
-#>  3     6    66 0.000430 1021902 1111111134 02                  03               
-#>  4     6    35 0.000644 1021902 1111111146 02                  02               
-#>  5     6    20 0.000126 1021902 1111111180 02                  02               
-#>  6     6    42 0.000614 1021902 1111111182 02                  02               
-#>  7     6    21 0.000343 1021902 1111111183 02                  02               
-#>  8     6    53 0.000259 1021902 1184127    02                  03               
-#>  9     6    31 0.00121  1021902 14490177   02                  02               
-#> 10     6    65 0.000274 1021902 16167977   02                  03               
-#> # ℹ 436 more rows
-#> # ℹ 2 more variables: cluster_leiden <chr>, cluster_label <chr>
-#> #
-#> # Node Data: 74 × 12
-#>   source_id source_author source_year source_label   source_title source_journal
-#>   <chr>     <chr>               <int> <chr>          <chr>        <chr>         
-#> 1 16182155  GORDON-R             1975 GORDON-R-1975a ALTERNATIVE… BROOKINGS PAP…
-#> 2 26283591  GORDON-R             1975 GORDON-R-1975b THE IMPACT … BROOKINGS PAP…
-#> 3 16182201  OKUN-A               1975 OKUN-A-1975a   INFLATION: … BROOKINGS PAP…
-#> # ℹ 71 more rows
-#> # ℹ 6 more variables: source_type <chr>, time_window <chr>,
-#> #   cluster_leiden <chr>, size_cluster_leiden <dbl>, centrality_pagerank <dbl>,
-#> #   cluster_label <chr>
-
-# Or you can name the dynamic clusters:
-
-temporal_networks <- merge_dynamic_clusters(temporal_networks,
-cluster_id = "cluster_leiden",
-node_id = "source_id",
-threshold_similarity = 0.51,
-similarity_type = "partial")
-
-temporal_networks_with_names <- name_clusters(graphs = temporal_networks,
-method = "tf-idf",
-name_merged_clusters = TRUE,
-cluster_id = "dynamic_cluster_leiden",
-text_columns = "source_title",
-nb_terms_label = 5,
-clean_word_method = "lemmatize")
-#> Warning: A shallow copy of this data.table was taken so that := can add or remove 2 columns by reference. At an earlier point, this data.table was copied by R (or was created manually using structure() or similar). Avoid names<- and attr<- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. It's also not unusual for data.table-agnostic packages to produce tables affected by this issue. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.
-
-temporal_networks_with_names[[1]]
-#> # A tbl_graph: 74 nodes and 446 edges
-#> #
-#> # An undirected simple graph with 1 component
-#> #
-#> # Edge Data: 446 × 12 (active)
-#>     from    to   weight Source  Target     cluster_leiden_from cluster_leiden_to
-#>    <int> <int>    <dbl> <chr>   <chr>      <chr>               <chr>            
-#>  1     6    11 0.00158  1021902 1111111122 02                  02               
-#>  2     6    45 0.000173 1021902 1111111128 02                  03               
-#>  3     6    66 0.000430 1021902 1111111134 02                  03               
-#>  4     6    35 0.000644 1021902 1111111146 02                  02               
-#>  5     6    20 0.000126 1021902 1111111180 02                  02               
-#>  6     6    42 0.000614 1021902 1111111182 02                  02               
-#>  7     6    21 0.000343 1021902 1111111183 02                  02               
-#>  8     6    53 0.000259 1021902 1184127    02                  03               
-#>  9     6    31 0.00121  1021902 14490177   02                  02               
-#> 10     6    65 0.000274 1021902 16167977   02                  03               
-#> # ℹ 436 more rows
-#> # ℹ 5 more variables: cluster_leiden <chr>, dynamic_cluster_leiden_from <chr>,
-#> #   dynamic_cluster_leiden_to <chr>, dynamic_cluster_leiden <chr>,
-#> #   cluster_label <chr>
-#> #
-#> # Node Data: 74 × 12
-#>   source_id source_author source_year source_label   source_title source_journal
-#>   <chr>     <chr>               <int> <chr>          <chr>        <chr>         
-#> 1 16182155  GORDON-R             1975 GORDON-R-1975a ALTERNATIVE… BROOKINGS PAP…
-#> 2 26283591  GORDON-R             1975 GORDON-R-1975b THE IMPACT … BROOKINGS PAP…
-#> 3 16182201  OKUN-A               1975 OKUN-A-1975a   INFLATION: … BROOKINGS PAP…
-#> # ℹ 71 more rows
-#> # ℹ 6 more variables: source_type <chr>, time_window <chr>,
-#> #   cluster_leiden <chr>, size_cluster_leiden <dbl>,
-#> #   dynamic_cluster_leiden <chr>, cluster_label <chr>
+# The article with the highest PageRank of each cluster
+network <- name_clusters(
+  network,
+  method = "tidygraph_functions",
+  cluster_id = "cluster_leiden",
+  label_columns = c("source_author", "source_year"),
+  label_name = "central_article",
+  tidygraph_function = tidygraph::centrality_pagerank()
+)
+unique(tidygraph::as_tibble(network, active = "nodes")[
+  c("cluster_leiden", "cluster_label", "central_article")
+])
+#> # A tibble: 6 × 3
+#>   cluster_leiden cluster_label                         central_article
+#>   <chr>          <chr>                                 <chr>          
+#> 1 01             great inflation, great, stabilization VELDE-F_2004   
+#> 2 06             comment, stagflation, inflation       WACHTER-M_1978 
+#> 3 02             productivity, supply shocks, oil      GORDON-R_1984  
+#> 4 03             oil, oil price, great stagflation     BARSKY-R_2002  
+#> 5 04             great, alternative, supply            BLINDER-A_1979 
+#> 6 05             unemployment, stagflation, evidence   OKUN-A_1975    
 ```

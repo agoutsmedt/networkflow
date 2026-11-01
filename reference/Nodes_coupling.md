@@ -1,9 +1,14 @@
-# Articles and Books Explaining the 1970s US Stagflation.
+# Nodes of a ready-made bibliographic coupling network on the stagflation
 
-A dataset containing the books and academic articles endeavouring to
-explain what happened in the US economy in the 1970s and which have at
-least two references in their bibliography. This file could be used as
-nodes, with `edges_coupling.rda`, for a bibliographic coupling network.
+The 154 documents of
+[Nodes_stagflation](https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.md)
+that explain the stagflation and have references in
+[Ref_stagflation](https://agoutsmedt.github.io/networkflow/reference/Ref_stagflation.md).
+With
+[Edges_coupling](https://agoutsmedt.github.io/networkflow/reference/Edges_coupling.md),
+it gives a bibliographic coupling network already computed, for instance
+to try the functions of the package on a `tbl_graph` built directly with
+[`tidygraph::tbl_graph()`](https://tidygraph.data-imaginist.com/reference/tbl_graph.html).
 
 ## Usage
 
@@ -17,28 +22,32 @@ A data frame with 154 rows and 6 variables:
 
 - source_id:
 
-  Identifier of the document on stagflation, in character format
+  Identifier of the document, as a character string.
 
 - source_author:
 
-  Author of the document on stagflation
+  First author of the document.
 
 - source_label:
 
-  Use this as a label for nodes
+  Short label (author and year), for plots.
 
 - source_year:
 
-  Year of publication of the document
+  Year of publication.
 
 - source_title:
 
-  Title of the document
+  Title of the document.
 
 - source_journal:
 
-  Journal of publication of the document (if an article)
+  Journal of publication, for articles.
 
 ## Source
 
-Created from `Nodes_stagflation.rda`
+Built from
+[Nodes_stagflation](https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.md)
+and
+[Ref_stagflation](https://agoutsmedt.github.io/networkflow/reference/Ref_stagflation.md)
+by `inst/data-raw/creating_network_data.R`.

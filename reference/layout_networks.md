@@ -1,13 +1,23 @@
-# Calculate the Coordinates of Nodes
+# Compute the coordinates of nodes
 
 **\[experimental\]**
 
-The function implements different layout algorithms from
-[ggraph](https://ggraph.data-imaginist.com/index.html) and
-[graphlayouts](http://graphlayouts.schochastics.net/index.md). It also
-implements a dynamic process of computation of coordinates for list of
-tibble graphs, in order for the coordinates to be consistent between
-graphs.
+A network has no natural position on a page. Force-directed layouts
+place nodes so that tied nodes are close and untied nodes are pushed
+apart, so that clusters appear as dense regions: Kamada-Kawai (`"kk"`)
+draws graph distances as geometric distances (Kamada and Kawai 1989) ,
+Fruchterman-Reingold (`"fr"`) balances attraction along edges and
+repulsion between all nodes (Fruchterman and Reingold 1991) .
+`layout_networks()` computes such coordinates with
+[`ggraph::create_layout()`](https://ggraph.data-imaginist.com/reference/ggraph.html),
+which gives access to the layouts of igraph and graphlayouts, and stores
+them in the node table.
+
+For a list of networks, the coordinates of a node may jump from one
+window to the next, which makes the plots hard to compare. With
+`compute_dynamic_coordinates = TRUE`, the coordinates of window \\t-1\\
+are used as the starting positions of the layout of window \\t\\, so
+that the nodes present in both windows tend to stay in the same region.
 
 ## Usage
 
@@ -26,155 +36,97 @@ layout_networks(
 
 - graphs:
 
-  A tibble graph from
-  [tidygraph](https://tidygraph.data-imaginist.com/), a list of tibble
-  graphs or a data frame.
+  A `tbl_graph` or a list of `tbl_graph`s.
 
 - node_id:
 
-  The column with the unique identifier of each node.
+  Character scalar, the node column with a unique identifier, used to
+  join the coordinates.
 
 - layout:
 
-  The type of layout to create. All strings accepted by the algorithm
-  argument can also be supplied directly into layout. See
-  [`ggraph::ggraph()`](https://ggraph.data-imaginist.com/reference/ggraph.html)
-  for more details on layouts.
+  Character scalar, a layout accepted by
+  [`ggraph::create_layout()`](https://ggraph.data-imaginist.com/reference/ggraph.html)
+  (e.g. `"kk"`, `"fr"`, `"stress"`).
 
 - compute_dynamic_coordinates:
 
-  When you have a list of tibble graphs and that some nodes are in
-  multiple graphs, you may want that each node in several graphs has
-  relatively similar coordinates. Set `compute_dynamic_coordinates` to
-  `TRUE` to take into account the coordinates of the nodes in the `n-1`
-  tibble graph, during the computation of the coordinates of the `n`
-  tibble graph.
+  Logical. For a list of graphs, if `TRUE`, each layout starts from the
+  coordinates of the previous window (see the details).
 
 - save_coordinates:
 
-  If you are running the function on the same object, the already
-  existing columns `x` and `y` will be erased and new values will be
-  computed. Set `save_coordinates` to `TRUE` to save the `x` and `y`
-  values in columns with a name depending of the layout method used.
+  Logical. If `TRUE`, the coordinates are also stored in `x_{layout}`
+  and `y_{layout}` (e.g. `x_kk`, `y_kk`), so that they are not lost when
+  another layout is computed.
 
 - ...:
 
-  Additional arguments of the layout compatible with the function. See
-  `ggraph::graph()`,
-  [`ggraph::layout_tbl_graph_igraph()`](https://ggraph.data-imaginist.com/reference/layout_tbl_graph_igraph.html)
-  and `graphlayouts::graphslayouts()` for more information.
+  Other arguments of the layout (see
+  [`ggraph::create_layout()`](https://ggraph.data-imaginist.com/reference/ggraph.html)
+  and the igraph or graphlayouts function behind it).
 
 ## Value
 
-The same tibble graph or list of tibble graphs with a column `x` and
-`y`, and also additional column `x_{layout}` and `y_{layout}` if you
-have set `save_coordinates` to `TRUE`.
+The same object as `graphs`, with node columns `x` and `y` (any existing
+`x` and `y` are replaced) and, if `save_coordinates = TRUE`,
+`x_{layout}` and `y_{layout}`.
 
 ## Details
 
-The function allows for the use of different layouts implemented in
-[ggraph](https://ggraph.data-imaginist.com/index.html) and
-[graphlayouts](http://graphlayouts.schochastics.net/index.md). However,
-some layout of `graphlayouts` are not working with this function. Also,
-layouts do not all take as input pre-determined coordinates, meaning
-that the `compute_dynamic_coordinates` argument does not work with all
-layout. Please check if the layout used allows a parameter called
-`coord`.
+Force-directed layouts are stochastic and sensitive to the starting
+positions: set a seed with
+[`set.seed()`](https://rdrr.io/r/base/Random.html) before calling the
+function to reproduce a figure. Distances in such plots are only roughly
+interpretable: two clusters drawn side by side are more tied than two
+clusters at opposite ends, but distances should not be measured.
+
+**Weights.** igraph uses the `weight` edge column automatically, but not
+always in the same way: Fruchterman-Reingold (`"fr"`) reads weights as
+attraction (heavier edges pull nodes closer), while Kamada-Kawai
+(`"kk"`) reads them as distances, so that similarity weights push the
+most similar nodes apart and weakly tied nodes to the margins. With
+similarity weights, prefer `"fr"`, or pass `weights = NA` to ignore
+them.
+
+For dynamic coordinates, nodes absent from the previous window start at
+(0, 0). The starting positions are passed to the layout as its `coords`
+argument: this works only with layouts that accept it, such as `"fr"`
+and `"kk"` of igraph.
+
+## References
+
+Fruchterman TMJ, Reingold EM (1991). “Graph Drawing by Force-Directed
+Placement.” *Software: Practice and Experience*, **21**(11), 1129–1164.
+[doi:10.1002/spe.4380211102](https://doi.org/10.1002/spe.4380211102) .  
+  
+Kamada T, Kawai S (1989). “An Algorithm for Drawing General Undirected
+Graphs.” *Information Processing Letters*, **31**(1), 7–15.
+[doi:10.1016/0020-0190(89)90102-6](https://doi.org/10.1016/0020-0190%2889%2990102-6)
+.
 
 ## Examples
 
 ``` r
-library(networkflow)
-
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE)
-#> ℹ Backbone method selected: structured
-#> ℹ Keep_singleton == FALSE: removing the nodes that are alone with no edge. 
-#> 
-#> ── Generation of the network for the 1975-1994 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1976-1995 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1977-1996 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1978-1997 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1979-1998 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1980-1999 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1981-2000 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1982-2001 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1983-2002 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1984-2003 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1985-2004 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1986-2005 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1987-2006 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1988-2007 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1989-2008 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1990-2009 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1991-2010 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1992-2011 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1993-2012 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1994-2013 time window. ────────────────────
-
-temporal_networks <- layout_networks(temporal_networks,
-node_id = "source_id",
-layout = "fr",
-compute_dynamic_coordinates = TRUE)
-
-temporal_networks [[1]]
-#> # A tbl_graph: 74 nodes and 446 edges
-#> #
-#> # An undirected simple graph with 1 component
-#> #
-#> # Node Data: 74 × 10 (active)
-#>    source_id  source_author source_year source_label source_title source_journal
-#>    <chr>      <chr>               <int> <chr>        <chr>        <chr>         
-#>  1 16182155   GORDON-R             1975 GORDON-R-19… ALTERNATIVE… "BROOKINGS PA…
-#>  2 26283591   GORDON-R             1975 GORDON-R-19… THE IMPACT … "BROOKINGS PA…
-#>  3 16182201   OKUN-A               1975 OKUN-A-1975a INFLATION: … "BROOKINGS PA…
-#>  4 47749045   BRONFENBRENN…        1976 BRONFENBREN… ELEMENTS OF… "ZEITSCHRIFT …
-#>  5 1111111141 KARNOSKY-D           1976 KARNOSKY-D-… THE LINK BE… "REVIEW"      
-#>  6 1021902    FRIEDMAN-M           1977 FRIEDMAN-M-… NOBEL LECTU… "THE JOURNAL …
-#>  7 5200398    GOLDSTEIN-M          1977 GOLDSTEIN-M… DOWNWARD PR… "STAFF PAPERS"
-#>  8 31895842   GORDON-R             1977 GORDON-R-19… CAN THE INF… "BROOKINGS PA…
-#>  9 14371908   RASCHE-R             1977 RASCHE-R-19… THE EFFECTS… ""            
-#> 10 6013999    SHERMAN-H            1977 SHERMAN-H-1… MONOPOLY PO… "JOURNAL OF E…
-#> # ℹ 64 more rows
-#> # ℹ 4 more variables: source_type <chr>, time_window <chr>, x <dbl>, y <dbl>
-#> #
-#> # Edge Data: 446 × 5
-#>    from    to   weight Source  Target    
-#>   <int> <int>    <dbl> <chr>   <chr>     
-#> 1     6    11 0.00158  1021902 1111111122
-#> 2     6    45 0.000173 1021902 1111111128
-#> 3     6    66 0.000430 1021902 1111111134
-#> # ℹ 443 more rows
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 2
+)
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "fr")
+head(tidygraph::as_tibble(network, active = "nodes")[c("source_id", "x", "y")])
+#> # A tibble: 6 × 3
+#>   source_id        x      y
+#>   <chr>        <dbl>  <dbl>
+#> 1 96284971  -10.8    -4.93 
+#> 2 37095547  -11.0     2.93 
+#> 3 46282251  -12.1     0.619
+#> 4 214927      6.44   -4.74 
+#> 5 2207578     2.95   -5.29 
+#> 6 10729971   -0.0468 -0.765
 ```

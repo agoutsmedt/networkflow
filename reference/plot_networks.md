@@ -1,7 +1,23 @@
-# Plot your Networks
+# Plot networks
 
-An easy way to plot your networks by using the columns created by the
-different function of networkflow.
+`plot_networks()` draws a network from the columns created by the
+previous steps of the pipeline: coordinates
+([`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)),
+colours
+([`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md))
+and cluster labels
+([`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
+and
+[`prepare_label_networks()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)).
+Edges are drawn as light arcs whose width follows their weight, nodes as
+points whose size follows `node_size_column`, and each cluster gets a
+label at its centre of gravity.
+
+It is meant as a quick, ready-made figure. For exploration, the
+interactive app of
+[`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md)
+is more convenient; for a figure to publish, `print_plot_code = TRUE`
+prints the ggraph code, which can be copied and adapted.
 
 ## Usage
 
@@ -23,67 +39,91 @@ plot_networks(
 
 - graphs:
 
-  A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/)
-  or a list of tibble graphs.
+  A `tbl_graph` or a list of `tbl_graph`s.
 
 - x, y:
 
-  The columns of your tibble graph or list of tibble graphs with the x
-  and y coordinates of your nodes (for instance, the coordinates produce
-  by
-  [layout_networks()](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)).
+  Character scalars, the node columns with the coordinates (`"x"` and
+  `"y"` by default).
 
 - cluster_label_column:
 
-  The values of the column are taken to be displayed as labels. By
-  default, "cluster_label", as it is the default name of the column
-  created with
-  [name_clusters()](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md).
-  But you may also use the column produced with
-  [add_clusters()](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md).
+  Character scalar, the node column with the labels to display:
+  `"cluster_label"`
+  ([`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md))
+  by default, or a cluster column such as `cluster_leiden`.
 
 - node_size_column:
 
-  The column with numeric values to be used for the size of nodes. By
-  default, "node_size", as the column created by
-  [build_dynamic_networks()](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
-  or
-  [build_network()](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
-  when `compute_size` set to `TRUE` in these functions. If `NULL`, the
-  size of every nodes is set to 1.
+  Character scalar, the numeric node column giving the size of nodes:
+  `"node_size"` by default (see `compute_size` in
+  [`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)).
+  If `NULL` or absent, all nodes have the same size.
 
 - color_column:
 
-  The column with the colors associated to the categories of
-  `cluster_label_column`. By default, "color", as the result of
-  [color_networks()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
+  Character scalar, the column with the colours of nodes and edges
+  (`"color"` by default, from
+  [`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)).
 
 - color_networks:
 
-  If no color has been set for the categories of `cluster_label_column`,
-  you can attribute them colors by setting `color_networks` to `TRUE`.
-  [color_networks()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
-  will be used.
+  Logical. If `TRUE`,
+  [`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
+  is run first, with `cluster_label_column` as the categories.
 
 - color:
 
-  If `color_networks`is `TRUE`, the parameter `color` will be used to
-  color the categories of the `cluster_label_column`. It may be a vector
-  of colors (in a character format) or a two columns data frame with the
-  first column as the distinct observations of the
-  `cluster_label_column` and a second column with the vector of colors
-  you want to use. If `NULL` colors will be automatically chosen by
-  [color_networks()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
+  With `color_networks = TRUE`, the colours passed to
+  [`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
 
 - print_plot_code:
 
-  Set to `TRUE` if you want the ggplot2 code to be printing. It is
-  useful if you are not totally satisfied of the plot and want to
-  manipulate the code yourself.
+  Logical. If `TRUE`, prints the ggplot2/ggraph code of the plot.
+
+## Value
+
+For a `tbl_graph`, a ggplot object. For a list of graphs, the list
+itself, in which each graph carries its plot in an element `plot`
+(`graphs[[1]]$plot`).
 
 ## Details
 
-If you have not used
-[prepare_label_networks()](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md),
-the function will be automatically used to produce coordinates to each
-category of `cluster_label_column`.
+Missing pieces are filled in: labels are positioned with
+[`prepare_label_networks()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
+when `label_x` is absent, and edges without a `weight` column get a
+weight of 1. Labels are drawn with ggrepel, which must be installed.
+
+## Examples
+
+``` r
+# \donttest{
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "fr")
+network <- color_networks(network, column_to_color = "cluster_leiden")
+if (requireNamespace("ggrepel", quietly = TRUE)) {
+  plot_networks(
+    network,
+    cluster_label_column = "cluster_leiden",
+    node_size_column = NULL
+  )
+}
+
+# }
+```

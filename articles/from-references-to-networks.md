@@ -1,0 +1,541 @@
+# From references to networks
+
+This guide covers the first step of the networkflow pipeline: building
+the network. It explains what a projected network is, how the similarity
+between two documents is measured, and which choices (measure,
+threshold, time windows) shape the network before any cluster is
+detected. The next guides cover [finding and reading
+clusters](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.md)
+and [following clusters over
+time](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.md).
+
+## Why networks?
+
+Since the 1970s, the number of articles published in most disciplines
+has grown so much that no historian or sociologist of science can read a
+whole literature. Citation data offer another entry point: by citing,
+authors say which works they build on, and the references that articles
+share reveal groups of works addressing similar questions with similar
+tools. Mapping these groups, their size and their evolution, has become
+a common tool of the history and sociology of science, including the
+history of economics ([Claveau and Gingras 2016](#ref-claveau2016);
+[Edwards et al. 2018](#ref-edwards2018); [Cherrier and Svorenčík
+2018](#ref-cherrier2018); [Goutsmedt, Claveau, et al.
+2023](#ref-goutsmedt2023quantitative)).
+
+networkflow was written for this kind of research. It organises the
+analysis as a *pipeline*: building networks from tabular data, detecting
+clusters, following them over time, naming and plotting them. Each step
+is a function whose choices are explicit arguments, so that they can be
+discussed, varied and reported. The functions were developed for, and
+used in, studies of European macroeconomics ([Goutsmedt and Truc
+2023](#ref-goutsmedt2023eer)), of the explanations of the 1970s
+stagflation ([Goutsmedt 2021](#ref-goutsmedt2021)), of the history of
+the concept of rationality ([Delcey et al. 2026](#ref-delcey2026)) and
+of the scientific reception of a report on the environmental impact of
+livestock ([Duluins et al. 2026](#ref-duluins2026)).
+
+## The example data
+
+The examples use the corpus of Goutsmedt ([2021](#ref-goutsmedt2021)):
+the books and articles that tried to explain the US stagflation of the
+1970s, published between 1975 and 2013, and the references they cite.
+
+``` r
+
+library(networkflow)
+library(ggplot2)
+
+nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
+nrow(nodes)
+```
+
+    [1] 174
+
+``` r
+
+head(Ref_stagflation[, c("source_id", "target_id", "target_author", "target_year")])
+```
+
+        source_id  target_id                                     target_author
+            <int>      <int>                                            <char>
+    1: 1111111131 1111111354 JAMES S DUESENBERRY, OTTO ECKSTEIN AND GARY FROM,
+    2:   20623867   49263876                                           *AMENTI
+    3:   25850485      72060                                          *AMPETRI
+    4:   16995857     202546                                        *AMPRODCTR
+    5:  106566088     209143                                   *BOARDGOVFEDRES
+    6:   25481516     210048                                   *BOARDGOVFEDRES
+       target_year
+             <int>
+    1:        1960
+    2:        1977
+    3:        1975
+    4:        1980
+    5:        1965
+    6:        1986
+
+`Nodes_stagflation` has one row per document, `Ref_stagflation` one row
+per citation: document `source_id` cites document `target_id`. This is
+the typical shape of research data: not a network, but a table of links
+between two kinds of entities.
+
+## From a two-mode relation to a network
+
+### Projection
+
+Citations link two sets of entities: citing documents and cited
+references. Such a *two-mode*, or *bipartite*, relation can be written
+as a matrix $`A`$ with one row per citing document, one column per
+reference, and $`a_{ij} = 1`$ when document $`i`$ cites reference $`j`$.
+To study the citing documents, we *project* this relation onto them: two
+documents are linked when they cite the same references. The raw
+strength of the tie is the number of shared references,
+
+``` math
+c_{ik} = \sum_j a_{ij} a_{kj} = |R_i \cap R_k|,
+```
+
+with $`R_i`$ the bibliography of document $`i`$. In matrix form,
+$`C = A A^\top`$. This is **bibliographic coupling** ([Kessler
+1963](#ref-kessler1963)): two articles are coupled when their
+bibliographies overlap. Projecting on the other set gives
+**co-citation** ([Small 1973](#ref-small1973)): two references are
+linked when they are cited together, $`A^\top A`$. The two networks
+answer different questions. Coupling groups the citing documents, and is
+fixed once they are published: it maps the *research fronts* of a
+period. Co-citation groups the cited works, and evolves as new articles
+cite them: it maps the *intellectual base* of a literature as its users
+see it. Comparing the clusters obtained on two million biomedical
+articles, Boyack and Klavans ([2010](#ref-boyack2010)) found that
+bibliographic coupling slightly outperformed co-citation in representing
+research fronts, direct citation being the least accurate; Yan and Ding
+([2012](#ref-yan2012)) show how the various scholarly networks
+(coupling, co-citation, co-authorship, co-words) relate to each other.
+
+The same logic applies far beyond citations: authors and the papers they
+sign (co-authorship), accounts and the hashtags they use, members and
+the boards they sit on.
+[`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
+projects any such table, given a `source_id` (the entities that become
+nodes) and a `target_id` (the entities that link them).
+
+``` r
+
+network <- build_network(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network
+```
+
+    # A tbl_graph: 147 nodes and 2716 edges
+    #
+    # An undirected simple graph with 1 component
+    #
+    # Node Data: 147 × 7 (active)
+       source_id source_author source_year source_label  source_title source_journal
+       <chr>     <chr>         <chr>       <chr>         <chr>        <chr>
+     1 96284971  ALBANESI-S    2003        ALBANESI-S-2… EXPECTATION… "THE REVIEW O…
+     2 37095547  ATESOGLU-H    1980        ATESOGLU-H-1… INFLATION A… "JOURNAL OF P…
+     3 46282251  ATESOGLU-H    1982        ATESOGLU-H-1… WAGES AND S… "JOURNAL OF P…
+     4 214927    BALL-L        1991        BALL-L-1991   THE GENESIS… "JOURNAL OF M…
+     5 2207578   BALL-L        1995        BALL-L-1995a  RELATIVE-PR… "THE QUARTERL…
+     6 10729971  BALL-L        1995        BALL-L-1995b  TIME-CONSIS… "JOURNAL OF M…
+     7 95575910  BARSKY-R      2002        BARSKY-R-2002 DO WE REALL… "NBER MACROEC…
+     8 105203318 BARSKY-R      2004        BARSKY-R-2004 OIL AND THE… "JOURNAL OF E…
+     9 140987361 BENATI-L      2011        BENATI-L-2011 WOULD THE B… "JOURNAL OF E…
+    10 43590636  BERNANKE-B    1997        BERNANKE-B-1… SYSTEMATIC … "BROOKINGS PA…
+    # ℹ 137 more rows
+    # ℹ 1 more variable: source_type <chr>
+    #
+    # Edge Data: 2,716 × 5
+       from    to    weight Source    Target
+      <int> <int>     <dbl> <chr>     <chr>
+    1   123   124 0.000749  101742279 101742296
+    2   109   124 0.000106  101742279 101777013
+    3    38   124 0.0000999 101742279 106371053
+    # ℹ 2,713 more rows
+
+The result is a `tbl_graph` from tidygraph: a node table (the columns of
+`nodes`) and an edge table (`from`, `to`, `weight`), which can be
+manipulated with dplyr verbs and drawn with ggraph. Documents without
+any shared reference are dropped (`keep_singleton = FALSE`).
+
+### Measuring similarity
+
+Raw counts are a poor measure of similarity. An article with 150
+references shares some with almost every other article; two short notes
+sharing three references may be much closer. Normalised measures correct
+for this. With $`L_i`$ the length of the bibliography of $`i`$, $`N`$
+the number of citing documents and $`f_j`$ the number of documents
+citing reference $`j`$, the three measures available through
+biblionetwork ([Goutsmedt, Truc, et al.
+2023](#ref-goutsmedt2023biblionetwork)) are:
+
+- the **coupling angle**, the cosine of the two bibliographies ([Sen and
+  Gan 1983](#ref-sen1983)):
+  ``` math
+  w_{ik} = \frac{|R_i \cap R_k|}{\sqrt{L_i L_k}};
+  ```
+- the **coupling strength** ([Vladutz and Cook 1984](#ref-vladutz1984);
+  [Shen et al. 2019](#ref-shen2019)), which gives less weight to the
+  references that everybody cites, in the spirit of the inverse document
+  frequency of text mining:
+  ``` math
+  w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};
+  ```
+- the **coupling similarity**, inspired by Shen et al.
+  ([2019](#ref-shen2019)), which normalises the same weighted sum by the
+  weighted length of each bibliography,
+  $`S_i = \sum_{j \in R_i} \log(N / f_j)`$:
+  ``` math
+  w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{S_i S_k}.
+  ```
+
+Sharing a citation of Taylor’s 1993 article on policy rules, cited by 22
+documents of the corpus, says less about two explanations of the
+stagflation than sharing a reference cited by only two: the second and
+third measures encode this idea.
+
+All measures assume that a work has a single identifier. Raw citation
+strings do not guarantee it: in `Ref_stagflation`, Friedman’s 1968 “The
+Role of Monetary Policy” is written with six different author strings
+and two titles. Here this is harmless, because the data come with a
+`target_id` that the database assigned to each cited work: the 20
+citations share the same identifier, and the documents citing it are
+coupled. Without such an identifier, each spelling would be a different
+reference, and two documents citing the same work in different ways
+would not share it. Even with identifiers, matching is never perfect:
+about 1.5% of the works of `Ref_stagflation` (28 of 1,856 distinct
+titles, after removing punctuation and comparing with the year) are
+attached to more than one `target_id`. Check the most cited references
+for duplicates before building a network, and clean them when they
+matter: the [last
+guide](https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.md)
+explains why this matters most for co-citation.
+
+How different are the measures in practice? We compute the three
+networks and compare the weights of the same pairs.
+
+``` r
+
+measures <- c("coupling_angle", "coupling_strength", "coupling_similarity")
+weights <- lapply(measures, function(measure) {
+  graph <- build_network(
+    nodes = nodes,
+    directed_edges = Ref_stagflation,
+    source_id = "source_id",
+    target_id = "target_id",
+    projection_method = "structured",
+    cooccurrence_method = measure,
+    edges_threshold = 1
+  )
+  ids <- tidygraph::as_tibble(graph, active = "nodes")$source_id
+  edges <- tidygraph::as_tibble(graph, active = "edges")
+  data.frame(
+    pair = paste(pmin(ids[edges$from], ids[edges$to]), pmax(ids[edges$from], ids[edges$to])),
+    weight = edges$weight
+  )
+})
+pairs <- Reduce(function(a, b) merge(a, b, by = "pair"), weights)
+names(pairs) <- c("pair", measures)
+round(cor(pairs[, measures], method = "spearman"), 3)
+```
+
+                        coupling_angle coupling_strength coupling_similarity
+    coupling_angle               1.000             0.843               0.843
+    coupling_strength            0.843             1.000               1.000
+    coupling_similarity          0.843             1.000               1.000
+
+The three measures keep the same pairs (the threshold applies to the raw
+count) but weight them differently. Coupling strength and coupling
+similarity rank the pairs identically, and not by chance: in the current
+version of biblionetwork, the normalisation $`S_i`$ of the coupling
+similarity gives every reference the weight of the first one, so that
+$`S_i`$ is proportional to $`L_i`$ and the measure is proportional to
+the coupling strength. Until this is corrected, coupling strength and
+coupling angle are the two distinct options. The coupling angle, which
+treats all references alike, departs more from the coupling strength. A
+rank correlation of 0.84 still leaves room for different clusters at the
+margin: when the conclusions of a study rest on the exact composition of
+a cluster, it is worth checking them with a second measure.
+
+### Thresholds
+
+Most pairs of articles in a literature share one or two classic
+references. These ties say little, and they make the network dense
+(`edges_threshold = 1` links a quarter of all pairs here). Raising the
+threshold keeps the pairs that share at least $`n`$ references:
+
+``` r
+
+thresholds <- data.frame(threshold = 1:4)
+thresholds[c("nodes", "edges", "components")] <- t(sapply(thresholds$threshold, function(n) {
+  graph <- build_network(
+    nodes = nodes,
+    directed_edges = Ref_stagflation,
+    source_id = "source_id",
+    target_id = "target_id",
+    projection_method = "structured",
+    cooccurrence_method = "coupling_similarity",
+    edges_threshold = n
+  )
+  c(igraph::vcount(graph), igraph::ecount(graph), igraph::components(graph)$no)
+}))
+thresholds
+```
+
+      threshold nodes edges components
+    1         1   147  2716          1
+    2         2   131  1501          2
+    3         3   113   962          4
+    4         4    99   632          4
+
+Each step removes many edges, but also documents, which no longer share
+enough references with any other, and breaks the network into
+components. There is no right threshold: it depends on the length of
+bibliographies and on the size of the corpus. A threshold of 2 is a
+common choice for article corpora; in a corpus of short documents with
+few references, 1 may be the only option.
+
+### A statistical alternative: backbones
+
+A threshold is the same for every pair. Yet sharing two references means
+little for two articles with 150 references each, and a lot for two
+notes with five. The *backbone* approach replaces the fixed threshold
+with a test ([Neal 2014](#ref-neal2014)): for each pair, is the number
+of shared targets larger than in random bipartite networks that keep
+some properties of the observed one? The stochastic degree sequence
+model (`model = "sdsm"`) keeps, on average, the number of references of
+each document and the number of citations of each reference; the
+backbone package ([Domagalski et al. 2021](#ref-domagalski2021); [Neal
+2022](#ref-neal2022)) computes the probabilities.
+
+``` r
+
+backbone <- build_network(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "statistical",
+  model = "sdsm",
+  alpha = 0.05
+)
+c(nodes = igraph::vcount(backbone), edges = igraph::ecount(backbone))
+```
+
+    nodes edges
+      113   553 
+
+The backbone keeps the ties that are unlikely under the null model at
+the 5% level. Its edges are unweighted: each edge means “more shared
+references than expected”, whatever the number. The approach is slower
+on large corpora, and with many pairs tested, multiple-test corrections
+(`backbone_args = list(mtc = "holm")`) remove many more edges. It is a
+useful check of a threshold-based network, and the better option when
+the lengths of the target lists vary a lot.
+
+### Components
+
+Projected networks often have one large component and small islands.
+Community detection and layouts are hard to read on islands, and
+[`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
+keeps the largest component(s), with a warning if a large one is
+dropped:
+
+``` r
+
+network_2 <- build_network(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 2
+)
+main_component <- filter_components(network_2)
+c(before = igraph::vcount(network_2), after = igraph::vcount(main_component))
+```
+
+    before  after
+       131    129 
+
+Before dropping documents, look at them: a small component may be a
+marginal literature that matters to the story.
+
+## Time windows
+
+A network of the whole period mixes literatures that did not coexist.
+[`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
+builds one network per time window: a window starting in year $`s`$
+gathers the documents published in $`[s, s + w - 1]`$, $`w`$ being
+`time_window`, and the network is computed as if the corpus were limited
+to them. Windows can be successive (`overlapping_window = FALSE`:
+1975-1984, 1985-1994…) or sliding (`TRUE`: 1975-1984, 1976-1985…).
+
+``` r
+
+networks <- build_dynamic_networks(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  overlapping_window = TRUE,
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  filter_components = TRUE,
+  verbose = FALSE
+)
+length(networks)
+```
+
+    [1] 30
+
+``` r
+
+window_sizes <- data.frame(
+  window = names(networks),
+  start = as.integer(substr(names(networks), 1, 4)),
+  nodes = sapply(networks, igraph::vcount)
+)
+ggplot(window_sizes, aes(start, nodes)) +
+  geom_col(fill = scico::scico(1, palette = "batlow", begin = 0.3)) +
+  scale_x_continuous(
+    breaks = window_sizes$start[seq(1, nrow(window_sizes), by = 5)],
+    labels = window_sizes$window[seq(1, nrow(window_sizes), by = 5)],
+    expand = expansion(mult = c(0.01, 0.01))
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  labs(x = "Window", y = "Documents in the main component") +
+  theme_minimal(base_size = 16)
+```
+
+![Number of documents in the main component of each ten-year window,
+from 1975-1984 to 2004-2013: high in the first windows, very low for
+windows centred on the late 1980s, and rising again from the
+mid-1990s.](from-references-to-networks_files/figure-html/fig-window-size-1.png)
+
+Figure 1
+
+The size of the windows tells a story of its own: the stagflation was
+widely debated in the late 1970s and early 1980s, interest faded after
+the mid-1980s, and a new literature on it emerged in the 1990s, the
+pattern that Goutsmedt ([2021](#ref-goutsmedt2021)) describes. It also
+warns about a technical limit: windows centred on the late 1980s contain
+about ten documents, too few for their clusters to mean much. The choice
+of the window is substantive. It should be long enough for each network
+to have enough documents to show a structure, and short enough for
+changes to be visible. Sliding windows smooth the evolution (consecutive
+networks share 90% of their period here) and make clusters easier to
+follow; successive windows give independent snapshots.
+
+## What comes next
+
+The networks are ready for [community
+detection](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.md).
+Each choice made here (measure, threshold, window) changes them: report
+these choices, and check that the main results hold under reasonable
+alternatives.
+
+## References
+
+Boyack, Kevin W., and Richard Klavans. 2010. “Co-Citation Analysis,
+Bibliographic Coupling, and Direct Citation: Which Citation Approach
+Represents the Research Front Most Accurately?” *Journal of the American
+Society for Information Science and Technology* 61 (12): 2389–404.
+<https://doi.org/10.1002/asi.21419>.
+
+Cherrier, Beatrice, and Andrej Svorenčík. 2018. “The Quantitative Turn
+in the History of Economics: Promises, Perils and Challenges.” *Journal
+of Economic Methodology* 25 (4): 367–77.
+<https://doi.org/10.1080/1350178X.2018.1529217>.
+
+Claveau, François, and Yves Gingras. 2016. “Macrodynamics of Economics:
+A Bibliometric History.” *History of Political Economy* 48 (4): 551–92.
+<https://doi.org/10.1215/00182702-3687259>.
+
+Delcey, Thomas, Aurélien Goutsmedt, and Alexandre Truc. 2026. “One
+Sentence at a Time: A Quantitative History of Rationality in Economic
+Thought.” *European Journal of the History of Economic Thought*.
+
+Domagalski, Rachel, Zachary P. Neal, and Bruce Sagan. 2021. “Backbone:
+An R Package for Extracting the Backbone of Bipartite Projections.”
+*PLOS ONE* 16 (1): e0244363.
+<https://doi.org/10.1371/journal.pone.0244363>.
+
+Duluins, Océane, Aurélien Goutsmedt, Noé Vandevoorde, and Philippe V.
+Baret. 2026. “A Scientometric Retrospective of the Livestock Long Shadow
+Report.” *Frontiers in Sustainable Food Systems* 9: 1656562.
+<https://doi.org/10.3389/fsufs.2025.1656562>.
+
+Edwards, José, Yann Giraud, and Christophe Schinckus. 2018. “A
+Quantitative Turn in the Historiography of Economics?” *Journal of
+Economic Methodology* 25 (4): 283–90.
+<https://doi.org/10.1080/1350178X.2018.1529133>.
+
+Goutsmedt, Aurélien. 2021. “From the Stagflation to the Great Inflation:
+Explaining the US Economy of the 1970s.” *Revue d’Économie Politique*
+131 (3): 557–82.
+<https://www.cairn.info/revue-d-economie-politique-2021-3-page-557.htm>.
+
+Goutsmedt, Aurélien, François Claveau, and Catherine Herfeld. 2023.
+“Quantitative and Computational Approaches in the Social Studies of
+Economics.” *Œconomia – History, Methodology, Philosophy* 13 (2):
+147–61. <https://journals.openedition.org/oeconomia/15799>.
+
+Goutsmedt, Aurélien, and Alexandre Truc. 2023. “An Independent European
+Macroeconomics? A History of European Macroeconomics Through the Lens of
+the European Economic Review.” *European Economic Review* 158: 104559.
+<https://doi.org/10.1016/j.euroecorev.2023.104559>.
+
+Goutsmedt, Aurélien, Alexandre Truc, and François Claveau. 2023.
+*Biblionetwork: An R Package for Creating Different Types of
+Bibliometric Networks*. Zenodo.
+<https://doi.org/10.5281/zenodo.7677369>.
+
+Kessler, M. M. 1963. “Bibliographic Coupling Between Scientific Papers.”
+*American Documentation* 14 (1): 10–25.
+<https://doi.org/10.1002/asi.5090140103>.
+
+Neal, Zachary. 2014. “The Backbone of Bipartite Projections: Inferring
+Relationships from Co-Authorship, Co-Sponsorship, Co-Attendance and
+Other Co-Behaviors.” *Social Networks* 39: 84–97.
+<https://doi.org/10.1016/j.socnet.2014.06.001>.
+
+Neal, Zachary P. 2022. “Backbone: An R Package to Extract Network
+Backbones.” *PLOS ONE* 17 (5): e0269137.
+<https://doi.org/10.1371/journal.pone.0269137>.
+
+Sen, Subir K., and Shymal K. Gan. 1983. “A Mathematical Extension of the
+Idea of Bibliographic Coupling and Its Applications.” *Annals of Library
+Science and Documentation* 30 (2): 78–82.
+
+Shen, Si, Danhao Zhu, Ronald Rousseau, Xinning Su, and Dongbo Wang.
+2019. “A Refined Method for Computing Bibliographic Coupling Strengths.”
+*Journal of Informetrics* 13 (2): 605–15.
+<https://doi.org/10.1016/j.joi.2019.01.012>.
+
+Small, Henry. 1973. “Co-Citation in the Scientific Literature: A New
+Measure of the Relationship Between Two Documents.” *Journal of the
+American Society for Information Science* 24 (4): 265–69.
+<https://doi.org/10.1002/asi.4630240406>.
+
+Vladutz, George, and James Cook. 1984. “Bibliographic Coupling and
+Subject Relatedness.” *Proceedings of the American Society for
+Information Science* 21: 204–7.
+
+Yan, Erjia, and Ying Ding. 2012. “Scholarly Network Similarities: How
+Bibliographic Coupling Networks, Citation Networks, Cocitation Networks,
+Topical Networks, Coauthorship Networks, and Coword Networks Relate to
+Each Other.” *Journal of the American Society for Information Science
+and Technology* 63 (7): 1313–26. <https://doi.org/10.1002/asi.22680>.

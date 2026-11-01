@@ -1,7 +1,17 @@
-# Plot the Alluvial
+# Plot the evolution of dynamic clusters as an alluvial
 
-An easy way to plot the alluvial by using the columns created by the
-different function of networkflow.
+`plot_alluvial()` draws the table created by
+[`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
+with ggalluvial: one column per time window, one block per dynamic
+cluster, with a height proportional to its share of the window, and
+flows that follow the nodes from one window to the next. It can colour
+the clusters
+([`color_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)),
+reorder them to limit crossings
+([`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md))
+and position their labels
+([`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md))
+on the way.
 
 ## Usage
 
@@ -25,79 +35,129 @@ plot_alluvial(
 
 - alluv_dt:
 
-  A data.frame of an alluvial created with
-  [networks_to_alluv()](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md).
+  A data frame created with
+  [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md).
 
 - intertemporal_cluster_column:
 
-  The column with the identifier of inter-temporal clusters. If you have
-  used
-  [add_clusters()](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
-  and
-  [merge_dynamic_clusters()](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md),
-  it is of the form `dynamic_cluster_{clustering_method}`.
+  Character scalar, the column with the dynamic clusters (e.g.
+  `"dynamic_cluster_leiden"`).
 
 - node_id:
 
-  The column with the unique identifier of each node.
+  Character scalar, the column with the node identifiers.
 
 - window_column:
 
-  The column of the alluvial with your time window. By default,
-  "window", as created by
-  [networks_to_alluv()](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md).
+  Character scalar, the column with the time windows (`"window"` by
+  default).
 
 - color_column:
 
-  The column with the colors associated to the categories of
-  `intertemporal_cluster_column`. By default, "color", as the result of
-  [color_alluvial()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
+  Character scalar, the column with the colours of the clusters
+  (`"color"` by default). If absent or `NULL`, ggplot2 chooses the
+  colours.
 
 - color_alluvial:
 
-  If no color has been set for the categories of
-  `intertemporal_cluster_column`, you can attribute them colors by
-  setting `color_alluvial` to `TRUE`.
-  [color_alluvial()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
-  will be used.
+  Logical. If `TRUE`, runs
+  [`color_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
+  first.
 
 - color:
 
-  If `color_alluvial`is `TRUE`, the parameter `color` will be used to
-  color the categories of the `intertemporal_cluster_column`. It may be
-  a vector of colors (in a character format) or a two columns data frame
-  with the first column as the distinct observations of the
-  `intertemporal_cluster_column` and a second column with the vector of
-  colors you want to use. If `NULL` colors will be automatically chosen
-  by
-  [color_alluvial()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)?
+  With `color_alluvial = TRUE`, the colours passed to
+  [`color_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
 
 - minimize_crossing:
 
-  If `TRUE`,
-  [minimize_crossing_alluvial()](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
-  is run to reorder the `intertemporal_cluster_colum` to limit
-  overlapping in the plot.
+  Logical. If `TRUE`, runs
+  [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
+  first. Clusters are also reordered when `alluv_dt` already has a
+  `minimize_crossing_order` column.
 
 - prepare_label:
 
-  If `TRUE`,
-  [prepare_label_alluvial()](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
-  is used to create a column `label_x` with
+  Logical. If `TRUE`, runs
+  [`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
+  first, which adds a `label_x` column with one label per cluster.
 
 - cluster_label_column:
 
-  If `prepare_label` is `TRUE`,
-  [prepare_label_alluvial()](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
-  is used and the values of `cluster_label_column` are taken to be
-  displayed as label. By default, "cluster_label", as it is the default
-  name of the column created with
-  [name_clusters()](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md).
-  But you may also use the same column as in
-  `intertemporal_cluster_column`.
+  Character scalar, the column with the labels used by
+  [`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
+  (`"cluster_label"` by default).
 
 - print_plot_code:
 
-  Set to `TRUE` if you want the ggplot2 code to be printing. It is
-  useful if you are not totally satisfied of the plot and want to
-  manipulate the code yourself.
+  Logical. If `TRUE`, prints the ggplot2 code of the plot.
+
+## Value
+
+A ggplot object.
+
+## Details
+
+Labels are drawn with ggrepel, which must be installed, when `alluv_dt`
+has a `label_x` column. Small clusters clutter alluvials: filtering the
+table on `share_cluster_max` or `length_cluster` (see
+[`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md))
+before plotting keeps the main ones.
+
+The alluvial method was initiated by Alexandre Truc.
+
+## Examples
+
+``` r
+# \donttest{
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
+)
+#> Warning: The last window is shorter than the others.
+#> ℹ The data end in 2013, but the last window ends in 2014.
+networks <- add_clusters(
+  networks,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+networks <- merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  threshold_similarity = 0.51,
+  similarity_type = "partial"
+)
+#> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
+#> ℹ Clusters are matched through the nodes they share. In a network of documents
+#>   (coupling), each node has one date: use sliding windows (`overlapping_window
+#>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes
+#>   may have changed completely, or the threshold may leave a window without
+#>   edges.
+alluv_dt <- networks_to_alluv(
+  networks,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id"
+)
+#> ℹ No color column in the graphs: no colour kept (see `color_alluvial()`).
+#> ℹ No cluster_label column in the graphs: no label kept (see `name_clusters()`).
+plot_alluvial(
+  alluv_dt,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id",
+  color_alluvial = TRUE,
+  minimize_crossing = TRUE
+)
+#> Warning: no non-missing arguments to max; returning -Inf
+
+# }
+```

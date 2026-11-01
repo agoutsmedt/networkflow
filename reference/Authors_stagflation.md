@@ -1,9 +1,11 @@
-# List Of Authors Of The Articles and Books Explaining the 1970s US Stagflation.
+# Authors of the documents explaining the 1970s US stagflation
 
-A dataset associating the books and academic articles endeavouring to
-explain the US stagflation and their authors (`Nodes_stagflation` just
-takes the first author; here is the complete list of authors per
-document).
+All the authors of the documents of
+[Nodes_stagflation](https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.md)
+that explain the stagflation
+([Nodes_stagflation](https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.md)
+only gives the first author), from the corpus of Goutsmedt (2021) . It
+can be used to build networks of authors.
 
 ## Usage
 
@@ -17,18 +19,23 @@ A data frame with 231 rows and 3 variables:
 
 - source_id:
 
-  Identifier of the document published by the author
+  Identifier of the document.
 
 - author_name:
 
-  Author of the document
+  Name of the author.
 
 - author_order:
 
-  Author order in the document author list
+  Rank of the author in the list of authors of the document.
 
 ## Source
 
-Goutsmedt A. (2020) “From Stagflation to the Great Inflation: Explaining
-the 1970s US Economic Situation”. Revue d’Economie Politique,
-Forthcoming 2021.
+Goutsmedt (2021) .
+
+## References
+
+Goutsmedt A (2021). “From the Stagflation to the Great Inflation:
+Explaining the US Economy of the 1970s.” *Revue d'Économie Politique*,
+**131**(3), 557–582.
+<https://www.cairn.info/revue-d-economie-politique-2021-3-page-557.htm>.

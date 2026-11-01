@@ -1,9 +1,12 @@
-pandoc: 3.1.11
-pkgdown: 2.2.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
-  networkflow_presentation: networkflow_presentation.html
-last_built: 2026-02-19T14:09Z
+  articles/beyond-bibliographic-coupling: beyond-bibliographic-coupling.html
+  articles/finding-and-reading-clusters: finding-and-reading-clusters.html
+  articles/following-clusters-over-time: following-clusters-over-time.html
+  articles/from-references-to-networks: from-references-to-networks.html
+last_built: 2026-11-01T20:35Z
 urls:
   reference: https://agoutsmedt.github.io/networkflow/reference
   article: https://agoutsmedt.github.io/networkflow/articles

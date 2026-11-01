@@ -2,19 +2,21 @@
 
 **\[experimental\]**
 
-This function launches an interactive Shiny application for visualizing
-and exploring a network graph represented as a `tbl_graph` object. It
-supports node and cluster interactivity with tooltips, dynamic sizing,
-and customizable coloring. Users can inspect clusters interactively and
-explore associated node metadata in a searchable datatable. The app is
-designed for cluster/module exploration, so `cluster_id` and
-`cluster_information` are required.
+Interpreting clusters means going back and forth between the structure
+of the network and its content: which documents form this cluster, who
+wrote them, when, which ones sit at its border? `launch_network_app()`
+opens a local Shiny application for this reading. The network is drawn
+with interactive nodes (with tooltips) and cluster labels; clicking a
+cluster displays the metadata of its nodes (`cluster_information`) in a
+searchable table. Node size, edge width, labels and the visibility of
+edges can be adjusted to make dense networks readable. For a list of
+networks (one per time window), a menu selects the window.
 
-If the graph does not contain a layout (columns `x` and `y`) the
-function will compute coordinates using
-[`networkflow::layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)
-with the specified layout algorithm. If a layout name is provided, it
-will replace any existing layout in the graph.
+If `layout` is given, coordinates are computed with
+[`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md),
+replacing any existing `x` and `y`; with `layout = NULL`, the existing
+`x` and `y` columns are used. The app needs the shiny, ggiraph, DT and
+shinycssloaders packages.
 
 ## Usage
 
@@ -28,7 +30,7 @@ launch_network_app(
   node_tooltip = NULL,
   node_size = NULL,
   color = NULL,
-  layout = "kk"
+  layout = "fr"
 )
 ```
 
@@ -73,8 +75,8 @@ launch_network_app(
 
 - layout:
 
-  Character. Name of a layout to compute node coordinates (e.g. `"kk"`,
-  `"fr"`). If specified, this replaces any existing layout. If `NULL`,
+  Character. Name of a layout to compute node coordinates (e.g. `"fr"`,
+  `"kk"`). If specified, this replaces any existing layout. If `NULL`,
   existing `x`/`y` coordinates are used.
 
 ## Value
@@ -84,189 +86,47 @@ A Shiny app interface for exploring the network.
 ## Examples
 
 ``` r
-library(networkflow)
-library(dplyr)
-#> 
-#> Attaching package: ‘dplyr’
-#> The following objects are masked from ‘package:stats’:
-#> 
-#>     filter, lag
-#> The following objects are masked from ‘package:base’:
-#> 
-#>     intersect, setdiff, setequal, union
-
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation") |>
-  dplyr::mutate(source_id = as.character(source_id))
-
-references <- networkflow::Ref_stagflation
-
-g <- build_network(
-  nodes = nodes,
-  directed_edges = references,
+if (FALSE) { # \dontrun{
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
   projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
-  edges_threshold = 1,
-  compute_size = FALSE,
-  keep_singleton = FALSE
+  cooccurrence_method = "coupling_angle",
+  edges_threshold = 1
 )
+network <- add_clusters(network, clustering_method = "leiden",
+                        objective_function = "modularity", seed = 123)
 
-g <- add_clusters(
-  g,
-  clustering_method = "leiden",
-  objective_function = "modularity"
-)
-#> ℹ The leiden method detected 7 clusters. The biggest cluster represents "35.4%" of the network.
-
-if (FALSE) { # \dontrun{
 launch_network_app(
-  graph_tbl = g,
+  graph_tbl = network,
   cluster_id = "cluster_leiden",
   cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
-  cluster_tooltip = "Cluster",
   node_id = "source_id",
   node_tooltip = "source_label",
-  node_size = NULL,
-  color = NULL,
-  layout = "kk"
+  layout = "fr"
 )
-} # }
 
-# Dynamic networks
-g_list <- build_dynamic_networks(
-  nodes = nodes,
-  directed_edges = references,
+# One network per time window: the app shows a menu of windows
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 20,
-  cooccurrence_method = "coupling_similarity",
-  edges_threshold = 1,
   overlapping_window = TRUE,
-  compute_size = FALSE,
-  keep_singleton = FALSE
+  cooccurrence_method = "coupling_angle"
 )
-#> ℹ Backbone method selected: structured
-#> ℹ Keep_singleton == FALSE: removing the nodes that are alone with no edge. 
-#> 
-#> ── Generation of the network for the 1975-1994 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1976-1995 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1977-1996 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1978-1997 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1979-1998 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1980-1999 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1981-2000 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1982-2001 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1983-2002 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1984-2003 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1985-2004 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1986-2005 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1987-2006 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1988-2007 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1989-2008 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1990-2009 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1991-2010 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1992-2011 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1993-2012 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1994-2013 time window. ────────────────────
-
-g_list <- add_clusters(
-  g_list,
-  clustering_method = "leiden",
-  objective_function = "modularity"
-)
-#> 
-#> ── Cluster detection for the "1975-1994" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "29.7%" of the network.
-#> 
-#> ── Cluster detection for the "1976-1995" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "26.8%" of the network.
-#> 
-#> ── Cluster detection for the "1977-1996" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "33.8%" of the network.
-#> 
-#> ── Cluster detection for the "1978-1997" period ────────────────────────────────
-#> ℹ The leiden method detected 5 clusters. The biggest cluster represents "40.6%" of the network.
-#> 
-#> ── Cluster detection for the "1979-1998" period ────────────────────────────────
-#> ℹ The leiden method detected 5 clusters. The biggest cluster represents "32.8%" of the network.
-#> 
-#> ── Cluster detection for the "1980-1999" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "29.1%" of the network.
-#> 
-#> ── Cluster detection for the "1981-2000" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "39.1%" of the network.
-#> 
-#> ── Cluster detection for the "1982-2001" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "40.5%" of the network.
-#> 
-#> ── Cluster detection for the "1983-2002" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "33.3%" of the network.
-#> 
-#> ── Cluster detection for the "1984-2003" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "31%" of the network.
-#> 
-#> ── Cluster detection for the "1985-2004" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "26.7%" of the network.
-#> 
-#> ── Cluster detection for the "1986-2005" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "37.3%" of the network.
-#> 
-#> ── Cluster detection for the "1987-2006" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "35.2%" of the network.
-#> 
-#> ── Cluster detection for the "1988-2007" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "33.3%" of the network.
-#> 
-#> ── Cluster detection for the "1989-2008" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "34.5%" of the network.
-#> 
-#> ── Cluster detection for the "1990-2009" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "33.3%" of the network.
-#> 
-#> ── Cluster detection for the "1991-2010" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "33.8%" of the network.
-#> 
-#> ── Cluster detection for the "1992-2011" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "35.4%" of the network.
-#> 
-#> ── Cluster detection for the "1993-2012" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "36.4%" of the network.
-#> 
-#> ── Cluster detection for the "1994-2013" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "41.1%" of the network.
-
-if (FALSE) { # \dontrun{
+networks <- add_clusters(networks, clustering_method = "leiden",
+                         objective_function = "modularity", seed = 123)
 launch_network_app(
-  graph_tbl = g_list,
+  graph_tbl = networks,
   cluster_id = "cluster_leiden",
-  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
+  cluster_information = c("source_author", "source_title", "source_year"),
   node_id = "source_id",
-  node_tooltip = "source_label",
-  node_size = NULL,
-  color = NULL,
-  layout = "kk"
+  layout = "fr"
 )
 } # }
 ```

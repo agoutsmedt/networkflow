@@ -1,13 +1,19 @@
-# Extracting TF-IDF Values for Ngrams
+# Find the terms that distinguish groups of nodes (tf-idf)
 
 **\[experimental\]**
 
-This function takes as input a tibble graph (from
-[tidygraph](https://tidygraph.data-imaginist.com/)), a list of tibble
-graphs or a data frame, extract the ngrams from the text column(s) of
-your choice, and calculates the Term-Frequency
-Inverse-Document-Frequency value of each ngram for each grouping
-variables you have chosen.
+Clusters are defined by the structure of the network, not by the content
+of the nodes. To interpret them, it helps to know which words are
+specific to each cluster. `extract_tfidf()` extracts the words and
+n-grams of one or several text columns (e.g. titles, abstracts) and
+returns, for each group (e.g. each cluster), the terms with the highest
+tf-idf (Spärck Jones 1972; Salton and Buckley 1988) :
+\$\$\mathrm{tf}\_{td} = \frac{n\_{td}}{\sum_u n\_{ud}}, \qquad
+\mathrm{idf}\_t = \log\frac{D}{\mathrm{df}\_t}, \qquad
+\text{tf-idf}\_{td} = \mathrm{tf}\_{td} \times \mathrm{idf}\_t,\$\$ with
+\\n\_{td}\\ the count of term \\t\\ in group \\d\\, \\D\\ the number of
+groups and \\\mathrm{df}\_t\\ the number of groups containing \\t\\. A
+term present in every group has a tf-idf of 0.
 
 ## Usage
 
@@ -30,376 +36,143 @@ extract_tfidf(
 
 - data:
 
-  A tibble graph from
-  [tidygraph](https://tidygraph.data-imaginist.com/), a list of tibble
-  graphs or a data frame.
+  A `tbl_graph`, a list of `tbl_graph`s (their node tables are stacked)
+  or a data frame.
 
 - text_columns:
 
-  The columns with the text you want to analyze. If you give multiple
-  columns, they will be united to extract the terms.
+  Character vector, the column(s) with text. Several columns are pasted
+  together, separated by ". ".
 
 - grouping_columns:
 
-  The column(s) you want to use to calculate the tf-idf. These columns
-  will become your "document" unit in the
-  [`tidytext::bind_tf_idf()`](https://juliasilge.github.io/tidytext/reference/bind_tf_idf.html)
-  function. For instance, if you run the function on a unique tibble
-  graph, you may want to compute the tf-idf depending on the clusters
-  your nodes are belonging. You have to take care that the identifier of
-  the variable you are using to compute the tf-idf is unique for each
-  group (see the details for more information).
+  Character vector, the column(s) defining the groups, the "documents"
+  of the tf-idf (e.g. `"cluster_leiden"`).
 
 - grouping_across_list:
 
-  Set to `TRUE` if you want to compute tf-idf on the whole list of
-  tibble graphs and that you have no unique identifier for them (see the
-  details for more information).
+  Logical. For a list of graphs whose group identifiers repeat across
+  graphs (cluster "01" exists in every window), `TRUE` adds the name of
+  the graph to the groups, so that each cluster of each window is a
+  separate document. Not needed for identifiers that are already unique
+  across the list, such as dynamic clusters.
 
 - n_gram:
 
-  The maximum n you want for tokenizing your ngrams (see
-  [`tidytext::unnest_tokens()`](https://juliasilge.github.io/tidytext/reference/unnest_tokens.html)
-  for more information). 2 by default, i.e. only unigrams and bigrams
-  will be extracted.
+  Integer, the maximum length of n-grams (2 by default: words and pairs
+  of words).
 
 - stopwords_type:
 
-  The type of stopwords list you want to use to remove stopwords from
-  your ngrams. The "smart" list is chosen by default, but see other
-  possilities with
-  [stopwords::stopwords_getsources](https://rdrr.io/pkg/stopwords/man/stopwords_getsources.html).
+  Character scalar, the stop word list of
+  [`tidytext::get_stopwords()`](https://juliasilge.github.io/tidytext/reference/get_stopwords.html)
+  (`"smart"` by default).
 
 - stopwords_vector:
 
-  Use your own stopwords list, in a vector of strings format.
+  Optional character vector of stop words, used instead of
+  `stopwords_type`.
 
 - clean_word_method:
 
-  Choose the method to clean and standardized your ngrams. You can
-  lemmatize or stem words through the [textstem
-  package](https://github.com/trinker/textstem). Choose "none" if you
-  don't want to apply any cleaning method.
+  `"lemmatize"`, `"stemming"` (with the textstem package) or `"none"`
+  (chosen when no method is given).
 
 - ngrams_filter:
 
-  You can exclude from tf-idf computation the ngrams that does not
-  appear a certain number of time in the whole corpus.
+  Integer, the minimum number of occurrences of a term in the whole
+  corpus (5 by default).
 
 - nb_terms:
 
-  The functions extracts the `nb_terms` (5 by default) highest TF-IDF
-  for each grouping variables.
+  Integer, the number of terms returned per group (5 by default).
 
 ## Value
 
-A data.table with the terms (i.e. ngrams) appearing in each "document"
-(that is your `grouping_columns`) with the number of time they appear
-per document (`n`), their term frequency (`tf`), their inverse document
-frequency (`idf`), and their term-frequency inverse-document-frequency
-(`tf_idf`). The terms are those with the highest `tf_idf` value for each
-value of the grouping columns, depending on the `nb_words` value you
-set. For instance, if `nb_words` is set to 5 (default valuet), and that
-you compute the TF-IDF on the cluster variable, the function extracts
-the 5 terms with the highest TF-IDF value for each cluster.
+A `data.table` with one row per group and term, for the `nb_terms` best
+terms of each group: the grouping columns, `term`, `n` (count of the
+term in the group), `tf`, `idf` and `tf_idf`.
 
 ## Details
 
-This functions extract TF-IDF values for various types of input, from
-multiple text columns and with grouping of multiple columns. The most
-simple case is to use this function with a data frame or a unique tibble
-graph with an easily identifiable grouping variable (like a cluster).
-But it also allows more complex uses in the case of a list of tibble
-graphs.
+The texts are lower-cased and split into n-grams of 1 to `n_gram` words
+by
+[`tidytext::unnest_tokens()`](https://juliasilge.github.io/tidytext/reference/unnest_tokens.html)
+(Silge and Robinson 2017) . Each word is lemmatised or stemmed if
+requested; n-grams containing a stop word or a number are dropped, as
+are terms rarer than `ngrams_filter` in the corpus and terms appearing
+only once in a group, which would otherwise reach the top of small
+groups by accident.
 
-If you enter as an input a list of tibble graphs, the function extracts
-TF-IDF on the binded graphs, and not graph after graph. If your want to
-extract TF-IDF for each graphs separately, then use
-[`lapply()`](https://rdrr.io/r/base/lapply.html) and apply
-`extract_tfidf()` for each graph: the input will be a unique tibble
-graph, and the operation will be repeated for each tibble graphs of your
-list.
+The choice of the groups decides what "specific" means: computed on the
+clusters of one network, tf-idf finds what distinguishes a cluster from
+the other clusters of the same period; computed on the stacked windows
+with `grouping_across_list = TRUE`, it also distinguishes a cluster from
+its own past and future.
 
-As the extraction of TF-IDF is made on the whole aggregated list, you
-have to choose carefully your `grouping_columns`. Indeed, your grouping
-columns must identify variables that are unique. For instance, in the
-case you have used
-[`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md),
-each node in each of your graph is associated to a cluster. But the
-identifier of the clusters ("01", "02", "03", etc.) are the same across
-tibble graphs. It means that all the "01" clusters will be grouped
-together, and it is something you don't want. In this case, set
-`grouping_across_list` to `TRUE`: the identifier of the cluster will be
-merged with the name of the corresponding tibble_graph in the list.
-However, you don't need to use this possibility if you have a unique
-identifier across your tibble graphs. That is the case, for instance, if
-you have use
-[`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md),
-you have a column of clusters merged across your different tibble
-graphs. These new inter-networks clusters constitute a unique
-identifier.
+Lemmatising and stemming are optional and need the textstem package. For
+larger corpora or other weighting schemes, the text-mining functions of
+the mintR package (<https://codeberg.org/agoutsmedt/mintR>) can be used
+on the node table.
 
-TF-IDF are calculated from the number of occurrence of a term in each
-document. The terms which occur only once are removed to avoid too rare
-terms to appear at the top of your grouping variables.
+## References
+
+Salton G, Buckley C (1988). “Term-Weighting Approaches in Automatic Text
+Retrieval.” *Information Processing & Management*, **24**(5), 513–523.  
+  
+Silge J, Robinson D (2017). *Text Mining with R: A Tidy Approach*.
+O'Reilly.  
+  
+Spärck Jones K (1972). “A Statistical Interpretation of Term Specificity
+and Its Application in Retrieval.” *Journal of Documentation*,
+**28**(1), 11–21.
 
 ## Examples
 
 ``` r
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
 
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 10,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE)
-#> ℹ Backbone method selected: structured
-#> ℹ Keep_singleton == FALSE: removing the nodes that are alone with no edge. 
-#> 
-#> ── Generation of the network for the 1975-1984 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1976-1985 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1977-1986 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1978-1987 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1979-1988 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1980-1989 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1981-1990 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1982-1991 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1983-1992 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1984-1993 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1985-1994 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1986-1995 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1987-1996 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1988-1997 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1989-1998 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1990-1999 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1991-2000 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1992-2001 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1993-2002 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1994-2003 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1995-2004 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1996-2005 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1997-2006 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1998-2007 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 1999-2008 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 2000-2009 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 2001-2010 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 2002-2011 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 2003-2012 time window. ────────────────────
-#> 
-#> ── Generation of the network for the 2004-2013 time window. ────────────────────
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden")
-#> 
-#> ── Cluster detection for the "1975-1984" period ────────────────────────────────
-#> ℹ The leiden method detected 5 clusters. The biggest cluster represents "39.1%" of the network.
-#> 
-#> ── Cluster detection for the "1976-1985" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "24.6%" of the network.
-#> 
-#> ── Cluster detection for the "1977-1986" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "26.2%" of the network.
-#> 
-#> ── Cluster detection for the "1978-1987" period ────────────────────────────────
-#> ℹ The leiden method detected 6 clusters. The biggest cluster represents "28.6%" of the network.
-#> 
-#> ── Cluster detection for the "1979-1988" period ────────────────────────────────
-#> ℹ The leiden method detected 5 clusters. The biggest cluster represents "35.4%" of the network.
-#> 
-#> ── Cluster detection for the "1980-1989" period ────────────────────────────────
-#> ℹ The leiden method detected 5 clusters. The biggest cluster represents "40%" of the network.
-#> 
-#> ── Cluster detection for the "1981-1990" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "37%" of the network.
-#> 
-#> ── Cluster detection for the "1982-1991" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "38.1%" of the network.
-#> 
-#> ── Cluster detection for the "1983-1992" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "42.9%" of the network.
-#> 
-#> ── Cluster detection for the "1984-1993" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "40%" of the network.
-#> 
-#> ── Cluster detection for the "1985-1994" period ────────────────────────────────
-#> ℹ The leiden method detected 2 clusters. The biggest cluster represents "57.1%" of the network.
-#> 
-#> ── Cluster detection for the "1986-1995" period ────────────────────────────────
-#> ℹ The leiden method detected 2 clusters. The biggest cluster represents "57.1%" of the network.
-#> 
-#> ── Cluster detection for the "1987-1996" period ────────────────────────────────
-#> ℹ The leiden method detected 2 clusters. The biggest cluster represents "62.5%" of the network.
-#> 
-#> ── Cluster detection for the "1988-1997" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "36.4%" of the network.
-#> 
-#> ── Cluster detection for the "1989-1998" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "45.5%" of the network.
-#> 
-#> ── Cluster detection for the "1990-1999" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "46.2%" of the network.
-#> 
-#> ── Cluster detection for the "1991-2000" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "38.9%" of the network.
-#> 
-#> ── Cluster detection for the "1992-2001" period ────────────────────────────────
-#> ℹ The leiden method detected 4 clusters. The biggest cluster represents "35%" of the network.
-#> 
-#> ── Cluster detection for the "1993-2002" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "40.7%" of the network.
-#> 
-#> ── Cluster detection for the "1994-2003" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "38.7%" of the network.
-#> 
-#> ── Cluster detection for the "1995-2004" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "38.9%" of the network.
-#> 
-#> ── Cluster detection for the "1996-2005" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "40.5%" of the network.
-#> 
-#> ── Cluster detection for the "1997-2006" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "40%" of the network.
-#> 
-#> ── Cluster detection for the "1998-2007" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "39.6%" of the network.
-#> 
-#> ── Cluster detection for the "1999-2008" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "39.1%" of the network.
-#> 
-#> ── Cluster detection for the "2000-2009" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "49%" of the network.
-#> 
-#> ── Cluster detection for the "2001-2010" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "45.7%" of the network.
-#> 
-#> ── Cluster detection for the "2002-2011" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "50%" of the network.
-#> 
-#> ── Cluster detection for the "2003-2012" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "55.3%" of the network.
-#> 
-#> ── Cluster detection for the "2004-2013" period ────────────────────────────────
-#> ℹ The leiden method detected 3 clusters. The biggest cluster represents "54.8%" of the network.
-
-library(stopwords)
-tfidf <- extract_tfidf(temporal_networks,
-n_gram = 4,
-text_columns = "source_title",
-grouping_columns = "cluster_leiden",
-grouping_across_list = TRUE,
-clean_word_method = "lemmatize")
-#> Warning: A shallow copy of this data.table was taken so that := can add or remove 4 columns by reference. At an earlier point, this data.table was copied by R (or was created manually using structure() or similar). Avoid names<- and attr<- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. It's also not unusual for data.table-agnostic packages to produce tables affected by this issue. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.
-
-tfidf[[1]]
-#>   [1] "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984"
-#>   [7] "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984"
-#>  [13] "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984" "1975-1984"
-#>  [19] "1975-1984" "1975-1984" "1975-1984" "1976-1985" "1976-1985" "1976-1985"
-#>  [25] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985"
-#>  [31] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985"
-#>  [37] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985"
-#>  [43] "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1976-1985" "1977-1986"
-#>  [49] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"
-#>  [55] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"
-#>  [61] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"
-#>  [67] "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986" "1977-1986"
-#>  [73] "1977-1986" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"
-#>  [79] "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"
-#>  [85] "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"
-#>  [91] "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987" "1978-1987"
-#>  [97] "1978-1987" "1978-1987" "1978-1987" "1979-1988" "1979-1988" "1979-1988"
-#> [103] "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988"
-#> [109] "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988"
-#> [115] "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988" "1979-1988"
-#> [121] "1979-1988" "1979-1988" "1979-1988" "1980-1989" "1980-1989" "1980-1989"
-#> [127] "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989"
-#> [133] "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989" "1980-1989"
-#> [139] "1980-1989" "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990"
-#> [145] "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990"
-#> [151] "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990" "1981-1990"
-#> [157] "1981-1990" "1982-1991" "1982-1991" "1982-1991" "1982-1991" "1982-1991"
-#> [163] "1982-1991" "1982-1991" "1982-1991" "1982-1991" "1982-1991" "1982-1991"
-#> [169] "1982-1991" "1982-1991" "1983-1992" "1983-1992" "1983-1992" "1983-1992"
-#> [175] "1983-1992" "1983-1992" "1983-1992" "1983-1992" "1983-1992" "1983-1992"
-#> [181] "1983-1992" "1983-1992" "1984-1993" "1984-1993" "1984-1993" "1984-1993"
-#> [187] "1984-1993" "1984-1993" "1984-1993" "1984-1993" "1984-1993" "1984-1993"
-#> [193] "1984-1993" "1985-1994" "1985-1994" "1985-1994" "1985-1994" "1986-1995"
-#> [199] "1986-1995" "1986-1995" "1986-1995" "1987-1996" "1987-1996" "1987-1996"
-#> [205] "1987-1996" "1987-1996" "1988-1997" "1988-1997" "1988-1997" "1988-1997"
-#> [211] "1988-1997" "1988-1997" "1988-1997" "1988-1997" "1988-1997" "1989-1998"
-#> [217] "1989-1998" "1989-1998" "1989-1998" "1989-1998" "1989-1998" "1989-1998"
-#> [223] "1989-1998" "1989-1998" "1990-1999" "1990-1999" "1990-1999" "1990-1999"
-#> [229] "1990-1999" "1990-1999" "1990-1999" "1990-1999" "1990-1999" "1991-2000"
-#> [235] "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1991-2000"
-#> [241] "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1991-2000" "1992-2001"
-#> [247] "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001"
-#> [253] "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1992-2001"
-#> [259] "1992-2001" "1992-2001" "1992-2001" "1992-2001" "1993-2002" "1993-2002"
-#> [265] "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002"
-#> [271] "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002" "1993-2002"
-#> [277] "1993-2002" "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003"
-#> [283] "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1994-2003"
-#> [289] "1994-2003" "1994-2003" "1994-2003" "1994-2003" "1995-2004" "1995-2004"
-#> [295] "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004"
-#> [301] "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004" "1995-2004"
-#> [307] "1995-2004" "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005"
-#> [313] "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1996-2005"
-#> [319] "1996-2005" "1996-2005" "1996-2005" "1996-2005" "1997-2006" "1997-2006"
-#> [325] "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006"
-#> [331] "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006" "1997-2006"
-#> [337] "1997-2006" "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007"
-#> [343] "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1998-2007"
-#> [349] "1998-2007" "1998-2007" "1998-2007" "1998-2007" "1999-2008" "1999-2008"
-#> [355] "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008"
-#> [361] "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008" "1999-2008"
-#> [367] "1999-2008" "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009"
-#> [373] "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2000-2009"
-#> [379] "2000-2009" "2000-2009" "2000-2009" "2000-2009" "2001-2010" "2001-2010"
-#> [385] "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010"
-#> [391] "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010" "2001-2010"
-#> [397] "2001-2010" "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011"
-#> [403] "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2002-2011"
-#> [409] "2002-2011" "2002-2011" "2002-2011" "2002-2011" "2003-2012" "2003-2012"
-#> [415] "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012"
-#> [421] "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012" "2003-2012"
-#> [427] "2003-2012" "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013"
-#> [433] "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013" "2004-2013"
-#> [439] "2004-2013" "2004-2013" "2004-2013" "2004-2013"
+extract_tfidf(
+  network,
+  text_columns = "source_title",
+  grouping_columns = "cluster_leiden",
+  n_gram = 2,
+  clean_word_method = "none",
+  nb_terms = 3
+)
+#>     cluster_leiden              term     n         tf       idf     tf_idf
+#>             <char>            <char> <int>      <num>     <num>      <num>
+#>  1:             01   great inflation    21 0.10769231 1.7917595 0.19295871
+#>  2:             01             great    22 0.11282051 0.6931472 0.07820122
+#>  3:             01     stabilization     5 0.02564103 1.7917595 0.04594255
+#>  4:             02      productivity     8 0.10389610 1.7917595 0.18615683
+#>  5:             02     supply shocks     4 0.05194805 1.0986123 0.05707077
+#>  6:             02               oil     4 0.05194805 1.0986123 0.05707077
+#>  7:             03               oil    13 0.16250000 1.0986123 0.17852450
+#>  8:             03         oil price     5 0.06250000 1.7917595 0.11198497
+#>  9:             03 great stagflation     4 0.05000000 1.0986123 0.05493061
+#> 10:             04             great     2 0.04761905 0.6931472 0.03300701
+#> 11:             04       alternative     2 0.04761905 0.6931472 0.03300701
+#> 12:             04            supply     2 0.04761905 0.6931472 0.03300701
+#> 13:             05      unemployment     6 0.16666667 1.0986123 0.18310205
+#> 14:             05       stagflation     9 0.25000000 0.1823216 0.04558039
+#> 15:             05          evidence     4 0.11111111 0.1823216 0.02025795
+#> 16:             06           comment     4 0.13793103 1.0986123 0.15153273
+#> 17:             06       stagflation     5 0.17241379 0.1823216 0.03143475
+#> 18:             06         inflation     9 0.31034483 0.0000000 0.00000000
 ```

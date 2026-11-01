@@ -1,98 +1,93 @@
 # Package index
 
-## Step 1: Creating networks
+## Step 1: Building networks
 
-Functions for creating one or multiple networks and to filter the
-networks.
+Project a table of links between two kinds of entities (articles and
+references, authors and papers…) onto a network, for the whole corpus or
+one network per time window, and keep its main components.
 
-- [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
-  **\[experimental\]** : Build One or Multiple Networks from Bipartite
-  Links
 - [`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
-  : Build a single network
+  **\[experimental\]** : Build a single network from bipartite links
+- [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
+  **\[experimental\]** : Build one network, or one network per time
+  window, from bipartite links
 - [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
-  **\[experimental\]** : Filtering Network Components
+  **\[experimental\]** : Keep the main component(s) of networks
 
-## Step 2: Clustering
+## Step 2: Finding and reading clusters
 
-Functions for detecting clusters and interpreting them.
+Detect communities, follow them across time windows, name them and
+characterise the role of their members.
 
 - [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
-  **\[experimental\]** : Detect and Add Clusters to Graphs
+  **\[experimental\]** : Detect communities in networks
 - [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
-  **\[experimental\]** : Find Similar Clusters across Multiple Temporal
-  Networks
+  **\[experimental\]** : Follow clusters across time windows
 - [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
-  **\[experimental\]** : Automatically Attributing Names to Clusters
-- [`add_node_roles()`](https://agoutsmedt.github.io/networkflow/reference/add_node_roles.md)
-  **\[experimental\]** : Add Node Roles to Graphs
+  **\[experimental\]** : Give readable names to clusters
 - [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
-  **\[experimental\]** : Extracting TF-IDF Values for Ngrams
+  **\[experimental\]** : Find the terms that distinguish groups of nodes
+  (tf-idf)
+- [`add_node_roles()`](https://agoutsmedt.github.io/networkflow/reference/add_node_roles.md)
+  **\[experimental\]** : Characterise the role of nodes within and
+  between clusters
 
-## Step 3: Plot networks
+## Step 3: Drawing networks
 
-Functions for preparing the plots of networks and for plotting them.
+Compute coordinates, colours and label positions, and plot the networks
+or explore them in an interactive application.
 
 - [`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)
-  **\[experimental\]** : Calculate the Coordinates of Nodes
-- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
-  : Order the rectangles of the alluvial in a way that minimize crossing
-  of flow
+  **\[experimental\]** : Compute the coordinates of nodes
 - [`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
   [`color_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
-  **\[experimental\]** : Color Nodes and Edges of Networks or Alluvial
+  **\[experimental\]** : Colour the nodes and edges of networks, or the
+  clusters of an alluvial
 - [`prepare_label_networks()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
   [`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
-  : Creating and Positioning Labels for Plotting Networks or Alluvial
-- [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)
-  : Plot the Alluvial
+  : Position the labels of clusters in network and alluvial plots
 - [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
-  : Plot your Networks
+  : Plot networks
 - [`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md)
   **\[experimental\]** : Launch an Interactive Shiny App to Explore a
   Network Graph
 
-## Included datasets
+## Step 4: Drawing the history of clusters
 
-Data on articles about stagflation from Goutsmedt (2021) ‘From the
-Stagflation to the Great Inflation’
+Turn a list of networks with dynamic clusters into an alluvial plot.
+
+- [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
+  **\[experimental\]** : Turn a list of networks into the table of an
+  alluvial plot
+- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
+  **\[experimental\]** : Order the clusters of an alluvial to reduce
+  crossing flows
+- [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)
+  : Plot the evolution of dynamic clusters as an alluvial
+
+## Example data
+
+The explanations of the 1970s US stagflation and the references they
+cite, from Goutsmedt (2021), “From the Stagflation to the Great
+Inflation”, Revue d’Économie Politique 131(3).
 
 - [`Authors_stagflation`](https://agoutsmedt.github.io/networkflow/reference/Authors_stagflation.md)
-  : List Of Authors Of The Articles and Books Explaining the 1970s US
-  Stagflation.
+  : Authors of the documents explaining the 1970s US stagflation
 - [`Nodes_stagflation`](https://agoutsmedt.github.io/networkflow/reference/Nodes_stagflation.md)
-  : Articles and Books Explaining the 1970s US Stagflation.
+  : Documents explaining the 1970s US stagflation, and the documents
+  they cite
 - [`Ref_stagflation`](https://agoutsmedt.github.io/networkflow/reference/Ref_stagflation.md)
-  : Articles and Books Explaining the 1970s US Stagflation.
+  : References cited by the documents explaining the 1970s US
+  stagflation
 - [`Edges_coupling`](https://agoutsmedt.github.io/networkflow/reference/Edges_coupling.md)
-  : Edges For Bibliographic Coupling Network Of Articles and Books
-  Explaining the 1970s US Stagflation.
+  : Edges of a ready-made bibliographic coupling network on the
+  stagflation
 - [`Nodes_coupling`](https://agoutsmedt.github.io/networkflow/reference/Nodes_coupling.md)
-  : Articles and Books Explaining the 1970s US Stagflation.
+  : Nodes of a ready-made bibliographic coupling network on the
+  stagflation
 
-## Deprecated functions
+## Package
 
-Functions that have been replaced or will be replaced soon.
-
-- [`community_colors()`](https://agoutsmedt.github.io/networkflow/reference/community_colors.md)
-  **\[deprecated\]** : Creating Color Attribute For Network Communities
-- [`community_labels()`](https://agoutsmedt.github.io/networkflow/reference/community_labels.md)
-  **\[deprecated\]** : Calculating the Coordinates for Projecting
-  Community Labels
-- [`community_names()`](https://agoutsmedt.github.io/networkflow/reference/community_names.md)
-  **\[deprecated\]** : Automatically Attributing Names to Communities
-- [`dynamic_network_cooccurrence()`](https://agoutsmedt.github.io/networkflow/reference/dynamic_network_cooccurrence.md)
-  **\[deprecated\]** : Creating Dynamic Networks from a List of Nodes
-  and Directed Edges
-- [`intertemporal_cluster_naming()`](https://agoutsmedt.github.io/networkflow/reference/intertemporal_cluster_naming.md)
-  **\[deprecated\]** : Find Similar Clusters across Multiple Temporal
-  Networks
-- [`leiden_workflow()`](https://agoutsmedt.github.io/networkflow/reference/leiden_workflow.md)
-  **\[deprecated\]** : Add Leiden Communities to graph
-- [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
-  : Create a data.frame suitable for alluvial graph projection
-- [`tbl_main_component()`](https://agoutsmedt.github.io/networkflow/reference/tbl_main_component.md)
-  **\[deprecated\]** : Creating Graph And Keeping Main Component With
-  Tidygraph From Edges And Nodes
-- [`top_nodes()`](https://agoutsmedt.github.io/networkflow/reference/top_nodes.md)
-  **\[deprecated\]** : Displaying the Highest Cited Nodes
+- [`networkflow`](https://agoutsmedt.github.io/networkflow/reference/networkflow-package.md)
+  [`networkflow-package`](https://agoutsmedt.github.io/networkflow/reference/networkflow-package.md)
+  : networkflow: a research pipeline for projected and dynamic networks

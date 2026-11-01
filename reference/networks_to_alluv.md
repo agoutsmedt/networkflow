@@ -1,7 +1,14 @@
-# Create a data.frame suitable for alluvial graph projection
+# Turn a list of networks into the table of an alluvial plot
 
-This function creates a data.frame that can be easily plotted with
-ggalluvial from a list of networks.
+**\[experimental\]**
+
+An alluvial plot shows the evolution of dynamic clusters: each time
+window is a column, each cluster a block whose height is its share of
+the nodes of the window, and the flows between blocks follow the nodes
+that stay in the network from one window to the next (Rosvall and
+Bergstrom 2010) . `networks_to_alluv()` stacks the node tables of a list
+of networks into the long table that such a plot needs (one row per node
+and window) and adds summary statistics on the clusters.
 
 ## Usage
 
@@ -22,143 +29,142 @@ networks_to_alluv(
 
 - graphs:
 
-  A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/)
-  or a list of tibble graphs.
+  A list of `tbl_graph`s with dynamic clusters (see
+  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)).
 
 - intertemporal_cluster_column:
 
-  The column with the identifier of the inter-temporal cluster. If you
-  have used
-  [add_clusters()](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
-  and
-  [merge_dynamic_clusters()](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md),
-  it is of the form `dynamic_cluster_{clustering_method}`.
+  Character scalar, the node column with the dynamic clusters (e.g.
+  `"dynamic_cluster_leiden"`).
 
 - node_id:
 
-  The column with the unique identifier of each node.
+  Character scalar, the node column with a stable identifier; it is the
+  "alluvium" that the flows follow.
 
 - summary_cluster_stats:
 
-  If set to `TRUE`, the data.frame will contain a list of variable that
-  summarize cluster statistics of the alluvial. These variables can be
-  particularly useful to filter smaller communities when plotting
-  according to different variables:
-
-  - `share_cluster_alluv` is the percentage share of a given cluster
-    across all time windows;
-
-  - `share_cluster_window` is the percentage share of a given cluster in
-    a given time window;
-
-  - `share_cluster_max` is the highest value of `share_cluster_window`
-    for a given cluster across all individual time windows;
-
-  - `length_cluster` is the number of time windows a cluster exists.
+  Logical. If `TRUE` (default), adds the statistics described in the
+  return value, useful to keep only the main clusters in the plot.
 
 - keep_color:
 
-  Set to `TRUE` (by default) if you want to keep the column with the
-  color associated to the different categories of
-  `intertemporal_cluster_column`. Such a column exists in your list of
-  tibble graphs if you have use
-  [color_networks()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
+  Logical. If `TRUE` (default), keeps `color_column`.
 
 - color_column:
 
-  The name of the column with the colors of the categories in
-  `intertemporal_cluster_column`. By default, "color", as it is the
-  column name resulting from the use of
-  [color_networks()](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
+  Character scalar, the colour column (`"color"`, from
+  [`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)).
 
 - keep_cluster_label:
 
-  Set to `TRUE` if you want to keep the column with a name/label
-  associated to the different categories of
-  `intertemporal_cluster_column`. Such a column exists in your list of
-  tibble graphs if you have use
-  [name_clusters()](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md).
+  Logical. If `TRUE` (default), keeps `cluster_label_column`.
 
 - cluster_label_column:
 
-  The name of the column with the name/label associated to the
-  categories in `intertemporal_cluster_column`. By default,
-  "cluster_label", as it is the column name resulting from the use of
-  [name_clusters()](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md).
+  Character scalar, the label column (`"cluster_label"`, from
+  [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)).
+
+## Value
+
+A `data.table` with one row per node and window: `window` (the name of
+the graph in the list), `node_id`, the dynamic cluster, the colour and
+label columns if kept, `y_alluv` (\\1/n_t\\, \\n_t\\ being the number of
+nodes of the window, so that each window has a total height of 1), and,
+with `summary_cluster_stats = TRUE`:
+
+- `share_cluster_alluv`: the share of all rows that belong to the
+  cluster, in per cent;
+
+- `share_cluster_window`: the share of the window's nodes in the
+  cluster, in per cent;
+
+- `share_cluster_max`: the maximum of `share_cluster_window` over the
+  windows;
+
+- `length_cluster`: the number of windows where the cluster exists.
+
+## Details
+
+The alluvial method (following clusters over time with
+`networks_to_alluv()`,
+[`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
+and
+[`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md))
+was initiated by Alexandre Truc.
+
+## References
+
+Rosvall M, Bergstrom CT (2010). “Mapping Change in Large Networks.”
+*PLoS ONE*, **5**(1), e8694.
+[doi:10.1371/journal.pone.0008694](https://doi.org/10.1371/journal.pone.0008694)
+.
+
+## See also
+
+[`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md),
+[`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md),
+[`color_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
+and
+[`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md).
 
 ## Examples
 
 ``` r
-library(networkflow)
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
+)
+#> Warning: The last window is shorter than the others.
+#> ℹ The data end in 2013, but the last window ends in 2014.
+networks <- add_clusters(
+  networks,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+networks <- merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  threshold_similarity = 0.51,
+  similarity_type = "partial"
+)
+#> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
+#> ℹ Clusters are matched through the nodes they share. In a network of documents
+#>   (coupling), each node has one date: use sliding windows (`overlapping_window
+#>   = TRUE` in `build_dynamic_networks()`). If windows already slide, the nodes
+#>   may have changed completely, or the threshold may leave a window without
+#>   edges.
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE,
-verbose = FALSE)
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden",
-verbose = FALSE)
-
-temporal_networks <- merge_dynamic_clusters(temporal_networks,
-cluster_id = "cluster_leiden",
-node_id = "source_id",
-threshold_similarity = 0.51,
-similarity_type = "partial")
-
-temporal_networks <- name_clusters(graphs = temporal_networks,
-method = "tf-idf",
-name_merged_clusters = TRUE,
-cluster_id = "dynamic_cluster_leiden",
-text_columns = "source_title",
-nb_terms_label = 5,
-clean_word_method = "lemmatize")
-#> Warning: A shallow copy of this data.table was taken so that := can add or remove 2 columns by reference. At an earlier point, this data.table was copied by R (or was created manually using structure() or similar). Avoid names<- and attr<- which in R currently (and oddly) may copy the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames and ?setattr. It's also not unusual for data.table-agnostic packages to produce tables affected by this issue. If this message doesn't help, please report your use case to the data.table issue tracker so the root cause can be fixed or this message improved.
-
-temporal_networks <- color_networks(graphs = temporal_networks,
-column_to_color = "dynamic_cluster_leiden",
-color = NULL)
-#> ℹ unique_color_across_list has been set to FALSE. There are 13 different categories to color.
-#> ℹ color is neither a vector of color characters, nor a data.frame. We will proceed with base R colors.
-#> ℹ We draw 7 colors from the ggplot2 palette and 6 colors from the Okabe-Ito palette.
-
-alluv_dt <- networks_to_alluv(temporal_networks,
-intertemporal_cluster_column = "dynamic_cluster_leiden",
-node_id = "source_id")
-
+alluv_dt <- networks_to_alluv(
+  networks,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id"
+)
+#> ℹ No color column in the graphs: no colour kept (see `color_alluvial()`).
+#> ℹ No cluster_label column in the graphs: no label kept (see `name_clusters()`).
 alluv_dt[1:5]
-#>    dynamic_cluster_leiden    window  source_id   color
-#>                    <char>    <char>     <char>  <char>
-#> 1:                   cl_1 1975-1994   16182155 #B79F00
-#> 2:                   cl_1 1975-1994   26283591 #B79F00
-#> 3:                   cl_1 1975-1994   31895842 #B79F00
-#> 4:                   cl_1 1975-1994 1111111131 #B79F00
-#> 5:                   cl_1 1975-1994 1111111150 #B79F00
-#>                                            cluster_label share_cluster_alluv
-#>                                                   <char>               <num>
-#> 1: control, control program, program, price level, level                6.22
-#> 2: control, control program, program, price level, level                6.22
-#> 3: control, control program, program, price level, level                6.22
-#> 4: control, control program, program, price level, level                6.22
-#> 5: control, control program, program, price level, level                6.22
-#>    share_cluster_window share_cluster_max length_cluster    y_alluv
-#>                   <num>             <num>          <int>      <num>
-#> 1:                17.57             18.31              7 0.01351351
-#> 2:                17.57             18.31              7 0.01351351
-#> 3:                17.57             18.31              7 0.01351351
-#> 4:                17.57             18.31              7 0.01351351
-#> 5:                17.57             18.31              7 0.01351351
+#>    dynamic_cluster_leiden    window  source_id share_cluster_alluv
+#>                    <char>    <char>     <char>               <num>
+#> 1:                   cl_1 1975-1984 1111111141               17.36
+#> 2:                   cl_1 1975-1984   14371908               17.36
+#> 3:                   cl_1 1975-1984   31302737               17.36
+#> 4:                   cl_1 1975-1984   18541214               17.36
+#> 5:                   cl_1 1975-1984   20623867               17.36
+#>    share_cluster_window share_cluster_max length_cluster  y_alluv
+#>                   <num>             <num>          <int>    <num>
+#> 1:                39.06             39.06              1 0.015625
+#> 2:                39.06             39.06              1 0.015625
+#> 3:                39.06             39.06              1 0.015625
+#> 4:                39.06             39.06              1 0.015625
+#> 5:                39.06             39.06              1 0.015625
 ```

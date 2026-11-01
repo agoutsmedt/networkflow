@@ -5,24 +5,26 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Functions For A Workflow To Manipulate Networks • networkflow</title>
+<title>networkflow: a research pipeline for projected and dynamic networks • networkflow</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
+<link href="deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Functions For A Workflow To Manipulate Networks">
-<meta name="description" content="Provides a workflow to build, analyze, and visualize projected networks from tabular data. The package supports dynamic analysis across time windows, including cluster detection and cross-period cluster matching. It also covers network construction, interpretation, static plotting, and interactive exploration through a shiny app. Although designed for projected networks (e.g., article -&gt; reference), it can be used more generally with tbl_graph objects.">
-<meta property="og:description" content="Provides a workflow to build, analyze, and visualize projected networks from tabular data. The package supports dynamic analysis across time windows, including cluster detection and cross-period cluster matching. It also covers network construction, interpretation, static plotting, and interactive exploration through a shiny app. Although designed for projected networks (e.g., article -&gt; reference), it can be used more generally with tbl_graph objects.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="networkflow: a research pipeline for projected and dynamic networks">
+<meta name="description" content="Organises the study of networks built from tabular research data (articles and the references they cite, authors and their papers, accounts and what they share) as a sequence of explicit steps. It projects two-mode data (bibliographic coupling, co-citation, coupling of authors, co-authorship...) onto one-mode networks, weighted by bibliometric similarity measures or filtered by statistical backbones, for a whole corpus or one network per time window; detects communities with the igraph algorithms (Leiden, Louvain, Infomap...); links the communities of successive windows into dynamic clusters; names them with tf-idf or central nodes; characterises the roles of nodes; and draws networks and alluvial plots, or explores them in a shiny application. Networks are tidygraph objects.">
+<meta property="og:description" content="Organises the study of networks built from tabular research data (articles and the references they cite, authors and their papers, accounts and what they share) as a sequence of explicit steps. It projects two-mode data (bibliographic coupling, co-citation, coupling of authors, co-authorship...) onto one-mode networks, weighted by bibliometric similarity measures or filtered by statistical backbones, for a whole corpus or one network per time window; detects communities with the igraph algorithms (Leiden, Louvain, Infomap...); links the communities of successive windows into dynamic clusters; names them with tf-idf or central nodes; characterises the roles of nodes; and draws networks and alluvial plots, or explores them in a shiny application. Networks are tidygraph objects.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-dark" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,13 +33,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/networkflow_presentation.html">Presentation of networkflow</a></li>
+<li><a class="dropdown-item" href="articles/from-references-to-networks.html">From references to networks</a></li>
+    <li><a class="dropdown-item" href="articles/finding-and-reading-clusters.html">Finding and reading clusters</a></li>
+    <li><a class="dropdown-item" href="articles/following-clusters-over-time.html">Following clusters over time</a></li>
+    <li><a class="dropdown-item" href="articles/beyond-bibliographic-coupling.html">Beyond bibliographic coupling</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -57,69 +62,148 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><code>networkflow</code> provides a complete workflow to build, structure, and explore networks from tabular data.</p>
-<p>Its key feature is a built-in dynamic analysis workflow: the package can build networks across time windows, detect clusters in each window, and link clusters across periods to track their evolution.</p>
-<p>More broadly, <code>networkflow</code> supports the full analysis pipeline, from network construction to interpretation and visualization, including clustering, layout and color preparation, static plotting, and interactive exploration with a Shiny app.</p>
-<p>The package was developed with projected networks in mind (for example, article -&gt; reference), but it can also be used more generally once data are represented as <code>tbl_graph</code> objects.</p>
-<p>The package includes:</p>
-<ul>
-<li>network construction (<code><a href="reference/build_network.html">build_network()</a></code>, <code><a href="reference/build_dynamic_networks.html">build_dynamic_networks()</a></code>),</li>
-<li>clustering and inter-temporal matching (<code><a href="reference/add_clusters.html">add_clusters()</a></code>, <code><a href="reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code>),</li>
-<li>interpretation (<code><a href="reference/name_clusters.html">name_clusters()</a></code>, <code><a href="reference/extract_tfidf.html">extract_tfidf()</a></code>),</li>
-<li>visualization (<code><a href="reference/layout_networks.html">layout_networks()</a></code>, <code><a href="reference/color_networks.html">color_networks()</a></code>, <code><a href="reference/plot_networks.html">plot_networks()</a></code>),</li>
-<li>interactive exploration (<code><a href="reference/launch_network_app.html">launch_network_app()</a></code>).</li>
-</ul>
-<p>For a full walkthrough, see:</p>
-<ul>
-<li><code><a href="articles/networkflow_presentation.html">vignette("networkflow_presentation")</a></code></li>
-<li><a href="https://agoutsmedt.github.io/networkflow/" class="uri">https://agoutsmedt.github.io/networkflow/</a></li>
-</ul>
+<p>networkflow is a research pipeline for studying networks built from tabular data. Research data rarely come as networks: they come as tables of links between two kinds of entities, such as articles and the references they cite, authors and the papers they sign, or accounts and what they share. networkflow turns such tables into networks, finds the communities they contain, follows these communities over time, and helps name, draw and explore them.</p>
+<p>The pipeline is not specific to citations: any table of links between two kinds of entities can be projected onto one of them. Besides bibliographic coupling, the guides show co-citation (cited works linked when they are cited together), the coupling of authors instead of articles, and co-authorship; the same logic applies to accounts and the hashtags they use, or to members and the boards they sit on.</p>
+<p>The package was written for, and used in, research on the history and sociology of science, where bibliographic coupling networks (articles linked by the references they share) map the research fronts of a literature (<a href="#ref-kessler1963">Kessler 1963</a>; <a href="#ref-boyack2010">Boyack and Klavans 2010</a>). Its central feature is the <em>dynamic</em> workflow: one network per time window, clusters in each window, and a rule that links the clusters of successive windows, so that a literature can be seen being born, growing, splitting and fading. Each step is a documented function whose choices (similarity measure, threshold, time window, clustering algorithm, resolution, matching rule) are explicit arguments that can be varied and reported. Everything returns <code>tbl_graph</code> objects from tidygraph, or lists of them, which can be manipulated with dplyr and drawn with ggraph.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of networkflow from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"agoutsmedt/networkflow"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"agoutsmedt/networkflow"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="a-first-look">A first look<a class="anchor" aria-label="anchor" href="#a-first-look"></a>
 </h2>
+<p>The package includes the corpus of Goutsmedt (<a href="#ref-goutsmedt2021">2021</a>): the books and articles that explained the US stagflation of the 1970s, published between 1975 and 2013, and the references they cite. <code><a href="reference/build_network.html">build_network()</a></code> links two explanations when they cite the same references (bibliographic coupling), <code><a href="reference/add_clusters.html">add_clusters()</a></code> detects groups of explanations that share a literature, and <code><a href="reference/name_clusters.html">name_clusters()</a></code> labels each group with the words that distinguish its titles.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/agoutsmedt/networkflow" class="external-link">networkflow</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">nodes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">Nodes_stagflation</span>, <span class="va">source_type</span> <span class="op">==</span> <span class="st">"Stagflation"</span><span class="op">)</span></span>
-<span><span class="va">references</span> <span class="op">&lt;-</span> <span class="va">Ref_stagflation</span></span>
 <span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/build_network.html">build_network</a></span><span class="op">(</span></span>
+<span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/build_network.html">build_network</a></span><span class="op">(</span></span>
 <span>  nodes <span class="op">=</span> <span class="va">nodes</span>,</span>
-<span>  directed_edges <span class="op">=</span> <span class="va">references</span>,</span>
+<span>  directed_edges <span class="op">=</span> <span class="va">Ref_stagflation</span>,</span>
 <span>  source_id <span class="op">=</span> <span class="st">"source_id"</span>,</span>
 <span>  target_id <span class="op">=</span> <span class="st">"target_id"</span>,</span>
 <span>  projection_method <span class="op">=</span> <span class="st">"structured"</span>,</span>
 <span>  cooccurrence_method <span class="op">=</span> <span class="st">"coupling_similarity"</span>,</span>
-<span>  edges_threshold <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  keep_singleton <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  edges_threshold <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/add_clusters.html">add_clusters</a></span><span class="op">(</span></span>
-<span>  graphs <span class="op">=</span> <span class="va">g</span>,</span>
+<span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/add_clusters.html">add_clusters</a></span><span class="op">(</span></span>
+<span>  <span class="va">network</span>,</span>
 <span>  clustering_method <span class="op">=</span> <span class="st">"leiden"</span>,</span>
 <span>  objective_function <span class="op">=</span> <span class="st">"modularity"</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">123</span></span>
+<span>  seed <span class="op">=</span> <span class="fl">123</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/layout_networks.html">layout_networks</a></span><span class="op">(</span><span class="va">g</span>, node_id <span class="op">=</span> <span class="st">"source_id"</span>, layout <span class="op">=</span> <span class="st">"kk"</span><span class="op">)</span></span>
-<span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/color_networks.html">color_networks</a></span><span class="op">(</span><span class="va">g</span>, column_to_color <span class="op">=</span> <span class="st">"cluster_leiden"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/plot_networks.html">plot_networks</a></span><span class="op">(</span></span>
-<span>  graphs <span class="op">=</span> <span class="va">g</span>,</span>
-<span>  x <span class="op">=</span> <span class="st">"x"</span>,</span>
-<span>  y <span class="op">=</span> <span class="st">"y"</span>,</span>
-<span>  cluster_label_column <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span>
-<span>  node_size_column <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  color_column <span class="op">=</span> <span class="st">"color"</span></span>
+<span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/name_clusters.html">name_clusters</a></span><span class="op">(</span></span>
+<span>  <span class="va">network</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"tf-idf"</span>,</span>
+<span>  cluster_id <span class="op">=</span> <span class="st">"cluster_leiden"</span>,</span>
+<span>  text_columns <span class="op">=</span> <span class="st">"source_title"</span>,</span>
+<span>  nb_terms_label <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  clean_word_method <span class="op">=</span> <span class="st">"lemmatize"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="reference/layout_networks.html">layout_networks()</a></code>, <code><a href="reference/color_networks.html">color_networks()</a></code> and <code><a href="reference/plot_networks.html">plot_networks()</a></code> then draw it:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/layout_networks.html">layout_networks</a></span><span class="op">(</span><span class="va">network</span>, node_id <span class="op">=</span> <span class="st">"source_id"</span>, layout <span class="op">=</span> <span class="st">"fr"</span><span class="op">)</span></span>
+<span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/color_networks.html">color_networks</a></span><span class="op">(</span><span class="va">network</span>, column_to_color <span class="op">=</span> <span class="st">"cluster_leiden"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/plot_networks.html">plot_networks</a></span><span class="op">(</span><span class="va">network</span>, cluster_label_column <span class="op">=</span> <span class="st">"cluster_label"</span>, node_size_column <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-first-plot-1.png" alt="Bibliographic coupling network of the explanations of the 1970s stagflation, with nodes coloured by cluster and a label made of the three most distinctive title words of each cluster." width="100%"></p>
+<p>The clusters already sketch the history that Goutsmedt (<a href="#ref-goutsmedt2021">2021</a>) tells: explanations of the late 1970s centred on productivity, oil and wages, and a literature of the 2000s on the “great inflation” and monetary policy rules. The guides below show how to follow this change window by window.</p>
+</div>
+<div class="section level2">
+<h2 id="guides">Guides<a class="anchor" aria-label="anchor" href="#guides"></a>
+</h2>
+<p>Four guides, written around the same example, follow the steps of a study. Each explains the method behind the step, with the literature it comes from, before showing the code.</p>
+<ul>
+<li>
+<a href="https://agoutsmedt.github.io/networkflow/articles/from-references-to-networks.html">From references to networks</a> explains what a projected network is, how bibliographic coupling is measured, which threshold or statistical backbone to choose, and how to cut a corpus into time windows.</li>
+<li>
+<a href="https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.html">Finding and reading clusters</a> presents community detection with the Leiden algorithm, the role of the resolution and of the random seed, and how to name clusters, characterise the role of their members and draw the network.</li>
+<li>
+<a href="https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.html">Following clusters over time</a> links the clusters of successive windows into dynamic clusters and draws their history as an alluvial plot.</li>
+<li>
+<a href="https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.html">Beyond bibliographic coupling</a> uses the same pipeline for co-citation, for authors instead of articles and for any two-mode table, and explains why the identifiers of references matter.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="what-is-in-the-package">What is in the package<a class="anchor" aria-label="anchor" href="#what-is-in-the-package"></a>
+</h2>
+<p><strong>Building networks.</strong> <code><a href="reference/build_network.html">build_network()</a></code> and <code><a href="reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> project a two-mode table (e.g. articles and their references) onto a network of the first entities, for the whole corpus or one network per time window. Ties are weighted with the bibliometric similarity measures of biblionetwork (<a href="#ref-goutsmedt2023biblionetwork">Goutsmedt, Truc, and Claveau 2023</a>), or kept only when they are statistically significant under a null model, with the backbone package (<a href="#ref-neal2022">Neal 2022</a>). <code><a href="reference/filter_components.html">filter_components()</a></code> keeps the main component(s).</p>
+<p><strong>Finding and reading clusters.</strong> <code><a href="reference/add_clusters.html">add_clusters()</a></code> detects communities with Leiden (<a href="#ref-traag2019">Traag, Waltman, and Eck 2019</a>), Louvain, Infomap, walktrap or fast greedy. <code><a href="reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code> links the clusters of successive windows. <code><a href="reference/name_clusters.html">name_clusters()</a></code> and <code><a href="reference/extract_tfidf.html">extract_tfidf()</a></code> describe them by their most distinctive words or most central members, and <code><a href="reference/add_node_roles.html">add_node_roles()</a></code> places each node with the within-module degree and participation coefficient of Guimerà and Nunes Amaral (<a href="#ref-guimera2005">2005</a>).</p>
+<p><strong>Drawing and exploring.</strong> <code><a href="reference/layout_networks.html">layout_networks()</a></code> computes coordinates, with an option to keep them stable across windows; <code><a href="reference/color_networks.html">color_networks()</a></code>, <code><a href="reference/prepare_label_networks.html">prepare_label_networks()</a></code> and <code><a href="reference/plot_networks.html">plot_networks()</a></code> draw networks; <code><a href="reference/networks_to_alluv.html">networks_to_alluv()</a></code>, <code><a href="reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> and <code><a href="reference/plot_alluvial.html">plot_alluvial()</a></code> draw the history of dynamic clusters; <code><a href="reference/launch_network_app.html">launch_network_app()</a></code> opens an interactive Shiny application to explore clusters and their members.</p>
+<p>The <a href="https://agoutsmedt.github.io/networkflow/reference/index.html">reference</a> lists every function.</p>
+</div>
+<div class="section level2">
+<h2 id="speed">Speed<a class="anchor" aria-label="anchor" href="#speed"></a>
+</h2>
+<p><code>bench/benchmark_functions.R</code> runs the dynamic pipeline (six sliding five-year windows) on samples of a Scopus corpus of economics articles (1995-2004) and compares it with the former version of the package. On 20,000 articles, building the six networks takes about 26 s and 1.1 GB, and Leiden with a fixed 1,000 iterations (the former default) about 200 s. The default is now <code>n_iterations = -1</code> (iterate until the partition is stable), which gives the same modularity in a fraction of that time. Colouring edges is now about 90 times faster (0.7 s instead of 59 s). The other steps take a few seconds, and the results are identical to those of the former version, except for the intended changes listed in <code>NEWS.md</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="research-using-networkflow">Research using networkflow<a class="anchor" aria-label="anchor" href="#research-using-networkflow"></a>
+</h2>
+<p>networkflow grew out of, and was used in, the following studies:</p>
+<ul>
+<li>Goutsmedt (<a href="#ref-goutsmedt2021">2021</a>) on the explanations of the 1970s US stagflation, whose data are the examples of the package;</li>
+<li>Goutsmedt and Truc (<a href="#ref-goutsmedt2023eer">2023</a>) on European macroeconomics and the <em>European Economic Review</em>;</li>
+<li>Delcey, Goutsmedt, and Truc (<a href="#ref-delcey2026">2026</a>) on the history of rationality in economic thought;</li>
+<li>Duluins et al. (<a href="#ref-duluins2026">2026</a>) on the scientific reception of the <em>Livestock’s Long Shadow</em> report.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="authors">Authors<a class="anchor" aria-label="anchor" href="#authors"></a>
+</h2>
+<p>networkflow is developed by Aurélien Goutsmedt, Alexandre Truc and Thomas Delcey. Alexandre Truc initiated the alluvial method for following clusters over time (<code><a href="reference/networks_to_alluv.html">networks_to_alluv()</a></code>, <code><a href="reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code>, <code><a href="reference/plot_alluvial.html">plot_alluvial()</a></code>). The package is maintained by Thomas Delcey and Aurélien Goutsmedt; on CRAN, Aurélien Goutsmedt is the contact maintainer.</p>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>If you use networkflow in your research, please cite it:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>Goutsmedt A, Truc A, Delcey <span class="fu">T</span> (<span class="dv">2026</span>). _networkflow<span class="sc">:</span> A Research Pipeline</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="cf">for</span> Projected and Dynamic Networks_. R package version <span class="dv">0</span>.<span class="dv">0</span>.<span class="fl">9.9000</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="sc">&lt;</span>https<span class="sc">:</span><span class="er">//</span>agoutsmedt.github.io<span class="sc">/</span>networkflow<span class="sc">/</span><span class="er">&gt;</span>.</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-boyack2010" class="csl-entry">
+Boyack, Kevin W., and Richard Klavans. 2010. “Co-Citation Analysis, Bibliographic Coupling, and Direct Citation: Which Citation Approach Represents the Research Front Most Accurately?” <em>Journal of the American Society for Information Science and Technology</em> 61 (12): 2389–2404. <a href="https://doi.org/10.1002/asi.21419" class="external-link uri">https://doi.org/10.1002/asi.21419</a>.
+</div>
+<div id="ref-delcey2026" class="csl-entry">
+Delcey, Thomas, Aurélien Goutsmedt, and Alexandre Truc. 2026. “One Sentence at a Time: A Quantitative History of Rationality in Economic Thought.” <em>European Journal of the History of Economic Thought</em>.
+</div>
+<div id="ref-duluins2026" class="csl-entry">
+Duluins, Océane, Aurélien Goutsmedt, Noé Vandevoorde, and Philippe V. Baret. 2026. “A Scientometric Retrospective of the Livestock Long Shadow Report.” <em>Frontiers in Sustainable Food Systems</em> 9: 1656562. <a href="https://doi.org/10.3389/fsufs.2025.1656562" class="external-link uri">https://doi.org/10.3389/fsufs.2025.1656562</a>.
+</div>
+<div id="ref-goutsmedt2021" class="csl-entry">
+Goutsmedt, Aurélien. 2021. “From the Stagflation to the Great Inflation: Explaining the US Economy of the 1970s.” <em>Revue d’Économie Politique</em> 131 (3): 557–82. <a href="https://www.cairn.info/revue-d-economie-politique-2021-3-page-557.htm" class="external-link uri">https://www.cairn.info/revue-d-economie-politique-2021-3-page-557.htm</a>.
+</div>
+<div id="ref-goutsmedt2023eer" class="csl-entry">
+Goutsmedt, Aurélien, and Alexandre Truc. 2023. “An Independent European Macroeconomics? A History of European Macroeconomics Through the Lens of the European Economic Review.” <em>European Economic Review</em> 158: 104559. <a href="https://doi.org/10.1016/j.euroecorev.2023.104559" class="external-link uri">https://doi.org/10.1016/j.euroecorev.2023.104559</a>.
+</div>
+<div id="ref-goutsmedt2023biblionetwork" class="csl-entry">
+Goutsmedt, Aurélien, Alexandre Truc, and François Claveau. 2023. “Biblionetwork: An R Package for Creating Different Types of Bibliometric Networks.” Zenodo. <a href="https://doi.org/10.5281/zenodo.7677369" class="external-link uri">https://doi.org/10.5281/zenodo.7677369</a>.
+</div>
+<div id="ref-guimera2005" class="csl-entry">
+Guimerà, Roger, and Luís A. Nunes Amaral. 2005. “Functional Cartography of Complex Metabolic Networks.” <em>Nature</em> 433 (7028): 895–900. <a href="https://doi.org/10.1038/nature03288" class="external-link uri">https://doi.org/10.1038/nature03288</a>.
+</div>
+<div id="ref-kessler1963" class="csl-entry">
+Kessler, M. M. 1963. “Bibliographic Coupling Between Scientific Papers.” <em>American Documentation</em> 14 (1): 10–25. <a href="https://doi.org/10.1002/asi.5090140103" class="external-link uri">https://doi.org/10.1002/asi.5090140103</a>.
+</div>
+<div id="ref-neal2022" class="csl-entry">
+Neal, Zachary P. 2022. “Backbone: An R Package to Extract Network Backbones.” <em>PLOS ONE</em> 17 (5): e0269137. <a href="https://doi.org/10.1371/journal.pone.0269137" class="external-link uri">https://doi.org/10.1371/journal.pone.0269137</a>.
+</div>
+<div id="ref-traag2019" class="csl-entry">
+Traag, V. A., L. Waltman, and N. J. van Eck. 2019. “From Louvain to Leiden: Guaranteeing Well-Connected Communities.” <em>Scientific Reports</em> 9 (1): 5233. <a href="https://doi.org/10.1038/s41598-019-41695-z" class="external-link uri">https://doi.org/10.1038/s41598-019-41695-z</a>.
+</div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -149,16 +233,16 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Aurélien Goutsmedt <br><small class="roles"> Maintainer, author </small> <a href="https://orcid.org/0000-0002-3788-7237" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Aurélien Goutsmedt <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-3788-7237" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Alexandre Truc <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-1328-7819" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Thomas Delcey <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-0546-1474" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/agoutsmedt/networkflow/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/agoutsmedt/networkflow/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 </ul>
 </div>
@@ -172,7 +256,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

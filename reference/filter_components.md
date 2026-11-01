@@ -1,16 +1,14 @@
-# Filtering Network Components
+# Keep the main component(s) of networks
 
 **\[experimental\]**
 
-This function is deprecated and will be replaced by
-`networkflow::extract_main_component()`. This function which i) creates
-a [tidygraph](https://tidygraph.data-imaginist.com/index.html) graph
-using
-[tbl_graph()](https://tidygraph.data-imaginist.com/reference/tbl_graph.html);
-ii) keeps the main components of the graph, using
-[main_components()](https://tidygraph.data-imaginist.com/reference/group_graph.html);
-and iii) warns the user if the first biggest component removed is too
-large.
+A projected network is often made of one large connected component and
+of small islands: a few articles that share references only with each
+other, or isolated pairs. Community detection and layouts are hard to
+read on such fragments, and many studies keep only the main component.
+`filter_components()` numbers the (weakly) connected components by
+decreasing size, keeps the `nb_components` largest, and warns when the
+first component removed is not negligible.
 
 ## Usage
 
@@ -27,34 +25,61 @@ filter_components(
 
 - graphs:
 
-  A tibble graph from
-  [tidygraph](https://tidygraph.data-imaginist.com/), a list of tibble
-  graphs or a data frame.
+  A `tbl_graph` or a list of `tbl_graph`s (e.g. the output of
+  [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)).
 
 - nb_components:
 
-  By default, the function takes the main component of the graph
-  (`nb_components = 1`). However it is possible to take as many
-  components as you wish. The first component is the largest one,
-  component 2 is the second one, etc.
+  Integer, the number of components to keep, starting from the largest
+  (1 by default).
 
 - threshold_alert:
 
-  If the biggest component after the last one selected (by default,
-  nb_component = 1) gathers more than x% (by default, 5%) of the total
-  number of nodes, the function triggers a warning to inform the user
-  that he has removed a big component of the network.
+  Number between 0 and 1. If the largest removed component gathers more
+  than this share of the nodes (0.05 by default), a warning is given:
+  removing it would change the object of study.
 
 - keep_component_columns:
 
-  Set to `TRUE` if you want to store in the tibble graph the components
-  number and the size of the components.
+  Logical. If `TRUE`, keeps the columns `components_att` (component
+  rank, 1 being the largest) and `size_components` (share of the nodes
+  in the component).
 
 ## Value
 
-The same tidygraph object or list of tidygraph objects with nodes
+The same object as `graphs` (a `tbl_graph` or a list of `tbl_graph`s)
+restricted to the nodes of the kept components.
 
 ## Details
 
-The function will automatically rename the first column of nodes as
-"Id".
+Dropping small components is a choice, not a technicality: the removed
+documents may be a marginal literature, or a literature that cites
+sources absent from the data. Look at what is removed before discarding
+it, especially when the warning is triggered. For a list of graphs, the
+filter is applied to each graph separately, so a node may be kept in one
+window and removed in another.
+
+## See also
+
+[`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
+and
+[`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md),
+which can call this function with `filter_components = TRUE`.
+
+## Examples
+
+``` r
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 2
+)
+main_component <- filter_components(network, nb_components = 1)
+c(before = igraph::vcount(network), after = igraph::vcount(main_component))
+#> before  after 
+#>    131    129 
+```

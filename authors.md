@@ -2,26 +2,29 @@
 
 ## Authors
 
-- **Aurélien Goutsmedt**. Maintainer, author.
+- **Aurélien Goutsmedt**. Author, maintainer.
   [](https://orcid.org/0000-0002-3788-7237)
 
-- **Alexandre Truc**. Author. [](https://orcid.org/0000-0002-1328-7819)
+- **Alexandre Truc**. Author.
+  [](https://orcid.org/0000-0002-1328-7819)  
+  initiated the alluvial method
 
-- **Thomas Delcey**. Author. [](https://orcid.org/0000-0003-0546-1474)
+- **Thomas Delcey**. Author. [](https://orcid.org/0000-0003-0546-1474)  
+  co-maintainer
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/agoutsmedt/networkflow/blob/master/DESCRIPTION)
+[`inst/CITATION`](https://github.com/agoutsmedt/networkflow/blob/master/inst/CITATION)
 
-Goutsmedt A, Truc A, Delcey T (2026). *networkflow: Functions For A
-Workflow To Manipulate Networks*. R package version 1.0.0,
-<https://github.com/agoutsmedt/networkflow>.
+Goutsmedt, A., Truc, A. and Delcey, T. (2026). networkflow: A Research
+Pipeline for Projected and Dynamic Networks. R package version
+0.0.9.9000. https://agoutsmedt.github.io/networkflow/
 
     @Manual{,
-      title = {networkflow: Functions For A Workflow To Manipulate Networks},
+      title = {networkflow: A Research Pipeline for Projected and Dynamic Networks},
       author = {Aurélien Goutsmedt and Alexandre Truc and Thomas Delcey},
       year = {2026},
-      note = {R package version 1.0.0},
-      url = {https://github.com/agoutsmedt/networkflow},
+      note = {R package version 0.0.9.9000},
+      url = {https://agoutsmedt.github.io/networkflow/},
     }
