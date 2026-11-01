@@ -43,9 +43,8 @@ with \code{cluster_label_column} as the categories.}
 of the plot.}
 }
 \value{
-For a \code{tbl_graph}, a ggplot object. For a list of graphs, the
-list itself, in which each graph carries its plot in an element \code{plot}
-(\code{graphs[[1]]$plot}).
+For a \code{tbl_graph}, a ggplot object. For a list of graphs, a named
+list of ggplot objects, one per graph (e.g. per time window).
 }
 \description{
 \code{plot_networks()} draws a network from the columns created by the

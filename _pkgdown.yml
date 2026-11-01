@@ -1,6 +1,7 @@
 url: https://agoutsmedt.github.io/networkflow/
 template:
   bootstrap: 5
+  bootswatch: slate
   bslib:
     primary: "#2c5d8a"
     base_font: {google: "Source Sans 3"}
@@ -42,6 +43,8 @@ reference:
   contents:
   - add_clusters
   - merge_dynamic_clusters
+  - merge_diagnostics
+  - plot_merge_diagnostics
   - name_clusters
   - extract_tfidf
   - add_node_roles

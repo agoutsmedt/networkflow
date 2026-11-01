@@ -13,11 +13,12 @@ test_that("a single graph gives a ggplot with one label per cluster", {
   expect_equal(nrow(built$data[[which(label_layer)]]), 2)
 })
 
-test_that("a list of graphs carries one plot per graph", {
+test_that("a list of graphs gives a named list of plots", {
   graphs <- list(w1 = ready_toy(), w2 = ready_toy())
-  expect_message(result <- plot_networks(graphs, cluster_label_column = "cluster_leiden", node_size_column = NULL), "plot")
-  expect_s3_class(result$w1$plot, "ggplot")
-  expect_equal(result$w2$plot$labels$title, "w2")
+  result <- plot_networks(graphs, cluster_label_column = "cluster_leiden", node_size_column = NULL)
+  expect_named(result, c("w1", "w2"))
+  expect_s3_class(result$w1, "ggplot")
+  expect_equal(result$w2$labels$title, "w2")
 })
 
 test_that("colours can be computed on the fly and code printed", {

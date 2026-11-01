@@ -45,11 +45,30 @@
 #'   `directed_edges`, with one row per value in `nodes`.
 #' @param target_id Character scalar, the column of `directed_edges` with the
 #'   entities that create the links (e.g. references).
-#' @param time_variable Optional character scalar, a column of `nodes` with an
-#'   integer time unit (e.g. the publication year). `NULL` builds a single
-#'   network.
-#' @param time_window Optional integer, the width of each window, in units of
-#'   `time_variable`.
+#' @param time_variable Optional name of a column with the time of each node
+#'   (or of each link, with `time_in = "edges"`): a number (e.g. a year), a
+#'   `Date`, a `POSIXct`, or an ISO date written as text (`"2001-03"`,
+#'   `"2001-03-15"`). Years written as text (`"2001"`) are numbers. Without
+#'   it, a single network is built.
+#' @param time_in `"nodes"` (default): `time_variable` is a column of `nodes`
+#'   and a window selects the nodes of the period. `"edges"`: `time_variable`
+#'   is a column of `directed_edges` (e.g. the year of the citing document)
+#'   and a window selects the links of the period, the nodes being those with
+#'   a link in the window. Use `"edges"` for co-citation, whose period is the
+#'   one of the citing documents, and for entities without a date of their
+#'   own (authors).
+#' @param time_unit For dates only: the unit in which windows are counted,
+#'   `"year"` (default), `"quarter"`, `"month"`, `"week"` (starting on
+#'   Mondays) or `"day"`. For numbers, the unit is the one of the variable
+#'   and `time_unit` must stay `NULL`.
+#' @param time_window Optional whole number, the width of each window in
+#'   `time_unit`s (or in units of the variable): 10 for ten years, 12 with
+#'   `time_unit = "month"` for a year. `NULL` builds a single network.
+#' @param window_step Optional whole number, the number of units between the
+#'   starts of two windows. `NULL` (default) gives successive windows
+#'   (`window_step = time_window`); `1` slides the window one unit at a time
+#'   (1975-1984, 1976-1985...); `3` with `time_unit = "month"` and a window
+#'   of 12 gives a yearly window every quarter.
 #' @param projection_method `"structured"` (default) or `"statistical"`, see
 #'   the description and the details.
 #' @param model For `projection_method = "statistical"`, the null model of
@@ -63,9 +82,6 @@
 #'   There is no default: the choice must be explicit.
 #' @param edges_threshold For `projection_method = "structured"`, the minimum
 #'   number of shared targets for two sources to be linked (1 by default).
-#' @param overlapping_window Logical. `FALSE` (default) cuts the period into
-#'   successive windows (1975-1984, 1985-1994...); `TRUE` slides the window
-#'   by one time unit (1975-1984, 1976-1985...).
 #' @param compute_size Logical. If `TRUE`, adds a `node_size` column: the
 #'   number of times each node is a target of the sources of the same window
 #'   (for a coupling network, the number of citations received within the
@@ -87,13 +103,6 @@
 #'   share `source_id` entities (co-citation: cited documents linked when
 #'   they are cited by the same documents). With `"target"`, `nodes` is keyed
 #'   by `target_id`.
-#' @param time_in `"nodes"` (default): `time_variable` is a column of `nodes`
-#'   and a window selects the nodes of the period. `"edges"`: `time_variable`
-#'   is a column of `directed_edges` (e.g. the year of the citing document)
-#'   and a window selects the links of the period, the nodes being those with
-#'   a link in the window. Use `"edges"` for co-citation, whose period is the
-#'   one of the citing documents, and for entities without a date of their
-#'   own (authors).
 #' @param document_id Optional column of `directed_edges` identifying the
 #'   document through which each link exists. With it, `source_id` entities
 #'   are not documents but *entities that publish documents* (authors,
@@ -144,16 +153,22 @@
 #' network is unweighted. This is slower, but each edge can be read as a tie
 #' unlikely to be due to chance.
 #'
-#' **Time windows.** A window starting in year \eqn{s} gathers the nodes with
-#' \eqn{s \le t < s + w}, \eqn{w} being `time_window`, and only the links of
-#' these nodes: each network is computed as if the corpus were limited to the
-#' window. Sliding windows (`overlapping_window = TRUE`) smooth the evolution
-#' of the networks, at the price of many networks sharing most of their
-#' nodes; successive windows give independent snapshots. When the period is
-#' not a multiple of `time_window`, the last successive window is shorter and
-#' a warning is given. The choice of the window is substantive: it should be
-#' long enough for each network to have enough nodes (a few dozen at least)
-#' to show a structure, and short enough for changes to be visible.
+#' **Time windows.** Time is counted in whole units: the values of a numeric
+#' variable, or years, quarters, months, weeks or days for dates. A window
+#' starting at unit \eqn{s} and \eqn{w} units wide (`time_window`) gathers
+#' the nodes (or links) with \eqn{s \le t < s + w}, and the network is
+#' computed as if the corpus were limited to them. A new window starts every
+#' `window_step` units: successive windows (the default) give independent
+#' snapshots, a step of 1 slides the window and smooths the evolution of the
+#' networks, at the price of many networks sharing most of their nodes. The
+#' last window may be shorter than the others when the period is not a
+#' multiple of the step (a warning is given); windows are labelled by their
+#' first and last unit (`"1975-1984"`, `"2001-01 to 2001-12"`). The choice of
+#' the window is substantive: long enough for each network to have enough
+#' nodes (a few dozen at least) to show a structure, and short enough for
+#' changes to be visible. For documents that follow each other quickly
+#' (central bank statements, news, posts), months or weeks make sense, with
+#' a window wide enough to contain enough documents.
 #'
 #' **Beyond bibliographic coupling.** Nothing in the function is specific to
 #' citations. The two sides of the links can be any two kinds of entities:
@@ -286,27 +301,28 @@ build_dynamic_networks <- function(
   directed_edges,
   source_id,
   target_id,
-  time_variable = NULL,
-  time_window = NULL,
+  document_id = NULL,
+  projection_on = c("source", "target"),
   projection_method = c("structured", "statistical"),
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
-  alpha = NULL,
   cooccurrence_method = c(
     "coupling_angle",
     "coupling_strength",
     "coupling_similarity"
   ),
   edges_threshold = 1,
-  overlapping_window = FALSE,
+  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
+  alpha = NULL,
+  backbone_args = list(),
+  time_variable = NULL,
+  time_in = c("nodes", "edges"),
+  time_unit = NULL,
+  time_window = NULL,
+  window_step = NULL,
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
   ...,
-  backbone_args = list(),
-  verbose = TRUE,
-  projection_on = c("source", "target"),
-  time_in = c("nodes", "edges"),
-  document_id = NULL
+  verbose = TRUE
 ) {
   size <- node_size <- N <- method <- edge_time <- document <- V1 <- NULL
 
@@ -317,6 +333,25 @@ build_dynamic_networks <- function(
   projection_method <- rlang::arg_match(projection_method)
   projection_on <- rlang::arg_match(projection_on)
   time_in <- rlang::arg_match(time_in)
+
+  # `...` is only for filter_components(): anything else is an error, and the
+  # former `overlapping_window` is explained.
+  dots <- rlang::list2(...)
+  if ("overlapping_window" %in% names(dots)) {
+    cli::cli_abort(c(
+      "{.arg overlapping_window} no longer exists.",
+      "i" = "Use {.arg window_step}: {.code window_step = 1} slides the window by one time unit (the former {.code window_step = 1}); by default, windows follow each other ({.code window_step = time_window})."
+    ))
+  }
+  if (!filter_components && length(dots) > 0) {
+    cli::cli_abort(c(
+      "Unused argument{?s}: {.arg {names(dots)}}.",
+      "i" = "Extra arguments are only passed to {.fn filter_components}, when {.code filter_components = TRUE}."
+    ))
+  }
+  if (!is.null(time_unit)) {
+    time_unit <- rlang::arg_match(time_unit, time_units)
+  }
 
   if (!is.null(document_id)) {
     if (projection_method != "structured" || projection_on != "source") {
@@ -405,13 +440,30 @@ build_dynamic_networks <- function(
 
   # Time: carried by the nodes (default) or by the links (e.g. the year of
   # the citing document, for co-citation). Without time_variable, a single
-  # window gathers everything.
-  use_edge_time <- time_in == "edges" && !is.null(time_variable)
+  # window gathers everything. Dates (Date, POSIXct, "2001-03-15") are cut in
+  # `time_unit`; numbers are in the units of the variable.
+  no_time <- is.null(time_variable)
+  use_edge_time <- time_in == "edges" && !no_time
   link_size <- use_edge_time || projection_on == "target"
-  if (is.null(time_variable)) {
+  if (no_time) {
     time_variable <- "fake_column"
     nodes_coupling[, time_variable := 1, env = list(time_variable = time_variable)]
   }
+  time_values <- if (use_edge_time) directed_edges[[time_variable]] else nodes_coupling[[time_variable]]
+  time_is_date <- !no_time && is_date_variable(time_values)
+  if (time_is_date && is.null(time_unit)) {
+    time_unit <- "year"
+    if (verbose) {
+      cli::cli_inform(c("i" = "{.field {time_variable}} contains dates: windows are counted in years. Set {.arg time_unit} for finer units ({.val {time_units}})."))
+    }
+  }
+  if (!time_is_date && !is.null(time_unit)) {
+    cli::cli_abort(c(
+      "{.arg time_unit} only applies to dates.",
+      "i" = "{.field {time_variable}} is not a date: its values are used as they are ({.code time_window} is in units of the variable)."
+    ))
+  }
+  unit <- if (time_is_date) time_unit else NULL
 
   if (compute_size && !link_size && !target_id %in% colnames(nodes_coupling)) {
     cli::cli_abort(c(
@@ -438,7 +490,7 @@ build_dynamic_networks <- function(
     edges[, document := as.character(directed_edges[[document_id]])]
   }
   if (use_edge_time) {
-    edges[, edge_time := suppressWarnings(as.integer(directed_edges[[time_variable]]))]
+    edges[, edge_time := time_index(directed_edges[[time_variable]], unit)]
   }
   edges <- unique(edges)
 
@@ -455,67 +507,61 @@ build_dynamic_networks <- function(
       cli::cli_warn("{n_unknown} link{?s} {?has/have} a node absent from {.arg nodes}: {cli::qty(n_unknown)}{?it is/they are} dropped.")
       edges <- edges[edges$from %in% nodes_coupling[[source_id]]]
     }
-    first_year <- min(edges$edge_time)
-    last_year <- max(edges$edge_time)
+    first_time <- min(edges$edge_time)
+    last_time <- max(edges$edge_time)
   } else {
-    time_values <- suppressWarnings(as.integer(nodes_coupling[[time_variable]]))
-    n_missing <- sum(is.na(time_values))
+    node_time <- time_index(nodes_coupling[[time_variable]], unit)
+    n_missing <- sum(is.na(node_time))
     if (n_missing > 0) {
       cli::cli_warn("{n_missing} node{?s} {?has/have} no valid {.field {time_variable}} in {.arg nodes}: {cli::qty(n_missing)}{?it is/they are} dropped.")
+      nodes_coupling <- nodes_coupling[!is.na(node_time)]
+      node_time <- node_time[!is.na(node_time)]
     }
-    nodes_coupling[, time_variable := time_values, env = list(time_variable = time_variable)]
-    nodes_coupling <- nodes_coupling[!is.na(nodes_coupling[[time_variable]])]
-    data.table::setorderv(nodes_coupling, time_variable)
-    first_year <- min(nodes_coupling[[time_variable]])
-    last_year <- max(nodes_coupling[[time_variable]])
+    first_time <- min(node_time)
+    last_time <- max(node_time)
   }
 
-  if (!is.null(time_window)) {
-    if (last_year - first_year + 1 < time_window) {
+  # Windows: `time_window` units wide, one every `window_step` units.
+  if (is.null(time_window)) {
+    starts <- first_time
+    window <- last_time - first_time + 1L
+  } else {
+    window <- check_positive_integer(time_window, "time_window")
+    step <- if (is.null(window_step)) window else check_positive_integer(window_step, "window_step")
+    if (last_time - first_time + 1 < window) {
       cli::cli_warn(
-        "{.arg time_window} ({time_window}) is longer than the period covered by {.field {time_variable}} ({first_year}-{last_year})."
+        "{.arg time_window} ({window}) is longer than the period covered by {.field {time_variable}} ({index_label(first_time, unit)} to {index_label(last_time, unit)})."
       )
     }
-  }
-
-  if (is.null(time_window)) {
-    all_years <- first_year
-    time_window <- last_year - first_year + 1
-  } else {
-    if (overlapping_window == TRUE) {
-      last_year <- last_year - time_window + 1
-      all_years <- first_year:last_year
-    } else {
-      all_years <- seq(first_year, last_year, by = time_window)
-      if (all_years[length(all_years)] + (time_window - 1) > last_year) {
-        cli::cli_warn(c(
-          "The last window is shorter than the others.",
-          "i" = "The data end in {.val {last_year}}, but the last window ends in {.val {all_years[length(all_years)] + (time_window - 1)}}."
-        ))
-      }
+    starts <- window_starts(first_time, last_time, window, step)
+    if (utils::tail(starts, 1) + window - 1 > last_time) {
+      cli::cli_warn(c(
+        "The last window is shorter than the others.",
+        "i" = "The data end in {.val {index_label(last_time, unit)}}, but the last window ends in {.val {index_label(utils::tail(starts, 1) + window - 1, unit)}}."
+      ))
     }
   }
 
   # Prepare our list
   tbl_coup_list <- list()
-  show_progress <- verbose && length(all_years) > 1
+  show_progress <- verbose && length(starts) > 1
   if (show_progress) {
-    cli::cli_progress_bar("Building the networks", total = length(all_years))
+    cli::cli_progress_bar("Building the networks", total = length(starts))
   }
 
-  for (year in all_years) {
+  for (start in starts) {
+    label <- window_label(start, window, unit)
     if (use_edge_time) {
-      edges_window <- edges[edge_time >= year & edge_time < (year + time_window)]
+      edges_window <- edges[edge_time >= start & edge_time < (start + window)]
       in_window <- nodes_coupling[[source_id]] %in% edges_window$from
       nodes_of_the_year <- nodes_coupling[in_window]
-      nodes_of_the_year[, time_window := paste0(year, "-", year + time_window - 1), env = list(year = year)]
+      data.table::set(nodes_of_the_year, j = "time_window", value = rep(label, nrow(nodes_of_the_year)))
       edges_of_the_year <- unique(edges_window[, !"edge_time"])
     } else {
-      in_window <- nodes_coupling[[time_variable]] >= year &
-        nodes_coupling[[time_variable]] < (year + time_window)
+      in_window <- node_time >= start & node_time < (start + window)
       nodes_of_the_year <- nodes_coupling[in_window]
-      if (time_variable != "fake_column") {
-        nodes_of_the_year[, time_window := paste0(year, "-", year + time_window - 1), env = list(year = year)]
+      if (!no_time) {
+        data.table::set(nodes_of_the_year, j = "time_window", value = rep(label, nrow(nodes_of_the_year)))
       } else {
         nodes_of_the_year <- nodes_of_the_year[, -c("fake_column")]
       }
@@ -589,7 +635,7 @@ build_dynamic_networks <- function(
         },
         error = function(e) {
           cli::cli_abort(
-            "The statistical backbone failed for the window starting in {.val {year}}.",
+            "The statistical backbone failed for the window {.val {label}}.",
             parent = e
           )
         }
@@ -640,7 +686,7 @@ build_dynamic_networks <- function(
         },
         error = function(e) {
           cli::cli_abort(
-            "The computation of {.val {cooccurrence_method}} failed for the window starting in {.val {year}}.",
+            "The computation of {.val {cooccurrence_method}} failed for the window {.val {label}}.",
             parent = e
           )
         }
@@ -658,11 +704,11 @@ build_dynamic_networks <- function(
     }
 
     if (nrow(nodes_of_the_year) == 0 && !keep_singleton) {
-      cli::cli_warn("The network of the window starting in {.val {year}} is empty: no pair of nodes has {edges_threshold} shared link{?s} or more.")
+      cli::cli_warn("The network of the window {.val {label}} is empty: no pair of nodes has {edges_threshold} shared link{?s} or more.")
     }
 
     # make tbl
-    if (length(all_years) == 1) {
+    if (length(starts) == 1) {
       tbl_coup_list <- tidygraph::tbl_graph(
         nodes = nodes_of_the_year,
         edges = edges_of_the_year,
@@ -670,7 +716,7 @@ build_dynamic_networks <- function(
         node_key = source_id
       )
     } else {
-      tbl_coup_list[[paste0(year, "-", year + time_window - 1)]] <-
+      tbl_coup_list[[label]] <-
         tidygraph::tbl_graph(
           nodes = nodes_of_the_year,
           edges = edges_of_the_year,
@@ -734,6 +780,8 @@ build_network <- function(
   directed_edges,
   source_id,
   target_id,
+  document_id = NULL,
+  projection_on = c("source", "target"),
   projection_method,
   cooccurrence_method = c(
     "coupling_angle",
@@ -747,8 +795,6 @@ build_network <- function(
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
-  projection_on = c("source", "target"),
-  document_id = NULL,
   ...
 ) {
   if (missing(projection_method)) {
@@ -766,21 +812,26 @@ build_network <- function(
     directed_edges = directed_edges,
     source_id = source_id,
     target_id = target_id,
+    document_id = document_id,
+    projection_on = projection_on,
     projection_method = projection_method,
-    model = model,
-    alpha = alpha,
     cooccurrence_method = cooccurrence_method,
     edges_threshold = edges_threshold,
+    model = model,
+    alpha = alpha,
+    backbone_args = backbone_args,
     compute_size = compute_size,
     keep_singleton = keep_singleton,
     filter_components = FALSE,
-    backbone_args = backbone_args,
-    verbose = FALSE,
-    projection_on = projection_on,
-    document_id = document_id
+    verbose = FALSE
   )
   if (filter_components) {
     graph <- filter_components(graph, ...)
+  } else if (...length() > 0) {
+    cli::cli_abort(c(
+      "Unused argument{?s}: {.arg {names(rlang::list2(...))}}.",
+      "i" = "Extra arguments are only passed to {.fn filter_components}, when {.code filter_components = TRUE}."
+    ))
   }
   graph
 }

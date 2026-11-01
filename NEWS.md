@@ -18,8 +18,42 @@
 - `build_dynamic_networks()` keeps `node_size` computed by `compute_size`
   instead of duplicating an existing `node_size` column.
 
+## Breaking changes (second round)
+
+- `build_dynamic_networks()`: `overlapping_window` is replaced by
+  `window_step`, the number of units between the starts of two windows
+  (`window_step = 1` replaces `overlapping_window = TRUE`; by default, windows
+  follow each other). Using `overlapping_window` gives an error that says so.
+- `build_dynamic_networks()`: the arguments are reordered (data, entities,
+  projection, time, options) and `...` only accepts the arguments of
+  `filter_components()`: a misspelt argument is now an error instead of being
+  ignored. `build_network()` follows the same order.
+- Windows of a single time unit are named after the unit (`"1990"`,
+  `"2001-Q2"`) instead of `"1990-1990"`.
+- `plot_networks()` returns a named list of ggplot objects for a list of
+  graphs (it used to store the plots in the graphs, in an element `plot`).
+- The research scripts that call `build_dynamic_networks(overlapping_window = TRUE)`
+  must use `window_step = 1`.
+
 ## New features
 
+- Dates and finer time units: `time_variable` can be a `Date`, a `POSIXct`
+  or an ISO date written as text, and `time_unit` (`"year"`, `"quarter"`,
+  `"month"`, `"week"`, `"day"`) sets the unit in which `time_window` and
+  `window_step` are counted. The time column of the user is not modified.
+- `merge_diagnostics()` and `plot_merge_diagnostics()` show how the
+  dynamic clusters change with the threshold and the type of similarity of
+  `merge_dynamic_clusters()` (number of clusters, lifespans, share of nodes in
+  persistent clusters).
+- `add_node_roles()` documents how to read each role, with examples from the
+  stagflation data, and the guide shows how roles change with the resolution.
+  Running `add_node_roles()` again replaces the earlier roles instead of
+  duplicating the columns.
+- The guides cite the literature on direct citation (Klavans and Boyack,
+  Waltman and van Eck, Rivest et al., Sjögårde and Ahlgren, Kleminski et
+  al.) and discuss other ways to follow clusters over time (Jaccard matching,
+  multislice community detection, significance-clustered alluvial maps).
+- Figures of the guides open in a lightbox.
 - Co-citation: `build_network()` and `build_dynamic_networks()` gain
   `projection_on = "target"`, which links the `target_id` entities that
   share `source_id` entities (e.g. cited works linked when cited together).

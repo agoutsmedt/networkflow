@@ -140,17 +140,18 @@ comes from, before showing the code.
 **Building networks.** `build_network()` and `build_dynamic_networks()`
 project a two-mode table (e.g. articles and their references) onto a
 network of the first entities, for the whole corpus or one network per
-time window. Ties are weighted with the bibliometric similarity measures
-of biblionetwork ([Goutsmedt, Truc, and Claveau
-2023](#ref-goutsmedt2023biblionetwork)), or kept only when they are
-statistically significant under a null model, with the backbone package
-([Neal 2022](#ref-neal2022)). `filter_components()` keeps the main
-component(s).
+time window (in years, months or days, sliding by any step). Ties are
+weighted with the bibliometric similarity measures of biblionetwork
+([Goutsmedt, Truc, and Claveau 2023](#ref-goutsmedt2023biblionetwork)),
+or kept only when they are statistically significant under a null model,
+with the backbone package ([Neal 2022](#ref-neal2022)).
+`filter_components()` keeps the main component(s).
 
 **Finding and reading clusters.** `add_clusters()` detects communities
 with Leiden ([Traag, Waltman, and Eck 2019](#ref-traag2019)), Louvain,
 Infomap, walktrap or fast greedy. `merge_dynamic_clusters()` links the
-clusters of successive windows. `name_clusters()` and `extract_tfidf()`
+clusters of successive windows, and `merge_diagnostics()` shows how the
+result depends on the threshold. `name_clusters()` and `extract_tfidf()`
 describe them by their most distinctive words or most central members,
 and `add_node_roles()` places each node with the within-module degree
 and participation coefficient of Guimerà and Nunes Amaral

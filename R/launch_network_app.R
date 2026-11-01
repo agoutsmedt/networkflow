@@ -64,7 +64,7 @@
 #'   target_id = "target_id",
 #'   time_variable = "source_year",
 #'   time_window = 20,
-#'   overlapping_window = TRUE,
+#'   window_step = 1,
 #'   cooccurrence_method = "coupling_angle"
 #' )
 #' networks <- add_clusters(networks, clustering_method = "leiden",

@@ -4,6 +4,7 @@ description: >
   How to detect clusters in each time window, link them across windows
   into dynamic clusters, and draw their history as an alluvial plot.
 bibliography: references.bib
+lightbox: true
 ---
 
 ```{r}
@@ -42,7 +43,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  overlapping_window = TRUE,
+  window_step = 1,
   projection_method = "structured",
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,
@@ -102,9 +103,9 @@ second as a structure that recruits documents: which one fits depends on
 the question.
 
 The rule needs documents present in successive windows. With successive
-windows (`overlapping_window = FALSE`), a network of documents shares no
+windows (the default of `build_dynamic_networks()`), a network of documents shares no
 document from one window to the next (each document has a single year),
-and no cluster can be matched: sliding windows are necessary here.
+and no cluster can be matched: sliding windows (`window_step = 1`) are necessary here.
 
 ```{r}
 #| label: merge
@@ -118,49 +119,106 @@ networks <- merge_dynamic_clusters(
 )
 ```
 
-### How many dynamic clusters?
+### How sensitive are the dynamic clusters to the threshold?
 
 The threshold and the type of similarity decide how easily clusters are
-linked, hence how many distinct dynamic clusters the history contains.
+linked, hence how many dynamic clusters the history contains and how long
+they live. `merge_diagnostics()` runs the matching for a grid of
+thresholds and both similarity types, and `plot_merge_diagnostics()` draws
+the result.
 
 ```{r}
 #| label: thresholds
-settings <- expand.grid(
-  threshold = c(0.51, 0.6, 0.7, 0.8),
-  similarity_type = c("complete", "partial"),
-  stringsAsFactors = FALSE
+diagnostics <- merge_diagnostics(
+  window_networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  thresholds = c(0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9),
+  min_length = 3,
+  verbose = FALSE
 )
-settings$dynamic_clusters <- mapply(function(threshold, type) {
-  merged <- merge_dynamic_clusters(
-    window_networks,
-    cluster_id = "cluster_leiden",
-    node_id = "source_id",
-    threshold_similarity = threshold,
-    similarity_type = type
-  )
-  length(unique(unlist(lapply(merged, function(graph) {
-    as_tibble(graph, active = "nodes")$dynamic_cluster_leiden
-  }))))
-}, settings$threshold, settings$similarity_type)
-settings
+diagnostics[diagnostics$similarity_type == "partial",
+            c("threshold", "n_dynamic_clusters", "share_continued", "median_lifespan",
+              "n_persistent", "share_nodes_persistent")]
 ```
 
-The `r n_window_clusters` window clusters reduce to a few dozen dynamic
-clusters or fewer. A stricter threshold breaks more continuities, and
-`"partial"` links more clusters than `"complete"`, since it ignores the
-documents that enter or leave the corpus. Studies that used networkflow
-chose thresholds just above 0.5 with partial similarity: 0.501 for
-@delcey2026, 0.55 for @duluins2026. Whatever the choice, the
+```{r}
+#| label: fig-diagnostics
+#| fig-alt: >
+#|   Four panels against the threshold, from 0.51 to 0.9, one line for
+#|   complete and one for partial similarity. The number of dynamic clusters
+#|   rises with the threshold, the share of window clusters with a
+#|   predecessor, the median lifespan and the share of nodes in clusters of
+#|   three windows or more fall; complete similarity is more sensitive.
+plot_merge_diagnostics(diagnostics)
+```
+
+The `r n_window_clusters` window clusters become
+`r diagnostics$n_dynamic_clusters[diagnostics$similarity_type == "complete" & diagnostics$threshold == 0.51]`
+dynamic clusters at 0.51 and
+`r diagnostics$n_dynamic_clusters[diagnostics$similarity_type == "complete" & diagnostics$threshold == 0.9]`
+at 0.9 with the complete similarity
+(`r diagnostics$n_dynamic_clusters[diagnostics$similarity_type == "partial" & diagnostics$threshold == 0.51]`
+and
+`r diagnostics$n_dynamic_clusters[diagnostics$similarity_type == "partial" & diagnostics$threshold == 0.9]`
+with the partial one): the more demanding the threshold, the more clusters
+are considered new. The curves are flat between 0.51 and 0.55, so that
+values just above 0.5 are on a plateau: the continuities they produce do
+not depend on the exact threshold. They bend after 0.55, and the second view
+below shows what is lost. With the complete similarity, the median
+lifespan falls to one window at 0.75: every window then has its own
+clusters, which is the opposite of a history. The partial similarity is more
+tolerant, because it ignores the documents that enter or leave the corpus
+from one window to the next. This is the reason for the thresholds just
+above 0.5 with partial similarity in the studies that used networkflow:
+0.501 for @delcey2026, 0.55 for @duluins2026. Whatever the choice, the
 continuities that a narrative relies on should survive close thresholds,
 and a different seed of the clustering.
 
-The rule has limits worth knowing. It compares a cluster only with the
-previous window, so a cluster that vanishes for one window and comes back
-gets a new identifier. Splits and merges are not recorded as such: the
-part that meets the double majority keeps the identifier, the others are
-new clusters. Methods that model these events explicitly, such as the
-alluvial diagrams of @rosvall2010 based on significance clustering, are
-an alternative for large networks.
+```{r}
+#| label: fig-lifespans
+#| fig-alt: >
+#|   Stacked bars, one per threshold, for complete and partial similarity,
+#|   showing the share of the nodes of all windows that belong to dynamic
+#|   clusters living one window, two, three to five, six to ten, or more
+#|   than ten. The share of one-window clusters grows with the threshold.
+plot_merge_diagnostics(diagnostics, view = "lifespans")
+```
+
+The second view shows who pays for a high threshold: the nodes of long
+clusters, which become members of short ones. With the complete similarity,
+the clusters that live more than ten windows gather about half of the
+nodes at 0.55 but 13% at 0.6, and none at 0.65: the longest continuities of
+the history are cut into shorter pieces between 0.55 and 0.65. With the partial similarity, such clusters still
+hold about 13% of the nodes at 0.9. The sensitivity of a continuity that
+matters for the story, here between 0.55 and 0.6, is exactly what the
+diagnostics are meant to reveal before it is hidden in a figure.
+
+### Other ways to follow clusters
+
+The rule of `merge_dynamic_clusters()` is simple and transparent, with
+limits worth knowing. It compares a cluster only with the previous window,
+so a cluster that vanishes for one window and comes back gets a new
+identifier. Splits and merges are not recorded as such: the part that
+meets the double majority keeps the identifier, the others are new
+clusters. And the clusters of each window are detected independently,
+which adds instability between windows. Other approaches exist, and
+some could be tested on the same data:
+
+| Approach | Idea | Compared with the double majority |
+|---|---|---|
+| Overlap matching with a Jaccard threshold [@greene2010] | Match the clusters of successive windows whose Jaccard similarity $\lvert V_a \cap V_b \rvert / \lvert V_a \cup V_b \rvert$ exceeds a threshold, and chain the matches into *dynamic communities*; splits and merges show up as one cluster matched to several. | Symmetric by construction, and gives a name to events; a one-to-one assignment (best match first) could replace the majority rule. |
+| Multislice community detection [@mucha2010] | Detect communities in all windows at once, in a network where each node is tied to itself in adjacent windows with a coupling weight $\omega$. Identifiers are shared by construction. | The coupling $\omega$ plays the role of the threshold, but clusters of one window are influenced by the neighbouring windows: more stable, less independent. It needs nodes present in several windows (co-citation, authors, journals rather than documents). |
+| Significance-clustered alluvial maps [@rosvall2010] | Bootstrap the network to find which clusters are robust, then draw the flows between robust clusters. | Addresses the instability of each partition rather than the matching rule; heavier. |
+
+Two simpler checks are available with the tools of the package: running the
+whole pipeline with several seeds of the clustering and comparing the
+dynamic clusters with `merge_diagnostics()`, and varying the window and its
+step (see the [first guide](from-references-to-networks.html)), since
+instability often comes from windows that are too short to contain a
+stable structure. Implementing the first two approaches in the package,
+as alternatives to the double majority with the same output columns, would
+allow comparing them on real corpora.
 
 ## Naming dynamic clusters
 

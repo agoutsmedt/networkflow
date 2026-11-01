@@ -33,20 +33,28 @@ test_that("the threshold applies to the number of shared targets", {
 })
 
 test_that("time windows are successive or sliding", {
-  build <- function(overlapping) {
+  build <- function(step) {
     build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref",
-                           time_variable = "year", time_window = 2,
-                           overlapping_window = overlapping,
+                           time_variable = "year", time_window = 2, window_step = step,
                            cooccurrence_method = "coupling_angle",
                            keep_singleton = TRUE, verbose = FALSE)
   }
-  successive <- build(FALSE)
+  successive <- build(NULL)
   expect_named(successive, c("2000-2001", "2002-2003"))
-  expect_setequal(tidygraph::as_tibble(successive[[1]], active = "nodes")$doc, c("d1", "d2"))
-  expect_equal(unique(tidygraph::as_tibble(successive[[2]], active = "nodes")$time_window), "2002-2003")
+  expect_setequal(node_table(successive[[1]])$doc, c("d1", "d2"))
+  expect_equal(unique(node_table(successive[[2]])$time_window), "2002-2003")
 
-  sliding <- build(TRUE)
+  sliding <- build(1)
   expect_named(sliding, c("2000-2001", "2001-2002", "2002-2003"))
+  # a step of 2 with a window of 3 overlaps by one unit
+  expect_warning(
+    stepped <- build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref",
+                                      time_variable = "year", time_window = 3, window_step = 2,
+                                      cooccurrence_method = "coupling_angle",
+                                      keep_singleton = TRUE, verbose = FALSE),
+    "last window is shorter"
+  )
+  expect_named(stepped, c("2000-2002", "2002-2004"))
 })
 
 test_that("a window that does not divide the period triggers a warning", {
@@ -218,7 +226,7 @@ test_that("nodes with a missing time are dropped with a warning", {
   documents$year[1] <- NA
   expect_warning(
     build_dynamic_networks(documents, toy_citations(), "doc", "ref", time_variable = "year",
-                           time_window = 2, overlapping_window = TRUE, keep_singleton = TRUE,
+                           time_window = 2, window_step = 1, keep_singleton = TRUE,
                            cooccurrence_method = "coupling_angle", verbose = FALSE),
     "1 node has no valid"
   )
@@ -315,4 +323,125 @@ test_that("a window without any shared target gives an empty network and a warni
   expect_true(all(vapply(windows, igraph::vcount, numeric(1)) == 0))
   # ...and the following steps accept empty windows
   expect_no_error(filter_components(windows))
+})
+
+test_that("overlapping_window and unknown arguments are rejected", {
+  expect_error(
+    build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref", time_variable = "year",
+                           time_window = 2, overlapping_window = TRUE,
+                           cooccurrence_method = "coupling_angle", verbose = FALSE),
+    "window_step"
+  )
+  expect_error(
+    build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref",
+                           cooccurrence_method = "coupling_angle", verbose = FALSE, typo = 1),
+    "typo"
+  )
+  expect_error(
+    build_network(toy_documents(), toy_citations(), "doc", "ref", projection_method = "structured",
+                  cooccurrence_method = "coupling_angle", typo = 1),
+    "typo"
+  )
+})
+
+# ---- Dates ------------------------------------------------------------------
+
+toy_dated <- function() {
+  # Four documents published in months of 2020 and 2021
+  documents <- data.frame(doc = c("d1", "d2", "d3", "d4"),
+                          published = as.Date(c("2020-01-15", "2020-03-02", "2020-03-20", "2021-02-10")))
+  documents
+}
+
+test_that("windows can be counted in months, quarters, weeks and days", {
+  build <- function(unit, window, step = NULL, documents = toy_dated()) {
+    suppressMessages(build_dynamic_networks(
+      documents, toy_citations(), "doc", "ref", time_variable = "published",
+      time_unit = unit, time_window = window, window_step = step,
+      cooccurrence_method = "coupling_angle", keep_singleton = TRUE, verbose = FALSE
+    ))
+  }
+  months <- suppressWarnings(build("month", 3))
+  expect_equal(names(months)[1:2], c("2020-01 to 2020-03", "2020-04 to 2020-06"))
+  expect_setequal(node_table(months[[1]])$doc, c("d1", "d2", "d3"))
+  expect_length(months, 5)
+
+  sliding <- build("month", 2, step = 1)
+  expect_equal(names(sliding)[1:2], c("2020-01 to 2020-02", "2020-02 to 2020-03"))
+  expect_setequal(node_table(sliding[[2]])$doc, c("d2", "d3"))
+
+  quarters <- suppressWarnings(build("quarter", 1))
+  expect_equal(names(quarters)[1:2], c("2020-Q1", "2020-Q2"))
+
+  days <- suppressWarnings(build("day", 30))
+  expect_equal(names(days)[1], "2020-01-15 to 2020-02-13")
+
+  weeks <- suppressWarnings(build("week", 8))
+  expect_equal(names(weeks)[1], "2020-01-13 to 2020-03-02")
+  expect_setequal(node_table(weeks[[1]])$doc, c("d1", "d2"))
+})
+
+test_that("years are the default unit of dates, with a message", {
+  expect_message(
+    windows <- build_dynamic_networks(toy_dated(), toy_citations(), "doc", "ref",
+                                      time_variable = "published", time_window = 1,
+                                      cooccurrence_method = "coupling_angle", keep_singleton = TRUE),
+    "dates"
+  )
+  expect_named(windows, c("2020", "2021"))
+})
+
+test_that("ISO dates written as text and POSIXct are read as dates", {
+  documents <- toy_dated()
+  as_text <- transform(documents, published = format(published))
+  as_month <- transform(documents, published = substr(format(published), 1, 7))
+  as_time <- transform(documents, published = as.POSIXct(published, tz = "UTC"))
+  for (data in list(as_text, as_month, as_time)) {
+    windows <- suppressWarnings(build_dynamic_networks(
+      data, toy_citations(), "doc", "ref", time_variable = "published", time_unit = "quarter",
+      time_window = 1, cooccurrence_method = "coupling_angle", keep_singleton = TRUE, verbose = FALSE
+    ))
+    expect_equal(names(windows)[1], "2020-Q1")
+  }
+})
+
+test_that("the time column of the user is not modified, and time_unit needs dates", {
+  documents <- toy_dated()
+  before <- documents
+  suppressWarnings(build_dynamic_networks(documents, toy_citations(), "doc", "ref", time_variable = "published",
+                                          time_unit = "month", time_window = 6,
+                                          cooccurrence_method = "coupling_angle", verbose = FALSE))
+  expect_identical(documents, before)
+  expect_error(
+    build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref", time_variable = "year",
+                           time_unit = "month", time_window = 2,
+                           cooccurrence_method = "coupling_angle", verbose = FALSE),
+    "only applies to dates"
+  )
+  expect_error(
+    build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref", time_variable = "year",
+                           time_window = 0, cooccurrence_method = "coupling_angle", verbose = FALSE),
+    "positive whole number"
+  )
+})
+
+test_that("time helpers convert units both ways", {
+  expect_equal(time_index(as.Date("2020-03-15"), "month"), 2020L * 12L + 2L)
+  expect_equal(index_label(time_index(as.Date("2020-03-15"), "month"), "month"), "2020-03")
+  expect_equal(index_label(time_index(as.Date("2020-05-15"), "quarter"), "quarter"), "2020-Q2")
+  expect_equal(index_label(time_index(as.Date("2020-01-15"), "week"), "week"), "2020-01-13")
+  expect_equal(time_index(c("1999", "2001", NA), NULL), c(1999L, 2001L, NA))
+  expect_equal(window_starts(1975L, 2013L, 10L, 10L), c(1975L, 1985L, 1995L, 2005L))
+  expect_equal(window_starts(1975L, 1980L, 3L, 1L), 1975:1978)
+  expect_equal(window_label(1975L, 10L), "1975-1984")
+  expect_equal(window_label(1975L, 1L), "1975")
+  expect_equal(window_label(24241L, 12L, "month"), "2020-02 to 2021-01")
+})
+
+test_that("a window step longer than the window leaves gaps", {
+  windows <- build_dynamic_networks(toy_documents(), toy_citations(), "doc", "ref",
+                                    time_variable = "year", time_window = 1, window_step = 2,
+                                    cooccurrence_method = "coupling_angle",
+                                    keep_singleton = TRUE, verbose = FALSE)
+  expect_named(windows, c("2000", "2002"))
 })

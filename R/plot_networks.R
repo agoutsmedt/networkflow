@@ -38,9 +38,8 @@
 #' `weight` column get a weight of 1. Labels are drawn with ggrepel, which
 #' must be installed.
 #'
-#' @return For a `tbl_graph`, a ggplot object. For a list of graphs, the
-#'   list itself, in which each graph carries its plot in an element `plot`
-#'   (`graphs[[1]]$plot`).
+#' @return For a `tbl_graph`, a ggplot object. For a list of graphs, a named
+#'   list of ggplot objects, one per graph (e.g. per time window).
 #'
 #' @examples
 #' \donttest{
@@ -121,11 +120,8 @@ plot_networks <- function(graphs,
   if (single) {
     return(plots[[1]])
   }
-  for (i in seq_along(graph_list)) {
-    graph_list[[i]]$plot <- plots[[i]]
-  }
-  cli::cli_inform(c("i" = "Each graph of the list carries its plot: {.code graphs[[1]]$plot}."))
-  graph_list
+  names(plots) <- names(graph_list)
+  plots
 }
 
 plot_network <- function(graph,

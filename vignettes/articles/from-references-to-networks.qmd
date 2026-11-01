@@ -5,6 +5,7 @@ description: >
   bibliographic coupling network, which similarity measure and threshold
   to choose, and how to cut a corpus into time windows.
 bibliography: references.bib
+lightbox: true
 ---
 
 ```{r}
@@ -87,12 +88,38 @@ cited together, $A^\top A$. The two networks answer different questions.
 Coupling groups the citing documents, and is fixed once they are published:
 it maps the *research fronts* of a period. Co-citation groups the cited
 works, and evolves as new articles cite them: it maps the *intellectual
-base* of a literature as its users see it. Comparing the clusters
-obtained on two million biomedical articles, @boyack2010 found that
-bibliographic coupling slightly outperformed co-citation in representing
-research fronts, direct citation being the least accurate; @yan2012 show how the
-various scholarly networks (coupling, co-citation, co-authorship,
-co-words) relate to each other.
+base* of a literature as its users see it.
+
+A third relation is often used: **direct citation**, where documents are
+linked when one cites the other. It is not a projection (the nodes and the
+links concern the same entities), so it needs no function of the package:
+a `tbl_graph` built from the table of citations among the documents of the
+corpus can be given directly to `add_clusters()` and the following steps.
+Which of the three relations represents a field best has been discussed for
+a long time, and the answer depends on the criterion. Comparing the
+clusters obtained on two million biomedical articles, @boyack2010 found
+that bibliographic coupling slightly outperformed co-citation in
+representing research fronts, direct citation being the least accurate,
+with two measures of accuracy (textual coherence and the concentration of
+grants). With another criterion, the concentration of the references of
+articles with long bibliographies, @klavans2017 found on the contrary that
+direct citation was more accurate than coupling and co-citation.
+@waltman2012 built a classification of almost ten million publications on
+direct citation only, noting that the exclusive reliance on direct
+citation relations is the main limit of their method, and @rivest2021
+found direct citation, a simple label propagation approach, on par with a
+deep learning classification of more than 40 million articles.
+@sjogarde2024 show that direct citation networks cluster better when
+citations are normalised. The relations can also be complementary: for the identification of
+research topics in computer science, @kleminski2022 find that bibliographic
+coupling captures more unique information than direct citation or
+co-citation, and @yan2012 show how the various scholarly networks
+(coupling, co-citation, co-authorship, co-words) relate to each other. The choice of the relation is therefore a
+research choice, not a technical one: coupling is well suited to follow
+what a set of documents cites over time (as here), direct citation to
+classify very large corpora, co-citation to study the base that a
+literature draws on. It is worth checking that the main results of a study
+hold with a second relation.
 
 The same logic applies far beyond citations: authors and the papers they
 sign (co-authorship), accounts and the hashtags they use, members and the
@@ -299,9 +326,42 @@ A network of the whole period mixes literatures that did not coexist.
 `build_dynamic_networks()` builds one network per time window: a window
 starting in year $s$ gathers the documents published in
 $[s, s + w - 1]$, $w$ being `time_window`, and the network is computed as
-if the corpus were limited to them. Windows can be successive
-(`overlapping_window = FALSE`: 1975-1984, 1985-1994...) or sliding
-(`TRUE`: 1975-1984, 1976-1985...).
+if the corpus were limited to them. A new window starts every `window_step`
+units. By default, windows follow each other (`window_step = time_window`:
+1975-1984, 1985-1994...); with `window_step = 1`, the window slides by one
+unit (1975-1984, 1976-1985...); with a step of 5 and a window of 10, each
+window shares half of its period with the next one. The step is a way to
+trade resolution in time for computing time and for the number of networks
+to read.
+
+**Months, weeks and days.** The unit is the one of the time variable when
+it is a number. When it is a date (`Date`, `POSIXct`, or an ISO date written
+as text such as `"2001-03-15"`), `time_unit` chooses the unit in which
+windows are counted: `"year"` (the default), `"quarter"`, `"month"`,
+`"week"` or `"day"`. For documents that follow each other quickly, such as
+the statements of central banks, the question is how many documents a
+window needs to contain: a network of twenty documents has no structure to
+detect. With monthly data, a window of 12 months sliding by 3 gives a
+yearly window every quarter:
+
+```r
+build_dynamic_networks(
+  nodes = statements,            # one row per statement, with a `date` column
+  directed_edges = citations,
+  source_id = "statement_id",
+  target_id = "reference_id",
+  time_variable = "date",
+  time_unit = "month",
+  time_window = 12,
+  window_step = 3,
+  projection_method = "structured",
+  cooccurrence_method = "coupling_angle"
+)
+```
+
+Windows are named after their first and last unit (`"2001-01 to 2001-12"`
+for months, `"2001-Q1 to 2001-Q4"` for quarters, `"1975-1984"` for years).
+The column of the user is never modified.
 
 ```{r}
 #| label: dynamic
@@ -312,7 +372,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  overlapping_window = TRUE,
+  window_step = 1,
   projection_method = "structured",
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,

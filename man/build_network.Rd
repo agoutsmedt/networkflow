@@ -9,6 +9,8 @@ build_network(
   directed_edges,
   source_id,
   target_id,
+  document_id = NULL,
+  projection_on = c("source", "target"),
   projection_method,
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
@@ -18,8 +20,6 @@ build_network(
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
-  projection_on = c("source", "target"),
-  document_id = NULL,
   ...
 )
 }
@@ -37,6 +37,20 @@ become the nodes of the network. It must exist in both \code{nodes} and
 
 \item{target_id}{Character scalar, the column of \code{directed_edges} with the
 entities that create the links (e.g. references).}
+
+\item{document_id}{Optional column of \code{directed_edges} identifying the
+document through which each link exists. With it, \code{source_id} entities
+are not documents but \emph{entities that publish documents} (authors,
+journals, institutions) and a reference cited by several documents of an
+entity counts several times, following
+\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
+
+\item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
+that share \code{target_id} entities (bibliographic coupling: articles
+sharing references). \code{"target"} links the \code{target_id} entities that
+share \code{source_id} entities (co-citation: cited documents linked when
+they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
+by \code{target_id}.}
 
 \item{projection_method}{\code{"structured"} or \code{"statistical"}. Required.}
 
@@ -68,20 +82,6 @@ edge are removed.}
 
 \item{filter_components}{Logical. If \code{TRUE}, keeps only the main
 component(s) with \code{\link[=filter_components]{filter_components()}}.}
-
-\item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
-that share \code{target_id} entities (bibliographic coupling: articles
-sharing references). \code{"target"} links the \code{target_id} entities that
-share \code{source_id} entities (co-citation: cited documents linked when
-they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
-by \code{target_id}.}
-
-\item{document_id}{Optional column of \code{directed_edges} identifying the
-document through which each link exists. With it, \code{source_id} entities
-are not documents but \emph{entities that publish documents} (authors,
-journals, institutions) and a reference cited by several documents of an
-entity counts several times, following
-\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
 
 \item{...}{With \code{filter_components = TRUE}, arguments of
 \code{\link[=filter_components]{filter_components()}} (e.g. \code{nb_components}).}

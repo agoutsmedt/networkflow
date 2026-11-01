@@ -69,6 +69,69 @@ The roles combine the two measures, with the thresholds of
 }
 
 
+\strong{Reading the roles.} The two measures answer two questions: \emph{how
+central is this node in its own cluster?} (\eqn{z_i}) and \emph{where do its
+ties go?} (\eqn{P_i}). What a role means depends on what the nodes and
+the ties are. For the stagflation data of the package (documents linked by
+bibliographic coupling, Leiden clusters, resolution 1), the examples are:
+\itemize{
+\item \emph{Provincial hub} (R5): the central document of a literature, tied to most
+of its members and to almost nothing else. In a coupling network, it
+shares references with most documents of its cluster: Lansing's
+"Exploring the causes of the great inflation" (2000) in the cluster on the
+great inflation, Nordhaus's "Who's afraid of a big bad oil shock?" (2007)
+in the cluster on oil. In a co-citation network, the same role is played
+by the classics that are cited with most works of a literature.
+\item \emph{Connector hub} (R6): central in its cluster and tied to other clusters:
+a document that is embedded in a literature while drawing on others.
+Pindyck's "Energy price increases and macroeconomic policy" (1980) is
+the only one: central in the cluster on productivity, oil and supply, it
+shares references with several other clusters.
+\item \emph{Kinless hub} (R7): central in its cluster, with ties spread evenly over
+all clusters. It requires a cluster that is itself not very separate
+from the others; there is none in the stagflation example.
+\item \emph{Non-hub connector} (R3): a document whose ties are spread over several
+clusters without being central in any: a bridge. Goldstein's "Downward
+price inflexibility, ratchet effects, and the inflationary impact of
+import price changes" (1977), or Blinder's "The supply-shock explanation
+of the great stagflation revisited" (2013), which belongs to the oil
+cluster but shares references with the other clusters, are such
+bridges. In a co-citation network, they are works used by several
+literatures.
+\item \emph{Non-hub kinless} (R4): ties spread almost evenly over all clusters,
+which can mark an outlier as well as a bridge. In the example, the
+only one, Nitzan's "Regimes of differential accumulation: mergers,
+stagflation and the logic of globalization" (2001), shares references
+with five clusters in almost equal parts (17 to 20\% of its tie weight
+each) and is below the average of its own cluster for within-module
+degree: it is tied to everybody a little, and to nobody much.
+\item \emph{Peripheral} (R1, R2): all or most ties stay within the cluster. R1
+(participation below 0.05) are documents whose ties all stay in their own
+cluster, such as Phelps's "Commodity-supply shock and full-employment
+monetary policy" (1978), in the cluster on imports.
+}
+
+The same classification means other things for other nodes. For authors
+coupled through their references (see \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}), a
+connector is an author who cites several literatures, a hub an author who
+cites like most of the group. For networks that are not bibliographic, the
+roles describe how much each node holds its community together (hubs) and
+how much it links communities (connectors).
+
+\strong{Cautions.} (1) Roles depend on the clusters, hence on the algorithm and
+on the resolution: on the stagflation data, the mean participation
+coefficient is 0.31, 0.39 and 0.52 for Leiden resolutions of 0.75, 1 and
+1.5, because smaller clusters leave more ties between clusters. Check that
+the nodes you interpret keep their role when the resolution changes a
+little. (2) The thresholds of \insertCite{guimera2005;textual}{networkflow}
+come from metabolic networks. Projected networks are dense (here, a quarter
+of the pairs of documents are tied) and most nodes have a participation
+above 0.05: R2 is the usual role, and hubs are rare. (3) With the weights
+of similarity measures, long bibliographies and well-cited references
+influence the weights (see \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}). (4) A role is a
+position in a network, not a judgement on the importance or the quality
+of a document; reading the document is necessary.
+
 The original measures count edges; here they use the edge weights
 (strengths), which is the natural generalisation for weighted projected
 networks. The graph is treated as undirected. The thresholds were

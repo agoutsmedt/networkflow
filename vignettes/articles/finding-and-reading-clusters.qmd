@@ -5,6 +5,7 @@ description: >
   resolution shape the clusters, how to check their stability, and how to
   name, characterise and draw them.
 bibliography: references.bib
+lightbox: true
 ---
 
 ```{r}
@@ -22,6 +23,7 @@ guide](from-references-to-networks.html).
 #| label: network
 library(networkflow)
 library(ggplot2)
+library(dplyr)
 library(tidygraph)
 
 nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
@@ -272,10 +274,100 @@ ggplot(roles, aes(participation_coeff, within_module_z, colour = cluster_label))
 
 The shaded area holds the hubs of their cluster ($z \geq 2.5$, the
 threshold of Guimerà and Amaral). Documents on the right have ties spread
-over several clusters: they are good candidates to understand how
-literatures communicate. In small networks such as this one, the seven
-categories of Guimerà and Amaral are thinly populated, and the two
-measures are more useful as continuous indicators than as roles.
+over several clusters. The two measures combine into seven roles, which
+are easier to understand with documents in hand. Here are the documents
+that best illustrate the roles that exist in this network:
+
+```{r}
+#| label: role-examples
+roles |>
+  filter(role_ga %in% c("R5 provincial hub", "R6 connector hub", "R3 non-hub connector", "R4 non-hub kinless")) |>
+  arrange(role_ga, desc(if_else(grepl("^R[567]", role_ga), within_module_z, participation_coeff))) |>
+  group_by(role_ga) |>
+  slice_head(n = 3) |>
+  ungroup() |>
+  transmute(role = role_ga, document = source_label, title = stringr::str_to_sentence(source_title),
+            cluster = cluster_label, z = round(within_module_z, 1), participation = round(participation_coeff, 2)) |>
+  as.data.frame()
+```
+
+How to read them depends on what the nodes and the ties are. Here, nodes
+are explanations of the stagflation and ties are shared references:
+
+- A **provincial hub** (R5) is the central document of a literature: it
+  shares references with most of the documents of its cluster and with
+  hardly any other. Lansing's "Exploring the causes of the great inflation"
+  (2000) is one for the cluster on the great inflation, Nordhaus's "Who's
+  afraid of a big bad oil shock?" (2007) for the cluster on oil. These are
+  the documents to read first to enter a cluster.
+- A **connector hub** (R6) is central in its cluster and shares references
+  with others too. Pindyck's "Energy price increases and macroeconomic
+  policy" (1980) is central in the cluster on productivity, oil and supply
+  while its references also belong to other clusters: a document built on
+  several literatures that remains well embedded in one.
+- A **non-hub connector** (R3) has ties spread over several clusters
+  without being central in any: a bridge. Blinder's "The supply-shock
+  explanation of the great stagflation revisited" (2013) belongs to the
+  cluster on oil but shares references with other clusters: it revisits an
+  explanation that earlier documents had built on other bases. In a
+  co-citation network, the same role belongs to works used by several
+  literatures.
+- A **non-hub kinless** document (R4) spreads its ties evenly over all
+  clusters. This is not a better bridge than R3: it may be an outlier. The
+  only one here, Nitzan's article on "regimes of differential
+  accumulation" (2001), shares references with each of five clusters in
+  almost equal proportions (17 to 20% of its tie weight in each), and its
+  within-module degree is below the average of its own cluster: it is tied
+  to everybody a little and to nobody much.
+
+Roles are positions in a network, not judgements on the importance of a
+document. Moreover, they depend on the partition. We recompute the roles
+for three resolutions of Leiden and follow the five documents above:
+
+```{r}
+#| label: role-resolution
+resolutions <- c(0.75, 1, 1.5)
+by_resolution <- lapply(resolutions, function(resolution) {
+  graph <- network |>
+    add_clusters(clustering_method = "leiden", objective_function = "modularity",
+                 resolution = resolution, seed = 123, verbose = FALSE) |>
+    add_node_roles(module_col = "cluster_leiden")
+  as_tibble(graph, active = "nodes") |> mutate(resolution = resolution)
+})
+bind_rows(by_resolution) |>
+  group_by(resolution) |>
+  summarise(
+    clusters = n_distinct(cluster_leiden),
+    hubs = sum(role_ga %in% c("R5 provincial hub", "R6 connector hub", "R7 kinless hub")),
+    mean_participation = round(mean(participation_coeff), 2)
+  ) |>
+  as.data.frame()
+
+bind_rows(by_resolution) |>
+  filter(source_label %in% c("LANSING-K-2000a", "NORDHAUS-W-2007", "PINDYCK-R-1980",
+                             "BLINDER-A-2013", "NITZAN-J-2001")) |>
+  select(document = source_label, resolution, role_ga) |>
+  tidyr::pivot_wider(names_from = resolution, values_from = role_ga, names_prefix = "resolution ") |>
+  as.data.frame()
+```
+
+With smaller clusters, more ties cross clusters and the participation
+coefficients increase (the mean goes from 0.31 to 0.52). Blinder stays a
+connector at the three resolutions, and Lansing a hub, but Pindyck is
+only a peripheral document (R2) at 0.75 and a connector hub from 1. A role is therefore a statement about a document *relative to a given
+partition*: before interpreting a role in a text, check that it survives a
+reasonable change of resolution. Finally, the thresholds of Guimerà and
+Amaral were calibrated on metabolic networks. In a network of documents
+projected from references, a quarter of the pairs are tied, most documents
+have a participation above 0.05, and hubs are rare (three here): the
+roles are more useful as a way to find documents to read than as
+categories to count.
+
+The same measures mean different things for other nodes: in a co-citation
+network, a hub is a classic cited with most of the works of its literature
+and a connector a work used by several literatures; for authors coupled
+through their references (see [beyond bibliographic coupling](beyond-bibliographic-coupling.html)),
+a connector is an author who cites several literatures.
 
 ## Drawing the network
 

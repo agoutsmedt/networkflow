@@ -3,5 +3,5 @@
 # any new one here.
 utils::globalVariables(c(
   ".", "..weight", ".from", ".to", "cluster_label", "color", "edges", "from",
-  "label_x", "label_y", "nodes", "to", "tooltip", "weight", "x", "y"
+  "label_x", "label_y", "metric", "nodes", "to", "tooltip", "weight", "x", "y"
 ))

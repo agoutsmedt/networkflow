@@ -9,23 +9,24 @@ build_dynamic_networks(
   directed_edges,
   source_id,
   target_id,
-  time_variable = NULL,
-  time_window = NULL,
+  document_id = NULL,
+  projection_on = c("source", "target"),
   projection_method = c("structured", "statistical"),
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
-  alpha = NULL,
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
-  overlapping_window = FALSE,
+  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
+  alpha = NULL,
+  backbone_args = list(),
+  time_variable = NULL,
+  time_in = c("nodes", "edges"),
+  time_unit = NULL,
+  time_window = NULL,
+  window_step = NULL,
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
   ...,
-  backbone_args = list(),
-  verbose = TRUE,
-  projection_on = c("source", "target"),
-  time_in = c("nodes", "edges"),
-  document_id = NULL
+  verbose = TRUE
 )
 }
 \arguments{
@@ -43,22 +44,22 @@ become the nodes of the network. It must exist in both \code{nodes} and
 \item{target_id}{Character scalar, the column of \code{directed_edges} with the
 entities that create the links (e.g. references).}
 
-\item{time_variable}{Optional character scalar, a column of \code{nodes} with an
-integer time unit (e.g. the publication year). \code{NULL} builds a single
-network.}
+\item{document_id}{Optional column of \code{directed_edges} identifying the
+document through which each link exists. With it, \code{source_id} entities
+are not documents but \emph{entities that publish documents} (authors,
+journals, institutions) and a reference cited by several documents of an
+entity counts several times, following
+\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
 
-\item{time_window}{Optional integer, the width of each window, in units of
-\code{time_variable}.}
+\item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
+that share \code{target_id} entities (bibliographic coupling: articles
+sharing references). \code{"target"} links the \code{target_id} entities that
+share \code{source_id} entities (co-citation: cited documents linked when
+they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
+by \code{target_id}.}
 
 \item{projection_method}{\code{"structured"} (default) or \code{"statistical"}, see
 the description and the details.}
-
-\item{model}{For \code{projection_method = "statistical"}, the null model of
-\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}: \code{"sdsm"}, \code{"fdsm"},
-\code{"fixedfill"}, \code{"fixedrow"} or \code{"fixedcol"}.}
-
-\item{alpha}{For \code{projection_method = "statistical"}, the significance
-level of the test of each tie. Lower values keep fewer edges.}
 
 \item{cooccurrence_method}{For \code{projection_method = "structured"}, the
 similarity measure used as edge weight: \code{"coupling_angle"},
@@ -68,9 +69,46 @@ There is no default: the choice must be explicit.}
 \item{edges_threshold}{For \code{projection_method = "structured"}, the minimum
 number of shared targets for two sources to be linked (1 by default).}
 
-\item{overlapping_window}{Logical. \code{FALSE} (default) cuts the period into
-successive windows (1975-1984, 1985-1994...); \code{TRUE} slides the window
-by one time unit (1975-1984, 1976-1985...).}
+\item{model}{For \code{projection_method = "statistical"}, the null model of
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}: \code{"sdsm"}, \code{"fdsm"},
+\code{"fixedfill"}, \code{"fixedrow"} or \code{"fixedcol"}.}
+
+\item{alpha}{For \code{projection_method = "statistical"}, the significance
+level of the test of each tie. Lower values keep fewer edges.}
+
+\item{backbone_args}{Optional list of further arguments for
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}} (e.g. \code{mtc = "holm"} to correct
+for multiple tests). \code{alpha} or \code{model} given here override the
+arguments of the function.}
+
+\item{time_variable}{Optional name of a column with the time of each node
+(or of each link, with \code{time_in = "edges"}): a number (e.g. a year), a
+\code{Date}, a \code{POSIXct}, or an ISO date written as text (\code{"2001-03"},
+\code{"2001-03-15"}). Years written as text (\code{"2001"}) are numbers. Without
+it, a single network is built.}
+
+\item{time_in}{\code{"nodes"} (default): \code{time_variable} is a column of \code{nodes}
+and a window selects the nodes of the period. \code{"edges"}: \code{time_variable}
+is a column of \code{directed_edges} (e.g. the year of the citing document)
+and a window selects the links of the period, the nodes being those with
+a link in the window. Use \code{"edges"} for co-citation, whose period is the
+one of the citing documents, and for entities without a date of their
+own (authors).}
+
+\item{time_unit}{For dates only: the unit in which windows are counted,
+\code{"year"} (default), \code{"quarter"}, \code{"month"}, \code{"week"} (starting on
+Mondays) or \code{"day"}. For numbers, the unit is the one of the variable
+and \code{time_unit} must stay \code{NULL}.}
+
+\item{time_window}{Optional whole number, the width of each window in
+\code{time_unit}s (or in units of the variable): 10 for ten years, 12 with
+\code{time_unit = "month"} for a year. \code{NULL} builds a single network.}
+
+\item{window_step}{Optional whole number, the number of units between the
+starts of two windows. \code{NULL} (default) gives successive windows
+(\code{window_step = time_window}); \code{1} slides the window one unit at a time
+(1975-1984, 1976-1985...); \code{3} with \code{time_unit = "month"} and a window
+of 12 gives a yearly window every quarter.}
 
 \item{compute_size}{Logical. If \code{TRUE}, adds a \code{node_size} column: the
 number of times each node is a target of the sources of the same window
@@ -86,34 +124,7 @@ component(s) with \code{\link[=filter_components]{filter_components()}}.}
 \item{...}{Arguments passed to \code{\link[=filter_components]{filter_components()}} (e.g.
 \code{nb_components}).}
 
-\item{backbone_args}{Optional list of further arguments for
-\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}} (e.g. \code{mtc = "holm"} to correct
-for multiple tests). \code{alpha} or \code{model} given here override the
-arguments of the function.}
-
 \item{verbose}{Logical. If \code{TRUE} (default), reports the steps.}
-
-\item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
-that share \code{target_id} entities (bibliographic coupling: articles
-sharing references). \code{"target"} links the \code{target_id} entities that
-share \code{source_id} entities (co-citation: cited documents linked when
-they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
-by \code{target_id}.}
-
-\item{time_in}{\code{"nodes"} (default): \code{time_variable} is a column of \code{nodes}
-and a window selects the nodes of the period. \code{"edges"}: \code{time_variable}
-is a column of \code{directed_edges} (e.g. the year of the citing document)
-and a window selects the links of the period, the nodes being those with
-a link in the window. Use \code{"edges"} for co-citation, whose period is the
-one of the citing documents, and for entities without a date of their
-own (authors).}
-
-\item{document_id}{Optional column of \code{directed_edges} identifying the
-document through which each link exists. With it, \code{source_id} entities
-are not documents but \emph{entities that publish documents} (authors,
-journals, institutions) and a reference cited by several documents of an
-entity counts several times, following
-\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
 }
 \value{
 A \code{tbl_graph} (undirected) if \code{time_variable} is \code{NULL};
@@ -201,16 +212,22 @@ are kept when the test is significant at level \code{alpha}; the resulting
 network is unweighted. This is slower, but each edge can be read as a tie
 unlikely to be due to chance.
 
-\strong{Time windows.} A window starting in year \eqn{s} gathers the nodes with
-\eqn{s \le t < s + w}, \eqn{w} being \code{time_window}, and only the links of
-these nodes: each network is computed as if the corpus were limited to the
-window. Sliding windows (\code{overlapping_window = TRUE}) smooth the evolution
-of the networks, at the price of many networks sharing most of their
-nodes; successive windows give independent snapshots. When the period is
-not a multiple of \code{time_window}, the last successive window is shorter and
-a warning is given. The choice of the window is substantive: it should be
-long enough for each network to have enough nodes (a few dozen at least)
-to show a structure, and short enough for changes to be visible.
+\strong{Time windows.} Time is counted in whole units: the values of a numeric
+variable, or years, quarters, months, weeks or days for dates. A window
+starting at unit \eqn{s} and \eqn{w} units wide (\code{time_window}) gathers
+the nodes (or links) with \eqn{s \le t < s + w}, and the network is
+computed as if the corpus were limited to them. A new window starts every
+\code{window_step} units: successive windows (the default) give independent
+snapshots, a step of 1 slides the window and smooths the evolution of the
+networks, at the price of many networks sharing most of their nodes. The
+last window may be shorter than the others when the period is not a
+multiple of the step (a warning is given); windows are labelled by their
+first and last unit (\code{"1975-1984"}, \code{"2001-01 to 2001-12"}). The choice of
+the window is substantive: long enough for each network to have enough
+nodes (a few dozen at least) to show a structure, and short enough for
+changes to be visible. For documents that follow each other quickly
+(central bank statements, news, posts), months or weeks make sense, with
+a window wide enough to contain enough documents.
 
 \strong{Beyond bibliographic coupling.} Nothing in the function is specific to
 citations. The two sides of the links can be any two kinds of entities:

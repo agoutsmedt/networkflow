@@ -114,7 +114,7 @@ run_pipeline <- function(sample_file, output_file) {
   }
   networks <- step("build_dynamic_networks", build_dynamic_networks(
     data$nodes, data$refs, "source_id", "target_id",
-    time_variable = "year", time_window = 5, overlapping_window = TRUE,
+    time_variable = "year", time_window = 5, window_step = 1,
     projection_method = "structured", cooccurrence_method = "coupling_strength",
     edges_threshold = 2, filter_components = TRUE, verbose = FALSE
   ))

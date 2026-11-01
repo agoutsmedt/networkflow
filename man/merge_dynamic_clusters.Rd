@@ -68,8 +68,7 @@ at most one cluster. A cluster that meets no match gets a new identifier.
 \details{
 \strong{Which windows?} The rule needs nodes present in successive windows.
 In a network of documents (e.g. bibliographic coupling), each document has
-a single date, so successive windows (\code{overlapping_window = FALSE} in
-\code{\link[=build_dynamic_networks]{build_dynamic_networks()}}) share no node and no cluster can be matched:
+a single date, so successive windows (the default of \code{build_dynamic_networks()}) share no node and no cluster can be matched:
 use sliding windows. Successive windows work when nodes persist over
 time, as cited references (co-citation), authors or journals do; two
 windows may still share no node when the literature changed completely.

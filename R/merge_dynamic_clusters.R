@@ -44,8 +44,7 @@
 #' @details
 #' **Which windows?** The rule needs nodes present in successive windows.
 #' In a network of documents (e.g. bibliographic coupling), each document has
-#' a single date, so successive windows (`overlapping_window = FALSE` in
-#' [build_dynamic_networks()]) share no node and no cluster can be matched:
+#' a single date, so successive windows (the default of `build_dynamic_networks()`) share no node and no cluster can be matched:
 #' use sliding windows. Successive windows work when nodes persist over
 #' time, as cited references (co-citation), authors or journals do; two
 #' windows may still share no node when the literature changed completely.
@@ -154,7 +153,7 @@ merge_dynamic_clusters <- function(list_graph,
   if (any(shared == 0)) {
     cli::cli_warn(c(
       "{sum(shared == 0)} pair{?s} of consecutive windows share no node: their clusters cannot be matched.",
-      "i" = "Clusters are matched through the nodes they share. In a network of documents (coupling), each node has one date: use sliding windows ({.code overlapping_window = TRUE} in {.fn build_dynamic_networks}). If windows already slide, the nodes may have changed completely, or the threshold may leave a window without edges."
+      "i" = "Clusters are matched through the nodes they share. In a network of documents (coupling), each node has one date: use sliding windows ({.code window_step = 1} in {.fn build_dynamic_networks}). If windows already slide, the nodes may have changed completely, or the threshold may leave a window without edges."
     ))
   }
 

@@ -22,7 +22,8 @@ biblionetwork or statistical backbones from backbone, one network per
 time window), \code{\link[=filter_components]{filter_components()}}.
 \item \strong{Finding and reading clusters}: \code{\link[=add_clusters]{add_clusters()}} (Leiden, Louvain,
 Infomap...), \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} (following clusters across
-windows), \code{\link[=name_clusters]{name_clusters()}}, \code{\link[=extract_tfidf]{extract_tfidf()}}, \code{\link[=add_node_roles]{add_node_roles()}}.
+windows), \code{\link[=merge_diagnostics]{merge_diagnostics()}} and \code{\link[=plot_merge_diagnostics]{plot_merge_diagnostics()}} (how the
+result depends on the threshold), \code{\link[=name_clusters]{name_clusters()}}, \code{\link[=extract_tfidf]{extract_tfidf()}}, \code{\link[=add_node_roles]{add_node_roles()}}.
 \item \strong{Drawing and exploring}: \code{\link[=layout_networks]{layout_networks()}}, \code{\link[=color_networks]{color_networks()}},
 \code{\link[=prepare_label_networks]{prepare_label_networks()}}, \code{\link[=plot_networks]{plot_networks()}}, \code{\link[=networks_to_alluv]{networks_to_alluv()}},
 \code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}}, \code{\link[=plot_alluvial]{plot_alluvial()}},

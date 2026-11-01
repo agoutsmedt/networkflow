@@ -14,7 +14,8 @@
 #'   time window), [filter_components()].
 #' * **Finding and reading clusters**: [add_clusters()] (Leiden, Louvain,
 #'   Infomap...), [merge_dynamic_clusters()] (following clusters across
-#'   windows), [name_clusters()], [extract_tfidf()], [add_node_roles()].
+#'   windows), [merge_diagnostics()] and [plot_merge_diagnostics()] (how the
+#'   result depends on the threshold), [name_clusters()], [extract_tfidf()], [add_node_roles()].
 #' * **Drawing and exploring**: [layout_networks()], [color_networks()],
 #'   [prepare_label_networks()], [plot_networks()], [networks_to_alluv()],
 #'   [minimize_crossing_alluvial()], [plot_alluvial()],

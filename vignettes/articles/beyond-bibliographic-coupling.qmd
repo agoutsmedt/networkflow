@@ -4,6 +4,7 @@ description: >
   The same pipeline for co-citation, for authors instead of articles, and
   for any two-mode table; and why the identifiers of references matter.
 bibliography: references.bib
+lightbox: true
 ---
 
 ```{r}
