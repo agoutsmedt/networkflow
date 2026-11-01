@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_dynamic_clusters.R
 \name{merge_dynamic_clusters}
 \alias{merge_dynamic_clusters}
-\title{Find Similar Clusters across Multiple Temporal Networks}
+\title{Follow clusters across time windows}
 \usage{
 merge_dynamic_clusters(
   list_graph,
@@ -13,85 +13,123 @@ merge_dynamic_clusters(
 )
 }
 \arguments{
-\item{list_graph}{A list of tibble graphs ((from \href{https://tidygraph.data-imaginist.com/}{tidygraph}))
-The list is expected to be ordered in a sequential order from the oldest to the most
-recent network.}
+\item{list_graph}{A list of at least two \code{tbl_graph}s in chronological
+order (oldest first), as produced by \code{\link[=build_dynamic_networks]{build_dynamic_networks()}} and
+\code{\link[=add_clusters]{add_clusters()}}.}
 
-\item{cluster_id}{The column with the identifier of the cluster. If you have used
-\link[=add_clusters]{add_clusters()}, it is of the form \verb{cluster_\{clustering_method\}}.}
+\item{cluster_id}{Character scalar, the node column with the clusters of
+each window (e.g. \code{"cluster_leiden"}).}
 
-\item{node_id}{The column with the unique identifier of each node.}
+\item{node_id}{Character scalar, the node column with an identifier that
+is stable across windows (e.g. \code{"source_id"}).}
 
-\item{threshold_similarity}{The threshold_similarity variable defines how sensitive the function is to giving the same name to two clusters.
-A higher threshold will lead to more communities.
+\item{threshold_similarity}{Number in \eqn{(0.5, 1]}, the threshold
+\eqn{\tau}. Higher values require more similar clusters and create more
+distinct dynamic clusters.}
 
-For example, if you have two temporal networks with two communities each. Communities A and B for the older network,
-and communities A' and B' for the more recent network. A threshold of 0.51 with a "complete" similarity_type means that community A' will be given the name
-A if 51\% of the nodes from A' in the more recent network originate from A in the older network, and 51\% of the node from A in the older
-network becomes in A' in the more recent network.}
-
-\item{similarity_type}{Choose a similarity type to compare the threshold to:
-\itemize{
-\item "complete" similarity compute the share of nodes going from an older community to a more recent community on all the nodes in both networks
-\item "partial" similarity compute the share of nodes going from an older community to a more recent community only on nodes that exists in both networks
-}
-
-Complete similarity is particularly suited if the number of nodes in your networks is relatively stable over time as the threshold capture the share of all nodes
-moving between clusters. Partial similarity can be particularly useful when the number of nodes in your networks increases rapidly. The interpretation of the threshold
-is that it captures the share of nodes existing in both networks moving between clusters.
-
-For example, with a complete similarity threshold of 0.51, if (1) all nodes from community A in network t-1 go into community A' in network t+1, and (2) all nodes in community A'
-present in network t-1 originate from community A, but (3) the number of nodes in A' is more than twice of A because of new nodes that did not exists in t-1,
-A' will never meet the threshold requirement to be named A despite a strong similarity between the two clusters.
-Conceptually, this might be a desired behavior of the function because one might considered that A' is too different from A to be considered the same cluster as its composition is changed from new nodes.
-In that case complete similarity is the right choice. However, if one consider that A and A' are very similar because all the nodes that exists in both networks are identified as part of the same community,
-then partial threshold similarity is more desirable.}
+\item{similarity_type}{\code{"complete"} or \code{"partial"}, see the description.
+Required: there is no default, as the choice changes the results.}
 }
 \value{
-The function returns the same list of networks used as input in \code{list_graph} but with
-a new column \verb{dynamic_\{cluster_id\}} (i.e, the name of the new column depends of the column
-that served as input). The column is the result of the inter-graphs grouping of the
-original clusters of the \code{cluster_id}. The dynamic clusters are also merged with the
-different \code{cluster_id} columns of the edges data.
+The list of graphs, with the same names, where nodes have a new
+column \verb{dynamic_\{cluster_id\}} (e.g. \code{dynamic_cluster_leiden}, with
+identifiers "cl_1", "cl_2"...) and edges the columns
+\verb{dynamic_\{cluster_id\}_from}, \verb{dynamic_\{cluster_id\}_to} and
+\verb{dynamic_\{cluster_id\}} (missing for edges between clusters).
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function creates a new column "intertemporal_name" for each network from a list
-of temporal networks to
-identify similar clusters across time. The function gives the same name to two
-clusters from two succesive temporal networks if they match the conditions defined by
-the user: \code{threshold_similarity}, \code{cluster_colum} and \code{similarity_type}.
+When clusters are detected in each time window separately, their
+identifiers mean nothing from one window to the next: cluster "01" of the
+1975-1984 network and cluster "01" of the 1976-1985 network may be two
+different literatures. \code{merge_dynamic_clusters()} links the clusters of
+successive windows that share most of their nodes, and gives them a
+common identifier, so that a cluster becomes an entity that can be born,
+persist and disappear. This is the step that turns a series of networks
+into a history of research communities, in the spirit of the alluvial
+maps of \insertCite{rosvall2010;textual}{networkflow}.
+
+The rule is a double majority. Let \eqn{V_a} be the nodes of cluster
+\eqn{a} in window \eqn{t-1} and \eqn{V_b} those of cluster \eqn{b} in
+window \eqn{t}. Cluster \eqn{b} inherits the identifier of \eqn{a} when
+most nodes of \eqn{a} go to \eqn{b} \emph{and} most nodes of \eqn{b} come from
+\eqn{a}:
+\deqn{\frac{|V_a \cap V_b|}{D_a} > \tau \quad \text{and} \quad
+\frac{|V_a \cap V_b|}{D_b} > \tau,}
+with \eqn{\tau} the \code{threshold_similarity}. The denominators depend on
+\code{similarity_type}: with \code{"complete"}, \eqn{D_a = |V_a|} and
+\eqn{D_b = |V_b|}; with \code{"partial"}, only the nodes present in both
+windows count, \eqn{D_a = |V_a \cap V_t|} and \eqn{D_b = |V_b \cap V_{t-1}|},
+\eqn{V_t} being all the nodes of window \eqn{t}. Since \eqn{\tau > 0.5},
+a cluster can inherit at most one identifier, and an identifier passes to
+at most one cluster. A cluster that meets no match gets a new identifier.
+}
+\details{
+\strong{Which windows?} The rule needs nodes present in successive windows.
+In a network of documents (e.g. bibliographic coupling), each document has
+a single date, so successive windows (\code{overlapping_window = FALSE} in
+\code{\link[=build_dynamic_networks]{build_dynamic_networks()}}) share no node and no cluster can be matched:
+use sliding windows. Successive windows work when nodes persist over
+time, as authors, journals or cited references (in a co-citation
+network) do.
+
+\strong{Complete or partial?} With sliding windows, the network of window
+\eqn{t} loses the documents of the first year of window \eqn{t-1} and
+gains those of a new year; in a growing literature, newcomers can be
+numerous. With \code{"complete"}, a cluster that keeps all its past members but
+doubles with newcomers cannot inherit the identifier, because its
+members coming from \eqn{a} are less than half of it: the cluster is
+considered new because its composition changed. With \code{"partial"}, the
+newcomers are ignored and the same cluster keeps its identifier. Which
+one is right depends on what a cluster is taken to be: a group of
+documents (complete), or a structure that recruits new documents
+(partial).
+
+\strong{What the rule does not do.} Clusters are compared only with the
+previous window: a cluster that vanishes for one window and comes back
+gets a new identifier. Splits and merges are not recorded as such: the
+part that meets the double majority keeps the identifier, the others are
+new. With \eqn{\tau} close to 0.5, small fluctuations of the partition (a
+stochastic algorithm, a resolution change) may break or create
+continuities; it is good practice to compare the results for a few
+thresholds and seeds.
 }
 \examples{
-library(networkflow)
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
+)
+networks <- add_clusters(
+  networks,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
+networks <- merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  threshold_similarity = 0.51,
+  similarity_type = "partial"
+)
+networks[[2]]
 
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 10,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE)
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden")
-
-temporal_networks <- merge_dynamic_clusters(temporal_networks,
-cluster_id = "cluster_leiden",
-node_id = "source_id",
-threshold_similarity = 0.51,
-similarity_type = "partial")
-
-temporal_networks[[1]]
-
+}
+\references{
+\insertAllCited{}
+}
+\seealso{
+\code{\link[=name_clusters]{name_clusters()}} with \code{name_merged_clusters = TRUE} to label the
+dynamic clusters; \code{\link[=networks_to_alluv]{networks_to_alluv()}} and \code{\link[=plot_alluvial]{plot_alluvial()}} to draw
+their evolution.
 }

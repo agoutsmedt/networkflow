@@ -1,102 +1,95 @@
+#' Keep the main component(s) of networks
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' A projected network is often made of one large connected component and of
+#' small islands: a few articles that share references only with each other,
+#' or isolated pairs. Community detection and layouts are hard to read on such
+#' fragments, and many studies keep only the main component.
+#' `filter_components()` numbers the (weakly) connected components by
+#' decreasing size, keeps the `nb_components` largest, and warns when the
+#' first component removed is not negligible.
+#'
+#' @param graphs A `tbl_graph` or a list of `tbl_graph`s (e.g. the output of
+#'   [build_dynamic_networks()]).
+#' @param nb_components Integer, the number of components to keep, starting
+#'   from the largest (1 by default).
+#' @param threshold_alert Number between 0 and 1. If the largest removed
+#'   component gathers more than this share of the nodes (0.05 by default), a
+#'   warning is given: removing it would change the object of study.
+#' @param keep_component_columns Logical. If `TRUE`, keeps the columns
+#'   `components_att` (component rank, 1 being the largest) and
+#'   `size_components` (share of the nodes in the component).
+#'
+#' @details
+#' Dropping small components is a choice, not a technicality: the removed
+#' documents may be a marginal literature, or a literature that cites
+#' sources absent from the data. Look at what is removed before discarding
+#' it, especially when the warning is triggered. For a list of graphs, the
+#' filter is applied to each graph separately, so a node may be kept in one
+#' window and removed in another.
+#'
+#' @return The same object as `graphs` (a `tbl_graph` or a list of
+#'   `tbl_graph`s) restricted to the nodes of the kept components.
+#'
+#' @seealso [build_network()] and [build_dynamic_networks()], which can call
+#'   this function with `filter_components = TRUE`.
+#'
+#' @examples
+#' network <- build_network(
+#'   nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+#'   directed_edges = Ref_stagflation,
+#'   source_id = "source_id",
+#'   target_id = "target_id",
+#'   projection_method = "structured",
+#'   cooccurrence_method = "coupling_similarity",
+#'   edges_threshold = 2
+#' )
+#' main_component <- filter_components(network, nb_components = 1)
+#' c(before = igraph::vcount(network), after = igraph::vcount(main_component))
+#'
+#' @export
 filter_components <- function(graphs,
                               nb_components = 1,
                               threshold_alert = 0.05,
-                              keep_component_columns = FALSE){
-  #' Filtering Network Components
-  #'
-  #' @description
-  #' `r lifecycle::badge("experimental")`
-  #'
-  #' This function is deprecated and will be replaced by `networkflow::extract_main_component()`.
-  #' This function which i) creates a [tidygraph](https://tidygraph.data-imaginist.com/index.html)
-  #' graph using [tbl_graph()][tidygraph::tbl_graph()];
-  #' ii) keeps the main components of the graph, using [main_components()][tidygraph::group_components()]; and iii) warns
-  #' the user if the first biggest component removed is too large.
-  #'
-  #' @inheritParams add_clusters
-  #'
-  #' @param nb_components
-  #' By default, the function takes the main component of the graph (`nb_components = 1`).
-  #' However it is possible to take as many components as you wish. The first component
-  #' is the largest one, component 2 is the second one, etc.
-  #'
-  #' @param threshold_alert
-  #' If the biggest component after the last one selected (by default, nb_component = 1)
-  #' gathers more than x% (by default, 5%) of the total number of nodes,
-  #' the function triggers a warning to inform the user that he has removed a big component of the network.
-  #'
-  #' @param keep_component_columns
-  #' Set to `TRUE` if you want to store in the tibble graph the components number and
-  #' the size of the components.
-  #'
-  #' @details
-  #' The function will automatically rename the first column of nodes as "Id".
-  #'
-  #' @return The same tidygraph object or list of tidygraph objects with nodes
-  #'
-  #' @export
-  if(inherits(graphs, "list")){
-    list <- TRUE
-    graphs <- lapply(graphs, function(graph) network_level_filtering(graph,
-                                                                     nb_components = nb_components,
-                                                                     threshold_alert = threshold_alert,
-                                                                     keep_component_columns = keep_component_columns,
-                                                                     list = list))
-
-  } else{
-    if(inherits(graphs, "tbl_graph")){
-      list <- FALSE
-      graphs <- network_level_filtering(graphs,
-                                        nb_components = nb_components,
-                                        threshold_alert = threshold_alert,
-                                        keep_component_columns = keep_component_columns,
-                                        list = list)
-
-    } else {
-      cli::cli_abort("Your {.field graphs} data is neither a tibble graph, nor a list of tibble graphs.")
-    }
+                              keep_component_columns = FALSE) {
+  if (is_single_graph(graphs)) {
+    return(network_level_filtering(graphs, nb_components, threshold_alert, keep_component_columns))
   }
+  lapply(graphs, network_level_filtering,
+         nb_components = nb_components,
+         threshold_alert = threshold_alert,
+         keep_component_columns = keep_component_columns)
 }
 
+network_level_filtering <- function(graph,
+                                    nb_components,
+                                    threshold_alert,
+                                    keep_component_columns) {
+  components_att <- size_components <- NULL
 
-  network_level_filtering <- function(graph,
-                                      nb_components = nb_components,
-                                      threshold_alert = threshold_alert,
-                                      keep_component_columns = keep_component_columns,
-                                      list = list){
-    components_att <- size_components <- . <- NULL
+  # Components numbered by decreasing size (1 is the largest), and the share
+  # of the nodes of the graph in each.
+  graph <- graph %N>%
+    dplyr::mutate(components_att = tidygraph::group_components(type = "weak")) %>%
+    dplyr::mutate(size_components = as.vector(table(components_att)[components_att]) / dplyr::n())
 
-    # attributing a number to the different components (1 is the biggest components)
-    graph <- graph %N>%
-      dplyr::mutate(components_att = tidygraph::group_components(type = "weak"),
-                    size_components = dplyr::n()) %>%
-      dplyr::group_by(components_att) %>%
-      dplyr::mutate(size_components = dplyr::n()/size_components) %>%
-      dplyr::ungroup()
-
-    highest_component <- graph %N>%
-      as.data.frame() %>%
-      dplyr::slice_max(order_by = components_att, n = 1, with_ties = FALSE) %>%
-      dplyr::pull(components_att)
-
-    if(highest_component > nb_components){ #needed only if there is more components than the number of component selected
-      share_component <- graph %N>%
-        as.data.frame() %>%
-        dplyr::filter(components_att == nb_components + 1) %>%
-        dplyr::slice_max(order_by = size_components, n = 1, with_ties = FALSE) %>%
-        dplyr::pull(size_components) %>%
-        round(4)
-      if(share_component > threshold_alert){
-        if(list == TRUE) cli::cli_h1("Component filtering for the {.val {graph %N>% as.data.frame() %>% .$time_window %>% unique()}} period")
-        cli::cli_alert_warning("you have removed a component gathering {.val {share_component*100}}% of the nodes, more than the {.val {threshold_alert*100}}% threshold.")
-      }
+  nodes <- node_table(graph)
+  if (max(nodes$components_att) > nb_components) {
+    share_removed <- max(nodes$size_components[nodes$components_att == nb_components + 1])
+    if (share_removed > threshold_alert) {
+      window <- if ("time_window" %in% names(nodes)) unique(nodes$time_window)[1] else NULL
+      cli::cli_warn(c(
+        "A removed component gathers {round(100 * share_removed, 1)}% of the nodes{if (!is.null(window)) paste0(' (window ', window, ')')}.",
+        "i" = "It is more than {.arg threshold_alert} ({100 * threshold_alert}%): check what is removed, or increase {.arg nb_components}."
+      ))
     }
-
-    graph <- graph %>%
-      dplyr::filter(components_att <= nb_components)
-
-    if(keep_component_columns == FALSE) graph <- graph %>% dplyr::select(-components_att, -size_components)
-
-    return(graph)
   }
 
+  graph <- dplyr::filter(graph, components_att <= nb_components)
+  if (!keep_component_columns) {
+    graph <- dplyr::select(graph, -components_att, -size_components)
+  }
+  graph
+}

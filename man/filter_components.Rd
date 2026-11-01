@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter_components.R
 \name{filter_components}
 \alias{filter_components}
-\title{Filtering Network Components}
+\title{Keep the main component(s) of networks}
 \usage{
 filter_components(
   graphs,
@@ -12,32 +12,58 @@ filter_components(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
-graphs or a data frame.}
+\item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s (e.g. the output of
+\code{\link[=build_dynamic_networks]{build_dynamic_networks()}}).}
 
-\item{nb_components}{By default, the function takes the main component of the graph (\code{nb_components = 1}).
-However it is possible to take as many components as you wish. The first component
-is the largest one, component 2 is the second one, etc.}
+\item{nb_components}{Integer, the number of components to keep, starting
+from the largest (1 by default).}
 
-\item{threshold_alert}{If the biggest component after the last one selected (by default, nb_component = 1)
-gathers more than x\% (by default, 5\%) of the total number of nodes,
-the function triggers a warning to inform the user that he has removed a big component of the network.}
+\item{threshold_alert}{Number between 0 and 1. If the largest removed
+component gathers more than this share of the nodes (0.05 by default), a
+warning is given: removing it would change the object of study.}
 
-\item{keep_component_columns}{Set to \code{TRUE} if you want to store in the tibble graph the components number and
-the size of the components.}
+\item{keep_component_columns}{Logical. If \code{TRUE}, keeps the columns
+\code{components_att} (component rank, 1 being the largest) and
+\code{size_components} (share of the nodes in the component).}
 }
 \value{
-The same tidygraph object or list of tidygraph objects with nodes
+The same object as \code{graphs} (a \code{tbl_graph} or a list of
+\code{tbl_graph}s) restricted to the nodes of the kept components.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function is deprecated and will be replaced by \code{networkflow::extract_main_component()}.
-This function which i) creates a \href{https://tidygraph.data-imaginist.com/index.html}{tidygraph}
-graph using \link[tidygraph:tbl_graph]{tbl_graph()};
-ii) keeps the main components of the graph, using \link[tidygraph:group_graph]{main_components()}; and iii) warns
-the user if the first biggest component removed is too large.
+A projected network is often made of one large connected component and of
+small islands: a few articles that share references only with each other,
+or isolated pairs. Community detection and layouts are hard to read on such
+fragments, and many studies keep only the main component.
+\code{filter_components()} numbers the (weakly) connected components by
+decreasing size, keeps the \code{nb_components} largest, and warns when the
+first component removed is not negligible.
 }
 \details{
-The function will automatically rename the first column of nodes as "Id".
+Dropping small components is a choice, not a technicality: the removed
+documents may be a marginal literature, or a literature that cites
+sources absent from the data. Look at what is removed before discarding
+it, especially when the warning is triggered. For a list of graphs, the
+filter is applied to each graph separately, so a node may be kept in one
+window and removed in another.
+}
+\examples{
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 2
+)
+main_component <- filter_components(network, nb_components = 1)
+c(before = igraph::vcount(network), after = igraph::vcount(main_component))
+
+}
+\seealso{
+\code{\link[=build_network]{build_network()}} and \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}, which can call
+this function with \code{filter_components = TRUE}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_alluvial.R
 \name{plot_alluvial}
 \alias{plot_alluvial}
-\title{Plot the Alluvial}
+\title{Plot the evolution of dynamic clusters as an alluvial}
 \usage{
 plot_alluvial(
   alluv_dt,
@@ -19,46 +19,97 @@ plot_alluvial(
 )
 }
 \arguments{
-\item{alluv_dt}{A data.frame of an alluvial created with \link[=networks_to_alluv]{networks_to_alluv()}.}
+\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}.}
 
-\item{intertemporal_cluster_column}{The column with the identifier of inter-temporal clusters. If you have used
-\link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
-it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
+\item{intertemporal_cluster_column}{Character scalar, the column with the
+dynamic clusters (e.g. \code{"dynamic_cluster_leiden"}).}
 
-\item{node_id}{The column with the unique identifier of each node.}
+\item{node_id}{Character scalar, the column with the node identifiers.}
 
-\item{window_column}{The column of the alluvial with your time window. By default, "window", as created by
-\link[=networks_to_alluv]{networks_to_alluv()}.}
+\item{window_column}{Character scalar, the column with the time windows
+(\code{"window"} by default).}
 
-\item{color_column}{The column with the colors associated to the  categories of \code{intertemporal_cluster_column}.
-By default, "color", as the result of \link[=color_alluvial]{color_alluvial()}.}
+\item{color_column}{Character scalar, the column with the colours of the
+clusters (\code{"color"} by default). If absent or \code{NULL}, ggplot2 chooses
+the colours.}
 
-\item{color_alluvial}{If no color has been set for the categories of \code{intertemporal_cluster_column}, you
-can attribute them colors by setting \code{color_alluvial} to \code{TRUE}.
-\link[=color_alluvial]{color_alluvial()} will be used.}
+\item{color_alluvial}{Logical. If \code{TRUE}, runs \code{\link[=color_alluvial]{color_alluvial()}} first.}
 
-\item{color}{If \code{color_alluvial}is \code{TRUE}, the parameter \code{color} will be used to color the categories of the
-\code{intertemporal_cluster_column}. It may be a vector of colors (in a character format)
-or a two columns data frame with the first column as
-the distinct observations of the \code{intertemporal_cluster_column} and a second column with the
-vector of colors you want to use. If \code{NULL} colors will be automatically chosen by
-\link[=color_alluvial]{color_alluvial()}?}
+\item{color}{With \code{color_alluvial = TRUE}, the colours passed to
+\code{\link[=color_alluvial]{color_alluvial()}}.}
 
-\item{minimize_crossing}{If \code{TRUE}, \link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()} is
-run to reorder the \code{intertemporal_cluster_colum} to limit overlapping in the plot.}
+\item{minimize_crossing}{Logical. If \code{TRUE}, runs
+\code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}} first. Clusters are also reordered when
+\code{alluv_dt} already has a \code{minimize_crossing_order} column.}
 
-\item{prepare_label}{If \code{TRUE}, \link[=prepare_label_alluvial]{prepare_label_alluvial()} is used
-to create a column \code{label_x} with}
+\item{prepare_label}{Logical. If \code{TRUE}, runs \code{\link[=prepare_label_alluvial]{prepare_label_alluvial()}}
+first, which adds a \code{label_x} column with one label per cluster.}
 
-\item{cluster_label_column}{If \code{prepare_label} is \code{TRUE}, \link[=prepare_label_alluvial]{prepare_label_alluvial()} is
-used and the values of \code{cluster_label_column} are taken to be displayed as label.
-By default, "cluster_label", as it is
-the default name of the column created with \link[=name_clusters]{name_clusters()}.
-But you may also use the same column as in \code{intertemporal_cluster_column}.}
+\item{cluster_label_column}{Character scalar, the column with the labels
+used by \code{\link[=prepare_label_alluvial]{prepare_label_alluvial()}} (\code{"cluster_label"} by default).}
 
-\item{print_plot_code}{Set to \code{TRUE} if you want the ggplot2 code to be printing. It is useful if you are not
-totally satisfied of the plot and want to manipulate the code yourself.}
+\item{print_plot_code}{Logical. If \code{TRUE}, prints the ggplot2 code of the
+plot.}
+}
+\value{
+A ggplot object.
 }
 \description{
-An easy way to plot the alluvial by using the columns created by the different function of networkflow.
+\code{plot_alluvial()} draws the table created by \code{\link[=networks_to_alluv]{networks_to_alluv()}} with
+ggalluvial: one column per time window, one block per dynamic cluster,
+with a height proportional to its share of the window, and flows that
+follow the nodes from one window to the next. It can colour the clusters
+(\code{\link[=color_alluvial]{color_alluvial()}}), reorder them to limit crossings
+(\code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}}) and position their labels
+(\code{\link[=prepare_label_alluvial]{prepare_label_alluvial()}}) on the way.
+}
+\details{
+Labels are drawn with ggrepel, which must be installed, when \code{alluv_dt}
+has a \code{label_x} column. Small clusters clutter alluvials: filtering the
+table on \code{share_cluster_max} or \code{length_cluster} (see
+\code{\link[=networks_to_alluv]{networks_to_alluv()}}) before plotting keeps the main ones.
+
+The alluvial method was initiated by Alexandre Truc.
+}
+\examples{
+\donttest{
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
+)
+networks <- add_clusters(
+  networks,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+networks <- merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  threshold_similarity = 0.51,
+  similarity_type = "partial"
+)
+alluv_dt <- networks_to_alluv(
+  networks,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id"
+)
+plot_alluvial(
+  alluv_dt,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id",
+  color_alluvial = TRUE,
+  minimize_crossing = TRUE
+)
+}
+
 }

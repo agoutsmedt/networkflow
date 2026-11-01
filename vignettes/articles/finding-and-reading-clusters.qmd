@@ -1,0 +1,344 @@
+---
+title: "Finding and reading clusters"
+description: >
+  What community detection does, how the Leiden algorithm and its
+  resolution shape the clusters, how to check their stability, and how to
+  name, characterise and draw them.
+bibliography: references.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(fig.width = 10, fig.height = 6.5, dpi = 110, message = FALSE, warning = FALSE)
+```
+
+This guide covers the second step of the pipeline: detecting clusters in
+a network and interpreting them. It starts from the bibliographic coupling
+network of the explanations of the 1970s stagflation built in [the first
+guide](from-references-to-networks.html).
+
+```{r}
+#| label: network
+library(networkflow)
+library(ggplot2)
+library(tidygraph)
+
+nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
+network <- build_network(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+```
+
+## What is a cluster?
+
+In a bibliographic coupling network, a group of documents that cite the
+same literature, much more among themselves than with the rest of the
+network, is the usual operational definition of a *research specialty* or
+a *research front* [@morris2008; @boyack2010]. Detecting such groups
+without deciding them in advance is the task of *community detection*
+[@fortunato2010]. The algorithms differ, but most formalise "more ties
+inside than outside" with the **modularity** of a partition
+[@newman2004]:
+
+$$
+Q = \frac{1}{2m} \sum_{i,j} \left( A_{ij} - \gamma \frac{k_i k_j}{2m} \right) \delta(c_i, c_j),
+$$
+
+with $A_{ij}$ the weight of the edge between documents $i$ and $j$, $k_i$
+the total weight of the edges of $i$, $m$ the total weight of the network,
+$\delta(c_i, c_j) = 1$ when $i$ and $j$ are in the same cluster, and
+$\gamma$ the *resolution*. The term $k_i k_j / 2m$ is the weight expected
+between $i$ and $j$ if edges were placed at random given each node's
+weight: a partition has a high modularity when clusters gather much more
+weight than expected by chance.
+
+## Detecting clusters with Leiden
+
+`add_clusters()` gives access to five algorithms of igraph. The Leiden
+algorithm [@traag2019] is the default choice of recent bibliometric work.
+It improves on Louvain [@blondel2008] by guaranteeing that clusters are
+connected, and iterating it keeps refining the partition.
+
+```{r}
+#| label: leiden
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  resolution = 1,
+  seed = 123
+)
+```
+
+Each document gets a `cluster_leiden` identifier and the share of the
+network that its cluster represents (`size_cluster_leiden`). Edges get the
+cluster of their two ends, or "00" when they connect two clusters.
+
+```{r}
+#| label: leiden-sizes
+node_table <- as_tibble(network, active = "nodes")
+sort(table(node_table$cluster_leiden), decreasing = TRUE)
+```
+
+### Resolution and the number of clusters
+
+The partition depends on $\gamma$: a higher resolution makes the expected
+weight larger and favours more, smaller clusters. Modularity also has a
+*resolution limit*: in large networks, it can merge small communities that
+are clearly separated [@fortunato2010]. A network can legitimately be
+described at several levels of detail, from fields to specialties
+[@sjogarde2020], and choosing the resolution is choosing the level of the
+study. A scan of resolutions shows how the number of clusters reacts.
+
+Leiden is also stochastic: two runs with different seeds can give
+different partitions. A partition we can trust should come back from one
+seed to the next. The **adjusted Rand index** (ARI) measures the agreement
+between two partitions, from about 0 (no more than chance) to 1
+(identical). We run Leiden with ten seeds for each resolution and compare
+each partition with the one of the first seed.
+
+```{r}
+#| label: resolution-scan
+scan <- expand.grid(resolution = seq(0.5, 2, by = 0.25), seed = 1:10)
+memberships <- lapply(seq_len(nrow(scan)), function(i) {
+  clustered <- add_clusters(
+    network,
+    clustering_method = "leiden",
+    objective_function = "modularity",
+    resolution = scan$resolution[i],
+    seed = scan$seed[i],
+    verbose = FALSE
+  )
+  as.integer(as_tibble(clustered, active = "nodes")$cluster_leiden)
+})
+scan$n_clusters <- sapply(memberships, function(m) length(unique(m)))
+scan$ari <- sapply(seq_len(nrow(scan)), function(i) {
+  reference <- which(scan$resolution == scan$resolution[i] & scan$seed == 1)
+  igraph::compare(memberships[[i]], memberships[[reference]], method = "adjusted.rand")
+})
+```
+
+```{r}
+#| label: fig-resolution
+#| fig-alt: >
+#|   Two panels against the resolution, from 0.5 to 2. Left: the number of
+#|   clusters grows from 2 to about 12. Right: the mean adjusted Rand index
+#|   between seeds stays close to 1, except a dip to about 0.75 at a
+#|   resolution of 1.5.
+scan_summary <- aggregate(cbind(n_clusters, ari) ~ resolution, data = scan[scan$seed != 1, ], FUN = mean)
+scan_long <- rbind(
+  data.frame(resolution = scan_summary$resolution, value = scan_summary$n_clusters, measure = "Mean number of clusters"),
+  data.frame(resolution = scan_summary$resolution, value = scan_summary$ari, measure = "Mean ARI with seed 1")
+)
+ggplot(scan_long, aes(resolution, value)) +
+  geom_line(colour = scico::scico(1, palette = "batlow", begin = 0.3), linewidth = 1) +
+  geom_point(colour = scico::scico(1, palette = "batlow", begin = 0.3), size = 2.5) +
+  facet_wrap(~measure, scales = "free_y") +
+  scale_x_continuous(expand = expansion(mult = c(0.02, 0.02))) +
+  labs(x = "Resolution", y = NULL) +
+  theme_minimal(base_size = 16)
+```
+
+The number of clusters grows steadily with the resolution, and most
+resolutions give partitions that the seed hardly changes. Where the ARI
+drops, the algorithm hesitates between partitions of similar quality:
+results at that resolution should be read with care. A reasonable
+practice is to choose a resolution in a stable range, to report it, and
+to check that the clusters a narrative relies on survive at close values
+[@traag2013].
+
+### Modularity or CPM?
+
+Leiden can also maximise the **constant Potts model** [@traag2011], which
+compares the internal weight $e_c$ of each cluster with $\gamma$ times its
+number of pairs: $H = \sum_c [e_c - \gamma \binom{n_c}{2}]$. A cluster is
+worth creating when its density exceeds $\gamma$. Unlike modularity, CPM
+does not depend on the size of the network, which helps when comparing
+clusters across networks of very different sizes, as time windows often
+are. But $\gamma$ then lives on the scale of the edge weights:
+
+```{r}
+#| label: cpm
+summary(igraph::E(network)$weight)
+cpm <- add_clusters(network, clustering_method = "leiden", objective_function = "CPM",
+                    resolution = 1, seed = 123, verbose = FALSE)
+length(unique(as_tibble(cpm, active = "nodes")$cluster_leiden))
+```
+
+With weights around $10^{-4}$, no group of documents is dense enough for
+$\gamma = 1$, and every document is its own cluster. With CPM, the
+resolution must be chosen from the distribution of the weights, for
+instance close to the density of the network for an unweighted graph.
+
+## Reading clusters
+
+A cluster is a set of documents with shared references, not an
+interpretation. Reading it means going back to its documents: what they
+discuss, when, who wrote them, which references they share, and what
+distinguishes them from neighbouring clusters [@ding2011].
+
+### Naming clusters with tf-idf
+
+`name_clusters()` gives each cluster a provisional label. With
+`method = "tf-idf"`, each cluster is treated as one document made of the
+titles of its members, and its label gathers the terms with the highest
+tf-idf [@sparckjones1972; @salton1988]: terms frequent in the cluster and
+rare in the others,
+
+$$
+\text{tf-idf}_{tc} = \frac{n_{tc}}{\sum_u n_{uc}} \times \log\frac{C}{\mathrm{df}_t},
+$$
+
+with $n_{tc}$ the count of term $t$ in cluster $c$, $C$ the number of
+clusters and $\mathrm{df}_t$ the number of clusters where $t$ appears.
+
+```{r}
+#| label: names
+network <- name_clusters(
+  network,
+  method = "tf-idf",
+  cluster_id = "cluster_leiden",
+  text_columns = "source_title",
+  nb_terms_label = 3,
+  clean_word_method = "lemmatize"
+)
+node_table <- as_tibble(network, active = "nodes")
+clusters <- aggregate(
+  as.integer(source_year) ~ cluster_leiden + cluster_label,
+  data = node_table,
+  FUN = function(year) c(documents = length(year), median_year = median(year))
+)
+clusters <- do.call(data.frame, clusters)
+names(clusters)[3:4] <- c("documents", "median_year")
+clusters[order(clusters$median_year), ]
+```
+
+The labels and the median years already sketch a history. Clusters of
+the late 1970s and early 1980s talk about productivity, oil, wages and
+unemployment; clusters centred on the 2000s about the "great inflation"
+and policy "rules". This matches the account of @goutsmedt2021: supply
+shocks and inflation inertia dominated the first explanations, and a new
+literature centred on the role of monetary policy emerged in the 1990s.
+Titles are short, and their words are not always informative ("great",
+"comment"): labels are only a first guess. `extract_tfidf()` shows more
+terms per cluster, and abstracts, when available, give better labels than
+titles.
+
+Other methods name a cluster after one of its documents:
+`method = "tidygraph_functions"` uses the most central document, for
+instance by PageRank, and `method = "given_column"` the document with the
+highest value of a column, such as the number of citations received.
+
+### The role of documents: hubs and bridges
+
+Within a cluster, documents do not play the same role. @guimera2005 propose
+to place each node with two measures. The **within-module degree**
+compares the weight $\kappa_i$ of the ties of $i$ with its own cluster
+$s_i$ with that of the other members,
+$z_i = (\kappa_i - \bar{\kappa}_{s_i}) / \sigma_{\kappa_{s_i}}$. The
+**participation coefficient** $P_i = 1 - \sum_s (k_{is} / k_i)^2$, with
+$k_{is}$ the weight of the ties of $i$ with cluster $s$, is 0 when all
+ties stay in one cluster and approaches 1 when they spread evenly across
+clusters.
+
+```{r}
+#| label: fig-roles
+#| fig-alt: >
+#|   Scatter plot of the within-module degree z-score against the
+#|   participation coefficient for each document, coloured by cluster.
+#|   Most documents have z-scores between -2 and 2; a handful of documents
+#|   above 2.5 are hubs of their cluster.
+network <- add_node_roles(network, module_col = "cluster_leiden")
+roles <- as_tibble(network, active = "nodes")
+table(roles$role_ga)
+
+ggplot(roles, aes(participation_coeff, within_module_z, colour = cluster_label)) +
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = 2.5, ymax = Inf, alpha = 0.08) +
+  geom_point(size = 2.5, alpha = 0.8) +
+  scico::scale_colour_scico_d(palette = "batlow") +
+  scale_x_continuous(expand = expansion(mult = c(0.01, 0.02))) +
+  labs(x = "Participation coefficient", y = "Within-module degree (z-score)", colour = NULL) +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "bottom") +
+  guides(colour = guide_legend(ncol = 2))
+```
+
+The shaded area holds the hubs of their cluster ($z \geq 2.5$, the
+threshold of Guimerà and Amaral). Documents on the right have ties spread
+over several clusters: they are good candidates to understand how
+literatures communicate. In small networks such as this one, the seven
+categories of Guimerà and Amaral are thinly populated, and the two
+measures are more useful as continuous indicators than as roles.
+
+## Drawing the network
+
+Plotting needs coordinates, colours and label positions.
+`layout_networks()` computes coordinates with a force-directed layout:
+here Fruchterman-Reingold [@fruchterman1991], which balances an attraction
+along edges, stronger for heavier edges, with a repulsion between all
+nodes. Kamada-Kawai (`"kk"`, @kamada1989), which draws graph distances as
+geometric distances, is another common choice, with a trap: igraph reads
+the `weight` column as a *distance* for this layout, so that similarity
+weights pull weakly tied documents to the margins. With similarity
+weights, either use `"fr"` or ignore the weights (`weights = NA`). `color_networks()` gives each cluster a colour, and edges a
+mix of the colours of their ends. `plot_networks()` assembles the figure.
+
+```{r}
+#| label: fig-network
+#| fig-height: 8
+#| fig-alt: >
+#|   Bibliographic coupling network of the documents explaining the 1970s
+#|   stagflation, with nodes coloured by Leiden cluster and a label at the
+#|   centre of each cluster made of its three most distinctive title words.
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "fr")
+n_clusters <- length(unique(roles$cluster_leiden))
+palette <- data.frame(
+  cluster_leiden = sort(unique(roles$cluster_leiden)),
+  color = scico::scico(n_clusters, palette = "batlow")
+)
+network <- color_networks(network, column_to_color = "cluster_leiden", color = palette)
+plot_networks(
+  network,
+  cluster_label_column = "cluster_label",
+  node_size_column = NULL
+)
+```
+
+Clusters drawn next to each other share more references than clusters at
+opposite ends, but distances in such a figure should not be measured: the
+layout is a compromise between many constraints, and another seed gives
+another, equally valid, picture.
+
+For a closer reading, `launch_network_app()` opens the same network in an
+interactive application: clicking a cluster lists its documents with their
+authors, titles and journals.
+
+```{r}
+#| label: app
+#| eval: false
+launch_network_app(
+  graph_tbl = network,
+  cluster_id = "cluster_label",
+  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
+  node_id = "source_id",
+  node_tooltip = "source_label",
+  color = "color",
+  layout = NULL
+)
+```
+
+## What comes next
+
+A single network of the whole period mixes literatures that did not
+coexist. The [last guide](following-clusters-over-time.html) builds one
+network per time window and follows the clusters across windows.
+
+## References

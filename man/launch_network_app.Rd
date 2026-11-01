@@ -13,7 +13,7 @@ launch_network_app(
   node_tooltip = NULL,
   node_size = NULL,
   color = NULL,
-  layout = "kk"
+  layout = "fr"
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ launch_network_app(
 
 \item{color}{Optional. Column name used to color nodes. If \code{NULL}, colors are automatically assigned using \code{networkflow::color_networks(column_to_color = cluster_id)}.}
 
-\item{layout}{Character. Name of a layout to compute node coordinates (e.g. \code{"kk"}, \code{"fr"}). If specified, this replaces any existing layout. If \code{NULL}, existing \code{x}/\code{y} coordinates are used.}
+\item{layout}{Character. Name of a layout to compute node coordinates (e.g. \code{"fr"}, \code{"kk"}). If specified, this replaces any existing layout. If \code{NULL}, existing \code{x}/\code{y} coordinates are used.}
 }
 \value{
 A Shiny app interface for exploring the network.
@@ -41,87 +41,63 @@ A Shiny app interface for exploring the network.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function launches an interactive Shiny application for visualizing and exploring a network graph represented as a \code{tbl_graph} object.
-It supports node and cluster interactivity with tooltips, dynamic sizing, and customizable coloring.
-Users can inspect clusters interactively and explore associated node metadata in a searchable datatable.
-The app is designed for cluster/module exploration, so \code{cluster_id} and \code{cluster_information} are required.
+Interpreting clusters means going back and forth between the structure of
+the network and its content: which documents form this cluster, who wrote
+them, when, which ones sit at its border? \code{launch_network_app()} opens a
+local Shiny application for this reading. The network is drawn with
+interactive nodes (with tooltips) and cluster labels; clicking a cluster
+displays the metadata of its nodes (\code{cluster_information}) in a
+searchable table. Node size, edge width, labels and the visibility of
+edges can be adjusted to make dense networks readable. For a list of
+networks (one per time window), a menu selects the window.
 
-If the graph does not contain a layout (columns \code{x} and \code{y}) the function will compute coordinates using
-\code{networkflow::layout_networks()} with the specified layout algorithm.  If a layout name is provided, it will replace any existing layout in the graph.
+If \code{layout} is given, coordinates are computed with \code{\link[=layout_networks]{layout_networks()}},
+replacing any existing \code{x} and \code{y}; with \code{layout = NULL}, the existing
+\code{x} and \code{y} columns are used. The app needs the shiny, ggiraph, DT and
+shinycssloaders packages.
 }
 \examples{
-library(networkflow)
-library(dplyr)
-
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation") |>
-  dplyr::mutate(source_id = as.character(source_id))
-
-references <- networkflow::Ref_stagflation
-
-g <- build_network(
-  nodes = nodes,
-  directed_edges = references,
+\dontrun{
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
   projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
-  edges_threshold = 1,
-  compute_size = FALSE,
-  keep_singleton = FALSE
+  cooccurrence_method = "coupling_angle",
+  edges_threshold = 1
 )
+network <- add_clusters(network, clustering_method = "leiden",
+                        objective_function = "modularity", seed = 123)
 
-g <- add_clusters(
-  g,
-  clustering_method = "leiden",
-  objective_function = "modularity"
-)
-
-\dontrun{
 launch_network_app(
-  graph_tbl = g,
+  graph_tbl = network,
   cluster_id = "cluster_leiden",
   cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
-  cluster_tooltip = "Cluster",
   node_id = "source_id",
   node_tooltip = "source_label",
-  node_size = NULL,
-  color = NULL,
-  layout = "kk"
+  layout = "fr"
 )
-}
 
-# Dynamic networks
-g_list <- build_dynamic_networks(
-  nodes = nodes,
-  directed_edges = references,
+# One network per time window: the app shows a menu of windows
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 20,
-  cooccurrence_method = "coupling_similarity",
-  edges_threshold = 1,
   overlapping_window = TRUE,
-  compute_size = FALSE,
-  keep_singleton = FALSE
+  cooccurrence_method = "coupling_angle"
 )
-
-g_list <- add_clusters(
-  g_list,
-  clustering_method = "leiden",
-  objective_function = "modularity"
-)
-
-\dontrun{
+networks <- add_clusters(networks, clustering_method = "leiden",
+                         objective_function = "modularity", seed = 123)
 launch_network_app(
-  graph_tbl = g_list,
+  graph_tbl = networks,
   cluster_id = "cluster_leiden",
-  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
+  cluster_information = c("source_author", "source_title", "source_year"),
   node_id = "source_id",
-  node_tooltip = "source_label",
-  node_size = NULL,
-  color = NULL,
-  layout = "kk"
+  layout = "fr"
 )
 }
 }

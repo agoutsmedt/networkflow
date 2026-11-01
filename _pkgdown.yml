@@ -1,56 +1,78 @@
 url: https://agoutsmedt.github.io/networkflow/
 template:
   bootstrap: 5
-  bootswatch: solar
-  theme: arrow-dark
+  bslib:
+    primary: "#2c5d8a"
+    base_font: {google: "Source Sans 3"}
+    heading_font: {google: "Source Sans 3"}
+    code_font: {google: "JetBrains Mono"}
+
+home:
+  title: "networkflow: a research pipeline for projected and dynamic networks"
+
+navbar:
+  structure:
+    left: [intro, articles, reference, news]
+    right: [search, github]
+
+articles:
+- title: Guides
+  navbar: ~
+  contents:
+  - '`articles/from-references-to-networks`'
+  - '`articles/finding-and-reading-clusters`'
+  - '`articles/following-clusters-over-time`'
 
 reference:
-- title: "Step 1: Creating networks"
+- title: "Step 1: Building networks"
   desc: >
-    Functions for creating one or multiple networks and to filter the networks.
+    Project a table of links between two kinds of entities (articles and
+    references, authors and papers...) onto a network, for the whole corpus
+    or one network per time window, and keep its main components.
   contents:
-  - build_dynamic_networks
   - build_network
+  - build_dynamic_networks
   - filter_components
 
-- title: "Step 2: Clustering"
+- title: "Step 2: Finding and reading clusters"
   desc: >
-    Functions for detecting clusters and interpreting them.
+    Detect communities, follow them across time windows, name them and
+    characterise the role of their members.
   contents:
   - add_clusters
   - merge_dynamic_clusters
   - name_clusters
-  - add_node_roles
   - extract_tfidf
+  - add_node_roles
 
-- title: "Step 3: Plot networks"
+- title: "Step 3: Drawing networks"
   desc: >
-    Functions for preparing the plots of networks and for plotting them.
+    Compute coordinates, colours and label positions, and plot the networks
+    or explore them in an interactive application.
   contents:
   - layout_networks
-  - minimize_crossing_alluvial
   - color_networks
-  - prepare_label_alluvial
   - prepare_label_networks
-  - plot_alluvial
   - plot_networks
   - launch_network_app
 
+- title: "Step 4: Drawing the history of clusters"
+  desc: >
+    Turn a list of networks with dynamic clusters into an alluvial plot.
+  contents:
+  - networks_to_alluv
+  - minimize_crossing_alluvial
+  - plot_alluvial
 
-- title: "Included datasets"
-  desc: "Data on articles about stagflation from Goutsmedt (2021) 'From the Stagflation to the Great Inflation'"
+- title: "Example data"
+  desc: >
+    The explanations of the 1970s US stagflation and the references they
+    cite, from Goutsmedt (2021), "From the Stagflation to the Great
+    Inflation", Revue d'Économie Politique 131(3).
   contents:
   - contains("stagflation")
   - ends_with("coupling")
 
-- title: "Deprecated functions"
-  desc: >
-    Functions that have been replaced or will be replaced soon.
+- title: Package
   contents:
-  - starts_with("community")
-  - dynamic_network_cooccurrence
-  - intertemporal_cluster_naming
-  - leiden_workflow
-  - networks_to_alluv
-  - tbl_main_component
-  - top_nodes
+  - networkflow-package

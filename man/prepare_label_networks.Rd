@@ -3,7 +3,7 @@
 \name{prepare_label_networks}
 \alias{prepare_label_networks}
 \alias{prepare_label_alluvial}
-\title{Creating and Positioning Labels for Plotting Networks or Alluvial}
+\title{Position the labels of clusters in network and alluvial plots}
 \usage{
 prepare_label_networks(
   graphs,
@@ -19,25 +19,58 @@ prepare_label_alluvial(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
-graphs.}
+\item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s with coordinates
+(see \code{\link[=layout_networks]{layout_networks()}}).}
 
-\item{x, y}{The columns of your tibble graph or list of tibble graphs
-with the x and y coordinates of your nodes (for instance, the coordinates
-produce by \link[=layout_networks]{layout_networks()}).}
+\item{x, y}{Character scalars, the node columns with the coordinates
+(\code{"x"} and \code{"y"} by default).}
 
-\item{cluster_label_column}{The column with the cluster label you want to display. By default, "cluster_label", as it is
-the default name of the column created with \link[=name_clusters]{name_clusters()}.
-You may also use the cluster identifier created by \link[=add_clusters]{add_clusters()}
-for simple cluster, or by \link[=merge_dynamic_clusters]{merge_dynamic_clusters()} for
-inter-temporal clusters.}
+\item{cluster_label_column}{Character scalar, the column with the labels:
+\code{"cluster_label"} (\code{\link[=name_clusters]{name_clusters()}}) by default, or a cluster column.}
 
-\item{alluv_dt}{A data.frame of an alluvial created with \link[=networks_to_alluv]{networks_to_alluv()}.}
+\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}.}
 
-\item{window_column}{The column of the alluvial with your time window. By default, "window", as created by
-\link[=networks_to_alluv]{networks_to_alluv()}.}
+\item{window_column}{Character scalar, the column of \code{alluv_dt} with the
+time windows (\code{"window"} by default, as created by
+\code{\link[=networks_to_alluv]{networks_to_alluv()}}).}
+}
+\value{
+\code{prepare_label_networks()}: the same object as \code{graphs} with node
+columns \code{label_x} and \code{label_y}. \code{prepare_label_alluvial()}: \code{alluv_dt}
+with a \code{label_x} column, holding the label on the rows of the chosen
+window and missing elsewhere.
 }
 \description{
-\code{prepare_label_networks()} creates a label column that make it easy to center label around particular clusters on the alluvial graph of intertemporal networks.
-\code{prepare_label_alluvial()}
+\code{prepare_label_networks()} computes, for each category of
+\code{cluster_label_column}, the mean coordinates of its nodes, where the label
+of the cluster will be drawn by \code{\link[=plot_networks]{plot_networks()}}: \code{label_x} and
+\code{label_y} are the centre of gravity of the cluster.
+
+\code{prepare_label_alluvial()} chooses the time window where the label of each
+cluster of an alluvial will be drawn: the median window of the windows
+where the cluster exists. The chosen row gets the label in a \code{label_x}
+column, which \code{\link[=plot_alluvial]{plot_alluvial()}} uses.
+}
+\examples{
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "fr")
+network <- prepare_label_networks(network, cluster_label_column = "cluster_leiden")
+unique(tidygraph::as_tibble(network, active = "nodes")[c("cluster_leiden", "label_x", "label_y")])
+
 }

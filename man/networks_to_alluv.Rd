@@ -2,7 +2,7 @@
 % Please edit documentation in R/networks_to_alluv.R
 \name{networks_to_alluv}
 \alias{networks_to_alluv}
-\title{Create a data.frame suitable for alluvial graph projection}
+\title{Turn a list of networks into the table of an alluvial plot}
 \usage{
 networks_to_alluv(
   graphs,
@@ -16,90 +16,102 @@ networks_to_alluv(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
-graphs.}
+\item{graphs}{A list of \code{tbl_graph}s with dynamic clusters (see
+\code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}).}
 
-\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. If you have used
-\link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
-it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
+\item{intertemporal_cluster_column}{Character scalar, the node column with
+the dynamic clusters (e.g. \code{"dynamic_cluster_leiden"}).}
 
-\item{node_id}{The column with the unique identifier of each node.}
+\item{node_id}{Character scalar, the node column with a stable identifier;
+it is the "alluvium" that the flows follow.}
 
-\item{summary_cluster_stats}{If set to \code{TRUE}, the data.frame will contain a list of variable that summarize cluster statistics of the alluvial. These variables
-can be particularly useful to filter smaller communities when plotting according to different variables:
+\item{summary_cluster_stats}{Logical. If \code{TRUE} (default), adds the
+statistics described in the return value, useful to keep only the main
+clusters in the plot.}
+
+\item{keep_color}{Logical. If \code{TRUE} (default), keeps \code{color_column}.}
+
+\item{color_column}{Character scalar, the colour column (\code{"color"}, from
+\code{\link[=color_networks]{color_networks()}}).}
+
+\item{keep_cluster_label}{Logical. If \code{TRUE} (default), keeps
+\code{cluster_label_column}.}
+
+\item{cluster_label_column}{Character scalar, the label column
+(\code{"cluster_label"}, from \code{\link[=name_clusters]{name_clusters()}}).}
+}
+\value{
+A \code{data.table} with one row per node and window: \code{window} (the
+name of the graph in the list), \code{node_id}, the dynamic cluster, the
+colour and label columns if kept, \code{y_alluv} (\eqn{1/n_t}, \eqn{n_t}
+being the number of nodes of the window, so that each window has a
+total height of 1), and, with \code{summary_cluster_stats = TRUE}:
 \itemize{
-\item \code{share_cluster_alluv} is the percentage share of a given cluster across all time windows;
-\item \code{share_cluster_window} is the percentage share of a given cluster in a given time window;
-\item \code{share_cluster_max} is the highest value of \code{share_cluster_window} for a given cluster across all individual time windows;
-\item \code{length_cluster} is the number of time windows a cluster exists.
-}}
-
-\item{keep_color}{Set to \code{TRUE} (by default) if you want to keep the column with the color associated to
-the different categories of \code{intertemporal_cluster_column}. Such a column exists in your
-list of tibble graphs if you have use \link[=color_networks]{color_networks()}.}
-
-\item{color_column}{The name of the column with the colors of the categories in \code{intertemporal_cluster_column}.
-By default, "color", as it is the column name resulting from the use of
-\link[=color_networks]{color_networks()}.}
-
-\item{keep_cluster_label}{Set to \code{TRUE} if you want to keep the column with a name/label associated to the
-different categories of \code{intertemporal_cluster_column}. Such a column exists in your
-list of tibble graphs if you have use \link[=name_clusters]{name_clusters()}.}
-
-\item{cluster_label_column}{The name of the column with the name/label associated to the categories in
-\code{intertemporal_cluster_column}. By default, "cluster_label", as it is the column name
-resulting from the use of \link[=name_clusters]{name_clusters()}.}
+\item \code{share_cluster_alluv}: the share of all rows that belong to the
+cluster, in per cent;
+\item \code{share_cluster_window}: the share of the window's nodes in the
+cluster, in per cent;
+\item \code{share_cluster_max}: the maximum of \code{share_cluster_window} over the
+windows;
+\item \code{length_cluster}: the number of windows where the cluster exists.
+}
 }
 \description{
-This function creates a data.frame that can be easily plotted with ggalluvial from a list of networks.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+An alluvial plot shows the evolution of dynamic clusters: each time
+window is a column, each cluster a block whose height is its share of the
+nodes of the window, and the flows between blocks follow the nodes that
+stay in the network from one window to the next
+\insertCite{rosvall2010}{networkflow}. \code{networks_to_alluv()} stacks the
+node tables of a list of networks into the long table that such a plot
+needs (one row per node and window) and adds summary statistics on the
+clusters.
+}
+\details{
+The alluvial method (following clusters over time with \code{networks_to_alluv()},
+\code{minimize_crossing_alluvial()} and \code{plot_alluvial()}) was initiated by
+Alexandre Truc.
 }
 \examples{
-library(networkflow)
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
+)
+networks <- add_clusters(
+  networks,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+networks <- merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  threshold_similarity = 0.51,
+  similarity_type = "partial"
+)
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE,
-verbose = FALSE)
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden",
-verbose = FALSE)
-
-temporal_networks <- merge_dynamic_clusters(temporal_networks,
-cluster_id = "cluster_leiden",
-node_id = "source_id",
-threshold_similarity = 0.51,
-similarity_type = "partial")
-
-temporal_networks <- name_clusters(graphs = temporal_networks,
-method = "tf-idf",
-name_merged_clusters = TRUE,
-cluster_id = "dynamic_cluster_leiden",
-text_columns = "source_title",
-nb_terms_label = 5,
-clean_word_method = "lemmatize")
-
-temporal_networks <- color_networks(graphs = temporal_networks,
-column_to_color = "dynamic_cluster_leiden",
-color = NULL)
-
-alluv_dt <- networks_to_alluv(temporal_networks,
-intertemporal_cluster_column = "dynamic_cluster_leiden",
-node_id = "source_id")
-
+alluv_dt <- networks_to_alluv(
+  networks,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id"
+)
 alluv_dt[1:5]
 
+}
+\references{
+\insertAllCited{}
+}
+\seealso{
+\code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}}, \code{\link[=prepare_label_alluvial]{prepare_label_alluvial()}},
+\code{\link[=color_alluvial]{color_alluvial()}} and \code{\link[=plot_alluvial]{plot_alluvial()}}.
 }

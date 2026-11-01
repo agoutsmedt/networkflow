@@ -2,7 +2,7 @@
 % Please edit documentation in R/minimize_crossing_alluvial.R
 \name{minimize_crossing_alluvial}
 \alias{minimize_crossing_alluvial}
-\title{Order the rectangles of the alluvial in a way that minimize crossing of flow}
+\title{Order the clusters of an alluvial to reduce crossing flows}
 \usage{
 minimize_crossing_alluvial(
   alluv_dt,
@@ -12,18 +12,81 @@ minimize_crossing_alluvial(
 )
 }
 \arguments{
-\item{alluv_dt}{Data.frame of the alluvial created using the networkflow::networks_to_alluv function}
+\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}.}
 
-\item{intertemporal_cluster_column}{The column with the identifier of the inter-temporal cluster. If you have used
-\link[=add_clusters]{add_clusters()} and \link[=merge_dynamic_clusters]{merge_dynamic_clusters()},
-it is of the form \verb{dynamic_cluster_\{clustering_method\}}.}
+\item{intertemporal_cluster_column}{Character scalar, the column with the
+dynamic clusters.}
 
-\item{node_id}{The column with the unique identifier of each node. This is the alluvium of the alluvial.}
+\item{node_id}{Character scalar, the column with the node identifiers.}
 
-\item{window_column}{The column with your time windows.
-
-@examples}
+\item{window_column}{Character scalar, the column with the time windows
+(\code{"window"} by default).}
+}
+\value{
+\code{alluv_dt} with a new column \code{minimize_crossing_order}, the rank
+of each cluster, that \code{\link[=plot_alluvial]{plot_alluvial()}} uses to order the blocks.
 }
 \description{
-This function transform the node_id into a factor ordered by a newly created column named "minimize_crossing_order".
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+In an alluvial plot, flows between clusters drawn far apart cross many
+other flows and make the plot unreadable. \code{minimize_crossing_alluvial()}
+computes an order of the clusters that places clusters exchanging many
+nodes next to each other. It is a heuristic, not an optimal solution to
+the crossing problem.
+
+The function builds a network of clusters: two clusters are tied when
+nodes move from one to the other between windows, with a cosine weight
+\eqn{n_{ab} / \sqrt{\bar{s}_a \bar{s}_b}}, \eqn{n_{ab}} being the number
+of moving nodes and \eqn{\bar{s}_a} the mean size of cluster \eqn{a} over
+its windows. It then removes the ties one by one, from the weakest to the
+strongest, and records at each step the connected component of each
+cluster. Clusters are ordered by this sequence of components: clusters
+that stay together until the strongest ties are removed end up side by
+side.
+}
+\details{
+The alluvial method (following clusters over time with \code{networks_to_alluv()},
+\code{minimize_crossing_alluvial()} and \code{plot_alluvial()}) was initiated by
+Alexandre Truc.
+}
+\examples{
+networks <- build_dynamic_networks(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
+)
+networks <- add_clusters(
+  networks,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+networks <- merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  threshold_similarity = 0.51,
+  similarity_type = "partial"
+)
+alluv_dt <- networks_to_alluv(
+  networks,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id"
+)
+
+alluv_dt <- minimize_crossing_alluvial(
+  alluv_dt,
+  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  node_id = "source_id"
+)
+unique(alluv_dt[, c("dynamic_cluster_leiden", "minimize_crossing_order")])
+
 }

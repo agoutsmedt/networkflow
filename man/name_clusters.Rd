@@ -2,7 +2,7 @@
 % Please edit documentation in R/name_clusters.R
 \name{name_clusters}
 \alias{name_clusters}
-\title{Automatically Attributing Names to Clusters}
+\title{Give readable names to clusters}
 \usage{
 name_clusters(
   graphs,
@@ -19,133 +19,133 @@ name_clusters(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
-or a list of tibble graphs.}
+\item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s.}
 
-\item{method}{The method for finding the names, among \code{tidygraph_functions}, \code{given_column},
-and \code{tf-idf} (see the details). The \code{tf-idf} method is chosen by default.}
+\item{method}{\code{"tf-idf"} (chosen when no method is given),
+\code{"tidygraph_functions"} or \code{"given_column"} (see the details).}
 
-\item{name_merged_clusters}{Set to \code{TRUE} if your clusters have been established for
-all your tibble graphs and thus are unique. Typically, you have such clusters
-after running \code{merge_dynamic_clusters()}.}
+\item{name_merged_clusters}{Logical. \code{TRUE} when \code{cluster_id} identifies
+clusters across a list of graphs (the dynamic clusters of
+\code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}): each cluster then gets one name, computed on
+all its nodes in all windows. \code{FALSE} (default) names the clusters of
+each graph separately.}
 
-\item{cluster_id}{The column you want to name. Generally, the column with the identifier of the
-clusters, whether the simple cluster detected with
-\code{\link[=add_clusters]{add_clusters()}} or the
-merged clusters detected with \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}.}
+\item{cluster_id}{Character scalar, the node column with the clusters to
+name.}
 
-\item{label_columns}{The column you want to be used to name the clusters. If the nodes are article,
-you can choose, for instance, the columns with the author of the article and the
-date of publication.}
+\item{label_columns}{For \code{"tidygraph_functions"} and \code{"given_column"}, the
+node column(s) used to build the label of the chosen node, joined by
+"_" (e.g. \code{c("source_author", "source_year")}).}
 
-\item{label_name}{The name of the column with cluster names, that will be created by the function.
-"cluster_label" by default.}
+\item{label_name}{Character scalar, the name of the new column
+(\code{"cluster_label"} by default).}
 
-\item{tidygraph_function}{For the \code{tidygraph_functions} method (see the details), the centrality measure to be
-chosen among the measures implemented in in \code{tidygraph}  (see \code{tidygraph::centrality()}).}
+\item{tidygraph_function}{For \code{"tidygraph_functions"}, a call to a
+centrality function of tidygraph, such as
+\code{tidygraph::centrality_pagerank()} (see \link[tidygraph:centrality]{tidygraph::centrality}).}
 
-\item{order_by}{For the \code{given_column} method, the column within the nodes list of your
-tibble graph(s) you want to be used to classify nodes and choose names. This must be
-a numeric column. For instance, you can use the \code{node_size} column of your network
-if you have set \code{compute_size} to \code{TRUE} in \code{build_network()} or
-\code{build_dynamic_networks()}.}
+\item{order_by}{For \code{"given_column"}, the numeric node column used to
+choose the node (e.g. \code{"node_size"} from \code{\link[=build_network]{build_network()}} with
+\code{compute_size = TRUE}, i.e. the most cited document of the cluster).}
 
-\item{text_columns}{For the \code{tf-idf} method, the columns with the text you want to analyze.
-If you give multiple columns, they will be united to extract the terms. This is
-a parameter of \code{extract_tfidf()}.}
+\item{text_columns}{For \code{"tf-idf"}, the node column(s) with text (titles,
+abstracts, keywords), passed to \code{\link[=extract_tfidf]{extract_tfidf()}}.}
 
-\item{nb_terms_label}{For the \code{tf-idf} method, the number of terms you want to be used to serve a the
-name of a cluster. Terms will be separated by a comma. This is a parameter of
-\code{extract_tfidf()}.}
+\item{nb_terms_label}{For \code{"tf-idf"}, the number of terms in each label (3
+by default), separated by commas.}
 
-\item{...}{Additional arguments from \code{extract_tfidf}, outside of those referred above as well as
-of \code{grouping_across_list} which is not relevant here.}
+\item{...}{For \code{"tf-idf"}, other arguments of \code{\link[=extract_tfidf]{extract_tfidf()}} (e.g.
+\code{clean_word_method}, \code{n_gram}, \code{ngrams_filter}).}
 }
 \value{
-The same tibble graph or list of tibble graphs with a new column with the
-names of the clusters, for both nodes and edges. If you choose the \code{tidygraph_functions} method,
-the function also returns for nodes a column with the centrality measure computed.
+The same object as \code{graphs}, with a new node column \code{label_name},
+also joined to the edges through their cluster column.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-The function gives a name to networks clusters.
-It also gives the edges the name of their cluster. The clusters are named according
-to the column chosen by the user (for instance, in the case nodes are articles, the
-name may be the author and date of an article).
+A cluster identifier ("01", "cl_12") says nothing about its content.
+\code{name_clusters()} gives each cluster a provisional label that helps
+reading plots and tables, with one of three methods: the words that
+distinguish the cluster from the others (\code{"tf-idf"}), or the metadata of
+its most central node (\code{"tidygraph_functions"}) or of its node with the
+highest value of a given column (\code{"given_column"}). These labels are
+starting points for interpretation, not the result of it: naming a
+cluster requires reading its documents, the references they share, and
+what distinguishes them from neighbouring clusters
+\insertCite{ding2011}{networkflow}.
 }
 \details{
-The node to be used for naming the community is chosen depending on 3 methods:
-\itemize{
-\item the \code{tidygraph_functions} method: the name of a cluster comes from the node,
-within the cluster, which has the highest centrality measure. The user can choose the
-different centrality measure implemented  in \code{tidygraph} (see \code{tidygraph::centrality()} for details).
-\item the \code{given_column} method: the user gives a column of the tibble graph(s), with numeric
-values, that will be used to classify the nodes and choose the name of each cluster. The
-\code{label_columns} of the node with the highest numerical value in the cluster will be used
-to name the cluster.
-\item the \code{tf-idf} method: clusters are name according to the terms with the highest
-tf-idf value for each cluster. The user furnishes one or several columns with text,
-and the function extracts the term and calculate the tf-idf value of each term, depending
-on all the clusters. This method uses \code{extract_tfidf()}.
-}
+\strong{tf-idf.} Each cluster is treated as one document made of the texts of
+its nodes, and each term \eqn{t} (word or n-gram) gets the weight
+\deqn{\mathrm{tf}_{tc} \times \mathrm{idf}_t = \frac{n_{tc}}{\sum_u n_{uc}}
+\times \log\frac{C}{\mathrm{df}_t}}
+\insertCite{sparckjones1972,salton1988}{networkflow}, with \eqn{n_{tc}} the
+number of occurrences of \eqn{t} in cluster \eqn{c}, \eqn{C} the number of
+clusters and \eqn{\mathrm{df}_t} the number of clusters where \eqn{t}
+appears. The label gathers the terms with the highest weight: frequent in
+the cluster, rare in the others. With \code{name_merged_clusters = FALSE}, the
+comparison is made within each graph, so clusters of different windows
+may get the same label.
 
-Please note that, when \code{name_merged_clusters} is set to \code{FALSE}, the TF-IDF is computed
-tibble graph by tibble graph. It means that it is more likely that clusters in different
-tibble graphs will share the same name.
+\strong{Most central node.} \code{"tidygraph_functions"} computes the centrality
+given in \code{tidygraph_function} on each graph (it is added as a node
+column) and labels each cluster with the node with the highest value.
+The centrality is computed on the whole graph, not within the cluster.
+This method needs a network structure and therefore cannot be used with
+\code{name_merged_clusters = TRUE}.
+
+\strong{Given column.} \code{"given_column"} labels each cluster with its node with
+the highest \code{order_by} value: for an article network, typically its most
+cited article.
+
+Nodes of an unnamed cluster get "no_name".
 }
 \examples{
-library(networkflow)
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
+# The words of the titles that distinguish each cluster
+network <- name_clusters(
+  network,
+  method = "tf-idf",
+  cluster_id = "cluster_leiden",
+  text_columns = "source_title",
+  nb_terms_label = 3,
+  clean_word_method = "none"
+)
 
-references <- networkflow::Ref_stagflation
+# The article with the highest PageRank of each cluster
+network <- name_clusters(
+  network,
+  method = "tidygraph_functions",
+  cluster_id = "cluster_leiden",
+  label_columns = c("source_author", "source_year"),
+  label_name = "central_article",
+  tidygraph_function = tidygraph::centrality_pagerank()
+)
+unique(tidygraph::as_tibble(network, active = "nodes")[
+  c("cluster_leiden", "cluster_label", "central_article")
+])
 
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE,
-verbose = FALSE)
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden",
-verbose = FALSE)
-
-# You can name the clusters in each tibble graphs:
-
-temporal_networks_with_names <- name_clusters(graphs = temporal_networks,
-method = "tidygraph_functions",
-name_merged_clusters = FALSE,
-cluster_id = "cluster_leiden",
-label_columns = c("source_author", "source_year"),
-tidygraph_function = tidygraph::centrality_pagerank())
-
-temporal_networks_with_names[[1]]
-
-# Or you can name the dynamic clusters:
-
-temporal_networks <- merge_dynamic_clusters(temporal_networks,
-cluster_id = "cluster_leiden",
-node_id = "source_id",
-threshold_similarity = 0.51,
-similarity_type = "partial")
-
-temporal_networks_with_names <- name_clusters(graphs = temporal_networks,
-method = "tf-idf",
-name_merged_clusters = TRUE,
-cluster_id = "dynamic_cluster_leiden",
-text_columns = "source_title",
-nb_terms_label = 5,
-clean_word_method = "lemmatize")
-
-temporal_networks_with_names[[1]]
-
+}
+\references{
+\insertAllCited{}
+}
+\seealso{
+\code{\link[=extract_tfidf]{extract_tfidf()}} to see more terms than the labels show.
 }

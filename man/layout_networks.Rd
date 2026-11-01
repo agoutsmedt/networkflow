@@ -2,7 +2,7 @@
 % Please edit documentation in R/layout_networks.R
 \name{layout_networks}
 \alias{layout_networks}
-\title{Calculate the Coordinates of Nodes}
+\title{Compute the coordinates of nodes}
 \usage{
 layout_networks(
   graphs,
@@ -14,74 +14,83 @@ layout_networks(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
-graphs or a data frame.}
+\item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s.}
 
-\item{node_id}{The column with the unique identifier of each node.}
+\item{node_id}{Character scalar, the node column with a unique identifier,
+used to join the coordinates.}
 
-\item{layout}{The type of layout to create. All strings accepted by the algorithm argument can
-also be supplied directly into layout. See \code{ggraph::ggraph()} for more details on
-layouts.}
+\item{layout}{Character scalar, a layout accepted by
+\code{\link[ggraph:create_layout]{ggraph::create_layout()}} (e.g. \code{"kk"}, \code{"fr"}, \code{"stress"}).}
 
-\item{compute_dynamic_coordinates}{When you have a list of tibble graphs and that some nodes are in multiple graphs,
-you may want that each node in several graphs has relatively similar coordinates. Set
-\code{compute_dynamic_coordinates} to \code{TRUE} to take into account the coordinates of the nodes in
-the \code{n-1} tibble graph, during the computation of the coordinates of the \code{n} tibble graph.}
+\item{compute_dynamic_coordinates}{Logical. For a list of graphs, if
+\code{TRUE}, each layout starts from the coordinates of the previous window
+(see the details).}
 
-\item{save_coordinates}{If you are running the function on the same object, the already existing columns \code{x} and \code{y}
-will be erased and new values will be computed. Set \code{save_coordinates} to \code{TRUE} to
-save the \code{x} and \code{y} values in columns with a name depending of the layout method used.}
+\item{save_coordinates}{Logical. If \code{TRUE}, the coordinates are also
+stored in \verb{x_\{layout\}} and \verb{y_\{layout\}} (e.g. \code{x_kk}, \code{y_kk}), so that
+they are not lost when another layout is computed.}
 
-\item{...}{Additional arguments of the layout compatible with the function. See \code{ggraph::graph()},
-\code{ggraph::layout_tbl_graph_igraph()} and \code{graphlayouts::graphslayouts()} for more information.}
+\item{...}{Other arguments of the layout (see \code{\link[ggraph:create_layout]{ggraph::create_layout()}}
+and the igraph or graphlayouts function behind it).}
 }
 \value{
-The same tibble graph or list of tibble graphs with a column \code{x} and \code{y}, and also
-additional column \verb{x_\{layout\}} and \verb{y_\{layout\}} if you have set
-\code{save_coordinates} to \code{TRUE}.
+The same object as \code{graphs}, with node columns \code{x} and \code{y} (any
+existing \code{x} and \code{y} are replaced) and, if \code{save_coordinates = TRUE},
+\verb{x_\{layout\}} and \verb{y_\{layout\}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-The function implements different layout algorithms from
-\href{https://ggraph.data-imaginist.com/index.html}{ggraph} and
-\href{http://graphlayouts.schochastics.net/index.html}{graphlayouts}. It also implements
-a dynamic process of computation of coordinates for list of tibble graphs, in order
-for the coordinates to be consistent between graphs.
+A network has no natural position on a page. Force-directed layouts place
+nodes so that tied nodes are close and untied nodes are pushed apart, so
+that clusters appear as dense regions: Kamada-Kawai (\code{"kk"}) draws graph
+distances as geometric distances \insertCite{kamada1989}{networkflow},
+Fruchterman-Reingold (\code{"fr"}) balances attraction along edges and
+repulsion between all nodes \insertCite{fruchterman1991}{networkflow}.
+\code{layout_networks()} computes such coordinates with
+\code{\link[ggraph:create_layout]{ggraph::create_layout()}}, which gives access to the layouts of igraph and
+graphlayouts, and stores them in the node table.
+
+For a list of networks, the coordinates of a node may jump from one window
+to the next, which makes the plots hard to compare. With
+\code{compute_dynamic_coordinates = TRUE}, the coordinates of window \eqn{t-1}
+are used as the starting positions of the layout of window \eqn{t}, so
+that the nodes present in both windows tend to stay in the same region.
 }
 \details{
-The function allows for the use of different layouts implemented in
-\href{https://ggraph.data-imaginist.com/index.html}{ggraph} and
-\href{http://graphlayouts.schochastics.net/index.html}{graphlayouts}. However, some
-layout of \code{graphlayouts} are not working with this function. Also, layouts do not
-all take as input pre-determined coordinates, meaning that the
-\code{compute_dynamic_coordinates} argument does not work with all layout. Please check
-if the layout used allows a parameter called \code{coord}.
+Force-directed layouts are stochastic and sensitive to the starting
+positions: set a seed with \code{\link[=set.seed]{set.seed()}} before calling the function to
+reproduce a figure. Distances in such plots are only roughly
+interpretable: two clusters drawn side by side are more tied than two
+clusters at opposite ends, but distances should not be measured.
+
+\strong{Weights.} igraph uses the \code{weight} edge column automatically, but not
+always in the same way: Fruchterman-Reingold (\code{"fr"}) reads weights as
+attraction (heavier edges pull nodes closer), while Kamada-Kawai (\code{"kk"})
+reads them as distances, so that similarity weights push the most similar
+nodes apart and weakly tied nodes to the margins. With similarity weights,
+prefer \code{"fr"}, or pass \code{weights = NA} to ignore them.
+
+For dynamic coordinates, nodes absent from the previous window start at
+(0, 0). The starting positions are passed to the layout as its \code{coords}
+argument: this works only with layouts that accept it, such as \code{"fr"} and
+\code{"kk"} of igraph.
 }
 \examples{
-library(networkflow)
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 2
+)
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "fr")
+head(tidygraph::as_tibble(network, active = "nodes")[c("source_id", "x", "y")])
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE)
-
-temporal_networks <- layout_networks(temporal_networks,
-node_id = "source_id",
-layout = "fr",
-compute_dynamic_coordinates = TRUE)
-
-temporal_networks [[1]]
-
+}
+\references{
+\insertAllCited{}
 }

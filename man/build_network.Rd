@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_dynamic_networks.R
 \name{build_network}
 \alias{build_network}
-\title{Build a single network}
+\title{Build a single network from bipartite links}
 \usage{
 build_network(
   nodes,
@@ -12,6 +12,9 @@ build_network(
   projection_method,
   cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
   edges_threshold = 1,
+  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
+  alpha = NULL,
+  backbone_args = list(),
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
@@ -19,31 +22,86 @@ build_network(
 )
 }
 \arguments{
-\item{nodes}{Table of nodes and their metadata. One row per node. For example, a table
-of articles with identifiers, authors, publication year, etc.}
+\item{nodes}{A data frame with one row per source entity (e.g. one row per
+article) and its metadata (authors, year, title...). Not modified.}
 
-\item{directed_edges}{Table of bipartite links between \code{source_id} nodes and
-\code{target_id} entities (e.g., article -> reference, author -> paper).}
+\item{directed_edges}{A data frame of bipartite links, one row per
+\code{source_id} -> \code{target_id} link (e.g. article -> cited reference).
+Duplicated links are counted once. Not modified.}
 
-\item{source_id}{Quoted name of the source-side node identifier.}
+\item{source_id}{Character scalar, the column identifying the entities that
+become the nodes of the network. It must exist in both \code{nodes} and
+\code{directed_edges}, with one row per value in \code{nodes}.}
 
-\item{target_id}{Quoted name of the target-side identifier linked to each source node.}
+\item{target_id}{Character scalar, the column of \code{directed_edges} with the
+entities that create the links (e.g. references).}
 
-\item{projection_method}{Method used to build the single network. Must be
-one of \code{"structured"} or \code{"statistical"}.}
+\item{projection_method}{\code{"structured"} or \code{"statistical"}. Required.}
 
-\item{cooccurrence_method}{Cooccurrence method used by the structured workflow.}
+\item{cooccurrence_method}{For \code{projection_method = "structured"},
+\code{"coupling_angle"}, \code{"coupling_strength"} or \code{"coupling_similarity"}.}
 
-\item{edges_threshold}{Threshold used to filter weak edges in structured mode.}
+\item{edges_threshold}{For \code{projection_method = "structured"}, the minimum
+number of shared targets for two sources to be linked (1 by default).}
 
-\item{compute_size}{Logical. If \code{TRUE}, computes the number of incoming edges per node (e.g., citation count).}
+\item{model}{For \code{projection_method = "statistical"}, the null model of
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}: \code{"sdsm"}, \code{"fdsm"},
+\code{"fixedfill"}, \code{"fixedrow"} or \code{"fixedcol"}.}
 
-\item{keep_singleton}{Logical. If \code{FALSE}, removes nodes with no edges in the final network.}
+\item{alpha}{For \code{projection_method = "statistical"}, the significance
+level of the test of each tie. Lower values keep fewer edges.}
 
-\item{filter_components}{Logical. If \code{TRUE}, keeps only the main component(s) using \code{networkflow::filter_components()}.}
+\item{backbone_args}{Optional list of further arguments for
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}} (e.g. \code{mtc = "holm"} to correct
+for multiple tests). \code{alpha} or \code{model} given here override the
+arguments of the function.}
 
-\item{...}{Additional arguments passed to \code{filter_components()}.}
+\item{compute_size}{Logical. If \code{TRUE}, adds a \code{node_size} column: the
+number of times each node is a target of the sources of the same window
+(for a coupling network, the number of citations received within the
+corpus). It requires \code{nodes} to contain the \code{target_id} column.}
+
+\item{keep_singleton}{Logical. If \code{FALSE} (default), nodes without any
+edge are removed.}
+
+\item{filter_components}{Logical. If \code{TRUE}, keeps only the main
+component(s) with \code{\link[=filter_components]{filter_components()}}.}
+
+\item{...}{With \code{filter_components = TRUE}, arguments of
+\code{\link[=filter_components]{filter_components()}} (e.g. \code{nb_components}).}
+}
+\value{
+A \code{tbl_graph}, undirected, with the columns of \code{nodes} as node
+attributes and, for the structured method, a \code{weight} edge column.
 }
 \description{
-Convenience wrapper around \code{\link[=build_dynamic_networks]{build_dynamic_networks()}} for a single network.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+\code{build_network()} projects a two-mode relation (e.g. articles and the
+references they cite) onto a one-mode network of the source entities, for
+the whole corpus at once. It is \code{\link[=build_dynamic_networks]{build_dynamic_networks()}} without time
+windows: see that function for the measures, the thresholds and the
+literature behind them.
+}
+\details{
+\code{build_network()} runs silently (\code{verbose = FALSE}).
+}
+\examples{
+nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
+
+network <- build_network(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 2
+)
+network
+
+}
+\seealso{
+\code{\link[=build_dynamic_networks]{build_dynamic_networks()}}; \code{\link[=filter_components]{filter_components()}},
+\code{\link[=add_clusters]{add_clusters()}} for the next steps.
 }

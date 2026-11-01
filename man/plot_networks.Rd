@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_networks.R
 \name{plot_networks}
 \alias{plot_networks}
-\title{Plot your Networks}
+\title{Plot networks}
 \usage{
 plot_networks(
   graphs,
@@ -17,45 +17,84 @@ plot_networks(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph} or a list of tibble
-graphs.}
+\item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s.}
 
-\item{x, y}{The columns of your tibble graph or list of tibble graphs
-with the x and y coordinates of your nodes (for instance, the coordinates
-produce by \link[=layout_networks]{layout_networks()}).}
+\item{x, y}{Character scalars, the node columns with the coordinates
+(\code{"x"} and \code{"y"} by default).}
 
-\item{cluster_label_column}{The values of the column are taken to be displayed as labels.
-By default, "cluster_label", as it is
-the default name of the column created with \link[=name_clusters]{name_clusters()}.
-But you may also use the column produced with \link[=add_clusters]{add_clusters()}.}
+\item{cluster_label_column}{Character scalar, the node column with the
+labels to display: \code{"cluster_label"} (\code{\link[=name_clusters]{name_clusters()}}) by default, or
+a cluster column such as \code{cluster_leiden}.}
 
-\item{node_size_column}{The column with numeric values to be used for the size of nodes. By default, "node_size",
-as the column created by \link[=build_dynamic_networks]{build_dynamic_networks()}
-or \link[=build_network]{build_network()} when \code{compute_size} set to \code{TRUE} in
-these functions. If \code{NULL}, the size of every nodes is set to 1.}
+\item{node_size_column}{Character scalar, the numeric node column giving
+the size of nodes: \code{"node_size"} by default (see \code{compute_size} in
+\code{\link[=build_network]{build_network()}}). If \code{NULL} or absent, all nodes have the same size.}
 
-\item{color_column}{The column with the colors associated to the  categories of \code{cluster_label_column}.
-By default, "color", as the result of \link[=color_networks]{color_networks()}.}
+\item{color_column}{Character scalar, the column with the colours of
+nodes and edges (\code{"color"} by default, from \code{\link[=color_networks]{color_networks()}}).}
 
-\item{color_networks}{If no color has been set for the categories of \code{cluster_label_column}, you
-can attribute them colors by setting \code{color_networks} to \code{TRUE}.
-\link[=color_networks]{color_networks()} will be used.}
+\item{color_networks}{Logical. If \code{TRUE}, \code{\link[=color_networks]{color_networks()}} is run first,
+with \code{cluster_label_column} as the categories.}
 
-\item{color}{If \code{color_networks}is \code{TRUE}, the parameter \code{color} will be used to color the categories of the
-\code{cluster_label_column}. It may be a vector of colors (in a character format)
-or a two columns data frame with the first column as
-the distinct observations of the \code{cluster_label_column} and a second column with the
-vector of colors you want to use. If \code{NULL} colors will be automatically chosen by
-\link[=color_networks]{color_networks()}.}
+\item{color}{With \code{color_networks = TRUE}, the colours passed to
+\code{\link[=color_networks]{color_networks()}}.}
 
-\item{print_plot_code}{Set to \code{TRUE} if you want the ggplot2 code to be printing. It is useful if you are not
-totally satisfied of the plot and want to manipulate the code yourself.}
+\item{print_plot_code}{Logical. If \code{TRUE}, prints the ggplot2/ggraph code
+of the plot.}
+}
+\value{
+For a \code{tbl_graph}, a ggplot object. For a list of graphs, the
+list itself, in which each graph carries its plot in an element \code{plot}
+(\code{graphs[[1]]$plot}).
 }
 \description{
-An easy way to plot your networks by using the columns created by the different function of networkflow.
+\code{plot_networks()} draws a network from the columns created by the
+previous steps of the pipeline: coordinates (\code{\link[=layout_networks]{layout_networks()}}),
+colours (\code{\link[=color_networks]{color_networks()}}) and cluster labels (\code{\link[=name_clusters]{name_clusters()}} and
+\code{\link[=prepare_label_networks]{prepare_label_networks()}}). Edges are drawn as light arcs whose width
+follows their weight, nodes as points whose size follows
+\code{node_size_column}, and each cluster gets a label at its centre of
+gravity.
+
+It is meant as a quick, ready-made figure. For exploration, the
+interactive app of \code{\link[=launch_network_app]{launch_network_app()}} is more convenient; for a
+figure to publish, \code{print_plot_code = TRUE} prints the ggraph code, which
+can be copied and adapted.
 }
 \details{
-If you have not used \link[=prepare_label_networks]{prepare_label_networks()},
-the function will be automatically used to produce coordinates to each category of
-\code{cluster_label_column}.
+Missing pieces are filled in: labels are positioned with
+\code{\link[=prepare_label_networks]{prepare_label_networks()}} when \code{label_x} is absent, and edges without a
+\code{weight} column get a weight of 1. Labels are drawn with ggrepel, which
+must be installed.
+}
+\examples{
+\donttest{
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  seed = 123,
+  verbose = FALSE
+)
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "fr")
+network <- color_networks(network, column_to_color = "cluster_leiden")
+if (requireNamespace("ggrepel", quietly = TRUE)) {
+  plot_networks(
+    network,
+    cluster_label_column = "cluster_leiden",
+    node_size_column = NULL
+  )
+}
+}
+
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_clusters.R
 \name{add_clusters}
 \alias{add_clusters}
-\title{Detect and Add Clusters to Graphs}
+\title{Detect communities in networks}
 \usage{
 add_clusters(
   graphs,
@@ -10,7 +10,7 @@ add_clusters(
   clustering_method = c("leiden", "louvain", "fast_greedy", "infomap", "walktrap"),
   objective_function = c("modularity", "CPM"),
   resolution = 1,
-  n_iterations = 1000,
+  n_iterations = -1,
   n_groups = NULL,
   node_weights = NULL,
   trials = 10,
@@ -20,125 +20,153 @@ add_clusters(
 )
 }
 \arguments{
-\item{graphs}{A tibble graph from \href{https://tidygraph.data-imaginist.com/}{tidygraph}, a list of tibble
-graphs or a data frame.}
+\item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s.}
 
-\item{weights}{The weights of the edges. It must be a positive numeric vector, \code{NULL} or \code{NA}.
-If it is \code{NULL} and the input graph has a ‘weight’ edge attribute,
-then that attribute will be used. If \code{NULL} and no such attribute is present,
-then the edges will have equal weights. Set this to \code{NA} if the graph was a ‘weight’
-edge attribute, but you don't want to use it for community detection.
-Edge weights are used to calculate weighted edge betweenness. This means that edges
-are interpreted as distances, not as connection strengths.}
+\item{weights}{Edge weights. \code{NULL} (default) uses the \code{weight} edge
+column when it exists, \code{NA} ignores it, and a numeric vector gives the
+weights directly. Weights are read as strengths of ties: a larger weight
+pulls two nodes into the same cluster.}
 
-\item{clustering_method}{The different clustering algorithms implemented in the
-function (see details). The parameters of the function depend of the clustering method chosen.}
+\item{clustering_method}{The algorithm, to choose explicitly among
+\code{"leiden"}, \code{"louvain"}, \code{"fast_greedy"}, \code{"infomap"} and \code{"walktrap"}
+(see the details).}
 
-\item{objective_function}{The objective function to maximize for the leiden algorithm.
-Whether to use the Constant Potts Model (CPM) or modularity. Must be either "CPM"
-or "modularity" (see \code{igraph::cluster_leiden()}). CPM is used by default.}
+\item{objective_function}{For Leiden, the quality function to maximise:
+\code{"modularity"} or \code{"CPM"} (constant Potts model). Required for Leiden.}
 
-\item{resolution}{The resolution parameter to use for leiden algorithm
-(see \code{igraph::cluster_leiden()}). Higher resolutions lead to more
-smaller communities, while lower resolutions lead to fewer larger communities.}
+\item{resolution}{For Leiden, the resolution \eqn{\gamma}. Higher values
+give more and smaller clusters.}
 
-\item{n_iterations}{the number of iterations to iterate the Leiden algorithm.
-Each iteration may improve the partition further (see \code{igraph::cluster_leiden()}).}
+\item{n_iterations}{For Leiden, the number of iterations of the algorithm.
+The default, \code{-1}, iterates until the partition no longer improves (see
+\code{\link[igraph:cluster_leiden]{igraph::cluster_leiden()}}). A fixed number is much slower on large
+networks for no gain: on a window of 8,700 articles and 116,000 edges,
+1,000 iterations took 44 s, against 0.6 s for \code{-1}, for the same
+modularity.}
 
-\item{n_groups}{May be used by the fast greedy or the walktrap algorithm.
-Integer scalar, the desired number of communities. If too low or two high,
-then an error message is given.}
+\item{n_groups}{For fast greedy and walktrap, an optional number of
+clusters at which to cut the dendrogram.}
 
-\item{node_weights}{May be used both for the Leiden or infomap algorithms.
-For Leiden, if this is not provided, it will be automatically determined on the
-basis of the objective_function (see \code{igraph::cluster_leiden()}). For infomap,
-if it is not present, then all vertices are considered to have the same weight.
-A larger vertex weight means a larger probability that the random surfer jumps
-to that vertex (see \code{igraph::cluster_infomap()}).}
+\item{node_weights}{For Leiden and Infomap, optional name of a node column
+with node weights (see \code{\link[igraph:cluster_leiden]{igraph::cluster_leiden()}} and
+\code{\link[igraph:cluster_infomap]{igraph::cluster_infomap()}}).}
 
-\item{trials}{The number of attempts to partition the network
-(can be any integer value equal or larger than 1) for the infomap algorithm
-(see \code{igraph::cluster_infomap()}).}
+\item{trials}{For Infomap, the number of attempts to partition the network.}
 
-\item{steps}{The length of the random walks to perform for the walktrap algorithm
-(see \code{igraph::cluster_walktrap()})}
+\item{steps}{For walktrap, the length of the random walks.}
 
-\item{verbose}{Set to \code{FALSE} if you don't want the function to display different sort of information.}
+\item{verbose}{Logical. If \code{TRUE} (default), reports the number of
+clusters and the size of the largest one.}
 
-\item{seed}{Enter a random number to set the seed within the function. Some algorithms use heuristics
-and random processes that might result in different cluster each time the function is run.
-Setting the seed is particularly useful for reproducibility and if you want to make sure to find
-the same clusters each time the function is run with the same graphs.}
+\item{seed}{Optional integer. Leiden, Louvain and Infomap are stochastic:
+two runs can give different partitions. A seed makes the result
+reproducible. It is set locally (with \code{\link[withr:local_seed]{withr::local_seed()}}): the
+random-number stream of the session is left unchanged.}
 }
 \value{
-The same tidygraph graph or tidygraph list as input, but with a new cluster
-column for nodes with a column with the size of these clusters,
-and three cluster columns for edges (see the details).
+The same object as \code{graphs} (a \code{tbl_graph} or a list of
+\code{tbl_graph}s) with the cluster columns described in the details, with
+the node table active.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function takes as input a tibble graph (from \href{https://tidygraph.data-imaginist.com/}{tidygraph})
-or a list of tibble graphs, and then runs different
-cluster detection algorithms depending on the method chosen by the user (see @details for
-information on the different methods. The function
-associate each node to its corresponding cluster identifier. It also creates a cluster
-attribute for edges: to each edge is associated a corresponding cluster
-identifier if  the two nodes connected by the edge belong to the same
-cluster If nodes have a different cluster, the edge takes "00" as cluster attribute.
+The second step of the pipeline. In a bibliographic coupling network,
+groups of articles that cite the same literature, much more among
+themselves than with the rest of the network, are a usual operational
+definition of a research specialty or a research front
+\insertCite{boyack2010,morris2008}{networkflow}. \code{add_clusters()} finds such
+groups (communities, or clusters) with one of five algorithms of igraph,
+adds the cluster of each node and of each edge, and the relative size of
+each cluster. It works on one \code{tbl_graph} or on each graph of a list, as
+produced by \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}.
+
+Most methods search for the partition that maximises the \emph{modularity}
+\insertCite{newman2004}{networkflow}: the share of the edge weight that
+falls within clusters, minus the share expected if edges were placed at
+random given the weighted degree \eqn{k_i} of each node,
+\deqn{Q = \frac{1}{2m} \sum_{i,j} \left( A_{ij} - \gamma \frac{k_i k_j}{2m}
+\right) \delta(c_i, c_j),}
+with \eqn{A_{ij}} the weight of the edge between \eqn{i} and \eqn{j},
+\eqn{m} the total weight, \eqn{c_i} the cluster of \eqn{i}, and
+\eqn{\gamma} the resolution (1 in the original definition).
 }
 \details{
-The function could be run indifferently on one tidigraph object or on a list
-of tidygraph object, as created by \code{build_dynamic_networks()}.
+\strong{The algorithms.}
+\itemize{
+\item \code{"leiden"} \insertCite{traag2019}{networkflow}, the default choice of
+recent bibliometric studies, improves on Louvain: it guarantees that
+clusters are connected, and iterating it refines the partition. It can
+maximise the modularity or the constant Potts model (CPM)
+\insertCite{traag2011}{networkflow}, which compares the internal weight
+\eqn{e_c} of each cluster with \eqn{\gamma} times its number of pairs,
+\deqn{H = \sum_c \left( e_c - \gamma \binom{n_c}{2} \right):}
+a cluster is worth creating when its density exceeds \eqn{\gamma}.
+Unlike the modularity, CPM does not depend on the size of the network,
+which makes clusters more comparable across networks of different sizes,
+but \eqn{\gamma} must then be set on the scale of the edge weights (with
+weights well below 1, \code{resolution = 1} yields almost only singletons).
+\item \code{"louvain"} \insertCite{blondel2008}{networkflow}, the greedy
+multi-level optimisation of modularity that Leiden refines.
+\item \code{"fast_greedy"} \insertCite{clauset2004}{networkflow}, an agglomerative
+optimisation of modularity, deterministic.
+\item \code{"walktrap"} \insertCite{pons2006}{networkflow}, which groups nodes that
+short random walks tend to visit together.
+\item \code{"infomap"} \insertCite{rosvall2008}{networkflow}, which finds the
+partition that best compresses the description of a random walk on the
+network.
+}
 
-The function implements five different algorithms. Four exists in
-\href{https://igraph.org/r/}{igraph} and are used in this package through their implement
-in \href{https://tidygraph.data-imaginist.com/}{tidygraph} (see
-\link[tidygraph:group_graph]{group_graph()}). The function also implements the
-Leiden algorithm \insertCite{traag2019}{networkflow} which is in \code{igraph} but not
-in \code{tidygraph} yet (see \link[igraph:cluster_leiden]{cluster_leiden()}).
+All algorithms are called from igraph (\code{\link[igraph:cluster_leiden]{igraph::cluster_leiden()}},
+\code{\link[igraph:cluster_louvain]{igraph::cluster_louvain()}}, \code{\link[igraph:cluster_fast_greedy]{igraph::cluster_fast_greedy()}},
+\code{\link[igraph:cluster_walktrap]{igraph::cluster_walktrap()}}, \code{\link[igraph:cluster_infomap]{igraph::cluster_infomap()}}), and all use the
+edge weights unless \code{weights = NA}.
 
-The newly created columns with the cluster identifier for nodes and edges
-are named depending of the method used. If you use the Leiden algorithm, the
-function will create a column called \code{cluster_leiden} for nodes, and three columns
-for the edges, called \code{cluster_leiden_from}, \code{cluster_leiden_to} and \code{cluster_leiden}.
+\strong{The resolution.} Modularity has a resolution limit: in large networks,
+it can merge small but clear-cut communities
+\insertCite{fortunato2010}{networkflow}. There is no single right number of
+clusters: a network of a discipline can be described at the level of
+fields or of specialties \insertCite{sjogarde2020}{networkflow}. Changing
+\code{resolution}, and checking that the main clusters persist across close
+values and across seeds \insertCite{traag2013}{networkflow}, is part of
+the analysis.
 
-The function also
-automatically calculates the percentage of total nodes that are gathered in each
-cluster, in the column \verb{size_cluster_\{clustering_method\}}.
-
-To make plotting easier later, a zero is put before one-digit cluster identifier
-(cluster 5 becomes "05"; cluster 10 becomes "10"). Attributing a cluster identifier to edges
-allow for giving edges the same color of the nodes they are connecting together if the two nodes have the same color,
-or a different color from both nodes, if the nodes belong to different clusters.
+\strong{The output columns.} With \code{clustering_method = "leiden"}, nodes get
+\code{cluster_leiden} (identifiers numbered by decreasing cluster size, "01"
+being the largest, written with two digits so that they sort correctly) and
+\code{size_cluster_leiden} (the share of the nodes of the graph in the cluster).
+Edges get \code{cluster_leiden_from}, \code{cluster_leiden_to} and \code{cluster_leiden},
+the latter being the common cluster of both ends, or "00" for edges
+between clusters. The edge cluster is what lets \code{\link[=color_networks]{color_networks()}} give
+within-cluster edges the colour of their cluster. Other methods produce
+the same columns with their own suffix.
 }
 \examples{
-library(networkflow)
+network <- build_network(
+  nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1
+)
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-temporal_networks <- build_dynamic_networks(nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-cooccurrence_method = "coupling_similarity",
-time_window = 20,
-edges_threshold = 1,
-overlapping_window = TRUE,
-filter_components = TRUE)
-
-temporal_networks <- add_clusters(temporal_networks,
-objective_function = "modularity",
-clustering_method = "leiden")
-
-temporal_networks[[1]]
-
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  resolution = 1,
+  seed = 123
+)
+table(tidygraph::as_tibble(network, active = "nodes")$cluster_leiden)
 
 }
 \references{
 \insertAllCited{}
+}
+\seealso{
+\code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} to follow clusters across time
+windows, \code{\link[=name_clusters]{name_clusters()}} to label them, \code{\link[=add_node_roles]{add_node_roles()}} to
+characterise the position of nodes within and between clusters.
 }

@@ -3,28 +3,30 @@
 \docType{data}
 \name{Nodes_coupling}
 \alias{Nodes_coupling}
-\title{Articles and Books Explaining the 1970s US Stagflation.}
+\title{Nodes of a ready-made bibliographic coupling network on the stagflation}
 \format{
 A data frame with 154 rows and 6 variables:
 \describe{
-\item{source_id}{Identifier of the document on stagflation, in character format}
-\item{source_author}{Author of the document on stagflation}
-\item{source_label}{Use this as a label for nodes}
-\item{source_year}{Year of publication of the document}
-\item{source_title}{Title of the document}
-\item{source_journal}{Journal of publication of the document (if an article)}
+\item{source_id}{Identifier of the document, as a character string.}
+\item{source_author}{First author of the document.}
+\item{source_label}{Short label (author and year), for plots.}
+\item{source_year}{Year of publication.}
+\item{source_title}{Title of the document.}
+\item{source_journal}{Journal of publication, for articles.}
 }
 }
 \source{
-Created from \code{Nodes_stagflation.rda}
+Built from \link{Nodes_stagflation} and \link{Ref_stagflation} by
+\code{inst/data-raw/creating_network_data.R}.
 }
 \usage{
 Nodes_coupling
 }
 \description{
-A dataset containing the books and academic articles endeavouring to explain
-what happened in the US economy in the 1970s and which have at least two references
-in their bibliography. This file could be used as nodes, with \code{edges_coupling.rda}, for a bibliographic coupling
-network.
+The 154 documents of \link{Nodes_stagflation} that explain the stagflation and
+have references in \link{Ref_stagflation}. With \link{Edges_coupling}, it gives a
+bibliographic coupling network already computed, for instance to try the
+functions of the package on a \code{tbl_graph} built directly with
+\code{\link[tidygraph:tbl_graph]{tidygraph::tbl_graph()}}.
 }
 \keyword{datasets}

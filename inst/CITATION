@@ -1,0 +1,17 @@
+bibentry(
+  "Manual",
+  title = "networkflow: A Research Pipeline for Projected and Dynamic Networks",
+  author = c(
+    person("Aurélien", "Goutsmedt"),
+    person("Alexandre", "Truc"),
+    person("Thomas", "Delcey")
+  ),
+  year = format(Sys.Date(), "%Y"),
+  note = paste("R package version", meta$Version),
+  url = "https://agoutsmedt.github.io/networkflow/",
+  textVersion = paste0(
+    "Goutsmedt, A., Truc, A. and Delcey, T. (", format(Sys.Date(), "%Y"),
+    "). networkflow: A Research Pipeline for Projected and Dynamic Networks. ",
+    "R package version ", meta$Version, ". https://agoutsmedt.github.io/networkflow/"
+  )
+)

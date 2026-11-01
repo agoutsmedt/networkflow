@@ -4,9 +4,33 @@
 \name{networkflow-package}
 \alias{networkflow}
 \alias{networkflow-package}
-\title{networkflow: Functions For A Workflow To Manipulate Networks}
+\title{networkflow: a research pipeline for projected and dynamic networks}
 \description{
-Provides a workflow to build, analyze, and visualize projected networks from tabular data. The package supports dynamic analysis across time windows, including cluster detection and cross-period cluster matching. It also covers network construction, interpretation, static plotting, and interactive exploration through a 'shiny' app. Although designed for projected networks (e.g., article -> reference), it can be used more generally with 'tbl_graph' objects.
+networkflow organises the study of networks built from tabular research
+data (articles and their references, authors and their papers, accounts
+and what they share) as a sequence of explicit, documented steps. Each
+step is a function whose choices are arguments that can be changed and
+reported, and each returns a \code{tbl_graph} (or a list of them, one per time
+window) that the next step enriches.
+}
+\details{
+\itemize{
+\item \strong{Building networks}: \code{\link[=build_network]{build_network()}}, \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}
+(bibliographic coupling and other projections, with similarity measures
+from biblionetwork or statistical backbones from backbone, one network
+per time window), \code{\link[=filter_components]{filter_components()}}.
+\item \strong{Finding and reading clusters}: \code{\link[=add_clusters]{add_clusters()}} (Leiden, Louvain,
+Infomap...), \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} (following clusters across
+windows), \code{\link[=name_clusters]{name_clusters()}}, \code{\link[=extract_tfidf]{extract_tfidf()}}, \code{\link[=add_node_roles]{add_node_roles()}}.
+\item \strong{Drawing and exploring}: \code{\link[=layout_networks]{layout_networks()}}, \code{\link[=color_networks]{color_networks()}},
+\code{\link[=prepare_label_networks]{prepare_label_networks()}}, \code{\link[=plot_networks]{plot_networks()}}, \code{\link[=networks_to_alluv]{networks_to_alluv()}},
+\code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}}, \code{\link[=plot_alluvial]{plot_alluvial()}},
+\code{\link[=launch_network_app]{launch_network_app()}}.
+}
+
+The guides of the package website (\url{https://agoutsmedt.github.io/networkflow/})
+explain the methods behind each step on the example of the literature on
+the 1970s stagflation (\link{Nodes_stagflation}, \link{Ref_stagflation}).
 }
 \seealso{
 Useful links:
@@ -18,12 +42,13 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Aurélien Goutsmedt \email{agoutsmedt@gmail.com} (\href{https://orcid.org/0000-0002-3788-7237}{ORCID})
+\strong{Maintainer}: Aurélien Goutsmedt \email{agoutsmedt@hotmail.fr} (\href{https://orcid.org/0000-0002-3788-7237}{ORCID})
 
 Authors:
 \itemize{
-  \item Alexandre Truc \email{alexandre.truc77@gmail.com} (\href{https://orcid.org/0000-0002-1328-7819}{ORCID})
-  \item Thomas Delcey (\href{https://orcid.org/0000-0003-0546-1474}{ORCID})
+  \item Aurélien Goutsmedt \email{agoutsmedt@hotmail.fr} (\href{https://orcid.org/0000-0002-3788-7237}{ORCID})
+  \item Alexandre Truc \email{alexandre.truc77@gmail.com} (\href{https://orcid.org/0000-0002-1328-7819}{ORCID}) (initiated the alluvial method)
+  \item Thomas Delcey (\href{https://orcid.org/0000-0003-0546-1474}{ORCID}) (co-maintainer)
 }
 
 }

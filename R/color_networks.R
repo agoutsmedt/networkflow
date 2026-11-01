@@ -1,273 +1,195 @@
-
-  #' Color Nodes and Edges of Networks or Alluvial
-  #'
-  #'
-  #' @description
-  #' `r lifecycle::badge("experimental")`
-  #'
-  #' `color_networks()` takes as input a tibble graph (from [tidygraph](https://tidygraph.data-imaginist.com/))
-  #' or a list of tibble graphs and associates a color for each graphs' edges and nodes,
-  #' depending on a chosen categorical variable in `columnr_to_color` (most likely a cluster column).
-  #'
-  #' `color_alluvial()` takes a data.frame and associates a color to each value of the chosen
-  #' categorical variable in `column_to_color`. This function may be used with any data.frame
-  #' even if it aims at coloring alluvial data frame created with
-  #' [networks_to_alluv()][networkflow::networks_to_alluv()].
-  #'
-  #' You may either provide the color palette,
-  #' provide a data frame associating the different values of the categorical variable with
-  #' colors, or let the function provide colors (see details).
-  #'
-  #' @param graphs
-  #' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a list of tibble
-  #' graphs.
-  #'
-  #' @param alluv_dt
-  #' A data.frame of an alluvial created with [networks_to_alluv()][networkflow::networks_to_alluv()]
-  #'
-  #' @param column_to_color
-  #' The column of the categorical variable to use to color nodes and edges. For instance,
-  #' the `cluster_{clustering_method}` created with [add_clusters()][networkflow::add_clusters()]
-  #' or the `dynamic_cluster_{clustering_method}` created with
-  #' [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()].
-  #'
-  #' @param color
-  #' The colors to use. It may be a vector of colors (in a character format)
-  #' or a two columns data.frame with the first column as
-  #' the distinct observations of the `column_to_color` and a second column with the
-  #' vector of colors you want to use.
-  #'
-  #' @param unique_color_across_list
-  #' If set to `TRUE`, in a list of tibble graphs, the same categorical variable will
-  #' be considered as a different variable in different graphs and thus receive a different
-  #' color. In other words, if set to `TRUE` cluster "01" in two different graphs will
-  #' have two different colors. If set to `FALSE` (by default), cluster "01" will have
-  #' the same color in every graphs it exists.
-  #'
-  #' @details
-  #' The best practice is to provide a list of colors equals to the number of categorical
-  #' variable to color. If you provide more colors, excess colors will not be used. If you
-  #' provide less colors, colors will be recycled. If you provide no colors, `palette.colors()`
-  #' of base R will be used: the 7 colors of `ggplot2` palette will be used (black is excluded) and
-  #' then the 7 colors of `Okabe-Ito` palette (black and gray are excluded). Above 14 colors,
-  #' the colors of the two palettes will be recycled.
-  #'
-  #' @return The same tibble graph or list of tibble graphs as input, but with a new `color`
-  #' column for both nodes and edges.
-  #'
-  #' @examples
-  #' library(networkflow)
-  #'
-  #' nodes <- networkflow::Nodes_stagflation |>
-  #'   dplyr::filter(source_type == "Stagflation")
-  #'
-  #' references <- networkflow::Ref_stagflation
-  #'
-  #' temporal_networks <- build_dynamic_networks(nodes = nodes,
-  #' directed_edges = references,
-  #' source_id = "source_id",
-  #' target_id = "target_id",
-  #' time_variable = "source_year",
-  #' cooccurrence_method = "coupling_similarity",
-  #' time_window = 20,
-  #' edges_threshold = 1,
-  #' overlapping_window = TRUE,
-  #' filter_components = TRUE,
-  #' verbose = FALSE)
-  #'
-  #' temporal_networks <- add_clusters(temporal_networks,
-  #' objective_function = "modularity",
-  #' clustering_method = "leiden",
-  #' verbose = FALSE)
-  #'
-  #' temporal_networks <- color_networks(graphs = temporal_networks,
-  #' column_to_color = "cluster_leiden",
-  #' color = NULL)
-  #'
-  #' temporal_networks[[1]]
-  #'
-  #' @export
-
+#' Colour the nodes and edges of networks, or the clusters of an alluvial
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' `color_networks()` gives a colour to each category of a node column
+#' (typically a cluster column) and stores it in a `color` column of the
+#' nodes. Each edge gets a colour mixing the colours of its two ends, so that
+#' edges within a cluster take the colour of the cluster and edges between
+#' clusters a blend of both.
+#'
+#' `color_alluvial()` does the same for the table of an alluvial plot
+#' created with [networks_to_alluv()].
+#'
+#' @param graphs A `tbl_graph` or a list of `tbl_graph`s.
+#' @param alluv_dt A data frame created with [networks_to_alluv()].
+#' @param column_to_color Character scalar, the column with the categories
+#'   to colour, e.g. `cluster_leiden` ([add_clusters()]) or
+#'   `dynamic_cluster_leiden` ([merge_dynamic_clusters()]).
+#' @param color The colours: `NULL` (default palettes, see the details), a
+#'   character vector of colours, given to the categories by decreasing
+#'   number of nodes, or a data frame whose first column holds the categories
+#'   and the second column, named `color`, their colours.
+#' @param unique_color_across_list Logical, for a list of graphs. `FALSE`
+#'   (default) gives a category the same colour in every graph: use it for
+#'   dynamic clusters. `TRUE` treats the same value in two graphs as two
+#'   categories (cluster "01" of two windows gets two colours): use it for
+#'   clusters detected separately in each window.
+#' @param verbose Logical. If `TRUE` (default), reports when colours are
+#'   recycled or truncated.
+#'
+#' @details
+#' Giving the same colour to a cluster in every figure (network plots,
+#' alluvial, tables) is what lets a reader follow it. Pass the same
+#' data frame of colours to `color_networks()` and `color_alluvial()` for
+#' this.
+#'
+#' Without `color`, the function uses the ggplot2 palette (without black)
+#' for up to 7 categories, completed by the Okabe-Ito palette (without black
+#' and grey) for up to 14; beyond 14 categories, the colours are recycled and
+#' several clusters share a colour. For many clusters, give a palette
+#' explicitly (e.g. from the scico or paletteer packages), or colour only the
+#' largest clusters and give the others a neutral grey.
+#'
+#' A vector with fewer colours than categories is recycled, a longer one is
+#' truncated. A data frame of colours that misses some categories leaves
+#' their colour missing.
+#'
+#' @return `color_networks()`: the same object as `graphs` with a `color`
+#'   column for nodes and edges. `color_alluvial()`: `alluv_dt` with a
+#'   `color` column.
+#'
+#' @examples
+#' network <- build_network(
+#'   nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+#'   directed_edges = Ref_stagflation,
+#'   source_id = "source_id",
+#'   target_id = "target_id",
+#'   projection_method = "structured",
+#'   cooccurrence_method = "coupling_similarity",
+#'   edges_threshold = 1
+#' )
+#' network <- add_clusters(
+#'   network,
+#'   clustering_method = "leiden",
+#'   objective_function = "modularity",
+#'   seed = 123,
+#'   verbose = FALSE
+#' )
+#'
+#' network <- color_networks(network, column_to_color = "cluster_leiden")
+#' unique(tidygraph::as_tibble(network, active = "nodes")[c("cluster_leiden", "color")])
+#'
+#' @export
 color_networks <- function(graphs,
                            column_to_color,
                            color = NULL,
-                           unique_color_across_list = FALSE)
-{
+                           unique_color_across_list = FALSE,
+                           verbose = TRUE) {
   . <- to <- from <- window <- N <- data <- NULL
+  single <- is_single_graph(graphs)
+  if (single) graphs <- list(graphs)
+  for (graph in graphs) check_columns(node_table(graph), column_to_color, "graphs")
 
-  if(inherits(graphs, "list")){
-    unique_graph <- FALSE
-    variable_list <- lapply(graphs, function(tbl)(tbl %N>%
-                                                    data.table::as.data.table() %>%
-                                                    .[, .SD, .SDcols = c(column_to_color)])) %>%
-      data.table::rbindlist(idcol = "window") %>%
-      {if(unique_color_across_list) tidyr::unite(., {{ column_to_color }}, dplyr::everything()) else dplyr::select(., -window)}
-  } else{
-    if(inherits(graphs, "tbl_graph")){
-      unique_graph <- TRUE
-      variable_list <- graphs %N>%
-        data.table::as.data.table() %>%
-        .[, .SD, .SDcols = c(column_to_color)]
-      graphs <- list(graphs) #If it's graph alone, make it into the list so the next part of the function work
-
-    } else {
-      cli::cli_abort("Your {.field graphs} data is neither a tibble graph, nor a list of tibble graphs.")
-    }
+  # 1. The categories, ordered by decreasing number of nodes, so that the
+  #    first colours go to the largest clusters.
+  categories <- lapply(graphs, function(graph) {
+    data.table::as.data.table(node_table(graph))[, .SD, .SDcols = column_to_color]
+  })
+  categories <- data.table::rbindlist(categories, idcol = "window")
+  if (unique_color_across_list && !single) {
+    categories[, (column_to_color) := paste(window, get(column_to_color), sep = "\x1f")]
   }
+  categories <- categories[, .N, by = column_to_color][order(-N)][[column_to_color]]
+  n_colors <- length(categories)
 
-  variable_list <- variable_list[, .N, .(column_to_color),
-                                 env = list(column_to_color = column_to_color)] %>%
-    .[order(-N)] %>%
-    dplyr::pull(column_to_color)
-  n_colors <- length(variable_list)
-  cli::cli_alert_info("{.emph unique_color_across_list} has been set to {.val {unique_color_across_list}}. There are {.val {n_colors}} different categories to color.")
+  # 2. The colour of each category.
+  colors_table <- category_colors(categories, color, column_to_color, verbose = verbose)
 
-
-
-  # Second, we gather a list of color
-  if(inherits(color, "character")){
-    # Verify that the user have given the correct number of colors.
-    if(length(color) != n_colors){
-      cli::cli_alert_info("The number of colors provided ({.val {length(color)}}) is different from the number of categories to color ({.val {n_colors}}).
-                        The function will proceed by repeating provided colors or remove unecessary ones.")
-    }
-    main_colors_table <- data.table::data.table(
-      categories = variable_list,
-      color = rep(color, length.out = n_colors))
-  } else {
-    if(inherits(color, "data.frame")){
-      # Verify that the user have given the correct number of colors.
-      if(length(color[[1]]) != n_colors){
-        cli::cli_alert_info("The length of the data.frame provided is different from the number of categories to color.
-                          You need a table with {.val {n_colors}} distinct values for {.emph {column_to_color}} and only one unique color per value of {.emph {column_to_color}}.
-                          {.val NA} is used for {.emph color} in case of missing categories to color.")
-      }
-      main_colors_table <- color
-    } else {
-      cli::cli_alert_info("{.field color} is neither a vector of color characters, nor a data.frame. We will proceed with base R colors.")
-      if(n_colors <= 7){ # 8 colors in ggplot2 but we remove the black one
-        color <- grDevices::palette.colors(n_colors + 1, "ggplot2")[-1] # remove the black
-        cli::cli_alert_info("We draw {.val {n_colors}} colors from the {.emph ggplot2} palette.")
-      } else if(n_colors <= 14){
-        color <- c(grDevices::palette.colors(8, "ggplot2")[-1],
-                   as.character(grDevices::palette.colors(n_colors - 6, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
-        cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and {.val {n_colors - 7}} colors from the {.emph Okabe-Ito} palette.")
-      } else {
-        color <- c(grDevices::palette.colors(7, "ggplot2")[-1],
-                   as.character(grDevices::palette.colors(8, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
-        cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and 7 from the {.emph Okabe-Ito} palette. As more than 14 colors are needed, the colors will be recycled.")
-      }
-      main_colors_table <- data.table::data.table(
-        categories = variable_list,
-        color = rep(color, length.out = n_colors))
-    }
-  }
-
-
-  # Third, we color the nodes, depending on the type of clusters
-  data.table::setnames(main_colors_table, "categories", column_to_color, skip_absent = TRUE)
-  if(unique_color_across_list){
-    main_colors_table <- main_colors_table %>%
-      tidyr::separate({{column_to_color}}, c("window", column_to_color), sep = "_") %>%
-      tidyr::nest(data = dplyr::all_of(c(column_to_color, "color"))) %>%
-      dplyr::pull(data)
-    for(i in 1:length(graphs)){
-      graphs[[i]] <- graphs[[i]] %N>%
-        dplyr::left_join(main_colors_table[[i]], by = column_to_color)
+  # 3. Node colours, then edge colours as a mix of both ends.
+  if (unique_color_across_list && !single) {
+    colors_table[, window := sub("\x1f.*$", "", get(column_to_color))]
+    colors_table[, (column_to_color) := sub("^[^\x1f]*\x1f", "", get(column_to_color))]
+    for (i in seq_along(graphs)) {
+      table_i <- colors_table[window == names(graphs)[i], .SD, .SDcols = c(column_to_color, "color")]
+      graphs[[i]] <- join_node_colors(graphs[[i]], table_i, column_to_color)
     }
   } else {
-    graphs <- lapply(graphs, function(tbl) tbl %N>%
-                       dplyr::left_join(main_colors_table, by = column_to_color))
+    graphs <- lapply(graphs, join_node_colors, colors_table = colors_table, column_to_color = column_to_color)
   }
-
-  # Coloring Edges
-  graphs <- lapply(graphs, function(tbl) tbl %E>%
-                     dplyr::mutate(color = mixcolor(.N()$color[to], .N()$color[from], amount1 = 0.5)))
-
-  if(unique_graph==TRUE){ # return one graph if this was not a list from the start
-    graphs <- graphs[[1]]}
-
-  return(graphs)
+  graphs <- lapply(graphs, function(graph) {
+    graph %E>%
+      dplyr::mutate(color = mixcolor(.N()$color[to], .N()$color[from], amount1 = 0.5)) %>%
+      tidygraph::activate("nodes")
+  })
+  if (single) graphs <- graphs[[1]]
+  graphs
 }
 
-# Copy from DescTools package, function MixColor (avoiding one more dependency)
-mixcolor <- function (col1, col2, amount1 = 0.5)
-{
-  .mix <- function(col1, col2, amount1 = 0.5) {
-    mix <- apply(grDevices::col2rgb(c(col1, col2), alpha = TRUE), 1,
-                 function(x) amount1 * x[1] + (1 - amount1) * x[2])
-    do.call("rgb", c(as.list(mix), maxColorValue = 255))
-  }
-  m <- suppressWarnings(cbind(col1, col2, amount1))
-  apply(m, 1, function(x) .mix(col1 = x[1], col2 = x[2], amount1 = as.numeric(x[3])))
+# Join the colour table to the nodes, keeping the type of the category column
+# (cluster identifiers may be character or numeric).
+join_node_colors <- function(graph, colors_table, column_to_color) {
+  keys <- as.character(colors_table[[column_to_color]])
+  graph %N>%
+    dplyr::mutate(color = colors_table$color[match(as.character(.data[[column_to_color]]), keys)])
 }
 
+# Table with one colour per category: from a vector of colours, from a data
+# frame (category, color), or from the default palettes.
+category_colors <- function(categories, color, column_to_color, verbose = TRUE,
+                            call = rlang::caller_env()) {
+  n_colors <- length(categories)
+  if (is.character(color)) {
+    if (length(color) != n_colors && verbose) {
+      cli::cli_inform(c(
+        "i" = "{length(color)} colour{?s} for {n_colors} categor{?y/ies}: colours are {if (length(color) < n_colors) 'recycled' else 'truncated'}."
+      ))
+    }
+    colors_table <- data.table::data.table(categories, color = rep(color, length.out = n_colors))
+  } else if (is.data.frame(color)) {
+    colors_table <- data.table::as.data.table(color)
+    if (!"color" %in% names(colors_table)) {
+      data.table::setnames(colors_table, 2, "color")
+    }
+    data.table::setnames(colors_table, 1, "categories")
+    missing_categories <- setdiff(categories, colors_table$categories)
+    if (length(missing_categories) > 0) {
+      cli::cli_warn(c(
+        "{length(missing_categories)} categor{?y/ies} of {.field {column_to_color}} {cli::qty(length(missing_categories))}{?has/have} no colour in {.arg color}.",
+        "i" = "{cli::qty(length(missing_categories))}{?Its/Their} colour is missing."
+      ), call = call)
+    }
+    colors_table <- colors_table[, .(categories, color)]
+  } else if (is.null(color)) {
+    palette <- c(
+      grDevices::palette.colors(8, "ggplot2")[-1],
+      as.character(grDevices::palette.colors(8, "Okabe-Ito")[-c(1, 9)])
+    )
+    palette <- unname(palette[!duplicated(palette)])
+    if (n_colors > length(palette)) {
+      cli::cli_warn(c(
+        "{n_colors} categories but {length(palette)} default colours: colours are recycled.",
+        "i" = "Give a palette in {.arg color} (e.g. {.code scico::scico({n_colors}, palette = \"batlow\")})."
+      ), call = call)
+    }
+    colors_table <- data.table::data.table(categories, color = rep(palette, length.out = n_colors))
+  } else {
+    cli::cli_abort(
+      "{.arg color} must be {.code NULL}, a character vector of colours or a data frame.",
+      call = call
+    )
+  }
+  data.table::setnames(colors_table, "categories", column_to_color)
+  colors_table
+}
 
 #' @rdname color_networks
 #' @export
 #'
 color_alluvial <- function(alluv_dt,
                            column_to_color,
-                           color = NULL)
-{
-  . <- N  <- NULL
-
-  if(! inherits(alluv_dt, "data.frame")){
-    cli::cli_abort("Your {.field alluvial} data is not a data.frame.")
+                           color = NULL,
+                           verbose = TRUE) {
+  . <- N <- NULL
+  if (!is.data.frame(alluv_dt)) {
+    cli::cli_abort("{.arg alluv_dt} must be a data frame, as created by {.fn networks_to_alluv}.")
   }
-
-  variable_list <- data.table::as.data.table(alluv_dt) %>%
-    .[, .N, .(column_to_color),
-      env = list(column_to_color = column_to_color)] %>%
-    .[order(-N)] %>%
-    dplyr::pull(column_to_color)
-
-  n_colors <- length(variable_list)
-
-  # Second, we gather a list of color
-  if(inherits(color, "character")){
-    # Verify that the user have given the correct number of colors.
-    if(length(color) != n_colors){
-      cli::cli_alert_info("The number of colors provided is different from the number of categories to color.
-                        You need a vector with {.val {n_colors}} color(s). The function will proceed by repeating provided colors or remove unecessary ones.")
-    }
-    main_colors_table <- data.table::data.table(
-      categories = variable_list,
-      color = rep(color, length.out = n_colors))
-  } else {
-    if(inherits(color, "data.frame")){
-      # Verify that the user have given the correct number of colors.
-      if(length(color[[1]]) != n_colors){
-        cli::cli_alert_info("The length of the data.frame provided is different from the number of categories to color.
-                          You need a table with {.val {n_colors}} distinct values for {.emph {column_to_color}} and only one unique color per value of {.emph {column_to_color}}.
-                          {.val NA} is used for {.emph color} in case of missing categories to color.")
-      }
-      main_colors_table <- color
-    } else {
-      cli::cli_alert_info("{.field color} is neither a vector of color characters, nor a data.frame. We will proceed with base R colors.")
-      if(n_colors <= 7){ # 8 colors in ggplot2 but we remove the black one
-        color <- grDevices::palette.colors(n_colors + 1, "ggplot2")[-1] # remove the black
-        cli::cli_alert_info("We draw {.val {n_colors}} colors from the {.emph ggplot2} palette.")
-      } else if(n_colors <= 14){
-        color <- c(grDevices::palette.colors(8, "ggplot2")[-1],
-                   as.character(grDevices::palette.colors(n_colors - 6, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
-        cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and {.val {n_colors - 7}} colors from the {.emph Okabe-Ito} palette.")
-      } else {
-        color <- c(grDevices::palette.colors(7, "ggplot2")[-1],
-                   as.character(grDevices::palette.colors(8, "Okabe-Ito")[-1])) # 7 colors in Okabe-Ito other than Black (the first one) and the same gray as ggplot2
-        cli::cli_alert_info("We draw 7 colors from the {.emph ggplot2} palette and 7 from the {.emph Okabe-Ito} palette. As more than 14 colors are needed, the colors will be recycled.")
-      }
-      main_colors_table <- data.table::data.table(
-        categories = variable_list,
-        color = rep(color, length.out = n_colors))
-    }
-  }
-
-  # Third, we color the clusters, depending on the type of clusters
-  data.table::setnames(main_colors_table, "categories", column_to_color, skip_absent = TRUE)
-  alluv_dt <- alluv_dt %>%
-    dplyr::left_join(main_colors_table, by = column_to_color)
-
-  return(alluv_dt)
+  check_columns(alluv_dt, column_to_color, "alluv_dt")
+  categories <- data.table::as.data.table(alluv_dt)[, .N, by = column_to_color][order(-N)][[column_to_color]]
+  colors_table <- category_colors(categories, color, column_to_color, verbose = verbose)
+  alluv_dt <- data.table::copy(data.table::as.data.table(alluv_dt))
+  keys <- as.character(colors_table[[column_to_color]])
+  alluv_dt[, color := colors_table$color[match(as.character(get(column_to_color)), keys)]]
+  alluv_dt[]
 }
-

@@ -6,3 +6,9 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^vignettes$
+^CLAUDE\.md$
+^TODOLIST_DEV\.md$
+^README\.html$
+^\.vscode$
+^bench$

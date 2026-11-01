@@ -1,70 +1,89 @@
-#' Add Node Roles to Graphs
+#' Characterise the role of nodes within and between clusters
 #'
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' Adds node-level roles following
-#' \insertCite{guimera2005}{networkflow} to a tidygraph
-#' or a list of tidygraphs. The function computes within-module degree,
-#' participation coefficient, within-module z-score, and the seven role
-#' categories, and adds them as new node attributes.
+#' Two nodes of the same cluster can play very different roles: one may be
+#' tied to almost every member of its cluster, another may sit at the border
+#' and connect several clusters. `add_node_roles()` computes the two measures
+#' of the "functional cartography" of
+#' \insertCite{guimera2005;textual}{networkflow} and classifies each node into
+#' one of their seven roles.
+#'
+#' With \eqn{\kappa_i} the weight of the edges of node \eqn{i} towards its own
+#' cluster \eqn{s_i}, the **within-module degree** z-score measures how
+#' strongly \eqn{i} is connected to its cluster compared with the other
+#' members:
+#' \deqn{z_i = \frac{\kappa_i - \bar{\kappa}_{s_i}}{\sigma_{\kappa_{s_i}}}.}
+#' With \eqn{k_{is}} the weight of the edges of \eqn{i} towards cluster
+#' \eqn{s} and \eqn{k_i} its total weight, the **participation coefficient**
+#' is close to 0 when all the ties of \eqn{i} stay within one cluster, and
+#' close to 1 when they are spread evenly across clusters:
+#' \deqn{P_i = 1 - \sum_s \left( \frac{k_{is}}{k_i} \right)^2.}
+#'
+#' @param graphs A `tbl_graph` or a list of `tbl_graph`s with a cluster
+#'   column.
+#' @param module_col Character scalar, the node column with the clusters.
+#'   The default, `"dynamic_cluster_leiden"`, fits the output of
+#'   [merge_dynamic_clusters()]; use `"cluster_leiden"` after
+#'   [add_clusters()] alone.
+#' @param weight_col Character scalar, the edge column with the weights
+#'   (`"weight"` by default). Use a column of ones for an unweighted
+#'   analysis.
+#' @param z_threshold Number, the within-module z-score above which a node
+#'   is a hub (2.5, the value of Guimerà and Amaral).
 #'
 #' @details
-#' This function treats the graph as undirected. If your graph is directed, the function will ignore edge directions and compute roles based on the undirected version of the graph.
-#' The role classification is based on the within-module degree z-score and the participation coefficient, following the method proposed by Guimera and Amaral (2005).
-#' The `z_threshold` parameter can be adjusted to change the sensitivity of hub detection.
+#' The roles combine the two measures, with the thresholds of
+#' \insertCite{guimera2005;textual}{networkflow}:
 #'
-#' @param graphs
-#' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a
-#' list of tibble graphs.
+#' | Role | \eqn{z_i} | \eqn{P_i} |
+#' |---|---|---|
+#' | R1 ultra-peripheral | below `z_threshold` | below 0.05 |
+#' | R2 peripheral | below `z_threshold` | 0.05 to 0.62 |
+#' | R3 non-hub connector | below `z_threshold` | 0.62 to 0.80 |
+#' | R4 non-hub kinless | below `z_threshold` | above 0.80 |
+#' | R5 provincial hub | at least `z_threshold` | below 0.30 |
+#' | R6 connector hub | at least `z_threshold` | 0.30 to 0.75 |
+#' | R7 kinless hub | at least `z_threshold` | above 0.75 |
 #'
-#' @param module_col
-#' Name of the node column containing module/cluster identifiers.
+#' The original measures count edges; here they use the edge weights
+#' (strengths), which is the natural generalisation for weighted projected
+#' networks. The graph is treated as undirected. The thresholds were
+#' calibrated on biological networks: in small bibliometric networks, few
+#' nodes pass \eqn{z \geq 2.5}, and the measures are best read as continuous
+#' indicators (who are the central members of a literature, which articles
+#' bridge two literatures) rather than as categories.
 #'
-#' @param weight_col
-#' Name of the edge column containing weights.
-#'
-#' @param z_threshold
-#' Threshold for hub detection in the within-module z-score.
-#'
-#' @return The same tibble graph or list of tibble graphs as input, with
-#' added node columns: `within_module_degree` (within-module edge weight sum),
-#' `within_module_z` (within-module degree z-score),
-#' `participation_coeff` (participation coefficient across modules),
-#' `role_ga` (Guimera-Amaral role label).
-#'
-#' @examples
-#' library(networkflow)
-#'
-#' nodes <- networkflow::Nodes_stagflation |>
-#'   dplyr::filter(source_type == "Stagflation")
-#'
-#' references <- networkflow::Ref_stagflation
-#'
-#' temporal_networks <- build_dynamic_networks(nodes = nodes,
-#' directed_edges = references,
-#' source_id = "source_id",
-#' target_id = "target_id",
-#' time_variable = "source_year",
-#' cooccurrence_method = "coupling_similarity",
-#' time_window = 20,
-#' edges_threshold = 1,
-#' overlapping_window = TRUE,
-#' filter_components = TRUE,
-#' verbose = FALSE)
-#'
-#' temporal_networks <- add_clusters(temporal_networks,
-#' clustering_method = "leiden",
-#' objective_function = "modularity",
-#' verbose = FALSE)
-#'
-#' temporal_networks <- add_node_roles(temporal_networks,
-#' module_col = "cluster_leiden")
-#'
-#' temporal_networks[[1]]
+#' @return The same object as `graphs` with four new node columns:
+#'   `within_module_degree` (\eqn{\kappa_i}), `within_module_z`
+#'   (\eqn{z_i}, 0 when all members of the cluster have the same
+#'   \eqn{\kappa}), `participation_coeff` (\eqn{P_i}, 0 for isolated nodes)
+#'   and `role_ga` (the role).
 #'
 #' @references
 #'   \insertAllCited{}
+#'
+#' @examples
+#' network <- build_network(
+#'   nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+#'   directed_edges = Ref_stagflation,
+#'   source_id = "source_id",
+#'   target_id = "target_id",
+#'   projection_method = "structured",
+#'   cooccurrence_method = "coupling_similarity",
+#'   edges_threshold = 1
+#' )
+#' network <- add_clusters(
+#'   network,
+#'   clustering_method = "leiden",
+#'   objective_function = "modularity",
+#'   seed = 123,
+#'   verbose = FALSE
+#' )
+#'
+#' network <- add_node_roles(network, module_col = "cluster_leiden")
+#' table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
 #'
 #' @export
 add_node_roles <- function(
@@ -106,7 +125,7 @@ add_node_roles_one <- function(
 ) {
   . <- .node_id <- module <- module_from <- module_to <- node_id <- w <- k_i <- k_is <- kappa <- participation <- NULL
   within_module_z <- within_module_degree <- participation_coeff <- role_ga <- NULL
-  kappa_mean <- kappa_sd <- NULL
+  kappa_mean <- kappa_sd <- swapped_from <- swapped_to <- NULL
 
   # Check if the module column exists in the node data
   if (
@@ -174,13 +193,16 @@ add_node_roles_one <- function(
         module_to = module_to,
         w = ..weight
       ),
+    # The reversed copy of each edge. transmute() evaluates its arguments in
+    # order, so the two modules are swapped through new names, not in place.
     edges_tbl %>%
       dplyr::transmute(
         node_id = .to,
-        module_from = module_to,
-        module_to = module_from,
+        swapped_from = module_to,
+        swapped_to = module_from,
         w = ..weight
-      )
+      ) %>%
+      dplyr::rename(module_from = swapped_from, module_to = swapped_to)
   )
 
   # for each node, compute k_i

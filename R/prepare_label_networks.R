@@ -1,75 +1,79 @@
-
-#' Creating and Positioning Labels for Plotting Networks or Alluvial
+#' Position the labels of clusters in network and alluvial plots
 #'
 #' @description
-#' `prepare_label_networks()` creates a label column that make it easy to center label around particular clusters on the alluvial graph of intertemporal networks.
-#' `prepare_label_alluvial()`
+#' `prepare_label_networks()` computes, for each category of
+#' `cluster_label_column`, the mean coordinates of its nodes, where the label
+#' of the cluster will be drawn by [plot_networks()]: `label_x` and
+#' `label_y` are the centre of gravity of the cluster.
 #'
-#' @param graphs
-#' A tibble graph from [tidygraph](https://tidygraph.data-imaginist.com/) or a list of tibble
-#' graphs.
+#' `prepare_label_alluvial()` chooses the time window where the label of each
+#' cluster of an alluvial will be drawn: the median window of the windows
+#' where the cluster exists. The chosen row gets the label in a `label_x`
+#' column, which [plot_alluvial()] uses.
 #'
-#' @param alluv_dt
-#' A data.frame of an alluvial created with [networks_to_alluv()][networkflow::networks_to_alluv()].
+#' @param graphs A `tbl_graph` or a list of `tbl_graph`s with coordinates
+#'   (see [layout_networks()]).
+#' @param alluv_dt A data frame created with [networks_to_alluv()].
+#' @param x,y Character scalars, the node columns with the coordinates
+#'   (`"x"` and `"y"` by default).
+#' @param cluster_label_column Character scalar, the column with the labels:
+#'   `"cluster_label"` ([name_clusters()]) by default, or a cluster column.
+#' @param window_column Character scalar, the column of `alluv_dt` with the
+#'   time windows (`"window"` by default, as created by
+#'   [networks_to_alluv()]).
 #'
-#' @param x,y
-#' The columns of your tibble graph or list of tibble graphs
-#' with the x and y coordinates of your nodes (for instance, the coordinates
-#' produce by [layout_networks()][networkflow::layout_networks()]).
+#' @return `prepare_label_networks()`: the same object as `graphs` with node
+#'   columns `label_x` and `label_y`. `prepare_label_alluvial()`: `alluv_dt`
+#'   with a `label_x` column, holding the label on the rows of the chosen
+#'   window and missing elsewhere.
 #'
-#' @param cluster_label_column
-#' The column with the cluster label you want to display. By default, "cluster_label", as it is
-#' the default name of the column created with [name_clusters()][networkflow::name_clusters()].
-#' You may also use the cluster identifier created by [add_clusters()][networkflow::add_clusters()]
-#' for simple cluster, or by [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()] for
-#' inter-temporal clusters.
-#'
-#' @param window_column
-#' The column of the alluvial with your time window. By default, "window", as created by
-#' [networks_to_alluv()][networkflow::networks_to_alluv()].
-#'
+#' @examples
+#' network <- build_network(
+#'   nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+#'   directed_edges = Ref_stagflation,
+#'   source_id = "source_id",
+#'   target_id = "target_id",
+#'   projection_method = "structured",
+#'   cooccurrence_method = "coupling_similarity",
+#'   edges_threshold = 1
+#' )
+#' network <- add_clusters(
+#'   network,
+#'   clustering_method = "leiden",
+#'   objective_function = "modularity",
+#'   seed = 123,
+#'   verbose = FALSE
+#' )
+#' set.seed(1)
+#' network <- layout_networks(network, node_id = "source_id", layout = "fr")
+#' network <- prepare_label_networks(network, cluster_label_column = "cluster_leiden")
+#' unique(tidygraph::as_tibble(network, active = "nodes")[c("cluster_leiden", "label_x", "label_y")])
 #'
 #' @export
-#'
-
 prepare_label_networks <- function(graphs,
                                    x = "x",
                                    y = "y",
-                                   cluster_label_column = "cluster_label")
-{
-  . <- nodes <- label_x <- x <- label_y <- y <- label_column <- NULL
-
-  if(inherits(graphs, "list")){
-    graphs <- lapply(graphs,
-                     network_level_label,
-                     x_coordinate = x,
-                     y_coordinate = y,
-                     cluster_label_column = cluster_label_column)
-
-  } else{
-    if(inherits(graphs, "tbl_graph")){
-      graphs <- network_level_label(graphs,
-                                    cluster_label_column = cluster_label_column)
-    } else {
-      cli::cli_abort("Your {.field graphs} data is neither a tibble graph, nor a list of tibble graphs.")
-    }
-  }
-  return(graphs)
+                                   cluster_label_column = "cluster_label") {
+  single <- is_single_graph(graphs)
+  if (single) graphs <- list(graphs)
+  for (graph in graphs) check_columns(node_table(graph), c(x, y, cluster_label_column), "graphs")
+  graphs <- lapply(graphs, network_level_label, x_coordinate = x, y_coordinate = y,
+                   cluster_label_column = cluster_label_column)
+  if (single) graphs <- graphs[[1]]
+  graphs
 }
 
-network_level_label <- function(graph,
-                                x_coordinate = x,
-                                y_coordinate = y,
-                                cluster_label_column = cluster_label_column){
-  x <- y <- NULL
-
-  label_com <- graph %N>%
-    data.table::as.data.table() %>%
-    dplyr::group_by(dplyr::across({{cluster_label_column}})) %>%
-    dplyr::summarise(label_x = mean(eval(rlang::ensym(x_coordinate))),
-                     label_y = mean(eval(rlang::ensym(y_coordinate))))
-
-  graph <- graph %N>%
+# Centre of gravity of each cluster: the mean coordinates of its nodes.
+network_level_label <- function(graph, x_coordinate, y_coordinate, cluster_label_column) {
+  label_com <- node_table(graph) %>%
+    dplyr::group_by(.data[[cluster_label_column]]) %>%
+    dplyr::summarise(
+      label_x = mean(.data[[x_coordinate]]),
+      label_y = mean(.data[[y_coordinate]]),
+      .groups = "drop"
+    )
+  graph %N>%
+    dplyr::select(-dplyr::any_of(c("label_x", "label_y"))) %>%
     dplyr::left_join(label_com, by = cluster_label_column)
 }
 

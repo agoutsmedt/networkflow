@@ -3,28 +3,33 @@
 \docType{data}
 \name{Ref_stagflation}
 \alias{Ref_stagflation}
-\title{Articles and Books Explaining the 1970s US Stagflation.}
+\title{References cited by the documents explaining the 1970s US stagflation}
 \format{
-A data frame with 4416 rows and 6 variables:
+A data frame with 4,416 rows and 6 variables:
 \describe{
-\item{source_id}{Identifier of the citing document}
-\item{target_id}{Identifier of the cited document}
-\item{target_author}{Author of the cited document}
-\item{target_year}{Year of publication of the cited document}
-\item{target_title}{Title of the cited document}
-\item{target_journal}{Journal of publication of the cited document (if an article)}
+\item{source_id}{Identifier of the citing document.}
+\item{target_id}{Identifier of the cited document.}
+\item{target_author}{Author of the cited document.}
+\item{target_year}{Year of publication of the cited document.}
+\item{target_title}{Title of the cited document.}
+\item{target_journal}{Journal of the cited document, for articles.}
 }
 }
 \source{
-Goutsmedt A. (2020) “From Stagflation to the Great Inflation: Explaining the 1970s US Economic
-Situation”. Revue d’Economie Politique, Forthcoming 2021.
+\insertCite{goutsmedt2021;textual}{networkflow}.
 }
 \usage{
 Ref_stagflation
 }
 \description{
-A dataset containing all the articles and books cited by
-the books and academic articles endeavouring to explain
-what happened in the US economy in the 1970s.
+The direct citations of the corpus of
+\insertCite{goutsmedt2021;textual}{networkflow}: one row per link between
+a document of \link{Nodes_stagflation} explaining the stagflation and a
+document it cites. It is the bipartite relation that
+\code{\link[=build_network]{build_network()}} and \code{\link[=build_dynamic_networks]{build_dynamic_networks()}} project into a
+bibliographic coupling network.
+}
+\references{
+\insertAllCited{}
 }
 \keyword{datasets}

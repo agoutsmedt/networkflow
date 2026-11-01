@@ -1,29 +1,84 @@
+#' Order the clusters of an alluvial to reduce crossing flows
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
+#' In an alluvial plot, flows between clusters drawn far apart cross many
+#' other flows and make the plot unreadable. `minimize_crossing_alluvial()`
+#' computes an order of the clusters that places clusters exchanging many
+#' nodes next to each other. It is a heuristic, not an optimal solution to
+#' the crossing problem.
+#'
+#' The function builds a network of clusters: two clusters are tied when
+#' nodes move from one to the other between windows, with a cosine weight
+#' \eqn{n_{ab} / \sqrt{\bar{s}_a \bar{s}_b}}, \eqn{n_{ab}} being the number
+#' of moving nodes and \eqn{\bar{s}_a} the mean size of cluster \eqn{a} over
+#' its windows. It then removes the ties one by one, from the weakest to the
+#' strongest, and records at each step the connected component of each
+#' cluster. Clusters are ordered by this sequence of components: clusters
+#' that stay together until the strongest ties are removed end up side by
+#' side.
+#'
+#' @param alluv_dt A data frame created with [networks_to_alluv()].
+#' @param intertemporal_cluster_column Character scalar, the column with the
+#'   dynamic clusters.
+#' @param node_id Character scalar, the column with the node identifiers.
+#' @param window_column Character scalar, the column with the time windows
+#'   (`"window"` by default).
+#'
+#' @return `alluv_dt` with a new column `minimize_crossing_order`, the rank
+#'   of each cluster, that [plot_alluvial()] uses to order the blocks.
+#'
+#' @details
+#' The alluvial method (following clusters over time with `networks_to_alluv()`,
+#' `minimize_crossing_alluvial()` and `plot_alluvial()`) was initiated by
+#' Alexandre Truc.
+#'
+#' @examples
+#' networks <- build_dynamic_networks(
+#'   nodes = subset(Nodes_stagflation, source_type == "Stagflation"),
+#'   directed_edges = Ref_stagflation,
+#'   source_id = "source_id",
+#'   target_id = "target_id",
+#'   time_variable = "source_year",
+#'   time_window = 10,
+#'   cooccurrence_method = "coupling_similarity",
+#'   edges_threshold = 1,
+#'   verbose = FALSE
+#' )
+#' networks <- add_clusters(
+#'   networks,
+#'   clustering_method = "leiden",
+#'   objective_function = "modularity",
+#'   seed = 123,
+#'   verbose = FALSE
+#' )
+#' networks <- merge_dynamic_clusters(
+#'   networks,
+#'   cluster_id = "cluster_leiden",
+#'   node_id = "source_id",
+#'   threshold_similarity = 0.51,
+#'   similarity_type = "partial"
+#' )
+#' alluv_dt <- networks_to_alluv(
+#'   networks,
+#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   node_id = "source_id"
+#' )
+#'
+#' alluv_dt <- minimize_crossing_alluvial(
+#'   alluv_dt,
+#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   node_id = "source_id"
+#' )
+#' unique(alluv_dt[, c("dynamic_cluster_leiden", "minimize_crossing_order")])
+#'
+#' @export
 minimize_crossing_alluvial <- function(alluv_dt ,
                                        intertemporal_cluster_column = NULL,
                                        node_id = NULL,
                                        window_column = "window"){
 
-  #' Order the rectangles of the alluvial in a way that minimize crossing of flow
-  #'
-  #' This function transform the node_id into a factor ordered by a newly created column named "minimize_crossing_order".
-  #'
-  #' @param alluv_dt
-  #' Data.frame of the alluvial created using the networkflow::networks_to_alluv function
-  #'
-  #' @param intertemporal_cluster_column
-  #' The column with the identifier of the inter-temporal cluster. If you have used
-  #' [add_clusters()][networkflow::add_clusters()] and [merge_dynamic_clusters()][networkflow::merge_dynamic_clusters()],
-  #' it is of the form `dynamic_cluster_{clustering_method}`.
-  #'
-  #' @param node_id
-  #' The column with the unique identifier of each node. This is the alluvium of the alluvial.
-  #'
-  #' @param window_column
-  #' The column with your time windows.
-  #'
-  #'  @examples
-  #'
-  #' @export
 
   . <- N <- Origin <- Source <- Window <- cl_id <- cosine_strength <- fct_reorder <- head <- link_strength <- minimize_crossing_order <- nodes <- nodes_id <- order_column_raw <- tot_window_leiden_Origin <- tot_window_leiden_Source <- weight <- NULL
 

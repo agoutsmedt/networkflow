@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_dynamic_networks.R
 \name{build_dynamic_networks}
 \alias{build_dynamic_networks}
-\title{Build One or Multiple Networks from Bipartite Links}
+\title{Build one network, or one network per time window, from bipartite links}
 \usage{
 build_dynamic_networks(
   nodes,
@@ -26,130 +26,215 @@ build_dynamic_networks(
 )
 }
 \arguments{
-\item{nodes}{Table of nodes and their metadata. One row per node. For example, a table
-of articles with identifiers, authors, publication year, etc.}
+\item{nodes}{A data frame with one row per source entity (e.g. one row per
+article) and its metadata (authors, year, title...). Not modified.}
 
-\item{directed_edges}{Table of bipartite links between \code{source_id} nodes and
-\code{target_id} entities (e.g., article -> reference, author -> paper).}
+\item{directed_edges}{A data frame of bipartite links, one row per
+\code{source_id} -> \code{target_id} link (e.g. article -> cited reference).
+Duplicated links are counted once. Not modified.}
 
-\item{source_id}{Quoted name of the source-side node identifier.}
+\item{source_id}{Character scalar, the column identifying the entities that
+become the nodes of the network. It must exist in both \code{nodes} and
+\code{directed_edges}, with one row per value in \code{nodes}.}
 
-\item{target_id}{Quoted name of the target-side identifier linked to each source node.}
+\item{target_id}{Character scalar, the column of \code{directed_edges} with the
+entities that create the links (e.g. references).}
 
-\item{time_variable}{Optional name of the column with a temporal variable (e.g., publication year).}
+\item{time_variable}{Optional character scalar, a column of \code{nodes} with an
+integer time unit (e.g. the publication year). \code{NULL} builds a single
+network.}
 
-\item{time_window}{Optional size of the time window (in units of \code{time_variable}) to construct temporal networks.}
+\item{time_window}{Optional integer, the width of each window, in units of
+\code{time_variable}.}
 
-\item{projection_method}{method used to extract the network backbone. Choose between:
-\itemize{
-\item \code{"structured"}: uses cooccurrence measures from the \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} package;
-\item \code{"statistical"}: uses statistical models from the \href{https://github.com/zpneal/backbone}{backbone} package.
-Defaults to \code{"structured"}. The \code{"statistical"} method can be computationally slow on large networks.
-}}
+\item{projection_method}{\code{"structured"} (default) or \code{"statistical"}, see
+the description and the details.}
 
-\item{model}{Statistical null model from \href{https://github.com/zpneal/backbone}{backbone}:
-one of \code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"}.
-Required if \code{projection_method = "statistical"}.}
+\item{model}{For \code{projection_method = "statistical"}, the null model of
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}: \code{"sdsm"}, \code{"fdsm"},
+\code{"fixedfill"}, \code{"fixedrow"} or \code{"fixedcol"}.}
 
-\item{alpha}{Significance threshold for statistical backbone filtering. Required if
-\code{projection_method = "statistical"}. Lower values keep fewer edges.}
+\item{alpha}{For \code{projection_method = "statistical"}, the significance
+level of the test of each tie. Lower values keep fewer edges.}
 
-\item{cooccurrence_method}{For \code{projection_method = "structured"}, choose the coupling method:
-\itemize{
-\item \code{"coupling_angle"}
-\item \code{"coupling_strength"};
-\item \code{"coupling_similarity"}.
-}}
+\item{cooccurrence_method}{For \code{projection_method = "structured"}, the
+similarity measure used as edge weight: \code{"coupling_angle"},
+\code{"coupling_strength"} or \code{"coupling_similarity"} (see the details).
+There is no default: the choice must be explicit.}
 
-\item{edges_threshold}{Threshold used to filter weak edges in structured mode.}
+\item{edges_threshold}{For \code{projection_method = "structured"}, the minimum
+number of shared targets for two sources to be linked (1 by default).}
 
-\item{overlapping_window}{Logical. If \code{TRUE}, builds networks using rolling time windows.}
+\item{overlapping_window}{Logical. \code{FALSE} (default) cuts the period into
+successive windows (1975-1984, 1985-1994...); \code{TRUE} slides the window
+by one time unit (1975-1984, 1976-1985...).}
 
-\item{compute_size}{Logical. If \code{TRUE}, computes the number of incoming edges per node (e.g., citation count).}
+\item{compute_size}{Logical. If \code{TRUE}, adds a \code{node_size} column: the
+number of times each node is a target of the sources of the same window
+(for a coupling network, the number of citations received within the
+corpus). It requires \code{nodes} to contain the \code{target_id} column.}
 
-\item{keep_singleton}{Logical. If \code{FALSE}, removes nodes with no edges in the final network.}
+\item{keep_singleton}{Logical. If \code{FALSE} (default), nodes without any
+edge are removed.}
 
-\item{filter_components}{Logical. If \code{TRUE}, keeps only the main component(s) using \code{networkflow::filter_components()}.}
+\item{filter_components}{Logical. If \code{TRUE}, keeps only the main
+component(s) with \code{\link[=filter_components]{filter_components()}}.}
 
-\item{...}{Additional arguments passed to \code{filter_components()}.}
+\item{...}{Arguments passed to \code{\link[=filter_components]{filter_components()}} (e.g.
+\code{nb_components}).}
 
-\item{backbone_args}{Optional list of additional arguments passed to the
-backbone extraction call. If \code{backbone_args} includes \code{alpha} or \code{model},
-those values override function arguments.}
+\item{backbone_args}{Optional list of further arguments for
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}} (e.g. \code{mtc = "holm"} to correct
+for multiple tests). \code{alpha} or \code{model} given here override the
+arguments of the function.}
 
-\item{verbose}{Logical. If \code{TRUE}, displays progress messages.}
+\item{verbose}{Logical. If \code{TRUE} (default), reports the steps.}
 }
 \value{
-\itemize{
-\item A single tidygraph object if \code{time_window} is \code{NULL};
-\item A list of tidygraph objects (one per time window) otherwise.
-}
+A \code{tbl_graph} (undirected) if \code{time_variable} is \code{NULL};
+otherwise a list of \code{tbl_graph}s named after their window (e.g.
+\code{"1975-1984"}), in chronological order, whose nodes have a
+\code{time_window} column. Edges have a \code{weight} column for the structured
+method.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-\code{build_dynamic_networks()} builds one or several \code{tbl_graph} networks from a
-node table (\code{source_id}) and a bipartite link table (\code{source_id} -> \code{target_id}). \code{build_network()} is a wrapper for a single network.
+The first step of the networkflow pipeline. Research data rarely come as a
+network: they come as a table of links between two kinds of entities, such
+as articles and the references they cite, authors and the papers they sign,
+or accounts and the hashtags they use. \code{build_dynamic_networks()} \emph{projects}
+this two-mode (bipartite) relation onto the first kind of entity: two
+\code{source_id} entities (e.g. two articles) are linked when they share
+\code{target_id} entities (e.g. references). With \code{time_variable} and
+\code{time_window}, it builds one such network per time window, which is the
+starting point of a dynamic analysis.
 
-It supports two backbone extraction methods:
+Write \eqn{a_{ij} = 1} when source \eqn{i} is linked to target \eqn{j}. The
+raw strength of the tie between sources \eqn{i} and \eqn{k} is the number
+of targets they share,
+\deqn{c_{ik} = \sum_j a_{ij} a_{kj} = |R_i \cap R_k|,}
+with \eqn{R_i} the set of targets of \eqn{i}. When sources are citing
+documents and targets their references, this is bibliographic coupling
+\insertCite{kessler1963}{networkflow}. Swapping the roles (cited documents
+as \code{source_id}, citing documents as \code{target_id}) gives a co-citation
+network \insertCite{small1973}{networkflow}.
+
+Raw counts favour sources with many targets (articles with long
+bibliographies), and most pairs share a target or two by chance. The two
+\code{projection_method}s answer this problem in different ways:
 \itemize{
-\item structured filtering using coupling/cooccurrence measures from
-\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork};
-\item statistical filtering using null models from
-\href{https://github.com/zpneal/backbone}{backbone} \insertCite{neal2022}{networkflow}.
+\item \code{"structured"} normalises the counts with a bibliometric similarity
+measure computed by \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}
+and keeps the pairs sharing at least \code{edges_threshold} targets;
+\item \code{"statistical"} keeps only the ties that are stronger than expected
+under a null model of random co-occurrence, using the
+\href{https://github.com/zpneal/backbone}{backbone} package
+\insertCite{neal2014,neal2022}{networkflow}.
 }
-
-The function can build a single network or multiple networks across time windows.
 }
 \details{
-The function uses bipartite links (\code{source_id} -> \code{target_id}) to produce
-source-side networks.
+\strong{Similarity measures} (\code{projection_method = "structured"}). With
+\eqn{L_i = |R_i|} the number of targets of source \eqn{i}, \eqn{N} the
+number of sources and \eqn{f_j} the number of sources linked to target
+\eqn{j}, the three measures computed by biblionetwork are:
+\itemize{
+\item \code{"coupling_angle"}, the cosine of \insertCite{sen1983;textual}{networkflow}:
+\deqn{w_{ik} = \frac{|R_i \cap R_k|}{\sqrt{L_i L_k}};}
+\item \code{"coupling_strength"} \insertCite{vladutz1984,shen2019}{networkflow},
+where a shared target counts less when it is linked to many sources,
+in the spirit of an inverse document frequency:
+\deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};}
+\item \code{"coupling_similarity"}, inspired by \insertCite{shen2019;textual}{networkflow},
+which normalises the same weighted sum by the weighted size of each
+bibliography, \eqn{S_i = \sum_{j \in R_i} \log(N / f_j)}:
+\deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{S_i S_k}.}
+Warning: in biblionetwork 0.1.x, \eqn{S_i} is not computed as intended
+(all references get the weight of the first one, so that
+\eqn{S_i \propto L_i}), which makes \code{"coupling_similarity"}
+proportional to \code{"coupling_strength"}. Until this is fixed in
+biblionetwork, prefer \code{"coupling_strength"} or \code{"coupling_angle"}.
+}
 
-If \code{time_variable} and \code{time_window} are provided, it builds one network per
-time window (rolling or non-overlapping). Otherwise it builds a single network.
+Targets linked to a single source cannot create a tie and are dropped
+before the computation. The threshold applies to the raw count
+\eqn{|R_i \cap R_k|}, not to the weight: \code{edges_threshold = 2} keeps the
+pairs of articles that share at least two references, a common choice to
+remove ties that one shared classic is enough to create. The measures
+differ in how they treat very cited targets and long target lists; in
+practice, clusters are often robust to the choice, but it is worth
+checking on one's own data.
 
-\code{projection_method = "structured"} applies coupling/cooccurrence filtering.
-\code{projection_method = "statistical"} applies a statistical backbone model.
+\strong{Statistical backbones} (\code{projection_method = "statistical"}). Instead
+of fixing a threshold, the backbone approach asks, for each pair, whether
+the observed number of shared targets is larger than in random bipartite
+networks that preserve some properties of the observed one: the degrees of
+sources and targets on average (\code{"sdsm"}, the stochastic degree sequence
+model) or exactly (\code{"fdsm"}), or only the total number of links
+(\code{"fixedfill"}) \insertCite{neal2014,domagalski2021}{networkflow}. Edges
+are kept when the test is significant at level \code{alpha}; the resulting
+network is unweighted. This is slower, but each edge can be read as a tie
+unlikely to be due to chance.
+
+\strong{Time windows.} A window starting in year \eqn{s} gathers the nodes with
+\eqn{s \le t < s + w}, \eqn{w} being \code{time_window}, and only the links of
+these nodes: each network is computed as if the corpus were limited to the
+window. Sliding windows (\code{overlapping_window = TRUE}) smooth the evolution
+of the networks, at the price of many networks sharing most of their
+nodes; successive windows give independent snapshots. When the period is
+not a multiple of \code{time_window}, the last successive window is shorter and
+a warning is given. The choice of the window is substantive: it should be
+long enough for each network to have enough nodes (a few dozen at least)
+to show a structure, and short enough for changes to be visible.
 }
 \examples{
-library(networkflow)
+nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
 
-nodes <- networkflow::Nodes_stagflation |>
-  dplyr::filter(source_type == "Stagflation")
-
-references <- networkflow::Ref_stagflation
-
-# Structured backbone (cooccurrence)
-net_structured <- build_dynamic_networks(
-nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-time_window = 20,
-projection_method = "structured",
-cooccurrence_method = "coupling_similarity",
-edges_threshold = 1
+# Bibliographic coupling networks of the articles explaining the 1970s
+# stagflation, one per decade
+networks <- build_dynamic_networks(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 10,
+  projection_method = "structured",
+  cooccurrence_method = "coupling_similarity",
+  edges_threshold = 1,
+  verbose = FALSE
 )
+names(networks)
+networks[[1]]
 
-# Statistical backbone (backbone package)
-net_statistical <- build_dynamic_networks(
-nodes = nodes,
-directed_edges = references,
-source_id = "source_id",
-target_id = "target_id",
-time_variable = "source_year",
-time_window = 20,
-projection_method = "statistical",
-model = "sdsm",
-alpha = 0.05,
-backbone_args = list(mtc = "holm")
+\donttest{
+# Statistical backbone: keep the ties that random networks with the same
+# degrees would rarely produce
+if (requireNamespace("backbone", quietly = TRUE)) {
+backbones <- build_dynamic_networks(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  time_variable = "source_year",
+  time_window = 20,
+  projection_method = "statistical",
+  model = "sdsm",
+  alpha = 0.05,
+  backbone_args = list(mtc = "holm"),
+  verbose = FALSE
 )
+}
+}
 
 }
 \references{
 \insertAllCited{}
 }
 \seealso{
-\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[backbone:backbone]{backbone::backbone()}}
+\code{\link[=build_network]{build_network()}} for a single network;
+\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[biblionetwork:coupling_strength]{biblionetwork::coupling_strength()}},
+\code{\link[biblionetwork:coupling_similarity]{biblionetwork::coupling_similarity()}}, \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}.
+The next steps of the pipeline are \code{\link[=add_clusters]{add_clusters()}} and
+\code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}.
 }

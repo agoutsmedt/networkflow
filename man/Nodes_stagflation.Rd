@@ -3,30 +3,37 @@
 \docType{data}
 \name{Nodes_stagflation}
 \alias{Nodes_stagflation}
-\title{Articles and Books Explaining the 1970s US Stagflation.}
+\title{Documents explaining the 1970s US stagflation, and the documents they cite}
 \format{
 A data frame with 654 rows and 7 variables:
 \describe{
-\item{source_id}{Identifier of the document}
-\item{source_author}{Author of the document}
-\item{source_label}{Use this as a label for nodes}
-\item{source_year}{Year of publication of the document}
-\item{source_title}{Title of the document}
-\item{source_journal}{Journal of publication of the document (if an article)}
-\item{source_type}{If "Stagflation", the document is listed as an explanation of the US stagflation.
-If "Non-Stagflation", the document is cited by a document explaining the stagflation}
+\item{source_id}{Identifier of the document.}
+\item{source_author}{First author of the document (see
+\link{Authors_stagflation} for all authors).}
+\item{source_label}{Short label (author and year), for plots.}
+\item{source_year}{Year of publication, as a character string.}
+\item{source_title}{Title of the document.}
+\item{source_journal}{Journal of publication, for articles.}
+\item{source_type}{\code{"Stagflation"} for the documents explaining the
+stagflation, \code{"Non-Stagflation"} for the documents they cite.}
 }
 }
 \source{
-Goutsmedt A. (2020) “From Stagflation to the Great Inflation: Explaining the 1970s US Economic
-Situation”. Revue d’Economie Politique, Forthcoming 2021.
+\insertCite{goutsmedt2021;textual}{networkflow}.
 }
 \usage{
 Nodes_stagflation
 }
 \description{
-A dataset containing the books and academic articles endeavouring to explain
-what happened in the US economy in the 1970s, as well as all the articles and books
-cited at least twice by the first set of articles and books (on the stagflation).
+The corpus of \insertCite{goutsmedt2021;textual}{networkflow}: the 174
+books and academic articles that tried to explain the US stagflation of
+the 1970s, published from 1975 to 2013 (\code{source_type == "Stagflation"}),
+and the 480 documents cited at least twice by them (\code{"Non-Stagflation"}).
+With \link{Ref_stagflation}, it is the example data of the package: the
+explanations are the nodes of a bibliographic coupling network, linked by
+the references they share.
+}
+\references{
+\insertAllCited{}
 }
 \keyword{datasets}

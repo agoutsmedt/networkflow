@@ -10,3 +10,8 @@ docs
 
 AGENTS.md
 
+
+# Private working files (kept locally, not pushed)
+CLAUDE.md
+TODOLIST_DEV.md
+.vscode/

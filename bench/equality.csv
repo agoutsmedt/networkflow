@@ -1,0 +1,4 @@
+"documents","identical_networks","ari_window_clusters","ari_dynamic_clusters","identical_labels","share_identical_roles","identical_alluvial_rows"
+2000,TRUE,1,0.999999999999999,TRUE,0.850655021834061,TRUE
+8000,TRUE,1,1,TRUE,0.779009849324897,TRUE
+20000,TRUE,1,1,TRUE,0.74784099002849,TRUE
