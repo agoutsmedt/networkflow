@@ -8,9 +8,10 @@
 #' window) that the next step enriches.
 #'
 #' * **Building networks**: [build_network()], [build_dynamic_networks()]
-#'   (bibliographic coupling and other projections, with similarity measures
-#'   from biblionetwork or statistical backbones from backbone, one network
-#'   per time window), [filter_components()].
+#'   (bibliographic coupling, co-citation, coupling of authors and other
+#'   projections of two-mode tables, with similarity measures from
+#'   biblionetwork or statistical backbones from backbone, one network per
+#'   time window), [filter_components()].
 #' * **Finding and reading clusters**: [add_clusters()] (Leiden, Louvain,
 #'   Infomap...), [merge_dynamic_clusters()] (following clusters across
 #'   windows), [name_clusters()], [extract_tfidf()], [add_node_roles()].

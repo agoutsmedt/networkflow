@@ -71,8 +71,8 @@ In a network of documents (e.g. bibliographic coupling), each document has
 a single date, so successive windows (\code{overlapping_window = FALSE} in
 \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}) share no node and no cluster can be matched:
 use sliding windows. Successive windows work when nodes persist over
-time, as authors, journals or cited references (in a co-citation
-network) do.
+time, as cited references (co-citation), authors or journals do; two
+windows may still share no node when the literature changed completely.
 
 \strong{Complete or partial?} With sliding windows, the network of window
 \eqn{t} loses the documents of the first year of window \eqn{t-1} and

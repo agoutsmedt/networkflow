@@ -69,6 +69,11 @@ network_level_filtering <- function(graph,
                                     keep_component_columns) {
   components_att <- size_components <- NULL
 
+  # An empty network (a window without any edge) has no component.
+  if (igraph::vcount(graph) == 0) {
+    return(graph)
+  }
+
   # Components numbered by decreasing size (1 is the largest), and the share
   # of the nodes of the graph in each.
   graph <- graph %N>%

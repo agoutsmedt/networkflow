@@ -18,6 +18,28 @@
 - `build_dynamic_networks()` keeps `node_size` computed by `compute_size`
   instead of duplicating an existing `node_size` column.
 
+## New features
+
+- Co-citation: `build_network()` and `build_dynamic_networks()` gain
+  `projection_on = "target"`, which links the `target_id` entities that
+  share `source_id` entities (e.g. cited works linked when cited together).
+- `time_in = "edges"`: the time variable can be a column of the table of
+  links (e.g. the year of the citing document), so that windows follow the
+  citing documents (co-citation) or the documents of entities without a
+  date (authors). Successive windows can then be matched, since nodes persist.
+- `document_id`: coupling of entities that publish documents (authors,
+  journals, institutions), counting the documents that cite each reference,
+  through `biblionetwork::coupling_entity()`.
+- `compute_size` counts the citing documents of each node when the nodes
+  are linked through their own links (co-citation, `time_in = "edges"`).
+- A fourth guide, "Beyond bibliographic coupling", shows co-citation, author
+  coupling and co-authorship, and explains why the identifiers of
+  references matter.
+- Windows without any edge give an empty network (with a warning) that
+  `filter_components()`, `add_clusters()` and the following steps accept;
+  nodes or links with a missing time are dropped with a warning (they used
+  to make the function fail).
+
 ## Removed
 
 - The deprecated functions are removed: `community_colors()`,

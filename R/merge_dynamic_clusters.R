@@ -47,8 +47,8 @@
 #' a single date, so successive windows (`overlapping_window = FALSE` in
 #' [build_dynamic_networks()]) share no node and no cluster can be matched:
 #' use sliding windows. Successive windows work when nodes persist over
-#' time, as authors, journals or cited references (in a co-citation
-#' network) do.
+#' time, as cited references (co-citation), authors or journals do; two
+#' windows may still share no node when the literature changed completely.
 #'
 #' **Complete or partial?** With sliding windows, the network of window
 #' \eqn{t} loses the documents of the first year of window \eqn{t-1} and
@@ -154,7 +154,7 @@ merge_dynamic_clusters <- function(list_graph,
   if (any(shared == 0)) {
     cli::cli_warn(c(
       "{sum(shared == 0)} pair{?s} of consecutive windows share no node: their clusters cannot be matched.",
-      "i" = "With networks of documents, use sliding windows ({.code overlapping_window = TRUE} in {.fn build_dynamic_networks})."
+      "i" = "Clusters are matched through the nodes they share. In a network of documents (coupling), each node has one date: use sliding windows ({.code overlapping_window = TRUE} in {.fn build_dynamic_networks}). If windows already slide, the nodes may have changed completely, or the threshold may leave a window without edges."
     ))
   }
 

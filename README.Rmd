@@ -32,6 +32,13 @@ what they share. networkflow turns such tables into networks, finds the
 communities they contain, follows these communities over time, and helps
 name, draw and explore them.
 
+The pipeline is not specific to citations: any table of links between two
+kinds of entities can be projected onto one of them. Besides bibliographic
+coupling, the guides show co-citation (cited works linked when they are
+cited together), the coupling of authors instead of articles, and
+co-authorship; the same logic applies to accounts and the hashtags they
+use, or to members and the boards they sit on.
+
 The package was written for, and used in, research on the history and
 sociology of science, where bibliographic coupling networks (articles
 linked by the references they share) map the research fronts of a
@@ -113,7 +120,7 @@ rules. The guides below show how to follow this change window by window.
 
 ## Guides
 
-Three guides, written around the same example, follow the steps of a
+Four guides, written around the same example, follow the steps of a
 study. Each explains the method behind the step, with the literature it
 comes from, before showing the code.
 
@@ -128,6 +135,10 @@ comes from, before showing the code.
 - [Following clusters over time](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.html)
   links the clusters of successive windows into dynamic clusters and draws
   their history as an alluvial plot.
+- [Beyond bibliographic coupling](https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.html)
+  uses the same pipeline for co-citation, for authors instead of
+  articles and for any two-mode table, and explains why the identifiers of
+  references matter.
 
 ## What is in the package
 

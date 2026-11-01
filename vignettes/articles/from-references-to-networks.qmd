@@ -146,12 +146,20 @@ documents of the corpus, says less about two explanations of the
 stagflation than sharing a reference cited by only two: the second and
 third measures encode this idea.
 
-All measures assume that a reference has a single identifier. Raw citation
-data rarely guarantee it: in `Ref_stagflation`, Friedman's 1968 "The Role
-of Monetary Policy" appears under several spellings, hence several
-`target_id`s, and two documents citing it under different spellings do not
-share it. Cleaning and matching references before building the network
-matters as much as the choice of the measure.
+All measures assume that a work has a single identifier. Raw citation
+strings do not guarantee it: in `Ref_stagflation`, Friedman's 1968 "The Role
+of Monetary Policy" is written with six different author strings and two
+titles. Here this is harmless, because the data come with a `target_id`
+that the database assigned to each cited work: the 20 citations share the
+same identifier, and the documents citing it are coupled. Without such an
+identifier, each spelling would be a different reference, and two documents
+citing the same work in different ways would not share it. Even with
+identifiers, matching is never perfect: about 1.5% of the works of
+`Ref_stagflation` (28 of 1,856 distinct titles, after removing punctuation
+and comparing with the year) are attached to more than one `target_id`. Check the most
+cited references for duplicates before building a network, and clean them
+when they matter: the [last guide](beyond-bibliographic-coupling.html)
+explains why this matters most for co-citation.
 
 How different are the measures in practice? We compute the three networks
 and compare the weights of the same pairs.

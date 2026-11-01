@@ -107,3 +107,22 @@ test_that("a summary is reported when verbose", {
 test_that("Leiden iterates until the partition is stable by default", {
   expect_equal(eval(formals(add_clusters)$n_iterations), -1)
 })
+
+test_that("graphs without any edge get one cluster per node, and empty graphs no cluster", {
+  edgeless <- tidygraph::tbl_graph(nodes = data.frame(id = c("a", "b")), edges = data.frame(from = integer(0), to = integer(0)))
+  clustered <- add_clusters(edgeless, clustering_method = "leiden", objective_function = "modularity", verbose = FALSE)
+  expect_equal(node_table(clustered)$cluster_leiden, c("01", "02"))
+  empty <- tidygraph::tbl_graph(nodes = data.frame(id = character(0)), edges = data.frame(from = integer(0), to = integer(0)))
+  for (method in c("leiden", "louvain")) {
+    result <- add_clusters(empty, clustering_method = method, objective_function = "modularity", verbose = FALSE)
+    expect_equal(igraph::vcount(result), 0)
+    expect_true(paste0("cluster_", method) %in% names(node_table(result)))
+  }
+})
+
+test_that("a list with an empty window is clustered", {
+  empty <- tidygraph::tbl_graph(nodes = data.frame(id = character(0)), edges = data.frame(from = integer(0), to = integer(0)))
+  result <- add_clusters(list(w1 = toy_graph(), w2 = empty), clustering_method = "leiden",
+                         objective_function = "modularity", seed = 1)
+  expect_equal(vapply(result, igraph::vcount, numeric(1)), c(w1 = 6, w2 = 0))
+})

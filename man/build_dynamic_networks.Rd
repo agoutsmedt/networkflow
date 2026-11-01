@@ -22,7 +22,10 @@ build_dynamic_networks(
   filter_components = FALSE,
   ...,
   backbone_args = list(),
-  verbose = TRUE
+  verbose = TRUE,
+  projection_on = c("source", "target"),
+  time_in = c("nodes", "edges"),
+  document_id = NULL
 )
 }
 \arguments{
@@ -89,6 +92,28 @@ for multiple tests). \code{alpha} or \code{model} given here override the
 arguments of the function.}
 
 \item{verbose}{Logical. If \code{TRUE} (default), reports the steps.}
+
+\item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
+that share \code{target_id} entities (bibliographic coupling: articles
+sharing references). \code{"target"} links the \code{target_id} entities that
+share \code{source_id} entities (co-citation: cited documents linked when
+they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
+by \code{target_id}.}
+
+\item{time_in}{\code{"nodes"} (default): \code{time_variable} is a column of \code{nodes}
+and a window selects the nodes of the period. \code{"edges"}: \code{time_variable}
+is a column of \code{directed_edges} (e.g. the year of the citing document)
+and a window selects the links of the period, the nodes being those with
+a link in the window. Use \code{"edges"} for co-citation, whose period is the
+one of the citing documents, and for entities without a date of their
+own (authors).}
+
+\item{document_id}{Optional column of \code{directed_edges} identifying the
+document through which each link exists. With it, \code{source_id} entities
+are not documents but \emph{entities that publish documents} (authors,
+journals, institutions) and a reference cited by several documents of an
+entity counts several times, following
+\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
 }
 \value{
 A \code{tbl_graph} (undirected) if \code{time_variable} is \code{NULL};
@@ -186,6 +211,33 @@ not a multiple of \code{time_window}, the last successive window is shorter and
 a warning is given. The choice of the window is substantive: it should be
 long enough for each network to have enough nodes (a few dozen at least)
 to show a structure, and short enough for changes to be visible.
+
+\strong{Beyond bibliographic coupling.} Nothing in the function is specific to
+citations. The two sides of the links can be any two kinds of entities:
+\itemize{
+\item \emph{Co-citation} \insertCite{small1973}{networkflow}: with \code{projection_on = "target"}, cited documents are linked when the same documents cite them.
+Windows should follow the citing documents: put their year in
+\code{directed_edges} and use \code{time_in = "edges"}.
+\item \emph{Author (or journal, institution) coupling}
+\insertCite{zhao2008}{networkflow}: with \code{document_id}, authors are linked
+when the documents they sign cite the same references.
+\item \emph{Co-authorship and other co-occurrences}: authors and the documents they
+sign, accounts and the hashtags they use, members and the boards they
+sit on: any two-mode table.
+}
+
+\strong{Identifiers of references.} Every measure assumes that one work has one
+identifier. With raw bibliographic data, the same reference is often
+written in several ways (spelling, abbreviations, missing years), each
+spelling becomes a different \code{target_id}, and two documents citing the
+same work in different ways no longer share it. This matters most for
+co-citation, where cited works are the nodes: a work split into several
+spellings is split into several nodes, each with a fraction of its
+citations. It matters less when the database gives an identifier to each
+cited reference (e.g. the identifiers of Scopus, OpenAlex or Web of
+Science), but even then references that the database could not match are
+missing or duplicated. Clean and match references before building
+networks, and check the most cited nodes for duplicates.
 }
 \examples{
 nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
@@ -198,7 +250,7 @@ networks <- build_dynamic_networks(
   source_id = "source_id",
   target_id = "target_id",
   time_variable = "source_year",
-  time_window = 10,
+  time_window = 13,
   projection_method = "structured",
   cooccurrence_method = "coupling_similarity",
   edges_threshold = 1,
@@ -206,6 +258,49 @@ networks <- build_dynamic_networks(
 )
 names(networks)
 networks[[1]]
+
+# Co-citation: cited documents linked when the same documents cite them,
+# with windows on the year of the citing documents
+citations <- merge(
+  transform(Ref_stagflation[, c("source_id", "target_id")],
+            source_id = as.character(source_id), target_id = as.character(target_id)),
+  nodes[, c("source_id", "source_year")],
+  by = "source_id"
+)
+cited <- Ref_stagflation[!duplicated(Ref_stagflation$target_id),
+                         c("target_id", "target_author", "target_year")]
+cocitation <- build_dynamic_networks(
+  nodes = transform(cited, target_id = as.character(target_id)),
+  directed_edges = citations,
+  source_id = "source_id",
+  target_id = "target_id",
+  projection_on = "target",
+  time_in = "edges",
+  time_variable = "source_year",
+  time_window = 13,
+  cooccurrence_method = "coupling_angle",
+  edges_threshold = 2,
+  compute_size = TRUE,
+  verbose = FALSE
+)
+cocitation[[1]]
+
+# Authors linked by the references of the documents they sign
+by_author <- merge(
+  transform(Authors_stagflation, source_id = as.character(source_id)),
+  citations, by = "source_id"
+)
+author_coupling <- build_network(
+  nodes = data.frame(author_name = unique(by_author$author_name)),
+  directed_edges = by_author,
+  source_id = "author_name",
+  target_id = "target_id",
+  document_id = "source_id",
+  projection_method = "structured",
+  cooccurrence_method = "coupling_strength",
+  edges_threshold = 2
+)
+author_coupling
 
 \donttest{
 # Statistical backbone: keep the ties that random networks with the same

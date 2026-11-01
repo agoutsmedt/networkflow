@@ -25,6 +25,9 @@ test_that("settings add layout, colours and constant sizes", {
 
 test_that("the arguments are checked", {
   skip_if_not_installed("shiny")
+  skip_if_not_installed("ggiraph")
+  skip_if_not_installed("DT")
+  skip_if_not_installed("shinycssloaders")
   expect_error(
     launch_network_app(data.frame(x = 1), cluster_id = "c", cluster_information = "x", node_id = "id"),
     "tbl_graph"

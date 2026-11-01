@@ -254,12 +254,19 @@ rank_by_size <- function(membership) {
 detect_cluster <- function(graph, weights, clustering_method, objective_function,
                            resolution, n_iterations, n_groups, node_weights,
                            trials, steps) {
-  membership <- cluster_membership(
-    graph, weights, clustering_method, objective_function, resolution,
-    n_iterations, n_groups, node_weights, trials, steps
-  )
+  # Without edge there is nothing to detect: every node is its own cluster
+  # (and an empty graph, e.g. a window without any edge, has no cluster).
+  membership <- if (igraph::ecount(graph) == 0) {
+    seq_len(igraph::vcount(graph))
+  } else {
+    cluster_membership(
+      graph, weights, clustering_method, objective_function, resolution,
+      n_iterations, n_groups, node_weights, trials, steps
+    )
+  }
   membership <- sprintf("%02d", rank_by_size(membership))
   size <- as.vector(table(membership)[membership]) / length(membership)
+  if (length(membership) == 0) size <- numeric(0)
 
   cluster_col <- paste0("cluster_", clustering_method)
   size_col <- paste0("size_cluster_", clustering_method)
@@ -285,7 +292,7 @@ report_clusters <- function(graphs, clustering_method) {
   cluster_col <- paste0("cluster_", clustering_method)
   size_col <- paste0("size_cluster_", clustering_method)
   n_clusters <- vapply(graphs, function(g) length(unique(node_table(g)[[cluster_col]])), integer(1))
-  max_size <- vapply(graphs, function(g) max(node_table(g)[[size_col]]), numeric(1))
+  max_size <- vapply(graphs, function(g) suppressWarnings(max(node_table(g)[[size_col]], 0)), numeric(1))
   if (length(graphs) == 1) {
     cli::cli_inform(c(
       "i" = "{.val {clustering_method}} found {n_clusters} cluster{?s}; the largest gathers {round(100 * max_size, 1)}% of the nodes."

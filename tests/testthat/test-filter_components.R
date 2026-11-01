@@ -32,3 +32,9 @@ test_that("a list of graphs is filtered graph by graph, and the result is visibl
 test_that("a wrong input gives an informative error", {
   expect_error(filter_components(data.frame(x = 1)), "tbl_graph")
 })
+
+test_that("an empty network is returned as it is", {
+  empty <- tidygraph::tbl_graph(nodes = data.frame(id = character(0)), edges = data.frame(from = integer(0), to = integer(0)))
+  expect_no_error(result <- filter_components(empty))
+  expect_equal(igraph::vcount(result), 0)
+})

@@ -16,9 +16,10 @@ window) that the next step enriches.
 \details{
 \itemize{
 \item \strong{Building networks}: \code{\link[=build_network]{build_network()}}, \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}
-(bibliographic coupling and other projections, with similarity measures
-from biblionetwork or statistical backbones from backbone, one network
-per time window), \code{\link[=filter_components]{filter_components()}}.
+(bibliographic coupling, co-citation, coupling of authors and other
+projections of two-mode tables, with similarity measures from
+biblionetwork or statistical backbones from backbone, one network per
+time window), \code{\link[=filter_components]{filter_components()}}.
 \item \strong{Finding and reading clusters}: \code{\link[=add_clusters]{add_clusters()}} (Leiden, Louvain,
 Infomap...), \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} (following clusters across
 windows), \code{\link[=name_clusters]{name_clusters()}}, \code{\link[=extract_tfidf]{extract_tfidf()}}, \code{\link[=add_node_roles]{add_node_roles()}}.
