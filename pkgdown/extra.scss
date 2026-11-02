@@ -1,0 +1,94 @@
+/*-- scss:rules --*/
+
+// Shared design of the author's package sites (networkflow, biblionetwork,
+// mintR...). Only the three --pkg-* variables change from one package to
+// the next. Palettes: scico "roma" for the neutrals and accents, with
+// Hockney (pool blues, acid greens) and Otto Dix (ochre, brick, olive) for
+// the other packages:
+//   networkflow   roma blue   light #2169B0  dark #77D1D7
+//   biblionetwork roma brick  light #9C3A12  dark #E0A25A
+//   mintR         Hockney pool light #1B6F6A  dark #7FD6C2
+// Next ones: Dix ochre #B58B31 / #E3C06B; Hockney magenta #B0307A / #F08CC0.
+
+:root {
+  --pkg-accent: #2169B0;
+  --pkg-accent-soft: #E3EDF8;
+  --pkg-warm: #B58B31;          // roma ochre, used for rules and highlights
+}
+
+// Light and dark are mirror images: the same two inks swap roles
+// (navy ink on cream in light mode, cream ink on navy in dark mode), and
+// accents are the same hues moved up in lightness for the dark ground.
+[data-bs-theme="dark"] {
+  --pkg-accent: #6FA8E0;        // roma blue, lightened
+  --pkg-accent-soft: #1B3358;
+  --pkg-warm: #D9B45A;          // roma ochre, lightened
+  --bs-body-bg: #0F1B33;        // = navbar navy, darkened
+  --bs-body-color: #F1EDE2;     // = light-mode cream
+  --bs-link-color: #6FA8E0;
+  --bs-link-hover-color: #F0C987;
+  --bs-border-color: #2B3F66;
+  --bs-secondary-bg: #16264A;
+  --bs-tertiary-bg: #13213F;
+  --bs-code-color: #F0A98E;     // light-mode brick, lightened
+}
+
+[data-bs-theme="light"], :root:not([data-bs-theme="dark"]) {
+  --bs-body-bg: #F4F1E8;
+  --bs-body-color: #14284B;     // = navbar navy
+  --bs-link-color: var(--pkg-accent);
+  --bs-link-hover-color: #7E1700;
+  --bs-border-color: #CFC8B4;
+  --bs-code-color: #8A2D12;
+  --bs-secondary-bg: #E9E4D6;
+  --bs-tertiary-bg: #EFEBDF;
+}
+
+// Navbar: dark in both modes so that the white text always has contrast.
+.navbar {
+  border-bottom: 3px solid var(--pkg-accent);
+  --bs-navbar-color: #F3EFE4;
+  --bs-navbar-hover-color: #FFFFFF;
+  --bs-navbar-active-color: #FFFFFF;
+}
+.navbar { background-color: #14284B !important; }
+.navbar .nav-link { font-weight: 600; }
+.navbar .nav-link.active, .navbar .nav-link:hover {
+  box-shadow: inset 0 -3px 0 var(--pkg-warm);
+}
+
+// Headings
+h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.01em; }
+h2 { padding-bottom: 0.25rem; border-bottom: 2px solid var(--pkg-warm); }
+h1 { color: var(--pkg-accent); }
+
+// Sidebar and table of contents
+#toc .nav-link.active, #pkgdown-sidebar .nav-link.active {
+  color: var(--pkg-accent); border-left-color: var(--pkg-accent);
+}
+.template-home .developers, .template-home .dev-status {
+  border-left: 3px solid var(--pkg-warm); padding-left: 0.75rem;
+}
+
+// Code and tables
+pre, div.sourceCode {
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-left: 4px solid var(--pkg-accent);
+  border-radius: 0.375rem;
+}
+code { background: var(--pkg-accent-soft); border-radius: 0.25rem; padding: 0.1em 0.3em; }
+pre code { background: transparent; padding: 0; }
+table { border-collapse: collapse; }
+thead th { border-bottom: 2px solid var(--pkg-accent); }
+
+// Buttons and badges
+.btn-primary, .badge.bg-primary {
+  --bs-btn-bg: var(--pkg-accent); --bs-btn-border-color: var(--pkg-accent);
+}
+[data-bs-theme="dark"] .btn-primary { --bs-btn-color: #0F1B33; }
+
+// Images (plots drawn on white stay readable in dark mode)
+[data-bs-theme="dark"] img.figure-img, [data-bs-theme="dark"] .contents img {
+  border-radius: 0.375rem; background: #F4F1E8;
+}

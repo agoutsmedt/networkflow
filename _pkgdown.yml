@@ -1,11 +1,18 @@
 url: https://agoutsmedt.github.io/networkflow/
 template:
   bootstrap: 5
-  bootswatch: slate
+  light-switch: true        # light / dark / auto toggle in the navbar
   bslib:
-    primary: "#2c5d8a"
+    # Accent of the package: the blue end of scico "roma". The same
+    # structure is used in the sibling packages, each with its own accent
+    # (see pkgdown/extra.scss).
+    primary: "#2169B0"
+    secondary: "#7E1700"
+    bg: "#F4F1E8"
+    fg: "#14284B"
+    navbar-bg: "#14284B"
     base_font: {google: "Source Sans 3"}
-    heading_font: {google: "Source Sans 3"}
+    heading_font: {google: "Source Serif 4"}
     code_font: {google: "JetBrains Mono"}
 
 home:
