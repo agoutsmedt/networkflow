@@ -26,6 +26,8 @@ License: MIT + file LICENSE
 URL: https://github.com/agoutsmedt/networkflow,
     https://agoutsmedt.github.io/networkflow/
 BugReports: https://github.com/agoutsmedt/networkflow/issues
+Remotes:
+    agoutsmedt/biblionetwork
 Depends:
     R (>= 4.1.0)
 Imports:
