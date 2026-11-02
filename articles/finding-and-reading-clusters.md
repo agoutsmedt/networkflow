@@ -82,8 +82,8 @@ sort(table(node_table$cluster_leiden), decreasing = TRUE)
 ```
 
 
-    01 02 03 04 05 06
-    53 33 17 16 16 12 
+    01 02 03 04
+    69 51 18  9 
 
 ### Resolution and the number of clusters
 
@@ -173,8 +173,8 @@ are. But $`\gamma`$ then lives on the scale of the edge weights:
 summary(igraph::E(network)$weight)
 ```
 
-         Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
-    1.124e-05 1.019e-04 1.863e-04 3.267e-04 3.438e-04 2.488e-02 
+        Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+    0.005403 0.023470 0.038993 0.052589 0.066302 0.399613 
 
 ``` r
 
@@ -237,13 +237,16 @@ names(clusters)[3:4] <- c("documents", "median_year")
 clusters[order(clusters$median_year), ]
 ```
 
-      cluster_leiden                     cluster_label documents median_year
-    6             05 unemployment, import, stagflation        16      1979.0
-    1             06        comment, wage, stagflation        12      1979.5
-    3             04        import, great, alternative        16      1979.5
-    5             02         productivity, oil, supply        33      1982.0
-    4             03 oil, oil price, great stagflation        17      2002.0
-    2             01      great inflation, great, rule        53      2005.0
+      cluster_leiden                                        cluster_label documents
+    3             01                     productivity, unemployment, wage        69
+    4             04                       stagflation, inflation, change         9
+    2             03                    oil, oil price, great stagflation        18
+    1             02 great inflation, stabilization, stabilization policy        51
+      median_year
+    3        1980
+    4        1995
+    2        2002
+    1        2005
 
 The labels and the median years already sketch a history. Clusters of
 the late 1970s and early 1980s talk about productivity, oil, wages and
@@ -285,9 +288,9 @@ table(roles$role_ga)
 
 
      R1 ultra-peripheral        R2 peripheral R3 non-hub connector
-                       9                  107                   27
-      R4 non-hub kinless    R5 provincial hub     R6 connector hub
-                       1                    2                    1 
+                      12                  125                    9
+       R5 provincial hub
+                       1 
 
 ``` r
 
@@ -329,30 +332,21 @@ roles |>
   as.data.frame()
 ```
 
-                      role         document
-    1 R3 non-hub connector GOLDSTEIN-M-1977
-    2 R3 non-hub connector   BLINDER-A-2013
-    3 R3 non-hub connector   GORDON-R-1975b
-    4   R4 non-hub kinless    NITZAN-J-2001
-    5    R5 provincial hub  LANSING-K-2000a
-    6    R5 provincial hub  NORDHAUS-W-2007
-    7     R6 connector hub   PINDYCK-R-1980
-                                                                                                                            title
-    1 Downward price inflexibility, ratchet effects, and the inflationary impact of import price changes: some empirical evidence
-    2                                                             The supply-shock explanation of the great stagflation revisited
-    3                                                                                    The impact of aggregate demand on prices
-    4                                   Regimes of differential accumulation: mergers, stagflation and the logic of globalization
-    5                                                                                 Exploring the causes of the great inflation
-    6                                                                                        Who's afraid of a big bad oil shock?
-    7                                                                             Energy price increases and macroeconomic policy
+                      role       document
+    1 R3 non-hub connector   BALL-L-1995a
+    2 R3 non-hub connector BLINDER-A-2013
+    3 R3 non-hub connector  TAYLOR-J-1997
+    4    R5 provincial hub PINDYCK-R-1980
+                                                                title
+    1               Relative-price changes as aggregate supply shocks
+    2 The supply-shock explanation of the great stagflation revisited
+    3            America<92>s peacetime inflation: the 1970s: comment
+    4                 Energy price increases and macroeconomic policy
                                 cluster    z participation
-    1 unemployment, import, stagflation -0.9          0.76
-    2 oil, oil price, great stagflation -0.6          0.76
-    3        import, great, alternative -0.5          0.73
-    4 unemployment, import, stagflation -1.1          0.81
-    5      great inflation, great, rule  3.5          0.30
-    6 oil, oil price, great stagflation  2.9          0.29
-    7         productivity, oil, supply  3.2          0.54
+    1    stagflation, inflation, change -0.2          0.71
+    2 oil, oil price, great stagflation  0.1          0.70
+    3    stagflation, inflation, change -0.2          0.66
+    4  productivity, unemployment, wage  2.7          0.21
 
 How to read them depends on what the nodes and the ties are. Here, nodes
 are explanations of the stagflation and ties are shared references:
@@ -410,9 +404,9 @@ bind_rows(by_resolution) |>
 ```
 
       resolution clusters hubs mean_participation
-    1       0.75        5    2               0.31
-    2       1.00        6    3               0.39
-    3       1.50        8    3               0.52
+    1       0.75        3    1               0.25
+    2       1.00        4    1               0.31
+    3       1.50        8    2               0.58
 
 ``` r
 
@@ -426,15 +420,15 @@ bind_rows(by_resolution) |>
 
              document      resolution 0.75         resolution 1
     1  BLINDER-A-2013 R3 non-hub connector R3 non-hub connector
-    2 LANSING-K-2000a    R5 provincial hub    R5 provincial hub
-    3   NITZAN-J-2001 R3 non-hub connector   R4 non-hub kinless
-    4 NORDHAUS-W-2007        R2 peripheral    R5 provincial hub
-    5  PINDYCK-R-1980        R2 peripheral     R6 connector hub
+    2 LANSING-K-2000a        R2 peripheral        R2 peripheral
+    3   NITZAN-J-2001 R3 non-hub connector R3 non-hub connector
+    4 NORDHAUS-W-2007        R2 peripheral        R2 peripheral
+    5  PINDYCK-R-1980    R5 provincial hub    R5 provincial hub
             resolution 1.5
-    1 R3 non-hub connector
-    2     R6 connector hub
+    1   R4 non-hub kinless
+    2 R3 non-hub connector
     3   R4 non-hub kinless
-    4    R5 provincial hub
+    4        R2 peripheral
     5     R6 connector hub
 
 With smaller clusters, more ties cross clusters and the participation

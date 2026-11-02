@@ -189,7 +189,7 @@ network <- add_node_roles(network, module_col = "cluster_leiden")
 table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
 #> 
 #>  R1 ultra-peripheral        R2 peripheral R3 non-hub connector 
-#>                    9                  107                   27 
-#>   R4 non-hub kinless    R5 provincial hub     R6 connector hub 
-#>                    1                    2                    1 
+#>                   12                  125                    9 
+#>    R5 provincial hub 
+#>                    1 
 ```

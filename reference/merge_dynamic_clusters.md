@@ -179,11 +179,11 @@ networks[[2]]
 #> #   dynamic_cluster_leiden <chr>
 #> #
 #> # Edge Data: 6 × 11
-#>    from    to   weight Source     Target   cluster_leiden_from cluster_leiden_to
-#>   <int> <int>    <dbl> <chr>      <chr>    <chr>               <chr>            
-#> 1     2     4 0.00185  1111111134 25481516 02                  02               
-#> 2     2     5 0.00130  1111111134 6714008  02                  02               
-#> 3     6     7 0.000305 1111111176 19627977 01                  01               
+#>    from    to weight Source     Target   cluster_leiden_from cluster_leiden_to
+#>   <int> <int>  <dbl> <chr>      <chr>    <chr>               <chr>            
+#> 1     6     7 0.0220 1111111176 19627977 01                  01               
+#> 2     3     6 0.0286 1184130    19627977 01                  01               
+#> 3     1     6 0.0807 19627977   214927   01                  01               
 #> # ℹ 3 more rows
 #> # ℹ 4 more variables: cluster_leiden <chr>, dynamic_cluster_leiden_from <chr>,
 #> #   dynamic_cluster_leiden_to <chr>, dynamic_cluster_leiden <chr>

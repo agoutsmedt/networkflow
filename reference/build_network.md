@@ -182,10 +182,10 @@ network
 #> # ℹ 1 more variable: source_type <chr>
 #> #
 #> # Edge Data: 1,501 × 5
-#>    from    to    weight Source    Target   
-#>   <int> <int>     <dbl> <chr>     <chr>    
-#> 1   110   111 0.000749  101742279 101742296
-#> 2    98   111 0.000106  101742279 101777013
-#> 3    33   111 0.0000999 101742279 106371053
+#>    from    to weight Source    Target   
+#>   <int> <int>  <dbl> <chr>     <chr>    
+#> 1   110   111 0.122  101742279 101742296
+#> 2    98   111 0.0288 101742279 101777013
+#> 3    98   110 0.0851 101742296 101777013
 #> # ℹ 1,498 more rows
 ```

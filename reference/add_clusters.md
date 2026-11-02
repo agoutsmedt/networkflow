@@ -271,9 +271,9 @@ network <- add_clusters(
   resolution = 1,
   seed = 123
 )
-#> ℹ "leiden" found 6 clusters; the largest gathers 36.1% of the nodes.
+#> ℹ "leiden" found 4 clusters; the largest gathers 46.9% of the nodes.
 table(tidygraph::as_tibble(network, active = "nodes")$cluster_leiden)
 #> 
-#> 01 02 03 04 05 06 
-#> 53 33 17 16 16 12 
+#> 01 02 03 04 
+#> 69 51 18  9 
 ```

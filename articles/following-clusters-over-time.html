@@ -6,10 +6,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Following clusters over time • networkflow</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="following-clusters-over-time_files/libs/quarto-html/popper.min.js"></script><script src="following-clusters-over-time_files/libs/quarto-html/tippy.umd.min.js"></script><link href="following-clusters-over-time_files/libs/quarto-html/tippy.css" rel="stylesheet">
@@ -17,12 +23,13 @@
 <script src="following-clusters-over-time_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script><link href="following-clusters-over-time_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="following-clusters-over-time_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Following clusters over time">
+<meta property="og:image" content="https://agoutsmedt.github.io/networkflow/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -60,8 +67,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Following clusters over time</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Following clusters over time</h1>
 
 
 
@@ -113,7 +119,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>windows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">networks</span><span class="op">)</span>, clusters <span class="op">=</span> <span class="va">n_window_clusters</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> windows clusters
-      30      104 </code></pre>
+      30      110 </code></pre>
 </div>
 </div>
 <p>Each window has its own clusters, numbered “01”, “02”… These numbers mean nothing across windows: cluster “01” of 1975-1984 and cluster “01” of 1976-1985 may be two different literatures.</p>
@@ -165,30 +171,30 @@
 <span>              <span class="st">"n_persistent"</span>, <span class="st">"share_nodes_persistent"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   threshold n_dynamic_clusters share_continued median_lifespan n_persistent
-2       0.51                 13       0.9191919               7           11
-4       0.55                 13       0.9191919               7           11
-6       0.60                 20       0.8484848               5           14
-8       0.65                 23       0.8181818               5           16
-10      0.70                 27       0.7777778               3           17
-12      0.75                 36       0.6868687               2           15
-14      0.80                 41       0.6363636               2           13
-16      0.90                 48       0.5656566               2           12
+2       0.51                 19       0.8750000             4.0           11
+4       0.55                 20       0.8653846             3.5           11
+6       0.60                 25       0.8173077             2.0           11
+8       0.65                 29       0.7788462             2.0           11
+10      0.70                 35       0.7211538             2.0           13
+12      0.75                 40       0.6730769             2.0           13
+14      0.80                 45       0.6250000             2.0           11
+16      0.90                 54       0.5384615             1.0           10
    share_nodes_persistent
-2               0.9838547
-4               0.9838547
-6               0.9182644
-8               0.8920283
-10              0.8607467
-12              0.7003027
-14              0.6427851
-16              0.5398587</code></pre>
+2               0.9101917
+4               0.8869828
+6               0.7981837
+8               0.7436932
+10              0.7356206
+12              0.7033300
+14              0.6054490
+16              0.4964682</code></pre>
 </div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics</a></span><span class="op">(</span><span class="va">diagnostics</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-diagnostics" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Four panels against the threshold, from 0.51 to 0.9, one line for complete and one for partial similarity. The number of dynamic clusters rises with the threshold, the share of window clusters with a predecessor, the median lifespan and the share of nodes in clusters of three windows or more fall; complete similarity is more sensitive.">
+<div id="fig-diagnostics" class="quarto-float quarto-figure quarto-figure-center" alt="Four panels against the threshold, from 0.51 to 0.9, one line for complete and one for partial similarity. The number of dynamic clusters rises with the threshold, the share of window clusters with a predecessor, the median lifespan and the share of nodes in clusters of three windows or more fall; complete similarity is more sensitive." width="1100">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="following-clusters-over-time_files/figure-html/fig-diagnostics-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: "><img src="following-clusters-over-time_files/figure-html/fig-diagnostics-1.png" id="fig-diagnostics" alt="Four panels against the threshold, from 0.51 to 0.9, one line for complete and one for partial similarity. The number of dynamic clusters rises with the threshold, the share of window clusters with a predecessor, the median lifespan and the share of nodes in clusters of three windows or more fall; complete similarity is more sensitive." width="1100"></a>
 </div>
@@ -198,12 +204,12 @@ Figure 1
 </div>
 </div>
 </div>
-<p>The 104 window clusters become 20 dynamic clusters at 0.51 and 80 at 0.9 with the complete similarity (13 and 48 with the partial one): the more demanding the threshold, the more clusters are considered new. The curves are flat between 0.51 and 0.55, so that values just above 0.5 are on a plateau: the continuities they produce do not depend on the exact threshold. They bend after 0.55, and the second view below shows what is lost. With the complete similarity, the median lifespan falls to one window at 0.75: every window then has its own clusters, which is the opposite of a history. The partial similarity is more tolerant, because it ignores the documents that enter or leave the corpus from one window to the next. This is the reason for the thresholds just above 0.5 with partial similarity in the studies that used networkflow: 0.501 for <span class="citation" data-cites="delcey2026">Delcey et al. (<a href="#ref-delcey2026" role="doc-biblioref">2026</a>)</span>, 0.55 for <span class="citation" data-cites="duluins2026">Duluins et al. (<a href="#ref-duluins2026" role="doc-biblioref">2026</a>)</span>. Whatever the choice, the continuities that a narrative relies on should survive close thresholds, and a different seed of the clustering.</p>
+<p>The 110 window clusters become 25 dynamic clusters at 0.51 and 89 at 0.9 with the complete similarity (19 and 54 with the partial one): the more demanding the threshold, the more clusters are considered new. The curves are flat between 0.51 and 0.55, so that values just above 0.5 are on a plateau: the continuities they produce do not depend on the exact threshold. They bend after 0.55, and the second view below shows what is lost. With the complete similarity, the median lifespan falls to one window at 0.75: every window then has its own clusters, which is the opposite of a history. The partial similarity is more tolerant, because it ignores the documents that enter or leave the corpus from one window to the next. This is the reason for the thresholds just above 0.5 with partial similarity in the studies that used networkflow: 0.501 for <span class="citation" data-cites="delcey2026">Delcey et al. (<a href="#ref-delcey2026" role="doc-biblioref">2026</a>)</span>, 0.55 for <span class="citation" data-cites="duluins2026">Duluins et al. (<a href="#ref-duluins2026" role="doc-biblioref">2026</a>)</span>. Whatever the choice, the continuities that a narrative relies on should survive close thresholds, and a different seed of the clustering.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics</a></span><span class="op">(</span><span class="va">diagnostics</span>, view <span class="op">=</span> <span class="st">"lifespans"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-lifespans" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Stacked bars, one per threshold, for complete and partial similarity, showing the share of the nodes of all windows that belong to dynamic clusters living one window, two, three to five, six to ten, or more than ten. The share of one-window clusters grows with the threshold.">
+<div id="fig-lifespans" class="quarto-float quarto-figure quarto-figure-center" alt="Stacked bars, one per threshold, for complete and partial similarity, showing the share of the nodes of all windows that belong to dynamic clusters living one window, two, three to five, six to ten, or more than ten. The share of one-window clusters grows with the threshold." width="1100">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-lifespans-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="following-clusters-over-time_files/figure-html/fig-lifespans-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: "><img src="following-clusters-over-time_files/figure-html/fig-lifespans-1.png" id="fig-lifespans" alt="Stacked bars, one per threshold, for complete and partial similarity, showing the share of the nodes of all windows that belong to dynamic clusters living one window, two, three to five, six to ten, or more than ten. The share of one-window clusters grows with the threshold." width="1100"></a>
 </div>
@@ -281,49 +287,67 @@ Figure 2
 <div class="cell-output cell-output-stdout">
 <pre><code>    dynamic_cluster_leiden
                     &lt;char&gt;
- 1:                  cl_52
- 2:                  cl_55
- 3:                  cl_66
+ 1:                  cl_50
+ 2:                  cl_53
+ 3:                   cl_4
  4:                   cl_1
- 5:                  cl_10
- 6:                   cl_3
- 7:                  cl_49
- 8:                   cl_2
- 9:                   cl_4
-10:                   cl_5
-11:                  cl_44
-12:                  cl_39
-13:                  cl_35
+ 5:                  cl_62
+ 6:                  cl_43
+ 7:                   cl_2
+ 8:                  cl_80
+ 9:                  cl_12
+10:                  cl_15
+11:                  cl_99
+12:                   cl_3
+13:                   cl_6
+14:                  cl_38
+15:                   cl_5
+16:                  cl_29
+17:                  cl_34
+18:                 cl_103
+19:                 cl_107
                                               cluster_label share_cluster_max
                                                      &lt;char&gt;             &lt;num&gt;
- 1:                    rule, great inflation, stabilization             55.26
- 2:                        rise, great inflation, peacetime             47.92
- 3:                    monetary alternative, oil price, oil             37.04
- 4:               productivity, productivity growth, growth             39.06
- 5:                 shock wage, wage stickiness, stickiness             42.86
- 6:                       control, control program, program             22.22
- 7:          time consistent, consistent, consistent policy             62.50
- 8:                      unemployment, import, import price             26.56
- 9:      acceleration, acceleration evidence, postwar unite             10.42
-10:                 inflation employment, employment, stein              5.36
-11:                              disinflation, great, north             57.14
-12: comparative macroeconomics, condition, condition create             33.33
-13:                             world inflation, oil, world             22.22
+ 1:                    oil price, oil, monetary alternative             37.50
+ 2:                    rise, peacetime, peacetime inflation             40.74
+ 3:             policy revisit, shock wage, wage stickiness             42.86
+ 4:               productivity, productivity growth, growth             35.71
+ 5:                       rule, trap hypothesis, hypothesis             30.56
+ 6:                           north, north america, america            100.00
+ 7:                       control, control program, program             22.22
+ 8:                          origin, great inflation, great             24.49
+ 9:      acceleration, acceleration evidence, postwar unite             18.03
+10:        unemployment, employment, stagflation persistent             21.43
+11:                          great inflation, great, origin             54.76
+12:             unemployment, inflation unemployment, model             24.59
+13:                employment, inflation employment, import             14.75
+14: comparative, comparative macroeconomics, macroeconomics             33.33
+15:                               acceleration, wage, price             10.94
+16:                  international, world inflation, energy             12.50
+17:                             world inflation, oil, world             22.22
+18:                              rule, policy rule, natural             15.91
+19:                               rule, taylor, taylor rule             31.58
     length_cluster
              &lt;int&gt;
  1:             18
  2:             17
- 3:             13
+ 3:             11
  4:             10
  5:             10
- 6:              7
+ 6:              9
  7:              7
- 8:              6
- 9:              6
+ 8:              5
+ 9:              4
 10:              4
-11:              3
+11:              4
 12:              2
-13:              1</code></pre>
+13:              2
+14:              2
+15:              1
+16:              1
+17:              1
+18:              1
+19:              1</code></pre>
 </div>
 </div>
 <p>Clusters that exist in one or two windows, or remain small, clutter the plot. We keep the clusters that last at least three windows, give each a fixed colour, order the clusters to limit crossing flows (<code>minimize_crossing = TRUE</code>) and place each label in the middle of the cluster’s life (<code>prepare_label = TRUE</code>).</p>
@@ -348,7 +372,7 @@ Figure 2
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Share of the window"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-alluvial" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end.">
+<div id="fig-alluvial" class="quarto-float quarto-figure quarto-figure-center" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end." width="1100">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-alluvial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="following-clusters-over-time_files/figure-html/fig-alluvial-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure 3: "><img src="following-clusters-over-time_files/figure-html/fig-alluvial-1.png" id="fig-alluvial" alt="Alluvial plot of the dynamic clusters of explanations of the stagflation, from the 1975-1984 window to the 2004-2013 window. Several clusters dominate the first windows and disappear in the late 1980s; three clusters appear in the 1990s and last until the end." width="1100"></a>
 </div>

@@ -6,10 +6,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Finding and reading clusters • networkflow</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="finding-and-reading-clusters_files/libs/quarto-html/popper.min.js"></script><script src="finding-and-reading-clusters_files/libs/quarto-html/tippy.umd.min.js"></script><link href="finding-and-reading-clusters_files/libs/quarto-html/tippy.css" rel="stylesheet">
@@ -17,12 +23,13 @@
 <script src="finding-and-reading-clusters_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script><link href="finding-and-reading-clusters_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="finding-and-reading-clusters_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Finding and reading clusters">
+<meta property="og:image" content="https://agoutsmedt.github.io/networkflow/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -60,8 +67,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Finding and reading clusters</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Finding and reading clusters</h1>
 
 
 
@@ -121,8 +127,8 @@ Q = \frac{1}{2m} \sum_{i,j} \left( A_{ij} - \gamma \frac{k_i k_j}{2m} \right) \d
 <span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">node_table</span><span class="op">$</span><span class="va">cluster_leiden</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-01 02 03 04 05 06
-53 33 17 16 16 12 </code></pre>
+01 02 03 04
+69 51 18  9 </code></pre>
 </div>
 </div>
 <section class="level3"><h3 id="resolution-and-the-number-of-clusters">Resolution and the number of clusters<a class="anchor" aria-label="anchor" href="#resolution-and-the-number-of-clusters"></a>
@@ -182,8 +188,8 @@ Figure 1
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/E.html" class="external-link">E</a></span><span class="op">(</span><span class="va">network</span><span class="op">)</span><span class="op">$</span><span class="va">weight</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
-1.124e-05 1.019e-04 1.863e-04 3.267e-04 3.438e-04 2.488e-02 </code></pre>
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+0.005403 0.023470 0.038993 0.052589 0.066302 0.399613 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cpm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_clusters.html">add_clusters</a></span><span class="op">(</span><span class="va">network</span>, clustering_method <span class="op">=</span> <span class="st">"leiden"</span>, objective_function <span class="op">=</span> <span class="st">"CPM"</span>,</span>
@@ -224,13 +230,16 @@ Figure 1
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"documents"</span>, <span class="st">"median_year"</span><span class="op">)</span></span>
 <span><span class="va">clusters</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">$</span><span class="va">median_year</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  cluster_leiden                     cluster_label documents median_year
-6             05 unemployment, import, stagflation        16      1979.0
-1             06        comment, wage, stagflation        12      1979.5
-3             04        import, great, alternative        16      1979.5
-5             02         productivity, oil, supply        33      1982.0
-4             03 oil, oil price, great stagflation        17      2002.0
-2             01      great inflation, great, rule        53      2005.0</code></pre>
+<pre><code>  cluster_leiden                                        cluster_label documents
+3             01                     productivity, unemployment, wage        69
+4             04                       stagflation, inflation, change         9
+2             03                    oil, oil price, great stagflation        18
+1             02 great inflation, stabilization, stabilization policy        51
+  median_year
+3        1980
+4        1995
+2        2002
+1        2005</code></pre>
 </div>
 </div>
 <p>The labels and the median years already sketch a history. Clusters of the late 1970s and early 1980s talk about productivity, oil, wages and unemployment; clusters centred on the 2000s about the “great inflation” and policy “rules”. This matches the account of <span class="citation" data-cites="goutsmedt2021">Goutsmedt (<a href="#ref-goutsmedt2021" role="doc-biblioref">2021</a>)</span>: supply shocks and inflation inertia dominated the first explanations, and a new literature centred on the role of monetary policy emerged in the 1990s. Titles are short, and their words are not always informative (“great”, “comment”): labels are only a first guess. <code><a href="../reference/extract_tfidf.html">extract_tfidf()</a></code> shows more terms per cluster, and abstracts, when available, give better labels than titles.</p>
@@ -246,9 +255,9 @@ Figure 1
 <div class="cell-output cell-output-stdout">
 <pre><code>
  R1 ultra-peripheral        R2 peripheral R3 non-hub connector
-                   9                  107                   27
-  R4 non-hub kinless    R5 provincial hub     R6 connector hub
-                   1                    2                    1 </code></pre>
+                  12                  125                    9
+   R5 provincial hub
+                   1 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">roles</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">participation_coeff</span>, <span class="va">within_module_z</span>, colour <span class="op">=</span> <span class="va">cluster_label</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -284,30 +293,21 @@ Figure 2
 <span>            cluster <span class="op">=</span> <span class="va">cluster_label</span>, z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">within_module_z</span>, <span class="fl">1</span><span class="op">)</span>, participation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">participation_coeff</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                  role         document
-1 R3 non-hub connector GOLDSTEIN-M-1977
-2 R3 non-hub connector   BLINDER-A-2013
-3 R3 non-hub connector   GORDON-R-1975b
-4   R4 non-hub kinless    NITZAN-J-2001
-5    R5 provincial hub  LANSING-K-2000a
-6    R5 provincial hub  NORDHAUS-W-2007
-7     R6 connector hub   PINDYCK-R-1980
-                                                                                                                        title
-1 Downward price inflexibility, ratchet effects, and the inflationary impact of import price changes: some empirical evidence
-2                                                             The supply-shock explanation of the great stagflation revisited
-3                                                                                    The impact of aggregate demand on prices
-4                                   Regimes of differential accumulation: mergers, stagflation and the logic of globalization
-5                                                                                 Exploring the causes of the great inflation
-6                                                                                        Who's afraid of a big bad oil shock?
-7                                                                             Energy price increases and macroeconomic policy
+<pre><code>                  role       document
+1 R3 non-hub connector   BALL-L-1995a
+2 R3 non-hub connector BLINDER-A-2013
+3 R3 non-hub connector  TAYLOR-J-1997
+4    R5 provincial hub PINDYCK-R-1980
+                                                            title
+1               Relative-price changes as aggregate supply shocks
+2 The supply-shock explanation of the great stagflation revisited
+3            America&lt;92&gt;s peacetime inflation: the 1970s: comment
+4                 Energy price increases and macroeconomic policy
                             cluster    z participation
-1 unemployment, import, stagflation -0.9          0.76
-2 oil, oil price, great stagflation -0.6          0.76
-3        import, great, alternative -0.5          0.73
-4 unemployment, import, stagflation -1.1          0.81
-5      great inflation, great, rule  3.5          0.30
-6 oil, oil price, great stagflation  2.9          0.29
-7         productivity, oil, supply  3.2          0.54</code></pre>
+1    stagflation, inflation, change -0.2          0.71
+2 oil, oil price, great stagflation  0.1          0.70
+3    stagflation, inflation, change -0.2          0.66
+4  productivity, unemployment, wage  2.7          0.21</code></pre>
 </div>
 </div>
 <p>How to read them depends on what the nodes and the ties are. Here, nodes are explanations of the stagflation and ties are shared references:</p>
@@ -342,9 +342,9 @@ Figure 2
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  resolution clusters hubs mean_participation
-1       0.75        5    2               0.31
-2       1.00        6    3               0.39
-3       1.50        8    3               0.52</code></pre>
+1       0.75        3    1               0.25
+2       1.00        4    1               0.31
+3       1.50        8    2               0.58</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">by_resolution</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -356,15 +356,15 @@ Figure 2
 <div class="cell-output cell-output-stdout">
 <pre><code>         document      resolution 0.75         resolution 1
 1  BLINDER-A-2013 R3 non-hub connector R3 non-hub connector
-2 LANSING-K-2000a    R5 provincial hub    R5 provincial hub
-3   NITZAN-J-2001 R3 non-hub connector   R4 non-hub kinless
-4 NORDHAUS-W-2007        R2 peripheral    R5 provincial hub
-5  PINDYCK-R-1980        R2 peripheral     R6 connector hub
+2 LANSING-K-2000a        R2 peripheral        R2 peripheral
+3   NITZAN-J-2001 R3 non-hub connector R3 non-hub connector
+4 NORDHAUS-W-2007        R2 peripheral        R2 peripheral
+5  PINDYCK-R-1980    R5 provincial hub    R5 provincial hub
         resolution 1.5
-1 R3 non-hub connector
-2     R6 connector hub
+1   R4 non-hub kinless
+2 R3 non-hub connector
 3   R4 non-hub kinless
-4    R5 provincial hub
+4        R2 peripheral
 5     R6 connector hub</code></pre>
 </div>
 </div>

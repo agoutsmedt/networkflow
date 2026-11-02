@@ -186,11 +186,11 @@ network
     # ℹ 1 more variable: source_type <chr>
     #
     # Edge Data: 2,716 × 5
-       from    to    weight Source    Target
-      <int> <int>     <dbl> <chr>     <chr>
-    1   123   124 0.000749  101742279 101742296
-    2   109   124 0.000106  101742279 101777013
-    3    38   124 0.0000999 101742279 106371053
+       from    to weight Source    Target
+      <int> <int>  <dbl> <chr>     <chr>
+    1   123   124 0.122  101742279 101742296
+    2   109   124 0.0288 101742279 101777013
+    3   109   123 0.0851 101742296 101777013
     # ℹ 2,713 more rows
 
 The result is a `tbl_graph` from tidygraph: a node table (the columns of
@@ -221,12 +221,12 @@ biblionetwork ([Goutsmedt, Truc, et al.
   ``` math
   w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};
   ```
-- the **coupling similarity**, inspired by Shen et al.
+- the **coupling similarity**, the idf-weighted cosine of Shen et al.
   ([2019](#ref-shen2019)), which normalises the same weighted sum by the
   weighted length of each bibliography,
-  $`S_i = \sum_{j \in R_i} \log(N / f_j)`$:
+  $`S_i = \sum_{j \in R_i} \log(N / f_j)`$, as a cosine:
   ``` math
-  w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{S_i S_k}.
+  w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.
   ```
 
 Sharing a citation of Taylor’s 1993 article on policy rules, cited by 22
@@ -280,22 +280,22 @@ round(cor(pairs[, measures], method = "spearman"), 3)
 ```
 
                         coupling_angle coupling_strength coupling_similarity
-    coupling_angle               1.000             0.843               0.843
-    coupling_strength            0.843             1.000               1.000
-    coupling_similarity          0.843             1.000               1.000
+    coupling_angle               1.000             0.819               0.958
+    coupling_strength            0.819             1.000               0.884
+    coupling_similarity          0.958             0.884               1.000
 
 The three measures keep the same pairs (the threshold applies to the raw
-count) but weight them differently. Coupling strength and coupling
-similarity rank the pairs identically, and not by chance: in the current
-version of biblionetwork, the normalisation $`S_i`$ of the coupling
-similarity gives every reference the weight of the first one, so that
-$`S_i`$ is proportional to $`L_i`$ and the measure is proportional to
-the coupling strength. Until this is corrected, coupling strength and
-coupling angle are the two distinct options. The coupling angle, which
-treats all references alike, departs more from the coupling strength. A
-rank correlation of 0.84 still leaves room for different clusters at the
-margin: when the conclusions of a study rest on the exact composition of
-a cluster, it is worth checking them with a second measure.
+count) but weight them differently. The coupling similarity is a cosine
+like the coupling angle, and discounts the common references like the
+coupling strength: its ranking of the pairs is close to the angle’s (a
+rank correlation above 0.95) and nearer to the strength’s than the
+angle’s is. The coupling angle, which treats all references alike,
+departs most from the coupling strength (a rank correlation of about
+0.82). Such a correlation still leaves room for different clusters at
+the margin: when the conclusions of a study rest on the exact
+composition of a cluster, it is worth checking them with a second
+measure. `biblionetwork` has tools to compare measures on a corpus
+(`compute_couplings()`, `correlate_weights()`).
 
 ### Thresholds
 

@@ -110,13 +110,11 @@ network <- add_clusters(
 
 network <- color_networks(network, column_to_color = "cluster_leiden")
 unique(tidygraph::as_tibble(network, active = "nodes")[c("cluster_leiden", "color")])
-#> # A tibble: 6 × 2
+#> # A tibble: 4 × 2
 #>   cluster_leiden color  
 #>   <chr>          <chr>  
-#> 1 01             #F8766D
-#> 2 06             #B79F00
-#> 3 02             #00BA38
+#> 1 02             #00BA38
+#> 2 01             #F8766D
+#> 3 04             #00BFC4
 #> 4 03             #619CFF
-#> 5 04             #00BFC4
-#> 6 05             #F564E3
 ```

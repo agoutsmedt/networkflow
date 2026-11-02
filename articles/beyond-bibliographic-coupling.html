@@ -6,10 +6,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Beyond bibliographic coupling • networkflow</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="beyond-bibliographic-coupling_files/libs/quarto-html/popper.min.js"></script><script src="beyond-bibliographic-coupling_files/libs/quarto-html/tippy.umd.min.js"></script><link href="beyond-bibliographic-coupling_files/libs/quarto-html/tippy.css" rel="stylesheet">
@@ -17,12 +23,13 @@
 <script src="beyond-bibliographic-coupling_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script><link href="beyond-bibliographic-coupling_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="beyond-bibliographic-coupling_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Beyond bibliographic coupling">
+<meta property="og:image" content="https://agoutsmedt.github.io/networkflow/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -60,8 +67,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Beyond bibliographic coupling</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Beyond bibliographic coupling</h1>
 
 
 
@@ -223,7 +229,7 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_networks.html">plot_networks</a></span><span class="op">(</span><span class="va">cocitation</span>, cluster_label_column <span class="op">=</span> <span class="st">"cluster_label"</span>, node_size_column <span class="op">=</span> <span class="st">"node_size"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-cocitation" class="quarto-float quarto-figure quarto-figure-center" alt="Co-citation network of the works cited by the explanations of the stagflation, with nodes coloured by Leiden cluster, node size proportional to the number of citing documents, and each cluster labelled by its most cited work." width="1100">
+<div id="fig-cocitation" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Co-citation network of the works cited by the explanations of the stagflation, with nodes coloured by Leiden cluster, node size proportional to the number of citing documents, and each cluster labelled by its most cited work.">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-cocitation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: "><img src="beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png" id="fig-cocitation" alt="Co-citation network of the works cited by the explanations of the stagflation, with nodes coloured by Leiden cluster, node size proportional to the number of citing documents, and each cluster labelled by its most cited work." width="1100"></a>
 </div>
@@ -401,11 +407,12 @@ w_{AB} = \frac{\sum_{j} \min(C_{Aj}, C_{Bj})}{\sqrt{L(A)\, L(B)}}.
 1      01      27 ORPHANIDES-A, MELTZER-A, TAYLOR-J, CUKIERMAN-A
 2      02      22   BLINDER-A, NORDHAUS-W, KILIAN-L, BLANCHARD-O
 3      03      17     SARGENT-T, COGLEY-T, WATSON-M, CECCHETTI-S
-4      04      14       CHRISTIANO-L, BALL-L, CHARI-V, IRELAND-P
-5      05      12              GORDON-R, MORK-K, FRYE-J, PERRY-G
+4      04      12              GORDON-R, MORK-K, FRYE-J, PERRY-G
+5      05       8        CHRISTIANO-L, BALL-L, CHARI-V, MANKIW-G
 6      06       8            RASCHE-R, TATOM-J, POOLE-W, DARBY-M
 7      07       7      BRUNO-M, SACHS-J, MCCALLUM-C, HELLIWELL-J
-8      08       4   ROTEMBERG-J, GISSER-M, GOODWIN-T, WOODFORD-M</code></pre>
+8      08       6          IRELAND-P, DELONG-B, MAYER-T, VELDE-F
+9      09       4   ROTEMBERG-J, GISSER-M, GOODWIN-T, WOODFORD-M</code></pre>
 </div>
 </div>
 <p>The groups are named after their most prolific authors. Orphanides and Taylor, whose works are among the most co-cited ones above, sit in the same group here, as authors who cite the same literature on monetary policy; Blinder, Nordhaus, Kilian and Blanchard form another group, and Gordon, Mork and Perry another. Whether such a group is a school, a generation or a topic is a question for the historian: the network only says who cites what.</p>

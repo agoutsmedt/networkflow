@@ -89,13 +89,11 @@ set.seed(1)
 network <- layout_networks(network, node_id = "source_id", layout = "fr")
 network <- prepare_label_networks(network, cluster_label_column = "cluster_leiden")
 unique(tidygraph::as_tibble(network, active = "nodes")[c("cluster_leiden", "label_x", "label_y")])
-#> # A tibble: 6 × 3
+#> # A tibble: 4 × 3
 #>   cluster_leiden label_x label_y
 #>   <chr>            <dbl>   <dbl>
-#> 1 01                7.70    28.7
-#> 2 06               20.7    -15.1
-#> 3 02              -25.0    -26.1
-#> 4 03              -22.7     20.3
-#> 5 04                6.70   -29.8
-#> 6 05               29.2    -21.2
+#> 1 02                2.79   -1.13
+#> 2 01               -6.64    1.38
+#> 3 04                1.39    2.49
+#> 4 03                2.39    4.06
 ```

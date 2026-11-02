@@ -53,7 +53,7 @@ c(windows = length(networks), clusters = n_window_clusters)
 ```
 
      windows clusters
-          30      104 
+          30      110 
 
 Each window has its own clusters, numbered “01”, “02”… These numbers
 mean nothing across windows: cluster “01” of 1975-1984 and cluster “01”
@@ -141,23 +141,23 @@ diagnostics[diagnostics$similarity_type == "partial",
 ```
 
        threshold n_dynamic_clusters share_continued median_lifespan n_persistent
-    2       0.51                 13       0.9191919               7           11
-    4       0.55                 13       0.9191919               7           11
-    6       0.60                 20       0.8484848               5           14
-    8       0.65                 23       0.8181818               5           16
-    10      0.70                 27       0.7777778               3           17
-    12      0.75                 36       0.6868687               2           15
-    14      0.80                 41       0.6363636               2           13
-    16      0.90                 48       0.5656566               2           12
+    2       0.51                 19       0.8750000             4.0           11
+    4       0.55                 20       0.8653846             3.5           11
+    6       0.60                 25       0.8173077             2.0           11
+    8       0.65                 29       0.7788462             2.0           11
+    10      0.70                 35       0.7211538             2.0           13
+    12      0.75                 40       0.6730769             2.0           13
+    14      0.80                 45       0.6250000             2.0           11
+    16      0.90                 54       0.5384615             1.0           10
        share_nodes_persistent
-    2               0.9838547
-    4               0.9838547
-    6               0.9182644
-    8               0.8920283
-    10              0.8607467
-    12              0.7003027
-    14              0.6427851
-    16              0.5398587
+    2               0.9101917
+    4               0.8869828
+    6               0.7981837
+    8               0.7436932
+    10              0.7356206
+    12              0.7033300
+    14              0.6054490
+    16              0.4964682
 
 ``` r
 
@@ -173,8 +173,8 @@ sensitive.](following-clusters-over-time_files/figure-html/fig-diagnostics-1.png
 
 Figure 1
 
-The 104 window clusters become 20 dynamic clusters at 0.51 and 80 at 0.9
-with the complete similarity (13 and 48 with the partial one): the more
+The 110 window clusters become 25 dynamic clusters at 0.51 and 89 at 0.9
+with the complete similarity (19 and 54 with the partial one): the more
 demanding the threshold, the more clusters are considered new. The
 curves are flat between 0.51 and 0.55, so that values just above 0.5 are
 on a plateau: the continuities they produce do not depend on the exact
@@ -285,49 +285,67 @@ cluster_stats[order(-cluster_stats$length_cluster), ]
 
         dynamic_cluster_leiden
                         <char>
-     1:                  cl_52
-     2:                  cl_55
-     3:                  cl_66
+     1:                  cl_50
+     2:                  cl_53
+     3:                   cl_4
      4:                   cl_1
-     5:                  cl_10
-     6:                   cl_3
-     7:                  cl_49
-     8:                   cl_2
-     9:                   cl_4
-    10:                   cl_5
-    11:                  cl_44
-    12:                  cl_39
-    13:                  cl_35
+     5:                  cl_62
+     6:                  cl_43
+     7:                   cl_2
+     8:                  cl_80
+     9:                  cl_12
+    10:                  cl_15
+    11:                  cl_99
+    12:                   cl_3
+    13:                   cl_6
+    14:                  cl_38
+    15:                   cl_5
+    16:                  cl_29
+    17:                  cl_34
+    18:                 cl_103
+    19:                 cl_107
                                                   cluster_label share_cluster_max
                                                          <char>             <num>
-     1:                    rule, great inflation, stabilization             55.26
-     2:                        rise, great inflation, peacetime             47.92
-     3:                    monetary alternative, oil price, oil             37.04
-     4:               productivity, productivity growth, growth             39.06
-     5:                 shock wage, wage stickiness, stickiness             42.86
-     6:                       control, control program, program             22.22
-     7:          time consistent, consistent, consistent policy             62.50
-     8:                      unemployment, import, import price             26.56
-     9:      acceleration, acceleration evidence, postwar unite             10.42
-    10:                 inflation employment, employment, stein              5.36
-    11:                              disinflation, great, north             57.14
-    12: comparative macroeconomics, condition, condition create             33.33
-    13:                             world inflation, oil, world             22.22
+     1:                    oil price, oil, monetary alternative             37.50
+     2:                    rise, peacetime, peacetime inflation             40.74
+     3:             policy revisit, shock wage, wage stickiness             42.86
+     4:               productivity, productivity growth, growth             35.71
+     5:                       rule, trap hypothesis, hypothesis             30.56
+     6:                           north, north america, america            100.00
+     7:                       control, control program, program             22.22
+     8:                          origin, great inflation, great             24.49
+     9:      acceleration, acceleration evidence, postwar unite             18.03
+    10:        unemployment, employment, stagflation persistent             21.43
+    11:                          great inflation, great, origin             54.76
+    12:             unemployment, inflation unemployment, model             24.59
+    13:                employment, inflation employment, import             14.75
+    14: comparative, comparative macroeconomics, macroeconomics             33.33
+    15:                               acceleration, wage, price             10.94
+    16:                  international, world inflation, energy             12.50
+    17:                             world inflation, oil, world             22.22
+    18:                              rule, policy rule, natural             15.91
+    19:                               rule, taylor, taylor rule             31.58
         length_cluster
                  <int>
      1:             18
      2:             17
-     3:             13
+     3:             11
      4:             10
      5:             10
-     6:              7
+     6:              9
      7:              7
-     8:              6
-     9:              6
+     8:              5
+     9:              4
     10:              4
-    11:              3
+    11:              4
     12:              2
-    13:              1
+    13:              2
+    14:              2
+    15:              1
+    16:              1
+    17:              1
+    18:              1
+    19:              1
 
 Clusters that exist in one or two windows, or remain small, clutter the
 plot. We keep the clusters that last at least three windows, give each a

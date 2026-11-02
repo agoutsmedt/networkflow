@@ -191,13 +191,11 @@ network <- name_clusters(
 unique(tidygraph::as_tibble(network, active = "nodes")[
   c("cluster_leiden", "cluster_label", "central_article")
 ])
-#> # A tibble: 6 × 3
-#>   cluster_leiden cluster_label                         central_article
-#>   <chr>          <chr>                                 <chr>          
-#> 1 01             great inflation, great, stabilization VELDE-F_2004   
-#> 2 06             comment, stagflation, inflation       WACHTER-M_1978 
-#> 3 02             productivity, supply shocks, oil      GORDON-R_1984  
-#> 4 03             oil, oil price, great stagflation     BARSKY-R_2002  
-#> 5 04             great, alternative, supply            BLINDER-A_1979 
-#> 6 05             unemployment, stagflation, evidence   OKUN-A_1975    
+#> # A tibble: 4 × 3
+#>   cluster_leiden cluster_label                                   central_article
+#>   <chr>          <chr>                                           <chr>          
+#> 1 02             great inflation, stabilization, stabilization … VELDE-F_2004   
+#> 2 01             productivity, unemployment, prices              WACHTER-M_1978 
+#> 3 04             stagflation, inflation, 1970s                   DELONG-B_1997  
+#> 4 03             oil, oil price, great stagflation               BARSKY-R_2002  
 ```

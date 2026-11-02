@@ -6,10 +6,16 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>From references to networks • networkflow</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="from-references-to-networks_files/libs/quarto-html/popper.min.js"></script><script src="from-references-to-networks_files/libs/quarto-html/tippy.umd.min.js"></script><link href="from-references-to-networks_files/libs/quarto-html/tippy.css" rel="stylesheet">
@@ -17,12 +23,13 @@
 <script src="from-references-to-networks_files/libs/quarto-contrib/glightbox/glightbox.min.js"></script><link href="from-references-to-networks_files/libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="from-references-to-networks_files/libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="From references to networks">
+<meta property="og:image" content="https://agoutsmedt.github.io/networkflow/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
@@ -60,8 +67,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>From references to networks</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>From references to networks</h1>
 
 
 
@@ -160,11 +166,11 @@ c_{ik} = \sum_j a_{ij} a_{kj} = |R_i \cap R_k|,
 # ℹ 1 more variable: source_type &lt;chr&gt;
 #
 # Edge Data: 2,716 × 5
-   from    to    weight Source    Target
-  &lt;int&gt; &lt;int&gt;     &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;
-1   123   124 0.000749  101742279 101742296
-2   109   124 0.000106  101742279 101777013
-3    38   124 0.0000999 101742279 106371053
+   from    to weight Source    Target
+  &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;
+1   123   124 0.122  101742279 101742296
+2   109   124 0.0288 101742279 101777013
+3   109   123 0.0851 101742296 101777013
 # ℹ 2,713 more rows</code></pre>
 </div>
 </div>
@@ -177,7 +183,7 @@ c_{ik} = \sum_j a_{ij} a_{kj} = |R_i \cap R_k|,
 </li>
 <li>the <strong>coupling strength</strong> <span class="citation" data-cites="vladutz1984 shen2019">(<a href="#ref-vladutz1984" role="doc-biblioref">Vladutz and Cook 1984</a>; <a href="#ref-shen2019" role="doc-biblioref">Shen et al. 2019</a>)</span>, which gives less weight to the references that everybody cites, in the spirit of the inverse document frequency of text mining: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub><mo>∩</mo><msub><mi>R</mi><mi>k</mi></msub></mrow></munder><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mi>/</mi><msub><mi>f</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>L</mi><mi>i</mi></msub><msub><mi>L</mi><mi>k</mi></msub></mrow></mfrac><mo>;</mo></mrow><annotation encoding="application/x-tex">w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};</annotation></semantics></math>
 </li>
-<li>the <strong>coupling similarity</strong>, inspired by <span class="citation" data-cites="shen2019">Shen et al. (<a href="#ref-shen2019" role="doc-biblioref">2019</a>)</span>, which normalises the same weighted sum by the weighted length of each bibliography, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>i</mi></msub><mo>=</mo><msub><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mi>/</mi><msub><mi>f</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">S_i = \sum_{j \in R_i} \log(N / f_j)</annotation></semantics></math>: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub><mo>∩</mo><msub><mi>R</mi><mi>k</mi></msub></mrow></munder><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mi>/</mi><msub><mi>f</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><msub><mi>S</mi><mi>i</mi></msub><msub><mi>S</mi><mi>k</mi></msub></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{S_i S_k}.</annotation></semantics></math>
+<li>the <strong>coupling similarity</strong>, the idf-weighted cosine of <span class="citation" data-cites="shen2019">Shen et al. (<a href="#ref-shen2019" role="doc-biblioref">2019</a>)</span>, which normalises the same weighted sum by the weighted length of each bibliography, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>i</mi></msub><mo>=</mo><msub><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub></mrow></msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mi>/</mi><msub><mi>f</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">S_i = \sum_{j \in R_i} \log(N / f_j)</annotation></semantics></math>, as a cosine: <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mrow><mi>i</mi><mi>k</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>R</mi><mi>i</mi></msub><mo>∩</mo><msub><mi>R</mi><mi>k</mi></msub></mrow></munder><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mi>/</mi><msub><mi>f</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><msqrt><mrow><msub><mi>S</mi><mi>i</mi></msub><msub><mi>S</mi><mi>k</mi></msub></mrow></msqrt></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.</annotation></semantics></math>
 </li>
 </ul>
 <p>Sharing a citation of Taylor’s 1993 article on policy rules, cited by 22 documents of the corpus, says less about two explanations of the stagflation than sharing a reference cited by only two: the second and third measures encode this idea.</p>
@@ -208,12 +214,12 @@ c_{ik} = \sum_j a_{ij} a_{kj} = |R_i \cap R_k|,
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">pairs</span><span class="op">[</span>, <span class="va">measures</span><span class="op">]</span>, method <span class="op">=</span> <span class="st">"spearman"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                    coupling_angle coupling_strength coupling_similarity
-coupling_angle               1.000             0.843               0.843
-coupling_strength            0.843             1.000               1.000
-coupling_similarity          0.843             1.000               1.000</code></pre>
+coupling_angle               1.000             0.819               0.958
+coupling_strength            0.819             1.000               0.884
+coupling_similarity          0.958             0.884               1.000</code></pre>
 </div>
 </div>
-<p>The three measures keep the same pairs (the threshold applies to the raw count) but weight them differently. Coupling strength and coupling similarity rank the pairs identically, and not by chance: in the current version of biblionetwork, the normalisation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>i</mi></msub><annotation encoding="application/x-tex">S_i</annotation></semantics></math> of the coupling similarity gives every reference the weight of the first one, so that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>i</mi></msub><annotation encoding="application/x-tex">S_i</annotation></semantics></math> is proportional to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>L</mi><mi>i</mi></msub><annotation encoding="application/x-tex">L_i</annotation></semantics></math> and the measure is proportional to the coupling strength. Until this is corrected, coupling strength and coupling angle are the two distinct options. The coupling angle, which treats all references alike, departs more from the coupling strength. A rank correlation of 0.84 still leaves room for different clusters at the margin: when the conclusions of a study rest on the exact composition of a cluster, it is worth checking them with a second measure.</p>
+<p>The three measures keep the same pairs (the threshold applies to the raw count) but weight them differently. The coupling similarity is a cosine like the coupling angle, and discounts the common references like the coupling strength: its ranking of the pairs is close to the angle’s (a rank correlation above 0.95) and nearer to the strength’s than the angle’s is. The coupling angle, which treats all references alike, departs most from the coupling strength (a rank correlation of about 0.82). Such a correlation still leaves room for different clusters at the margin: when the conclusions of a study rest on the exact composition of a cluster, it is worth checking them with a second measure. <code>biblionetwork</code> has tools to compare measures on a corpus (<code>compute_couplings()</code>, <code>correlate_weights()</code>).</p>
 </section><section class="level3"><h3 id="thresholds">Thresholds<a class="anchor" aria-label="anchor" href="#thresholds"></a>
 </h3>
 <p>Most pairs of articles in a literature share one or two classic references. These ties say little, and they make the network dense (<code>edges_threshold = 1</code> links a quarter of all pairs here). Raising the threshold keeps the pairs that share at least <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> references:</p>
@@ -342,7 +348,7 @@ coupling_similarity          0.843             1.000               1.000</code><
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Window"</span>, y <span class="op">=</span> <span class="st">"Documents in the main component"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-window-size" class="quarto-float quarto-figure quarto-figure-center" alt="Number of documents in the main component of each ten-year window, from 1975-1984 to 2004-2013: high in the first windows, very low for windows centred on the late 1980s, and rising again from the mid-1990s." width="1100">
+<div id="fig-window-size" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Number of documents in the main component of each ten-year window, from 1975-1984 to 2004-2013: high in the first windows, very low for windows centred on the late 1980s, and rising again from the mid-1990s.">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-window-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="from-references-to-networks_files/figure-html/fig-window-size-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: "><img src="from-references-to-networks_files/figure-html/fig-window-size-1.png" id="fig-window-size" alt="Number of documents in the main component of each ten-year window, from 1975-1984 to 2004-2013: high in the first windows, very low for windows centred on the late 1980s, and rising again from the mid-1990s." width="1100"></a>
 </div>

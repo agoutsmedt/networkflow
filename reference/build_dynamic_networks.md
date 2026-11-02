@@ -231,15 +231,16 @@ three measures computed by biblionetwork are:
   in the spirit of an inverse document frequency: \$\$w\_{ik} =
   \frac{\sum\_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};\$\$
 
-- `"coupling_similarity"`, inspired by Shen et al. (2019) , which
-  normalises the same weighted sum by the weighted size of each
-  bibliography, \\S_i = \sum\_{j \in R_i} \log(N / f_j)\\: \$\$w\_{ik} =
-  \frac{\sum\_{j \in R_i \cap R_k} \log(N / f_j)}{S_i S_k}.\$\$ Warning:
-  in biblionetwork 0.1.x, \\S_i\\ is not computed as intended (all
-  references get the weight of the first one, so that \\S_i \propto
-  L_i\\), which makes `"coupling_similarity"` proportional to
-  `"coupling_strength"`. Until this is fixed in biblionetwork, prefer
-  `"coupling_strength"` or `"coupling_angle"`.
+- `"coupling_similarity"`, the idf-weighted cosine of Shen et al. (2019)
+  : each source is described by a vector with one component per target,
+  equal to \\\sqrt{\log(N / f_j)}\\, and the weight is the cosine of the
+  vectors of two sources, with \\S_i = \sum\_{j \in R_i} \log(N / f_j)\\
+  the weighted size of the bibliography: \$\$w\_{ik} = \frac{\sum\_{j
+  \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.\$\$ Like the
+  coupling angle, it lies between 0 and 1; like the coupling strength,
+  it discounts the targets linked to many sources. (Versions 0.1.1 and
+  earlier of biblionetwork computed this measure wrongly: use
+  biblionetwork 0.1.1.9000 or later.)
 
 Targets linked to a single source cannot create a tie and are dropped
 before the computation. The threshold applies to the raw count \\\|R_i
@@ -413,11 +414,11 @@ networks[[1]]
 #> # ℹ 2 more variables: source_type <chr>, time_window <chr>
 #> #
 #> # Edge Data: 405 × 5
-#>    from    to   weight Source  Target    
-#>   <int> <int>    <dbl> <chr>   <chr>     
-#> 1    14    21 0.00159  1021902 1111111122
-#> 2    15    21 0.000182 1021902 1111111128
-#> 3    20    21 0.000461 1021902 1111111134
+#>    from    to weight Source   Target    
+#>   <int> <int>  <dbl> <chr>    <chr>     
+#> 1    14    21 0.116  1021902  1111111122
+#> 2    15    21 0.0259 1021902  1111111128
+#> 3    15    22 0.0681 10585974 1111111128
 #> # ℹ 402 more rows
 
 # Co-citation: cited documents linked when the same documents cite them,
@@ -465,11 +466,11 @@ cocitation[[1]]
 #> # ℹ 112 more rows
 #> #
 #> # Edge Data: 354 × 5
-#>    from    to weight Source   Target 
-#>   <int> <int>  <dbl> <chr>    <chr>  
-#> 1     1     3  0.447 1021902  1059321
-#> 2     1    98  0.707 1021902  4364152
-#> 3     2    95  0.707 10585974 4145939
+#>    from    to weight Source     Target    
+#>   <int> <int>  <dbl> <chr>      <chr>     
+#> 1     1     3  0.447 1021902    1059321   
+#> 2     3     4  0.516 1059321    10990368  
+#> 3     6     7  0.632 1111111317 1111111343
 #> # ℹ 351 more rows
 
 # Authors linked by the references of the documents they sign
@@ -508,11 +509,11 @@ author_coupling
 #> # ℹ 110 more rows
 #> #
 #> # Edge Data: 2,365 × 6
-#>    from    to  weight Source     Target       Weighting_method 
-#>   <int> <int>   <dbl> <chr>      <chr>        <chr>            
-#> 1   103   119 0.104   ALBANESI-S CHARI-V      coupling_strength
-#> 2   105   119 0.0615  ALBANESI-S CHRISTIANO-L coupling_strength
-#> 3     6   119 0.00267 ALBANESI-S BARSKY-R     coupling_strength
+#>    from    to  weight Source     Target     Weighting_method 
+#>   <int> <int>   <dbl> <chr>      <chr>      <chr>            
+#> 1    16   119 0.00355 ALBANESI-S BALL-L     coupling_strength
+#> 2     6   119 0.00267 ALBANESI-S BARSKY-R   coupling_strength
+#> 3    78   119 0.00548 ALBANESI-S BILBIIE-FO coupling_strength
 #> # ℹ 2,362 more rows
 
 # \donttest{

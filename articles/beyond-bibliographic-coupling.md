@@ -448,11 +448,12 @@ node_table(author_network) |>
     1      01      27 ORPHANIDES-A, MELTZER-A, TAYLOR-J, CUKIERMAN-A
     2      02      22   BLINDER-A, NORDHAUS-W, KILIAN-L, BLANCHARD-O
     3      03      17     SARGENT-T, COGLEY-T, WATSON-M, CECCHETTI-S
-    4      04      14       CHRISTIANO-L, BALL-L, CHARI-V, IRELAND-P
-    5      05      12              GORDON-R, MORK-K, FRYE-J, PERRY-G
+    4      04      12              GORDON-R, MORK-K, FRYE-J, PERRY-G
+    5      05       8        CHRISTIANO-L, BALL-L, CHARI-V, MANKIW-G
     6      06       8            RASCHE-R, TATOM-J, POOLE-W, DARBY-M
     7      07       7      BRUNO-M, SACHS-J, MCCALLUM-C, HELLIWELL-J
-    8      08       4   ROTEMBERG-J, GISSER-M, GOODWIN-T, WOODFORD-M
+    8      08       6          IRELAND-P, DELONG-B, MAYER-T, VELDE-F
+    9      09       4   ROTEMBERG-J, GISSER-M, GOODWIN-T, WOODFORD-M
 
 The groups are named after their most prolific authors. Orphanides and
 Taylor, whose works are among the most co-cited ones above, sit in the

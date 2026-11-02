@@ -118,16 +118,18 @@ unique(alluv_dt[, c("dynamic_cluster_leiden", "minimize_crossing_order")])
 #>     dynamic_cluster_leiden minimize_crossing_order
 #>                     <char>                   <int>
 #>  1:                   cl_1                       1
-#>  2:                  cl_10                      12
-#>  3:                  cl_11                       3
+#>  2:                  cl_10                      15
+#>  3:                  cl_11                       2
 #>  4:                  cl_12                       4
 #>  5:                  cl_13                       5
-#>  6:                   cl_2                       6
-#>  7:                   cl_3                       7
-#>  8:                   cl_4                       8
-#>  9:                   cl_5                       9
-#> 10:                   cl_6                      10
-#> 11:                   cl_7                      11
-#> 12:                   cl_8                      13
-#> 13:                   cl_9                       2
+#>  6:                  cl_14                       6
+#>  7:                  cl_15                       7
+#>  8:                   cl_2                       8
+#>  9:                   cl_3                       9
+#> 10:                   cl_4                      10
+#> 11:                   cl_5                      11
+#> 12:                   cl_6                      12
+#> 13:                   cl_7                      13
+#> 14:                   cl_8                      14
+#> 15:                   cl_9                       3
 ```

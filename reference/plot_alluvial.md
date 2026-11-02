@@ -156,6 +156,8 @@ plot_alluvial(
   color_alluvial = TRUE,
   minimize_crossing = TRUE
 )
+#> Warning: 15 categories but 14 default colours: colours are recycled.
+#> ℹ Give a palette in `color` (e.g. `scico::scico(15, palette = "batlow")`).
 #> Warning: no non-missing arguments to max; returning -Inf
 
 # }
