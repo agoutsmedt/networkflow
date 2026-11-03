@@ -399,7 +399,7 @@ author), the reference (`target_id`) and the document through which the
 author cites it (`document_id`). The last one matters because an author
 may cite a reference in several documents, and this counts more than one
 citation. Following Zhao and Strotmann ([2008](#ref-zhao2008)),
-`coupling_entity()` of biblionetwork ([Goutsmedt et al.
+`entity_network()` of biblionetwork ([Goutsmedt et al.
 2023](#ref-goutsmedt2023biblionetwork)) weights the tie between authors
 $`A`$ and $`B`$ by the number of times they cite the same references
 “together”. With $`C_{Aj}`$ the number of documents of $`A`$ citing

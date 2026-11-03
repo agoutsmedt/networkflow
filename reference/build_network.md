@@ -63,7 +63,7 @@ build_network(
   documents but *entities that publish documents* (authors, journals,
   institutions) and a reference cited by several documents of an entity
   counts several times, following
-  [`biblionetwork::coupling_entity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html).
+  [`biblionetwork::entity_network()`](https://agoutsmedt.github.io/biblionetwork//reference/entity_network.html).
   Only for `projection_method = "structured"` with `"coupling_angle"` or
   `"coupling_strength"`.
 

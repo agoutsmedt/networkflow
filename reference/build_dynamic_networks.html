@@ -199,7 +199,7 @@ document through which each link exists. With it, <code>source_id</code> entitie
 are not documents but <em>entities that publish documents</em> (authors,
 journals, institutions) and a reference cited by several documents of an
 entity counts several times, following
-<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html" class="external-link">biblionetwork::coupling_entity()</a></code>. Only for <code>projection_method = "structured"</code> with <code>"coupling_angle"</code> or <code>"coupling_strength"</code>.</p></dd>
+<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/entity_network.html" class="external-link">biblionetwork::entity_network()</a></code>. Only for <code>projection_method = "structured"</code> with <code>"coupling_angle"</code> or <code>"coupling_strength"</code>.</p></dd>
 
 
 <dt id="arg-projection-on">projection_on<a class="anchor" aria-label="anchor" href="#arg-projection-on"></a></dt>
@@ -442,7 +442,7 @@ In <em>Proceedings of the American Society for Information Science and Technolog
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="build_network.html">build_network()</a></code> for a single network;
-<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/biblio_coupling.html" class="external-link">biblionetwork::biblio_coupling()</a></code>, <code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_strength.html" class="external-link">biblionetwork::coupling_strength()</a></code>,
+<code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_angle.html" class="external-link">biblionetwork::coupling_angle()</a></code>, <code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_strength.html" class="external-link">biblionetwork::coupling_strength()</a></code>,
 <code><a href="https://agoutsmedt.github.io/biblionetwork//reference/coupling_similarity.html" class="external-link">biblionetwork::coupling_similarity()</a></code>, <code><a href="https://rdrr.io/pkg/backbone/man/backbone_from_projection.html" class="external-link">backbone::backbone_from_projection()</a></code>.
 The next steps of the pipeline are <code><a href="add_clusters.html">add_clusters()</a></code> and
 <code><a href="merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code>.</p></div>
@@ -585,11 +585,11 @@ The next steps of the pipeline are <code><a href="add_clusters.html">add_cluster
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 110 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 2,365 × 6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to  weight Source     Target     Weighting_method </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    16   119 0.003<span style="text-decoration: underline;">55</span> ALBANESI-S BALL-L     coupling_strength</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6   119 0.002<span style="text-decoration: underline;">67</span> ALBANESI-S BARSKY-R   coupling_strength</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>    78   119 0.005<span style="text-decoration: underline;">48</span> ALBANESI-S BILBIIE-FO coupling_strength</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to  weight Source     Target     Weighting_method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>    16   119 0.003<span style="text-decoration: underline;">55</span> ALBANESI-S BALL-L     strength        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     6   119 0.002<span style="text-decoration: underline;">67</span> ALBANESI-S BARSKY-R   strength        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>    78   119 0.005<span style="text-decoration: underline;">48</span> ALBANESI-S BILBIIE-FO strength        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2,362 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>

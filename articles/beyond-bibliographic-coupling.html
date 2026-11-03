@@ -229,7 +229,7 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_networks.html">plot_networks</a></span><span class="op">(</span><span class="va">cocitation</span>, cluster_label_column <span class="op">=</span> <span class="st">"cluster_label"</span>, node_size_column <span class="op">=</span> <span class="st">"node_size"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
-<div id="fig-cocitation" class="quarto-float quarto-figure quarto-figure-center" width="1100" alt="Co-citation network of the works cited by the explanations of the stagflation, with nodes coloured by Leiden cluster, node size proportional to the number of citing documents, and each cluster labelled by its most cited work.">
+<div id="fig-cocitation" class="quarto-float quarto-figure quarto-figure-center" alt="Co-citation network of the works cited by the explanations of the stagflation, with nodes coloured by Leiden cluster, node size proportional to the number of citing documents, and each cluster labelled by its most cited work." width="1100">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-cocitation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: "><img src="beyond-bibliographic-coupling_files/figure-html/fig-cocitation-1.png" id="fig-cocitation" alt="Co-citation network of the works cited by the explanations of the stagflation, with nodes coloured by Leiden cluster, node size proportional to the number of citing documents, and each cluster labelled by its most cited work." width="1100"></a>
 </div>
@@ -366,7 +366,7 @@ Figure 1
 </section><section class="level2"><h2 id="authors-instead-of-documents">Authors instead of documents<a class="anchor" aria-label="anchor" href="#authors-instead-of-documents"></a>
 </h2>
 <p>Coupling can also be computed between <strong>entities that publish documents</strong>: authors, journals, institutions. The nodes are fewer and have a longer history than documents, and the question changes: who relies on the same literature, whatever the documents they write?</p>
-<p>The table of links now has three columns: the entity (<code>source_id</code>, the author), the reference (<code>target_id</code>) and the document through which the author cites it (<code>document_id</code>). The last one matters because an author may cite a reference in several documents, and this counts more than one citation. Following <span class="citation" data-cites="zhao2008">Zhao and Strotmann (<a href="#ref-zhao2008" role="doc-biblioref">2008</a>)</span>, <code>coupling_entity()</code> of biblionetwork <span class="citation" data-cites="goutsmedt2023biblionetwork">(<a href="#ref-goutsmedt2023biblionetwork" role="doc-biblioref">Goutsmedt et al. 2023</a>)</span> weights the tie between authors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> by the number of times they cite the same references “together”. With <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><mi>A</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">C_{Aj}</annotation></semantics></math> the number of documents of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> citing reference <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mo>∑</mo><mi>j</mi></msub><msub><mi>C</mi><mrow><mi>A</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">L(A) = \sum_j C_{Aj}</annotation></semantics></math> the total number of citations of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>, the coupling angle is</p>
+<p>The table of links now has three columns: the entity (<code>source_id</code>, the author), the reference (<code>target_id</code>) and the document through which the author cites it (<code>document_id</code>). The last one matters because an author may cite a reference in several documents, and this counts more than one citation. Following <span class="citation" data-cites="zhao2008">Zhao and Strotmann (<a href="#ref-zhao2008" role="doc-biblioref">2008</a>)</span>, <code>entity_network()</code> of biblionetwork <span class="citation" data-cites="goutsmedt2023biblionetwork">(<a href="#ref-goutsmedt2023biblionetwork" role="doc-biblioref">Goutsmedt et al. 2023</a>)</span> weights the tie between authors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> by the number of times they cite the same references “together”. With <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><mi>A</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">C_{Aj}</annotation></semantics></math> the number of documents of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> citing reference <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mo>∑</mo><mi>j</mi></msub><msub><mi>C</mi><mrow><mi>A</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">L(A) = \sum_j C_{Aj}</annotation></semantics></math> the total number of citations of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>, the coupling angle is</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mrow><mi>A</mi><mi>B</mi></mrow></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mi>j</mi></munder><mrow><mi mathvariant="normal">min</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>C</mi><mrow><mi>A</mi><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>C</mi><mrow><mi>B</mi><mi>j</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><msqrt><mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow></msqrt></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
 w_{AB} = \frac{\sum_{j} \min(C_{Aj}, C_{Bj})}{\sqrt{L(A)\, L(B)}}.
 </annotation></semantics></math></p>
@@ -511,7 +511,8 @@ Zhao, Dangzhi, and Andreas Strotmann. 2008. <span>“Author Bibliographic Coupli
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -520,8 +521,69 @@ Zhao, Dangzhi, and Andreas Strotmann. 2008. <span>“Author Bibliographic Coupli
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -535,6 +597,7 @@ Zhao, Dangzhi, and Andreas Strotmann. 2008. <span>“Author Bibliographic Coupli
         interactiveBorder: 10,
         theme: 'light-border',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;

@@ -3,7 +3,7 @@
 The bibliographic coupling edges between the documents of
 [Nodes_coupling](https://agoutsmedt.github.io/networkflow/reference/Nodes_coupling.md),
 computed with
-`biblionetwork::biblio_coupling(Ref_stagflation, "source_id", "target_id")`
+`biblionetwork::coupling_angle(Ref_stagflation, "source_id", "target_id")`
 (coupling angle, see
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)).
 
@@ -28,7 +28,7 @@ A data frame with 2,593 rows and 5 variables:
 - weight:
 
   Coupling angle between the two documents (see
-  [`biblionetwork::biblio_coupling()`](https://agoutsmedt.github.io/biblionetwork//reference/biblio_coupling.html)).
+  [`biblionetwork::coupling_angle()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_angle.html)).
 
 - Source:
 

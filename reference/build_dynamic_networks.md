@@ -96,7 +96,7 @@ build_dynamic_networks(
   documents but *entities that publish documents* (authors, journals,
   institutions) and a reference cited by several documents of an entity
   counts several times, following
-  [`biblionetwork::coupling_entity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_entity.html).
+  [`biblionetwork::entity_network()`](https://agoutsmedt.github.io/biblionetwork//reference/entity_network.html).
   Only for `projection_method = "structured"` with `"coupling_angle"` or
   `"coupling_strength"`.
 
@@ -362,7 +362,7 @@ Technology*, volume 45(1), 1–10.
 
 [`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
 for a single network;
-[`biblionetwork::biblio_coupling()`](https://agoutsmedt.github.io/biblionetwork//reference/biblio_coupling.html),
+[`biblionetwork::coupling_angle()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_angle.html),
 [`biblionetwork::coupling_strength()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_strength.html),
 [`biblionetwork::coupling_similarity()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_similarity.html),
 [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html).
@@ -509,11 +509,11 @@ author_coupling
 #> # ℹ 110 more rows
 #> #
 #> # Edge Data: 2,365 × 6
-#>    from    to  weight Source     Target     Weighting_method 
-#>   <int> <int>   <dbl> <chr>      <chr>      <chr>            
-#> 1    16   119 0.00355 ALBANESI-S BALL-L     coupling_strength
-#> 2     6   119 0.00267 ALBANESI-S BARSKY-R   coupling_strength
-#> 3    78   119 0.00548 ALBANESI-S BILBIIE-FO coupling_strength
+#>    from    to  weight Source     Target     Weighting_method
+#>   <int> <int>   <dbl> <chr>      <chr>      <chr>           
+#> 1    16   119 0.00355 ALBANESI-S BALL-L     strength        
+#> 2     6   119 0.00267 ALBANESI-S BARSKY-R   strength        
+#> 3    78   119 0.00548 ALBANESI-S BILBIIE-FO strength        
 #> # ℹ 2,362 more rows
 
 # \donttest{
