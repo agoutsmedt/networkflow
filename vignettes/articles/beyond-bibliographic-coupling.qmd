@@ -322,7 +322,7 @@ The table of links now has three columns: the entity (`source_id`, the
 author), the reference (`target_id`) and the document through which the
 author cites it (`document_id`). The last one matters because an author
 may cite a reference in several documents, and this counts more than one
-citation. Following @zhao2008, `coupling_entity()` of biblionetwork
+citation. Following @zhao2008, `entity_network()` of biblionetwork
 [@goutsmedt2023biblionetwork] weights the tie between authors $A$ and $B$
 by the number of times they cite the same references "together". With
 $C_{Aj}$ the number of documents of $A$ citing reference $j$ and

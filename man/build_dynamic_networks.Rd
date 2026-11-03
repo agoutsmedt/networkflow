@@ -49,7 +49,7 @@ document through which each link exists. With it, \code{source_id} entities
 are not documents but \emph{entities that publish documents} (authors,
 journals, institutions) and a reference cited by several documents of an
 entity counts several times, following
-\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
+\code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
 
 \item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
 that share \code{target_id} entities (bibliographic coupling: articles
@@ -347,7 +347,7 @@ backbones <- build_dynamic_networks(
 }
 \seealso{
 \code{\link[=build_network]{build_network()}} for a single network;
-\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}, \code{\link[biblionetwork:coupling_strength]{biblionetwork::coupling_strength()}},
+\code{\link[biblionetwork:coupling_angle]{biblionetwork::coupling_angle()}}, \code{\link[biblionetwork:coupling_strength]{biblionetwork::coupling_strength()}},
 \code{\link[biblionetwork:coupling_similarity]{biblionetwork::coupling_similarity()}}, \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}.
 The next steps of the pipeline are \code{\link[=add_clusters]{add_clusters()}} and
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}.

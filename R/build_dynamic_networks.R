@@ -108,7 +108,7 @@
 #'   are not documents but *entities that publish documents* (authors,
 #'   journals, institutions) and a reference cited by several documents of an
 #'   entity counts several times, following
-#'   [biblionetwork::coupling_entity()]. Only for `projection_method =
+#'   [biblionetwork::entity_network()]. Only for `projection_method =
 #'   "structured"` with `"coupling_angle"` or `"coupling_strength"`.
 #'
 #' @details
@@ -206,7 +206,7 @@
 #'   method.
 #'
 #' @seealso [build_network()] for a single network;
-#'   [biblionetwork::biblio_coupling()], [biblionetwork::coupling_strength()],
+#'   [biblionetwork::coupling_angle()], [biblionetwork::coupling_strength()],
 #'   [biblionetwork::coupling_similarity()], [backbone::backbone_from_projection()].
 #'   The next steps of the pipeline are [add_clusters()] and
 #'   [merge_dynamic_clusters()].
@@ -652,7 +652,7 @@ build_dynamic_networks <- function(
     } else if (projection_method == "structured") {
       biblio_function <- switch(
         cooccurrence_method,
-        coupling_angle = biblionetwork::biblio_coupling,
+        coupling_angle = biblionetwork::coupling_angle,
         coupling_strength = biblionetwork::coupling_strength,
         coupling_similarity = biblionetwork::coupling_similarity
       )
@@ -675,14 +675,14 @@ build_dynamic_networks <- function(
             # reference cited by several documents of an entity counts more.
             data.table::setnames(edges_for_biblio, c("from", "to", "document"),
                                  c("entity", "reference", "citing_document"))
-            edges_of_the_year <- biblionetwork::coupling_entity(
+            edges_of_the_year <- biblionetwork::entity_network(
               dt = edges_for_biblio,
               source = "citing_document",
               ref = "reference",
               entity = "entity",
               weight_threshold = edges_threshold,
               output_in_character = TRUE,
-              method = cooccurrence_method
+              method = sub("^coupling_", "", cooccurrence_method)
             )
           }
         },

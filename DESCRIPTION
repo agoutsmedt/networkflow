@@ -31,7 +31,7 @@ Remotes:
 Depends:
     R (>= 4.1.0)
 Imports:
-    biblionetwork (>= 0.1.1.9000),
+    biblionetwork (>= 0.2.0),
     cli,
     data.table (>= 1.15.0),
     dplyr,

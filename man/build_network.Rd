@@ -43,7 +43,7 @@ document through which each link exists. With it, \code{source_id} entities
 are not documents but \emph{entities that publish documents} (authors,
 journals, institutions) and a reference cited by several documents of an
 entity counts several times, following
-\code{\link[biblionetwork:coupling_entity]{biblionetwork::coupling_entity()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
+\code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
 
 \item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
 that share \code{target_id} entities (bibliographic coupling: articles

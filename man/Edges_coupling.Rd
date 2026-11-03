@@ -10,7 +10,7 @@ A data frame with 2,593 rows and 5 variables:
 \item{from}{Identifier of the first document, as a character string.}
 \item{to}{Identifier of the second document, as a character string.}
 \item{weight}{Coupling angle between the two documents (see
-\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}}).}
+\code{\link[biblionetwork:coupling_angle]{biblionetwork::coupling_angle()}}).}
 \item{Source}{Copy of \code{from}.}
 \item{Target}{Copy of \code{to}.}
 }
@@ -25,7 +25,7 @@ Edges_coupling
 \description{
 The bibliographic coupling edges between the documents of
 \link{Nodes_coupling}, computed with
-\code{biblionetwork::biblio_coupling(Ref_stagflation, "source_id", "target_id")}
+\code{biblionetwork::coupling_angle(Ref_stagflation, "source_id", "target_id")}
 (coupling angle, see \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}).
 }
 \keyword{datasets}
