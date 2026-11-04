@@ -100,7 +100,7 @@ $$P_i = 1 - \sum_s \left( \frac{k_{is}}{k_i} \right)^2.$$</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_node_roles</span><span class="op">(</span></span>
 <span>  <span class="va">graphs</span>,</span>
 <span>  cluster_id <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span>
-<span>  weight_col <span class="op">=</span> <span class="st">"weight"</span>,</span>
+<span>  weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  z_threshold <span class="op">=</span> <span class="fl">2.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -121,10 +121,11 @@ The default, <code>"dynamic_cluster_leiden"</code>, fits the output of
 <code><a href="add_clusters.html">add_clusters()</a></code> alone.</p></dd>
 
 
-<dt id="arg-weight-col">weight_col<a class="anchor" aria-label="anchor" href="#arg-weight-col"></a></dt>
-<dd><p>Character scalar, the edge column with the weights
-(<code>"weight"</code> by default). Use a column of ones for an unweighted
-analysis.</p></dd>
+<dt id="arg-weights">weights<a class="anchor" aria-label="anchor" href="#arg-weights"></a></dt>
+<dd><p>Edge weights, as in <code><a href="add_clusters.html">add_clusters()</a></code> and the functions of
+<code>tidygraph</code>. <code>NULL</code> (default) uses the <code>weight</code> edge column if there is
+one, and treats the graph as unweighted otherwise. A character scalar
+names another edge column. <code>NA</code> ignores the weights.</p></dd>
 
 
 <dt id="arg-z-threshold">z_threshold<a class="anchor" aria-label="anchor" href="#arg-z-threshold"></a></dt>
@@ -138,7 +139,7 @@ is a hub (2.5, the value of Guimerà and Amaral).</p></dd>
 <code>within_module_degree</code> (\(\kappa_i\)), <code>within_module_z</code>
 (\(z_i\), 0 when all members of the cluster have the same
 \(\kappa\)), <code>participation_coeff</code> (\(P_i\), 0 for isolated nodes)
-and <code>role_ga</code> (the role).</p>
+and <code>roles</code> (the role).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -244,7 +245,7 @@ bridge two literatures) rather than as categories.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu">add_node_roles</span><span class="op">(</span><span class="va">network</span>, cluster_id <span class="op">=</span> <span class="st">"cluster_leiden"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu">tidygraph</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">network</span>, active <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">role_ga</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu">tidygraph</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">network</span>, active <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">roles</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  R1 ultra-peripheral        R2 peripheral R3 non-hub connector </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   12                  125                    9 </span>

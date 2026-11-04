@@ -25,7 +25,7 @@ spread evenly across clusters: \$\$P_i = 1 - \sum_s \left(
 add_node_roles(
   graphs,
   cluster_id = "dynamic_cluster_leiden",
-  weight_col = "weight",
+  weights = NULL,
   z_threshold = 2.5
 )
 ```
@@ -45,10 +45,14 @@ add_node_roles(
   [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
   alone.
 
-- weight_col:
+- weights:
 
-  Character scalar, the edge column with the weights (`"weight"` by
-  default). Use a column of ones for an unweighted analysis.
+  Edge weights, as in
+  [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
+  and the functions of `tidygraph`. `NULL` (default) uses the `weight`
+  edge column if there is one, and treats the graph as unweighted
+  otherwise. A character scalar names another edge column. `NA` ignores
+  the weights.
 
 - z_threshold:
 
@@ -60,7 +64,7 @@ add_node_roles(
 The same object as `graphs` with four new node columns:
 `within_module_degree` (\\\kappa_i\\), `within_module_z` (\\z_i\\, 0
 when all members of the cluster have the same \\\kappa\\),
-`participation_coeff` (\\P_i\\, 0 for isolated nodes) and `role_ga` (the
+`participation_coeff` (\\P_i\\, 0 for isolated nodes) and `roles` (the
 role).
 
 ## Details
@@ -191,7 +195,7 @@ network <- add_clusters(
 )
 
 network <- add_node_roles(network, cluster_id = "cluster_leiden")
-table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
+table(tidygraph::as_tibble(network, active = "nodes")$roles)
 #> 
 #>  R1 ultra-peripheral        R2 peripheral R3 non-hub connector 
 #>                   12                  125                    9 

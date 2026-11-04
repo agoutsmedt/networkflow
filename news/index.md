@@ -51,14 +51,17 @@ changes are given with respect to 0.0.9.9000.
   and `graphs` replaces `list_graph`
   ([`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md),
   [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)).
+  [`add_node_roles()`](https://agoutsmedt.github.io/networkflow/reference/add_node_roles.md)
+  takes `weights`, as
+  [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
+  and tidygraph (`NULL` uses the `weight` edge column if any), and
+  writes the roles in a column named `roles` (it was `role_ga`).
   [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
   keeps `data`, as it also takes plain tables.
 - [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
   returns a named list of ggplot objects for a list of graphs.
 - [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
   returns `window` as a factor in the order of the list of graphs.
-- `launch_network_app()` is removed: the Shiny application moves to the
-  package networkflowapp.
 - biblionetwork \>= 0.2.0 is required.
 
 ### New features
@@ -145,9 +148,6 @@ Science:
   choices, with formulas displayed on the website, the origin of each
   measure, and the cost of the slow methods (statistical backbones,
   ForceAtlas2, Kamada-Kawai).
-- The README is written in Quarto, with an illustration in a light and a
-  dark version, and the studies that used the package.
-- New theme, logo and favicons.
 
 ## networkflow 0.0.9.9000 (2026-11-01)
 
