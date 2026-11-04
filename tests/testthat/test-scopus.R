@@ -28,7 +28,7 @@ test_that("the dynamic pipeline runs on a real Scopus corpus", {
   networks <- build_dynamic_networks(nodes, refs, "source_id", "target_id",
                                      time_variable = "year", time_window = 5,
                                      window_step = 1,
-                                     cooccurrence_method = "coupling_strength",
+                                     method = "strength",
                                      edges_threshold = 2, filter_components = TRUE,
                                      verbose = FALSE)
   expect_length(networks, 6)

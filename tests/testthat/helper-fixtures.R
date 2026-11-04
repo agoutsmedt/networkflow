@@ -65,8 +65,7 @@ stagflation_network <- function(threshold = 2) {
     directed_edges = Ref_stagflation,
     source_id = "source_id",
     target_id = "target_id",
-    projection_method = "structured",
-    cooccurrence_method = "coupling_angle",
+    method = "angle",
     edges_threshold = threshold
   )
 }

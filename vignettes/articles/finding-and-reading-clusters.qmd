@@ -3,7 +3,7 @@ title: "Finding and reading clusters"
 description: >
   What community detection does, how the Leiden algorithm and its
   resolution shape the clusters, how to check their stability, and how to
-  name, characterise and draw them.
+  name and characterise them.
 bibliography: references.bib
 lightbox: true
 ---
@@ -32,8 +32,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 ```
@@ -63,7 +62,7 @@ weight than expected by chance.
 
 ## Detecting clusters with Leiden
 
-`add_clusters()` gives access to five algorithms of igraph. The Leiden
+`add_clusters()` gives access to five algorithms of [`igraph`](https://r.igraph.org/). The Leiden
 algorithm [@traag2019] is the default choice of recent bibliometric work.
 It improves on Louvain [@blondel2008] by guaranteeing that clusters are
 connected, and iterating it keeps refining the partition.
@@ -86,8 +85,13 @@ cluster of their two ends, or "00" when they connect two clusters.
 ```{r}
 #| label: leiden-sizes
 node_table <- as_tibble(network, active = "nodes")
-sort(table(node_table$cluster_leiden), decreasing = TRUE)
+node_table |>
+  count(cluster_leiden, name = "number_of_nodes", sort = TRUE) |>
+  rename(community = cluster_leiden)
 ```
+
+The table gives, for each community (the cluster number, "01" being the
+largest), its number of nodes, that is of documents.
 
 ### Resolution and the number of clusters
 
@@ -168,16 +172,53 @@ are. But $\gamma$ then lives on the scale of the edge weights:
 
 ```{r}
 #| label: cpm
-summary(igraph::E(network)$weight)
-cpm <- add_clusters(network, clustering_method = "leiden", objective_function = "CPM",
-                    resolution = 1, seed = 123, verbose = FALSE)
-length(unique(as_tibble(cpm, active = "nodes")$cluster_leiden))
+edge_weights <- as_tibble(network, active = "edges")$weight
+n_documents <- igraph::vcount(network)
+density <- sum(edge_weights) / choose(n_documents, 2)
+c(smallest = min(edge_weights), median = median(edge_weights), largest = max(edge_weights), density = density)
 ```
 
-With weights around $10^{-4}$, no group of documents is dense enough for
-$\gamma = 1$, and every document is its own cluster. With CPM, the
-resolution must be chosen from the distribution of the weights, for
-instance close to the density of the network for an unweighted graph.
+The weights of this network lie between `r signif(min(edge_weights), 2)` and
+`r signif(max(edge_weights), 2)`, so that a resolution of 1 asks clusters to be
+denser than any pair of documents can be: every document would be its own
+cluster. A natural scale for $\gamma$ is the **density** of the network, here
+the mean weight over all the pairs of documents, $\bar{w} = \sum_{ik} w_{ik} /
+\binom{n}{2} =$ `r signif(density, 2)`. A cluster created with
+$\gamma = \bar{w}$ is, on average, as dense as the whole network; with
+$\gamma = 2\bar{w}$ or $3\bar{w}$, it must be two or three times denser.
+The higher the multiple, the more the clusters split into small, very
+cohesive groups:
+
+```{r}
+#| label: cpm-density
+cpm_scan <- lapply(c(1, 2, 3), function(multiple) {
+  clustered <- add_clusters(
+    network,
+    clustering_method = "leiden",
+    objective_function = "CPM",
+    resolution = multiple * density,
+    seed = 123,
+    verbose = FALSE
+  )
+  sizes <- as_tibble(clustered, active = "nodes") |>
+    count(cluster_leiden, name = "number_of_nodes")
+  tibble(
+    resolution = multiple * density,
+    multiple_of_density = multiple,
+    clusters = nrow(sizes),
+    largest_cluster = max(sizes$number_of_nodes),
+    clusters_of_5_nodes_or_more = sum(sizes$number_of_nodes >= 5)
+  )
+})
+bind_rows(cpm_scan)
+```
+
+At the density of the network, CPM finds a few sizeable clusters, close to
+the readings of modularity, and a tail of small groups; at three times the
+density, the largest cluster is much smaller and most documents are in
+clusters that are too small to be read. The density gives a starting point,
+not a rule: as for modularity, the resolution has to be explored, and the
+clusters that a narrative relies on checked at neighbouring values.
 
 ## Reading clusters
 
@@ -233,10 +274,31 @@ Titles are short, and their words are not always informative ("great",
 terms per cluster, and abstracts, when available, give better labels than
 titles.
 
-Other methods name a cluster after one of its documents:
-`method = "tidygraph_functions"` uses the most central document, for
-instance by PageRank, and `method = "given_column"` the document with the
-highest value of a column, such as the number of citations received.
+Other methods name a cluster after one of its documents.
+`method = "tidygraph_functions"` uses the most central document: the
+centrality is any function of [`tidygraph`](https://tidygraph.data-imaginist.com/)
+that computes a node measure, given as a call in `tidygraph_function`, and
+`label_columns` says which column of the node table makes the label. Here,
+each cluster is named after its document with the highest PageRank:
+
+```{r}
+#| label: names-central
+central <- name_clusters(
+  network,
+  method = "tidygraph_functions",
+  tidygraph_function = tidygraph::centrality_pagerank(),
+  cluster_id = "cluster_leiden",
+  label_columns = c("source_author", "source_year")
+)
+as_tibble(central, active = "nodes") |>
+  distinct(cluster_leiden, cluster_label) |>
+  arrange(cluster_leiden)
+```
+
+`method = "given_column"` does the same with the highest value of a column
+that you provide, such as the number of citations received within the
+corpus (`order_by = "node_size"`, with `compute_size = TRUE` in
+`build_network()`).
 
 ### The role of documents: hubs and bridges
 
@@ -369,68 +431,13 @@ and a connector a work used by several literatures; for authors coupled
 through their references (see [beyond bibliographic coupling](beyond-bibliographic-coupling.html)),
 a connector is an author who cites several literatures.
 
-## Drawing the network
-
-Plotting needs coordinates, colours and label positions.
-`layout_networks()` computes coordinates with a force-directed layout:
-here Fruchterman-Reingold [@fruchterman1991], which balances an attraction
-along edges, stronger for heavier edges, with a repulsion between all
-nodes. Kamada-Kawai (`"kk"`, @kamada1989), which draws graph distances as
-geometric distances, is another common choice, with a trap: igraph reads
-the `weight` column as a *distance* for this layout, so that similarity
-weights pull weakly tied documents to the margins. With similarity
-weights, either use `"fr"` or ignore the weights (`weights = NA`). `color_networks()` gives each cluster a colour, and edges a
-mix of the colours of their ends. `plot_networks()` assembles the figure.
-
-```{r}
-#| label: fig-network
-#| fig-height: 8
-#| fig-alt: >
-#|   Bibliographic coupling network of the documents explaining the 1970s
-#|   stagflation, with nodes coloured by Leiden cluster and a label at the
-#|   centre of each cluster made of its three most distinctive title words.
-set.seed(1)
-network <- layout_networks(network, node_id = "source_id", layout = "fr")
-n_clusters <- length(unique(roles$cluster_leiden))
-palette <- data.frame(
-  cluster_leiden = sort(unique(roles$cluster_leiden)),
-  color = scico::scico(n_clusters, palette = "batlow")
-)
-network <- color_networks(network, column_to_color = "cluster_leiden", color = palette)
-plot_networks(
-  network,
-  cluster_label_column = "cluster_label",
-  node_size_column = NULL
-)
-```
-
-Clusters drawn next to each other share more references than clusters at
-opposite ends, but distances in such a figure should not be measured: the
-layout is a compromise between many constraints, and another seed gives
-another, equally valid, picture.
-
-For a closer reading, `launch_network_app()` opens the same network in an
-interactive application: clicking a cluster lists its documents with their
-authors, titles and journals.
-
-```{r}
-#| label: app
-#| eval: false
-launch_network_app(
-  graph_tbl = network,
-  cluster_id = "cluster_label",
-  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
-  node_id = "source_id",
-  node_tooltip = "source_label",
-  color = "color",
-  layout = NULL
-)
-```
-
 ## What comes next
 
-A single network of the whole period mixes literatures that did not
-coexist. The [last guide](following-clusters-over-time.html) builds one
-network per time window and follows the clusters across windows.
+Clusters are easier to read on a map. The [next guide](drawing-networks.html)
+shows how to compute the coordinates of the nodes, with several layouts, to
+colour the clusters and to draw the network. A single network of the whole
+period also mixes literatures that did not coexist: the [last
+guide](following-clusters-over-time.html) builds one network per time window
+and follows the clusters across windows.
 
 ## References

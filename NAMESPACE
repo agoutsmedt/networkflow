@@ -9,7 +9,6 @@ export(color_alluvial)
 export(color_networks)
 export(extract_tfidf)
 export(filter_components)
-export(launch_network_app)
 export(layout_networks)
 export(merge_diagnostics)
 export(merge_dynamic_clusters)
@@ -23,13 +22,11 @@ export(prepare_label_alluvial)
 export(prepare_label_networks)
 import(data.table)
 importFrom(Rdpack,reprompt)
-importFrom(lifecycle,badge)
 importFrom(magrittr,"%>%")
 importFrom(rlang,
   "!!",
   .data
 )
-importFrom(stopwords,stopwords)
 importFrom(tidygraph,
   "%E>%",
   "%N>%",

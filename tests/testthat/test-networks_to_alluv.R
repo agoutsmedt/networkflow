@@ -39,3 +39,19 @@ test_that("plot_alluvial returns a ggplot built on the table", {
   expect_true("color" %in% names(plot$data))
   expect_error(plot_alluvial(alluv, "nope", "id"), "nope")
 })
+
+test_that("plot_alluvial accepts the list of graphs and filters the clusters", {
+  graphs <- toy_alluvial()
+  from_graphs <- suppressMessages(plot_alluvial(graphs, "dynamic_cluster", "id"))
+  from_table <- suppressMessages(plot_alluvial(
+    networks_to_alluv(graphs, "dynamic_cluster", "id"), "dynamic_cluster", "id"
+  ))
+  expect_s3_class(from_graphs, "ggplot")
+  expect_equal(nrow(from_graphs$data), nrow(from_table$data))
+  # a cluster present in a single window is dropped with min_windows_cluster = 2
+  filtered <- suppressMessages(plot_alluvial(graphs, "dynamic_cluster", "id", min_windows_cluster = 3))
+  expect_lt(nrow(filtered$data), nrow(from_graphs$data))
+  expect_error(plot_alluvial(graphs, "dynamic_cluster", "id", min_windows_cluster = 3, min_share_cluster = 200),
+               NA)
+  expect_error(plot_alluvial(1:3, "dynamic_cluster", "id"), "alluv_dt")
+})

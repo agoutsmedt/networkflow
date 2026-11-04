@@ -39,7 +39,7 @@ with \code{cluster_label_column} as the categories.}
 \item{color}{With \code{color_networks = TRUE}, the colours passed to
 \code{\link[=color_networks]{color_networks()}}.}
 
-\item{print_plot_code}{Logical. If \code{TRUE}, prints the ggplot2/ggraph code
+\item{print_plot_code}{Logical. If \code{TRUE}, prints the \href{https://ggplot2.tidyverse.org/}{\code{ggplot2}}/\code{ggraph} code
 of the plot.}
 }
 \value{
@@ -47,6 +47,8 @@ For a \code{tbl_graph}, a ggplot object. For a list of graphs, a named
 list of ggplot objects, one per graph (e.g. per time window).
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{plot_networks()} draws a network from the columns created by the
 previous steps of the pipeline: coordinates (\code{\link[=layout_networks]{layout_networks()}}),
 colours (\code{\link[=color_networks]{color_networks()}}) and cluster labels (\code{\link[=name_clusters]{name_clusters()}} and
@@ -55,15 +57,13 @@ follows their weight, nodes as points whose size follows
 \code{node_size_column}, and each cluster gets a label at its centre of
 gravity.
 
-It is meant as a quick, ready-made figure. For exploration, the
-interactive app of \code{\link[=launch_network_app]{launch_network_app()}} is more convenient; for a
-figure to publish, \code{print_plot_code = TRUE} prints the ggraph code, which
+It is meant as a quick, ready-made figure. For a figure to publish, \code{print_plot_code = TRUE} prints the \href{https://ggraph.data-imaginist.com/}{\code{ggraph}} code, which
 can be copied and adapted.
 }
 \details{
 Missing pieces are filled in: labels are positioned with
 \code{\link[=prepare_label_networks]{prepare_label_networks()}} when \code{label_x} is absent, and edges without a
-\code{weight} column get a weight of 1. Labels are drawn with ggrepel, which
+\code{weight} column get a weight of 1. Labels are drawn with \href{https://ggrepel.slowkow.com/}{\code{ggrepel}}, which
 must be installed.
 }
 \examples{
@@ -73,8 +73,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 network <- add_clusters(

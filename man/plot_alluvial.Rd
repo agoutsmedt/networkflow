@@ -15,11 +15,17 @@ plot_alluvial(
   minimize_crossing = FALSE,
   prepare_label = FALSE,
   cluster_label_column = "cluster_label",
+  min_share_cluster = NULL,
+  min_windows_cluster = NULL,
   print_plot_code = FALSE
 )
 }
 \arguments{
-\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}.}
+\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}, or
+directly the list of \code{tbl_graph}s with dynamic clusters (see
+\code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}), which is then converted with
+\code{\link[=networks_to_alluv]{networks_to_alluv()}} (\code{color_column} and \code{cluster_label_column} are
+the columns kept).}
 
 \item{intertemporal_cluster_column}{Character scalar, the column with the
 dynamic clusters (e.g. \code{"dynamic_cluster_leiden"}).}
@@ -30,7 +36,7 @@ dynamic clusters (e.g. \code{"dynamic_cluster_leiden"}).}
 (\code{"window"} by default).}
 
 \item{color_column}{Character scalar, the column with the colours of the
-clusters (\code{"color"} by default). If absent or \code{NULL}, ggplot2 chooses
+clusters (\code{"color"} by default). If absent or \code{NULL}, \href{https://ggplot2.tidyverse.org/}{\code{ggplot2}} chooses
 the colours.}
 
 \item{color_alluvial}{Logical. If \code{TRUE}, runs \code{\link[=color_alluvial]{color_alluvial()}} first.}
@@ -48,13 +54,21 @@ first, which adds a \code{label_x} column with one label per cluster.}
 \item{cluster_label_column}{Character scalar, the column with the labels
 used by \code{\link[=prepare_label_alluvial]{prepare_label_alluvial()}} (\code{"cluster_label"} by default).}
 
-\item{print_plot_code}{Logical. If \code{TRUE}, prints the ggplot2 code of the
+\item{min_share_cluster, min_windows_cluster}{Optional numbers to keep the
+main clusters only: the clusters whose largest share of a window
+(\code{share_cluster_max}, in per cent) is at least \code{min_share_cluster},
+and which exist in at least \code{min_windows_cluster} windows
+(\code{length_cluster}). \code{NULL} (default) keeps all the clusters.}
+
+\item{print_plot_code}{Logical. If \code{TRUE}, prints the \code{ggplot2} code of the
 plot.}
 }
 \value{
 A ggplot object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 \code{plot_alluvial()} draws the table created by \code{\link[=networks_to_alluv]{networks_to_alluv()}} with
 ggalluvial: one column per time window, one block per dynamic cluster,
 with a height proportional to its share of the window, and flows that
@@ -64,7 +78,7 @@ follow the nodes from one window to the next. It can colour the clusters
 (\code{\link[=prepare_label_alluvial]{prepare_label_alluvial()}}) on the way.
 }
 \details{
-Labels are drawn with ggrepel, which must be installed, when \code{alluv_dt}
+Labels are drawn with \href{https://ggrepel.slowkow.com/}{\code{ggrepel}}, which must be installed, when \code{alluv_dt}
 has a \code{label_x} column. Small clusters clutter alluvials: filtering the
 table on \code{share_cluster_max} or \code{length_cluster} (see
 \code{\link[=networks_to_alluv]{networks_to_alluv()}}) before plotting keeps the main ones.
@@ -80,7 +94,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   verbose = FALSE
 )

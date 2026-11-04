@@ -94,7 +94,7 @@ test_that("on the stagflation data, every node gets a dynamic cluster", {
   networks <- build_dynamic_networks(
     subset(Nodes_stagflation, source_type == "Stagflation"), Ref_stagflation,
     "source_id", "target_id", time_variable = "source_year", time_window = 10,
-    window_step = 1, cooccurrence_method = "coupling_angle",
+    window_step = 1, method = "angle",
     edges_threshold = 2, verbose = FALSE
   )[1:5]
   networks <- add_clusters(networks, clustering_method = "leiden",

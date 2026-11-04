@@ -33,7 +33,7 @@
 #'   [tidytext::get_stopwords()] (`"smart"` by default).
 #' @param stopwords_vector Optional character vector of stop words, used
 #'   instead of `stopwords_type`.
-#' @param clean_word_method `"lemmatize"`, `"stemming"` (with the textstem
+#' @param clean_word_method `"lemmatize"`, `"stemming"` (with the [`textstem`](https://github.com/trinker/textstem)
 #'   package) or `"none"` (chosen when no method is given).
 #' @param ngrams_filter Integer, the minimum number of occurrences of a term
 #'   in the whole corpus (5 by default).
@@ -54,7 +54,7 @@
 #' with `grouping_across_list = TRUE`, it also distinguishes a cluster from
 #' its own past and future.
 #'
-#' Lemmatising and stemming are optional and need the textstem package. For
+#' Lemmatising and stemming are optional and need the `textstem` package. For
 #' larger corpora or other weighting schemes, the text-mining functions of
 #' the mintR package (<https://codeberg.org/agoutsmedt/mintR>) can be used
 #' on the node table.
@@ -72,8 +72,7 @@
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1
 #' )
 #' network <- add_clusters(
@@ -105,6 +104,7 @@ extract_tfidf <- function(data,
                           ngrams_filter = 5L,
                           nb_terms = 5L) {
   text <- n <- term <- total_term <- document <- tf_idf <- word <- NULL
+  rlang::check_installed("tidytext", reason = "to tokenise the texts and compute the tf-idf.")
   if (!is.null(stopwords_vector) && !is.character(stopwords_vector)) {
     cli::cli_abort("{.arg stopwords_vector} must be a character vector, not {.obj_type_friendly {stopwords_vector}}.")
   }

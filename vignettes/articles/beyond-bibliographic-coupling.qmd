@@ -81,8 +81,7 @@ cocitation <- build_network(
   source_id = "source_id",
   target_id = "target_id",
   projection_on = "target",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 4,
   compute_size = TRUE
 )
@@ -246,8 +245,7 @@ windows <- build_dynamic_networks(
   time_in = "edges",
   time_variable = "source_year",
   time_window = 13,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 3,
   compute_size = TRUE,
   filter_components = TRUE,
@@ -322,7 +320,7 @@ The table of links now has three columns: the entity (`source_id`, the
 author), the reference (`target_id`) and the document through which the
 author cites it (`document_id`). The last one matters because an author
 may cite a reference in several documents, and this counts more than one
-citation. Following @zhao2008, `entity_network()` of biblionetwork
+citation. Following @zhao2008, `entity_network()` of [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
 [@goutsmedt2023biblionetwork] weights the tie between authors $A$ and $B$
 by the number of times they cite the same references "together". With
 $C_{Aj}$ the number of documents of $A$ citing reference $j$ and
@@ -349,8 +347,7 @@ author_network <- build_network(
   source_id = "author_name",
   target_id = "target_id",
   document_id = "source_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_strength",
+  method = "strength",
   edges_threshold = 3
 )
 author_network <- filter_components(author_network) |>
@@ -401,8 +398,7 @@ coauthorship <- build_network(
   directed_edges = authors,
   source_id = "author_name",
   target_id = "source_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle"
+  method = "angle"
 )
 c(authors = igraph::vcount(coauthorship), ties = igraph::ecount(coauthorship),
   components = igraph::components(coauthorship)$no)

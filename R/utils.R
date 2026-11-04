@@ -15,6 +15,119 @@ check_columns <- function(data, cols, arg, call = rlang::caller_env()) {
   invisible(data)
 }
 
+# The `method` of build_network() and build_dynamic_networks() is one choice
+# among two families: the similarity measures of biblionetwork
+# (biblio_coupling(method = ), entity_network(method = )), which weight the
+# edges, and the null models of the backbone package, which keep the
+# significant edges only.
+structured_methods <- c("angle", "strength", "similarity", "jaccard", "vladutz")
+backbone_methods <- c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol")
+
+# What each method is, and where it comes from (used in the messages).
+method_info <- list(
+  angle = list(what = "the coupling angle, the cosine of the two lists of targets",
+               origin = "Sen and Gan (1983)", package = "biblionetwork"),
+  jaccard = list(what = "the relative coupling strength, a Jaccard index (shared targets over the union of the two lists)",
+                 origin = "Sen and Gan (1983)", package = "biblionetwork"),
+  strength = list(what = "the coupling strength, which counts a shared target less when many sources are linked to it",
+                  origin = "Shen et al. (2019)", package = "biblionetwork"),
+  similarity = list(what = "the idf-weighted cosine of the two lists of targets",
+                    origin = "Shen et al. (2019)", package = "biblionetwork"),
+  vladutz = list(what = "the Vladutz-Cook formula, with a steep discount of the targets linked to many sources",
+                 origin = "Vladutz and Cook (1984), as reported by Shen et al. (2019)", package = "biblionetwork"),
+  sdsm = list(what = "the stochastic degree sequence model: random networks keep, on average, the degrees of sources and targets",
+              origin = "Neal (2014), Neal (2022)", package = "backbone"),
+  fdsm = list(what = "the fixed degree sequence model: random networks keep exactly the degrees of sources and targets",
+              origin = "Neal (2022), Domagalski et al. (2021)", package = "backbone"),
+  fixedfill = list(what = "random networks keep the total number of links",
+                   origin = "Neal (2022)", package = "backbone"),
+  fixedrow = list(what = "random networks keep the number of targets of each source",
+                  origin = "Neal (2022)", package = "backbone"),
+  fixedcol = list(what = "random networks keep the number of sources of each target",
+                  origin = "Neal (2022)", package = "backbone")
+)
+
+# Check the `method` argument: required (no default, to force an explicit
+# choice), one of the two families. `call` is the function the user called.
+check_method <- function(method, call = rlang::caller_env()) {
+  choices <- c(structured_methods, backbone_methods)
+  if (missing(method) || is.null(method) || length(method) != 1 || !method %in% choices) {
+    given <- if (!missing(method) && !is.null(method)) paste0(" ({.val {method}} is not a method)") else ""
+    cli::cli_abort(
+      c(
+        paste0("Choose one value for {.arg method}", given, "."),
+        "i" = "Similarity measures of {.pkg biblionetwork}, which weight the edges: {.val {structured_methods}}.",
+        "i" = "Statistical backbones of {.pkg backbone}, which keep the significant edges (with {.arg alpha}): {.val {backbone_methods}}.",
+        "i" = "See the details of {.fn build_dynamic_networks} for the origin of each method."
+      ),
+      call = call
+    )
+  }
+  method
+}
+
+# The former arguments (projection_method, cooccurrence_method, model) were
+# replaced by `method` in 0.0.9.9003: say how to translate the call.
+check_former_arguments <- function(argument_names, call = rlang::caller_env()) {
+  former <- intersect(argument_names, c("projection_method", "cooccurrence_method", "model"))
+  if (length(former) == 0) {
+    return(invisible())
+  }
+  cli::cli_abort(
+    c(
+      "{.arg {former}} no longer {?exists/exist}: one argument, {.arg method}, replaces {.arg projection_method}, {.arg cooccurrence_method} and {.arg model}.",
+      "i" = "{.code projection_method = \"structured\", cooccurrence_method = \"coupling_angle\"} becomes {.code method = \"angle\"} (also {.val {structured_methods}}).",
+      "i" = "{.code projection_method = \"statistical\", model = \"sdsm\"} becomes {.code method = \"sdsm\"} (also {.val {backbone_methods}}), with {.arg alpha} as before."
+    ),
+    call = call
+  )
+}
+
+# Tell the user what the chosen method does and where it comes from.
+inform_method <- function(method, source_id, target_id, edges_threshold, alpha,
+                          backbone_args, document_id, projection_on) {
+  info <- method_info[[method]]
+  if (method %in% structured_methods) {
+    what <- if (!is.null(document_id)) {
+      "Coupling of entities through their documents ({.fn biblionetwork::entity_network})"
+    } else if (projection_on == "target") {
+      "Co-citation ({.fn biblionetwork::biblio_coupling} on the swapped links)"
+    } else {
+      "Coupling ({.fn biblionetwork::biblio_coupling})"
+    }
+    cli::cli_inform(c(
+      "i" = paste0(what, " with {.val {method}}: ties weighted by ", info$what,
+                   ", after {info$origin}, between {.field {source_id}} entities sharing {.field {target_id}} entities."),
+      "i" = "Pairs sharing fewer than {edges_threshold} {.field {target_id}} are dropped ({.arg edges_threshold})."
+    ))
+  } else {
+    level <- if (!is.null(alpha)) alpha else backbone_args$alpha
+    cli::cli_inform(c(
+      "i" = paste0("Statistical backbone ({.pkg backbone}) with {.val {method}}: ", info$what,
+                   ", after {info$origin}."),
+      "i" = "A tie between two {.field {source_id}} is kept when the number of shared {.field {target_id}} is larger than in the random networks at the level {.arg alpha} = {level}: the edges are unweighted."
+    ))
+  }
+  invisible()
+}
+
+# Marker passed by build_network() as `time_variable` to build_dynamic_networks():
+# one network, no time. (A user who gives NULL gets an error, see there.)
+no_time_variable <- structure("no time", class = "networkflow_no_time")
+
+# Columns of `data` that look like a time variable (dates, or numbers named
+# like a year), to suggest a `time_variable` in an error message.
+time_candidates <- function(data) {
+  cols <- names(data)
+  is_time <- vapply(cols, function(col) {
+    x <- data[[col]]
+    is_date_variable(x) ||
+      (grepl("year|date|time|period", col, ignore.case = TRUE) &&
+         (is.numeric(x) || all(grepl("^[0-9]{4}$", x[!is.na(x)]))))
+  }, logical(1))
+  cols[is_time]
+}
+
 # For arguments whose default is the vector of possible choices but which
 # must be chosen explicitly (a measure, a model, an algorithm): abort with
 # the list of choices when the user did not pick one.

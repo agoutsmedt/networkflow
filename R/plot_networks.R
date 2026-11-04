@@ -1,6 +1,8 @@
 #' Plot networks
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' `plot_networks()` draws a network from the columns created by the
 #' previous steps of the pipeline: coordinates ([layout_networks()]),
 #' colours ([color_networks()]) and cluster labels ([name_clusters()] and
@@ -9,9 +11,7 @@
 #' `node_size_column`, and each cluster gets a label at its centre of
 #' gravity.
 #'
-#' It is meant as a quick, ready-made figure. For exploration, the
-#' interactive app of [launch_network_app()] is more convenient; for a
-#' figure to publish, `print_plot_code = TRUE` prints the ggraph code, which
+#' It is meant as a quick, ready-made figure. For a figure to publish, `print_plot_code = TRUE` prints the [`ggraph`](https://ggraph.data-imaginist.com/) code, which
 #' can be copied and adapted.
 #'
 #' @param graphs A `tbl_graph` or a list of `tbl_graph`s.
@@ -29,13 +29,13 @@
 #'   with `cluster_label_column` as the categories.
 #' @param color With `color_networks = TRUE`, the colours passed to
 #'   [color_networks()].
-#' @param print_plot_code Logical. If `TRUE`, prints the ggplot2/ggraph code
+#' @param print_plot_code Logical. If `TRUE`, prints the [`ggplot2`](https://ggplot2.tidyverse.org/)/`ggraph` code
 #'   of the plot.
 #'
 #' @details
 #' Missing pieces are filled in: labels are positioned with
 #' [prepare_label_networks()] when `label_x` is absent, and edges without a
-#' `weight` column get a weight of 1. Labels are drawn with ggrepel, which
+#' `weight` column get a weight of 1. Labels are drawn with [`ggrepel`](https://ggrepel.slowkow.com/), which
 #' must be installed.
 #'
 #' @return For a `tbl_graph`, a ggplot object. For a list of graphs, a named
@@ -48,8 +48,7 @@
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1
 #' )
 #' network <- add_clusters(

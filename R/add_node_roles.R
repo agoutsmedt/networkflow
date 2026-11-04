@@ -132,8 +132,7 @@
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1
 #' )
 #' network <- add_clusters(

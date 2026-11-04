@@ -44,8 +44,7 @@ networks <- build_dynamic_networks(
   time_variable = "source_year",
   time_window = 10,
   window_step = 1,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   filter_components = TRUE,
   verbose = FALSE
@@ -65,7 +64,7 @@ c(windows = length(networks), clusters = n_window_clusters)
 
 Each window has its own clusters, numbered "01", "02"... These numbers
 mean nothing across windows: cluster "01" of 1975-1984 and cluster "01" of
-1976-1985 may be two different literatures.
+1976-1985 may be two different literatures. Clusters are just ordered by their size in each window. Cluster "01" of 1975-1984 is the largest cluster of that window.
 
 ## Linking clusters across windows
 

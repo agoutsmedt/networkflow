@@ -61,11 +61,11 @@ alluvial, tables) is what lets a reader follow it. Pass the same
 data frame of colours to \code{color_networks()} and \code{color_alluvial()} for
 this.
 
-Without \code{color}, the function uses the ggplot2 palette (without black)
+Without \code{color}, the function uses the \href{https://ggplot2.tidyverse.org/}{\code{ggplot2}} palette (without black)
 for up to 7 categories, completed by the Okabe-Ito palette (without black
 and grey) for up to 14; beyond 14 categories, the colours are recycled and
 several clusters share a colour. For many clusters, give a palette
-explicitly (e.g. from the scico or paletteer packages), or colour only the
+explicitly (e.g. from the \href{https://github.com/thomasp85/scico}{\code{scico}} or \href{https://emilhvitfeldt.github.io/paletteer/}{\code{paletteer}} packages), or colour only the
 largest clusters and give the others a neutral grey.
 
 A vector with fewer colours than categories is recycled, a longer one is
@@ -78,8 +78,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 network <- add_clusters(

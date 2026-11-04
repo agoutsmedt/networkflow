@@ -20,7 +20,8 @@ layout_networks(
 used to join the coordinates.}
 
 \item{layout}{Character scalar, a layout accepted by
-\code{\link[ggraph:create_layout]{ggraph::create_layout()}} (e.g. \code{"kk"}, \code{"fr"}, \code{"stress"}).}
+\code{\link[ggraph:create_layout]{ggraph::create_layout()}} (e.g. \code{"kk"}, \code{"fr"}, \code{"stress"}), or
+\code{"forceatlas2"} or \code{"umap"} (see the details).}
 
 \item{compute_dynamic_coordinates}{Logical. For a list of graphs, if
 \code{TRUE}, each layout starts from the coordinates of the previous window
@@ -31,7 +32,8 @@ stored in \verb{x_\{layout\}} and \verb{y_\{layout\}} (e.g. \code{x_kk}, \code{y
 they are not lost when another layout is computed.}
 
 \item{...}{Other arguments of the layout (see \code{\link[ggraph:create_layout]{ggraph::create_layout()}}
-and the igraph or graphlayouts function behind it).}
+and the \code{igraph} or \code{graphlayouts} function behind it; the arguments of
+\code{"forceatlas2"} and \code{"umap"} are given in the details).}
 }
 \value{
 The same object as \code{graphs}, with node columns \code{x} and \code{y} (any
@@ -48,8 +50,12 @@ distances as geometric distances \insertCite{kamada1989}{networkflow},
 Fruchterman-Reingold (\code{"fr"}) balances attraction along edges and
 repulsion between all nodes \insertCite{fruchterman1991}{networkflow}.
 \code{layout_networks()} computes such coordinates with
-\code{\link[ggraph:create_layout]{ggraph::create_layout()}}, which gives access to the layouts of igraph and
-graphlayouts, and stores them in the node table.
+\code{\link[ggraph:create_layout]{ggraph::create_layout()}}, which gives access to the layouts of \href{https://r.igraph.org/}{\code{igraph}} and
+\href{https://schochastics.github.io/graphlayouts/}{\code{graphlayouts}}, and stores them in the node table.
+Two layouts that are not in \code{ggraph} are added: \code{"forceatlas2"}
+\insertCite{jacomy2014}{networkflow}, the force-directed layout of Gephi, and
+\code{"umap"} \insertCite{mcinnes2018}{networkflow}, which embeds the distances
+between nodes with the UMAP algorithm.
 
 For a list of networks, the coordinates of a node may jump from one window
 to the next, which makes the plots hard to compare. With
@@ -64,17 +70,52 @@ reproduce a figure. Distances in such plots are only roughly
 interpretable: two clusters drawn side by side are more tied than two
 clusters at opposite ends, but distances should not be measured.
 
-\strong{Weights.} igraph uses the \code{weight} edge column automatically, but not
+\strong{Weights.} \code{igraph} uses the \code{weight} edge column automatically, but not
 always in the same way: Fruchterman-Reingold (\code{"fr"}) reads weights as
 attraction (heavier edges pull nodes closer), while Kamada-Kawai (\code{"kk"})
 reads them as distances, so that similarity weights push the most similar
 nodes apart and weakly tied nodes to the margins. With similarity weights,
 prefer \code{"fr"}, or pass \code{weights = NA} to ignore them.
 
+\strong{ForceAtlas2} (\code{layout = "forceatlas2"}). A force-directed layout of the
+same family as Fruchterman-Reingold, designed for the exploration of
+networks \insertCite{jacomy2014}{networkflow}. Edges attract their ends
+in proportion to their weight and to the distance; all nodes repel each
+other in proportion to the product of their degrees plus one, so that hubs
+push the others away and clusters separate; a gravity keeps the
+components around the centre. The speed adapts to the stability of the
+forces. This is a compact implementation, not the one of Gephi: the
+repulsion is computed between all the pairs of nodes (no Barnes-Hut
+approximation), so that the cost grows with the square of the number of
+nodes (comfortable up to a few thousand). Arguments: \code{iterations} (500),
+\code{scaling_ratio} (2, the strength of the repulsion: smaller values give a
+more compact layout), \code{gravity} (1), \code{strong_gravity} (\code{FALSE}; \code{TRUE}
+keeps disconnected components close), \code{linlog} (\code{FALSE}; \code{TRUE} uses a
+logarithmic attraction, which separates the clusters more) and \code{weights}
+(the edge column is used by default, divided by its maximum; \code{NA}
+ignores it). Isolated components drift away from the rest: keep the main
+component with \code{\link[=filter_components]{filter_components()}} first, or use \code{strong_gravity = TRUE}.
+
+\strong{UMAP} (\code{layout = "umap"}). UMAP \insertCite{mcinnes2018}{networkflow}
+places points in the plane so as to preserve their neighbourhoods. It
+needs distances between all the pairs of nodes, which a network does not
+give directly: the distance between two nodes is the length of the
+shortest path between them, an edge being as long as the inverse of its
+weight (a strong tie is a short one), and nodes of different components
+are set farther apart than any connected pair. The coordinates come from
+\code{\link[uwot:umap]{uwot::umap()}}. Arguments: \code{n_neighbors} (15, the size of the
+neighbourhood preserved: larger values give a more global view),
+\code{min_dist} (0.1, how tightly nodes are packed), \code{spread} (1) and
+\code{weights} (as above), and any other argument of \code{\link[uwot:umap]{uwot::umap()}}. The
+package \code{uwot} must be installed. UMAP often gives compact, well
+separated clusters, but, like the force-directed layouts, its distances
+are not to be measured, and the picture is partly built by the choice of
+\code{n_neighbors}.
+
 For dynamic coordinates, nodes absent from the previous window start at
 (0, 0). The starting positions are passed to the layout as its \code{coords}
 argument: this works only with layouts that accept it, such as \code{"fr"} and
-\code{"kk"} of igraph.
+\code{"kk"} of \code{igraph}, and \code{"forceatlas2"}; \code{"umap"} ignores them.
 }
 \examples{
 network <- build_network(
@@ -82,8 +123,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 2
 )
 set.seed(1)

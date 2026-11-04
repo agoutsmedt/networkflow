@@ -10,8 +10,12 @@
 #' Fruchterman-Reingold (`"fr"`) balances attraction along edges and
 #' repulsion between all nodes \insertCite{fruchterman1991}{networkflow}.
 #' `layout_networks()` computes such coordinates with
-#' [ggraph::create_layout()], which gives access to the layouts of igraph and
-#' graphlayouts, and stores them in the node table.
+#' [ggraph::create_layout()], which gives access to the layouts of [`igraph`](https://r.igraph.org/) and
+#' [`graphlayouts`](https://schochastics.github.io/graphlayouts/), and stores them in the node table.
+#' Two layouts that are not in `ggraph` are added: `"forceatlas2"`
+#' \insertCite{jacomy2014}{networkflow}, the force-directed layout of Gephi, and
+#' `"umap"` \insertCite{mcinnes2018}{networkflow}, which embeds the distances
+#' between nodes with the UMAP algorithm.
 #'
 #' For a list of networks, the coordinates of a node may jump from one window
 #' to the next, which makes the plots hard to compare. With
@@ -23,7 +27,8 @@
 #' @param node_id Character scalar, the node column with a unique identifier,
 #'   used to join the coordinates.
 #' @param layout Character scalar, a layout accepted by
-#'   [ggraph::create_layout()] (e.g. `"kk"`, `"fr"`, `"stress"`).
+#'   [ggraph::create_layout()] (e.g. `"kk"`, `"fr"`, `"stress"`), or
+#'   `"forceatlas2"` or `"umap"` (see the details).
 #' @param compute_dynamic_coordinates Logical. For a list of graphs, if
 #'   `TRUE`, each layout starts from the coordinates of the previous window
 #'   (see the details).
@@ -31,7 +36,8 @@
 #'   stored in `x_{layout}` and `y_{layout}` (e.g. `x_kk`, `y_kk`), so that
 #'   they are not lost when another layout is computed.
 #' @param ... Other arguments of the layout (see [ggraph::create_layout()]
-#'   and the igraph or graphlayouts function behind it).
+#'   and the `igraph` or `graphlayouts` function behind it; the arguments of
+#'   `"forceatlas2"` and `"umap"` are given in the details).
 #'
 #' @details
 #' Force-directed layouts are stochastic and sensitive to the starting
@@ -40,17 +46,52 @@
 #' interpretable: two clusters drawn side by side are more tied than two
 #' clusters at opposite ends, but distances should not be measured.
 #'
-#' **Weights.** igraph uses the `weight` edge column automatically, but not
+#' **Weights.** `igraph` uses the `weight` edge column automatically, but not
 #' always in the same way: Fruchterman-Reingold (`"fr"`) reads weights as
 #' attraction (heavier edges pull nodes closer), while Kamada-Kawai (`"kk"`)
 #' reads them as distances, so that similarity weights push the most similar
 #' nodes apart and weakly tied nodes to the margins. With similarity weights,
 #' prefer `"fr"`, or pass `weights = NA` to ignore them.
 #'
+#' **ForceAtlas2** (`layout = "forceatlas2"`). A force-directed layout of the
+#' same family as Fruchterman-Reingold, designed for the exploration of
+#' networks \insertCite{jacomy2014}{networkflow}. Edges attract their ends
+#' in proportion to their weight and to the distance; all nodes repel each
+#' other in proportion to the product of their degrees plus one, so that hubs
+#' push the others away and clusters separate; a gravity keeps the
+#' components around the centre. The speed adapts to the stability of the
+#' forces. This is a compact implementation, not the one of Gephi: the
+#' repulsion is computed between all the pairs of nodes (no Barnes-Hut
+#' approximation), so that the cost grows with the square of the number of
+#' nodes (comfortable up to a few thousand). Arguments: `iterations` (500),
+#' `scaling_ratio` (2, the strength of the repulsion: smaller values give a
+#' more compact layout), `gravity` (1), `strong_gravity` (`FALSE`; `TRUE`
+#' keeps disconnected components close), `linlog` (`FALSE`; `TRUE` uses a
+#' logarithmic attraction, which separates the clusters more) and `weights`
+#' (the edge column is used by default, divided by its maximum; `NA`
+#' ignores it). Isolated components drift away from the rest: keep the main
+#' component with [filter_components()] first, or use `strong_gravity = TRUE`.
+#'
+#' **UMAP** (`layout = "umap"`). UMAP \insertCite{mcinnes2018}{networkflow}
+#' places points in the plane so as to preserve their neighbourhoods. It
+#' needs distances between all the pairs of nodes, which a network does not
+#' give directly: the distance between two nodes is the length of the
+#' shortest path between them, an edge being as long as the inverse of its
+#' weight (a strong tie is a short one), and nodes of different components
+#' are set farther apart than any connected pair. The coordinates come from
+#' [uwot::umap()]. Arguments: `n_neighbors` (15, the size of the
+#' neighbourhood preserved: larger values give a more global view),
+#' `min_dist` (0.1, how tightly nodes are packed), `spread` (1) and
+#' `weights` (as above), and any other argument of [uwot::umap()]. The
+#' package `uwot` must be installed. UMAP often gives compact, well
+#' separated clusters, but, like the force-directed layouts, its distances
+#' are not to be measured, and the picture is partly built by the choice of
+#' `n_neighbors`.
+#'
 #' For dynamic coordinates, nodes absent from the previous window start at
 #' (0, 0). The starting positions are passed to the layout as its `coords`
 #' argument: this works only with layouts that accept it, such as `"fr"` and
-#' `"kk"` of igraph.
+#' `"kk"` of `igraph`, and `"forceatlas2"`; `"umap"` ignores them.
 #'
 #' @return The same object as `graphs`, with node columns `x` and `y` (any
 #'   existing `x` and `y` are replaced) and, if `save_coordinates = TRUE`,
@@ -65,8 +106,7 @@
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 2
 #' )
 #' set.seed(1)
@@ -125,11 +165,9 @@ compute_dynamic_coordinates <- function(graphs,
     graphs[[i]] <- graphs[[i]] %N>%
       dplyr::select(-x, -y)
 
-    coords <- ggraph::create_layout(graphs[[i]],
-                                    layout = layout,
-                                    coords = input_coords,
-                                    ...) %>%
-      dplyr::select(dplyr::all_of(node_id), x, y)
+    coords <- compute_layout(graphs[[i]], layout, coords = input_coords, ...)
+    coords <- dplyr::tibble(!!node_id := node_table(graphs[[i]])[[node_id]],
+                            x = coords[, 1], y = coords[, 2])
 
     graphs[[i]] <- graphs[[i]] %N>%
       dplyr::left_join(coords, by = node_id)
@@ -152,8 +190,8 @@ join_coordinates <- function(graphs,
   # overwrites them. create_layout() returns the nodes in the order of the
   # graph, so coordinates are assigned by position.
   graphs <- graphs %N>% dplyr::select(-dplyr::any_of(c("x", "y")))
-  coords <- ggraph::create_layout(graphs, layout = layout, ...)
-  graphs <- graphs %N>% dplyr::mutate(x = coords$x, y = coords$y)
+  coords <- compute_layout(graphs, layout, ...)
+  graphs <- graphs %N>% dplyr::mutate(x = coords[, 1], y = coords[, 2])
   if (save_coordinates) {
     graphs <- graphs %N>%
       dplyr::mutate(!!paste0("x_", layout) := .data$x, !!paste0("y_", layout) := .data$y)

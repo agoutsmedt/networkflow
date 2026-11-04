@@ -41,7 +41,7 @@ node column(s) used to build the label of the chosen node, joined by
 (\code{"cluster_label"} by default).}
 
 \item{tidygraph_function}{For \code{"tidygraph_functions"}, a call to a
-centrality function of tidygraph, such as
+centrality function of \href{https://tidygraph.data-imaginist.com/}{\code{tidygraph}}, such as
 \code{tidygraph::centrality_pagerank()} (see \link[tidygraph:centrality]{tidygraph::centrality}).}
 
 \item{order_by}{For \code{"given_column"}, the numeric node column used to
@@ -107,8 +107,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 network <- add_clusters(

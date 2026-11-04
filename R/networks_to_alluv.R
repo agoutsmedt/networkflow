@@ -62,7 +62,7 @@
 #'   target_id = "target_id",
 #'   time_variable = "source_year",
 #'   time_window = 10,
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1,
 #'   verbose = FALSE
 #' )

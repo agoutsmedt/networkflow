@@ -1,14 +1,14 @@
 Package: networkflow
 Title: A Research Pipeline for Projected and Dynamic Networks
-Version: 0.0.9.9000
+Version: 0.0.9.9003
 Authors@R: c(
     person("Aurélien", "Goutsmedt", , "agoutsmedt@hotmail.fr", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3788-7237")),
-    person("Alexandre", "Truc", , "alexandre.truc77@gmail.com", role = "aut",
-           comment = c(ORCID = "0000-0002-1328-7819",
-                       "initiated the alluvial method")),
     person("Thomas", "Delcey", role = "aut",
-           comment = c(ORCID = "0000-0003-0546-1474", "co-maintainer"))
+           comment = c(ORCID = "0000-0003-0546-1474", "co-maintainer")),
+    person("Alexandre", "Truc", role = "aut",
+           comment = c(ORCID = "0000-0002-1328-7819",
+                       "initiated the alluvial method"))
   )
 Description: Organises the study of networks built from tabular research
     data (articles and the references they cite, authors and their papers,
@@ -20,8 +20,7 @@ Description: Organises the study of networks built from tabular research
     'igraph' algorithms (Leiden, Louvain, Infomap...); links the communities
     of successive windows into dynamic clusters; names them with tf-idf or
     central nodes; characterises the roles of nodes; and draws networks and
-    alluvial plots, or explores them in a 'shiny' application. Networks are
-    'tidygraph' objects.
+    alluvial plots. Networks are 'tidygraph' objects.
 License: MIT + file LICENSE
 URL: https://github.com/agoutsmedt/networkflow,
     https://agoutsmedt.github.io/networkflow/
@@ -35,36 +34,30 @@ Imports:
     cli,
     data.table (>= 1.15.0),
     dplyr,
-    forcats,
-    ggalluvial,
     ggplot2,
     ggraph,
     ggrepel,
     grDevices,
     igraph (>= 2.0.0),
-    lifecycle,
     magrittr,
     Rdpack,
     rlang (>= 1.1.0),
     stats,
-    stopwords,
-    stringr,
     tidygraph,
     tidyr,
-    tidytext,
     utils,
     withr
 Suggests:
     backbone,
     DBI,
-    DT,
     duckdb,
-    ggiraph,
+    ggalluvial,
+    lifecycle,
     scico,
-    shiny,
-    shinycssloaders,
     testthat (>= 3.0.0),
-    textstem
+    textstem,
+    tidytext,
+    uwot
 RdMacros:
     Rdpack
 Config/testthat/edition: 3

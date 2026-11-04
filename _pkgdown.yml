@@ -1,6 +1,7 @@
 url: https://agoutsmedt.github.io/networkflow/
 template:
   bootstrap: 5
+  math-rendering: katex       # formulas of the function documentation (\deqn, \eqn)
   light-switch: true        # light / dark / auto toggle in the navbar
   bslib:
     # Accent of the package: the blue end of scico "roma". The same
@@ -18,6 +19,16 @@ template:
 home:
   title: "networkflow: a research pipeline for projected and dynamic networks"
 
+# The footer names the two maintainers (the sidebar lists all the authors)
+footer:
+  structure:
+    left: developed_by
+    right: built_with
+  components:
+    developed_by: >
+      Developed by [Aurélien Goutsmedt](https://aurelien-goutsmedt.com)
+      and [Thomas Delcey](https://orcid.org/0000-0003-0546-1474).
+
 navbar:
   structure:
     left: [intro, articles, reference, news]
@@ -29,6 +40,7 @@ articles:
   contents:
   - '`articles/from-references-to-networks`'
   - '`articles/finding-and-reading-clusters`'
+  - '`articles/drawing-networks`'
   - '`articles/following-clusters-over-time`'
   - '`articles/beyond-bibliographic-coupling`'
 
@@ -58,14 +70,12 @@ reference:
 
 - title: "Step 3: Drawing networks"
   desc: >
-    Compute coordinates, colours and label positions, and plot the networks
-    or explore them in an interactive application.
+    Compute coordinates, colours and label positions, and plot the networks.
   contents:
   - layout_networks
   - color_networks
   - prepare_label_networks
   - plot_networks
-  - launch_network_app
 
 - title: "Step 4: Drawing the history of clusters"
   desc: >

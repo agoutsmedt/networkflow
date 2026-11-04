@@ -93,7 +93,29 @@ thead th { border-bottom: 2px solid var(--pkg-accent); }
 }
 [data-bs-theme="dark"] .btn-primary { --bs-btn-color: #0F1B33; }
 
-// Images (plots drawn on white stay readable in dark mode)
-[data-bs-theme="dark"] img.figure-img, [data-bs-theme="dark"] .contents img {
-  border-radius: 0.375rem; background: #F4F1E8;
+// Figures of the guides are PNGs drawn on a white background. Instead of
+// redrawing them, their white is turned into the colour of the page with
+// CSS blend modes, so that figures have the background of the text:
+// - light mode: `multiply` (white x page colour = page colour);
+// - dark mode: the image is inverted (black text, white ground become light
+//   text, black ground; `hue-rotate` brings the hues back) and `screen`
+//   (black + page colour = page colour). Colours are then those of an
+//   inverted palette: a category keeps its hue, not its exact shade.
+// The same rules apply in the lightbox that opens when a figure is clicked.
+img.figure-img, .quarto-figure img, .cell-output-display img, .gslide-image img {
+  border-radius: 0.375rem;
+  mix-blend-mode: multiply;
 }
+[data-bs-theme="dark"] {
+  img.figure-img, .quarto-figure img, .cell-output-display img, .gslide-image img {
+    filter: invert(1) hue-rotate(180deg);
+    mix-blend-mode: screen;
+  }
+}
+.goverlay { background: var(--bs-body-bg) !important; }
+
+// Figures that come in two versions (e.g. the README illustration): the
+// version matching the theme chosen with the navbar switch is displayed.
+.only-dark { display: none; }
+[data-bs-theme="dark"] .only-dark { display: inline; }
+[data-bs-theme="dark"] .only-light { display: none; }

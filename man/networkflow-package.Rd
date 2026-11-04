@@ -6,7 +6,7 @@
 \alias{networkflow-package}
 \title{networkflow: a research pipeline for projected and dynamic networks}
 \description{
-networkflow organises the study of networks built from tabular research
+\code{networkflow} organises the study of networks built from tabular research
 data (articles and their references, authors and their papers, accounts
 and what they share) as a sequence of explicit, documented steps. Each
 step is a function whose choices are arguments that can be changed and
@@ -18,7 +18,7 @@ window) that the next step enriches.
 \item \strong{Building networks}: \code{\link[=build_network]{build_network()}}, \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}
 (bibliographic coupling, co-citation, coupling of authors and other
 projections of two-mode tables, with similarity measures from
-biblionetwork or statistical backbones from backbone, one network per
+\href{https://agoutsmedt.github.io/biblionetwork/}{\code{biblionetwork}} or statistical backbones from \href{https://github.com/zpneal/backbone}{\code{backbone}}, one network per
 time window), \code{\link[=filter_components]{filter_components()}}.
 \item \strong{Finding and reading clusters}: \code{\link[=add_clusters]{add_clusters()}} (Leiden, Louvain,
 Infomap...), \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} (following clusters across
@@ -26,8 +26,7 @@ windows), \code{\link[=merge_diagnostics]{merge_diagnostics()}} and \code{\link[
 result depends on the threshold), \code{\link[=name_clusters]{name_clusters()}}, \code{\link[=extract_tfidf]{extract_tfidf()}}, \code{\link[=add_node_roles]{add_node_roles()}}.
 \item \strong{Drawing and exploring}: \code{\link[=layout_networks]{layout_networks()}}, \code{\link[=color_networks]{color_networks()}},
 \code{\link[=prepare_label_networks]{prepare_label_networks()}}, \code{\link[=plot_networks]{plot_networks()}}, \code{\link[=networks_to_alluv]{networks_to_alluv()}},
-\code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}}, \code{\link[=plot_alluvial]{plot_alluvial()}},
-\code{\link[=launch_network_app]{launch_network_app()}}.
+\code{\link[=minimize_crossing_alluvial]{minimize_crossing_alluvial()}}, \code{\link[=plot_alluvial]{plot_alluvial()}}.
 }
 
 The guides of the package website (\url{https://agoutsmedt.github.io/networkflow/})
@@ -49,8 +48,8 @@ Useful links:
 Authors:
 \itemize{
   \item Aurélien Goutsmedt \email{agoutsmedt@hotmail.fr} (\href{https://orcid.org/0000-0002-3788-7237}{ORCID})
-  \item Alexandre Truc \email{alexandre.truc77@gmail.com} (\href{https://orcid.org/0000-0002-1328-7819}{ORCID}) (initiated the alluvial method)
   \item Thomas Delcey (\href{https://orcid.org/0000-0003-0546-1474}{ORCID}) (co-maintainer)
+  \item Alexandre Truc (\href{https://orcid.org/0000-0002-1328-7819}{ORCID}) (initiated the alluvial method)
 }
 
 }

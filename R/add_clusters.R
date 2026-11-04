@@ -8,7 +8,7 @@
 #' themselves than with the rest of the network, are a usual operational
 #' definition of a research specialty or a research front
 #' \insertCite{boyack2010,morris2008}{networkflow}. `add_clusters()` finds such
-#' groups (communities, or clusters) with one of five algorithms of igraph,
+#' groups (communities, or clusters) with one of five algorithms of [`igraph`](https://r.igraph.org/),
 #' adds the cluster of each node and of each edge, and the relative size of
 #' each cluster. It works on one `tbl_graph` or on each graph of a list, as
 #' produced by [build_dynamic_networks()].
@@ -80,7 +80,7 @@
 #'   partition that best compresses the description of a random walk on the
 #'   network.
 #'
-#' All algorithms are called from igraph ([igraph::cluster_leiden()],
+#' All algorithms are called from `igraph` ([igraph::cluster_leiden()],
 #' [igraph::cluster_louvain()], [igraph::cluster_fast_greedy()],
 #' [igraph::cluster_walktrap()], [igraph::cluster_infomap()]), and all use the
 #' edge weights unless `weights = NA`.
@@ -121,8 +121,7 @@
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1
 #' )
 #'

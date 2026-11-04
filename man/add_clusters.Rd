@@ -76,7 +76,7 @@ groups of articles that cite the same literature, much more among
 themselves than with the rest of the network, are a usual operational
 definition of a research specialty or a research front
 \insertCite{boyack2010,morris2008}{networkflow}. \code{add_clusters()} finds such
-groups (communities, or clusters) with one of five algorithms of igraph,
+groups (communities, or clusters) with one of five algorithms of \href{https://r.igraph.org/}{\code{igraph}},
 adds the cluster of each node and of each edge, and the relative size of
 each cluster. It works on one \code{tbl_graph} or on each graph of a list, as
 produced by \code{\link[=build_dynamic_networks]{build_dynamic_networks()}}.
@@ -117,7 +117,7 @@ partition that best compresses the description of a random walk on the
 network.
 }
 
-All algorithms are called from igraph (\code{\link[igraph:cluster_leiden]{igraph::cluster_leiden()}},
+All algorithms are called from \code{igraph} (\code{\link[igraph:cluster_leiden]{igraph::cluster_leiden()}},
 \code{\link[igraph:cluster_louvain]{igraph::cluster_louvain()}}, \code{\link[igraph:cluster_fast_greedy]{igraph::cluster_fast_greedy()}},
 \code{\link[igraph:cluster_walktrap]{igraph::cluster_walktrap()}}, \code{\link[igraph:cluster_infomap]{igraph::cluster_infomap()}}), and all use the
 edge weights unless \code{weights = NA}.
@@ -147,8 +147,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 

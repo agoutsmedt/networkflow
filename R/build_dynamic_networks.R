@@ -3,15 +3,19 @@
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' The first step of the networkflow pipeline. Research data rarely come as a
+#' The first step of the `networkflow` pipeline. Research data rarely come as a
 #' network: they come as a table of links between two kinds of entities, such
 #' as articles and the references they cite, authors and the papers they sign,
-#' or accounts and the hashtags they use. `build_dynamic_networks()` *projects*
-#' this two-mode (bipartite) relation onto the first kind of entity: two
+#' or accounts and the hashtags they use. These functions *project* this
+#' two-mode (bipartite) relation onto the first kind of entity: two
 #' `source_id` entities (e.g. two articles) are linked when they share
-#' `target_id` entities (e.g. references). With `time_variable` and
-#' `time_window`, it builds one such network per time window, which is the
-#' starting point of a dynamic analysis.
+#' `target_id` entities (e.g. references).
+#'
+#' * `build_network()` builds **one network** from the whole table.
+#' * `build_dynamic_networks()` builds **one network per time window**
+#'   (`time_variable` and `time_window` are required), which is the starting
+#'   point of a dynamic analysis. It is `build_network()` repeated on
+#'   slices of the corpus, with a few more arguments for time.
 #'
 #' Write \eqn{a_{ij} = 1} when source \eqn{i} is linked to target \eqn{j}. The
 #' raw strength of the tie between sources \eqn{i} and \eqn{k} is the number
@@ -24,16 +28,26 @@
 #' network \insertCite{small1973}{networkflow}.
 #'
 #' Raw counts favour sources with many targets (articles with long
-#' bibliographies), and most pairs share a target or two by chance. The two
-#' `projection_method`s answer this problem in different ways:
+#' bibliographies), and most pairs share a target or two by chance. The
+#' single `method` argument chooses how this problem is answered, among two
+#' families:
 #'
-#' - `"structured"` normalises the counts with a bibliometric similarity
-#'   measure computed by [biblionetwork](https://agoutsmedt.github.io/biblionetwork/)
-#'   and keeps the pairs sharing at least `edges_threshold` targets;
-#' - `"statistical"` keeps only the ties that are stronger than expected
-#'   under a null model of random co-occurrence, using the
-#'   [backbone](https://github.com/zpneal/backbone) package
+#' - a **similarity measure** (`"angle"`, `"strength"`, `"similarity"`,
+#'   `"jaccard"`, `"vladutz"`) normalises the counts, as implemented in
+#'   [biblionetwork](https://agoutsmedt.github.io/biblionetwork/), and the
+#'   pairs sharing at least `edges_threshold` targets are kept, with their
+#'   weight;
+#' - a **statistical backbone** (`"sdsm"`, `"fdsm"`, `"fixedfill"`,
+#'   `"fixedrow"`, `"fixedcol"`) keeps only the ties that are stronger than
+#'   expected under a null model of random co-occurrence, as implemented in
+#'   the [`backbone`](https://github.com/zpneal/backbone) package
 #'   \insertCite{neal2014,neal2022}{networkflow}.
+#'
+#' There is no default `method`: the choice changes the network, so it must
+#' be explicit. With `verbose = TRUE` the function says which method it uses
+#' and where it comes from. (The arguments `projection_method`,
+#' `cooccurrence_method` and `model` of earlier versions are replaced by
+#' `method` and give an error that explains the translation.)
 #'
 #' @param nodes A data frame with one row per source entity (e.g. one row per
 #'   article) and its metadata (authors, year, title...). Not modified.
@@ -45,11 +59,11 @@
 #'   `directed_edges`, with one row per value in `nodes`.
 #' @param target_id Character scalar, the column of `directed_edges` with the
 #'   entities that create the links (e.g. references).
-#' @param time_variable Optional name of a column with the time of each node
+#' @param time_variable Name of a column with the time of each node
 #'   (or of each link, with `time_in = "edges"`): a number (e.g. a year), a
 #'   `Date`, a `POSIXct`, or an ISO date written as text (`"2001-03"`,
-#'   `"2001-03-15"`). Years written as text (`"2001"`) are numbers. Without
-#'   it, a single network is built.
+#'   `"2001-03-15"`). Years written as text (`"2001"`) are numbers. Required
+#'   by `build_dynamic_networks()` (without time, use `build_network()`).
 #' @param time_in `"nodes"` (default): `time_variable` is a column of `nodes`
 #'   and a window selects the nodes of the period. `"edges"`: `time_variable`
 #'   is a column of `directed_edges` (e.g. the year of the citing document)
@@ -61,27 +75,31 @@
 #'   `"year"` (default), `"quarter"`, `"month"`, `"week"` (starting on
 #'   Mondays) or `"day"`. For numbers, the unit is the one of the variable
 #'   and `time_unit` must stay `NULL`.
-#' @param time_window Optional whole number, the width of each window in
+#' @param time_window Whole number, the width of each window in
 #'   `time_unit`s (or in units of the variable): 10 for ten years, 12 with
-#'   `time_unit = "month"` for a year. `NULL` builds a single network.
+#'   `time_unit = "month"` for a year. Required by `build_dynamic_networks()`.
 #' @param window_step Optional whole number, the number of units between the
 #'   starts of two windows. `NULL` (default) gives successive windows
 #'   (`window_step = time_window`); `1` slides the window one unit at a time
 #'   (1975-1984, 1976-1985...); `3` with `time_unit = "month"` and a window
 #'   of 12 gives a yearly window every quarter.
-#' @param projection_method `"structured"` (default) or `"statistical"`, see
-#'   the description and the details.
-#' @param model For `projection_method = "statistical"`, the null model of
+#' @param method Required, no default. How the ties between sources are
+#'   built; the origin of each method is given in the details. One of
+#'
+#'   * the similarity measures of
+#'   [biblionetwork](https://agoutsmedt.github.io/biblionetwork/)
+#'   (`biblionetwork::biblio_coupling(method = )`, or
+#'   `biblionetwork::entity_network()` with `document_id`): `"angle"`,
+#'   `"strength"`, `"similarity"`, `"jaccard"`, `"vladutz"`;
+#'   * the null models of the statistical backbones of
 #'   [backbone::backbone_from_projection()]: `"sdsm"`, `"fdsm"`,
-#'   `"fixedfill"`, `"fixedrow"` or `"fixedcol"`.
-#' @param alpha For `projection_method = "statistical"`, the significance
-#'   level of the test of each tie. Lower values keep fewer edges.
-#' @param cooccurrence_method For `projection_method = "structured"`, the
-#'   similarity measure used as edge weight: `"coupling_angle"`,
-#'   `"coupling_strength"` or `"coupling_similarity"` (see the details).
-#'   There is no default: the choice must be explicit.
-#' @param edges_threshold For `projection_method = "structured"`, the minimum
-#'   number of shared targets for two sources to be linked (1 by default).
+#'   `"fixedfill"`, `"fixedrow"`, `"fixedcol"`. They need `alpha`.
+#' @param alpha For the backbone methods, the significance level of the test
+#'   of each tie (e.g. 0.05). Lower values keep fewer edges. Required for
+#'   them, ignored by the similarity measures.
+#' @param edges_threshold For the similarity measures, the minimum number of
+#'   shared targets for two sources to be linked (1 by default). Ignored by
+#'   the backbone methods.
 #' @param compute_size Logical. If `TRUE`, adds a `node_size` column: the
 #'   number of times each node is a target of the sources of the same window
 #'   (for a coupling network, the number of citations received within the
@@ -94,8 +112,8 @@
 #'   `nb_components`).
 #' @param backbone_args Optional list of further arguments for
 #'   [backbone::backbone_from_projection()] (e.g. `mtc = "holm"` to correct
-#'   for multiple tests). `alpha` or `model` given here override the
-#'   arguments of the function.
+#'   for multiple tests). `alpha` given here overrides the argument of the
+#'   function.
 #' @param verbose Logical. If `TRUE` (default), reports the steps.
 #' @param projection_on `"source"` (default) links the `source_id` entities
 #'   that share `target_id` entities (bibliographic coupling: articles
@@ -108,22 +126,66 @@
 #'   are not documents but *entities that publish documents* (authors,
 #'   journals, institutions) and a reference cited by several documents of an
 #'   entity counts several times, following
-#'   [biblionetwork::entity_network()]. Only for `projection_method =
-#'   "structured"` with `"coupling_angle"` or `"coupling_strength"`.
+#'   [biblionetwork::entity_network()]. Only for the similarity measures.
 #'
 #' @details
-#' **Similarity measures** (`projection_method = "structured"`). With
+#' **The arguments to choose, case by case.** `projection_on` says which side
+#' of the links becomes the nodes, and `method` says how the ties between
+#' them are built:
+#'
+#' | You want | Function and main arguments |
+#' |---|---|
+#' | A network of the whole corpus, ties weighted by a similarity measure (bibliographic coupling) | `build_network(method = "similarity", edges_threshold = )` (or another measure) |
+#' | The same, with only the ties unlikely under a null model | `build_network(method = "sdsm", alpha = 0.05)` (or another backbone model) |
+#' | One such network per period | `build_dynamic_networks(time_variable = , time_window = )`, plus `window_step` and `time_unit` if needed, with any `method` |
+#' | Cited works linked when cited together (co-citation) | `projection_on = "target"`; for windows, `time_in = "edges"` with the time of the citing documents in `directed_edges` |
+#' | Authors, journals or institutions linked through the references of their documents | `document_id = ` the column of the document, with a similarity measure |
+#' | Any other two-mode table (accounts and hashtags, members and boards) | the same arguments: nothing is specific to citations |
+#'
+#' **The two families of `method`.** They do not use the same arguments:
+#'
+#' | | Similarity measures | Statistical backbones |
+#' |---|---|---|
+#' | `method` | `"angle"`, `"strength"`, `"similarity"`, `"jaccard"`, `"vladutz"` | `"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"`, `"fixedcol"` |
+#' | Idea | normalise the number of shared targets, then keep the pairs sharing at least `edges_threshold` targets | test, for each pair, whether the number of shared targets is larger than in random networks that keep some properties of the data, and keep the significant pairs |
+#' | Edges | weighted (`weight`) | unweighted (each edge means "more than expected by chance") |
+#' | Arguments used | `edges_threshold`, `document_id` | `alpha` (required), `backbone_args` |
+#' | Ignored | `alpha`, `backbone_args` | `edges_threshold`; `document_id` is an error |
+#' | Cost | fast, sparse matrices | slow on large corpora (a test for each pair) |
+#' | Computed by | [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) | the `backbone` package |
+#'
+#' **Where the methods come from.** The names are those of the packages that
+#' compute them, so that the documentation of each method can be found there:
+#'
+#' | `method` | What it is | Origin | Function behind |
+#' |---|---|---|---|
+#' | `"angle"` | cosine of the lists of targets | \insertCite{sen1983}{networkflow} | `biblionetwork::coupling_angle()` |
+#' | `"jaccard"` | shared targets over the union of the lists | \insertCite{sen1983}{networkflow} | `biblionetwork::coupling_jaccard()` |
+#' | `"strength"` | shared targets weighted by their rarity | \insertCite{shen2019}{networkflow} | `biblionetwork::coupling_strength()` |
+#' | `"similarity"` | idf-weighted cosine | \insertCite{shen2019}{networkflow} | `biblionetwork::coupling_similarity()` |
+#' | `"vladutz"` | Vladutz-Cook formula | \insertCite{vladutz1984}{networkflow}, as reported by \insertCite{shen2019}{networkflow} | `biblionetwork::coupling_vladutz()` |
+#' | `"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"`, `"fixedcol"` | null models of random bipartite networks | \insertCite{neal2014,neal2022,domagalski2021}{networkflow} | `backbone::backbone_from_projection(model = )` |
+#'
+#' **Similarity measures**. With
 #' \eqn{L_i = |R_i|} the number of targets of source \eqn{i}, \eqn{N} the
 #' number of sources and \eqn{f_j} the number of sources linked to target
-#' \eqn{j}, the three measures computed by biblionetwork are:
+#' \eqn{j}, the five measures computed by [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
+#' (through `biblionetwork::biblio_coupling()`, or `biblionetwork::entity_network()`
+#' with `document_id`) are:
 #'
-#' - `"coupling_angle"`, the cosine of \insertCite{sen1983;textual}{networkflow}:
+#' - `"angle"`, the cosine of \insertCite{sen1983;textual}{networkflow}:
 #'   \deqn{w_{ik} = \frac{|R_i \cap R_k|}{\sqrt{L_i L_k}};}
-#' - `"coupling_strength"` \insertCite{vladutz1984,shen2019}{networkflow},
+#' - `"jaccard"`, the relative coupling strength of
+#'   \insertCite{sen1983;textual}{networkflow}, a Jaccard index: the shared
+#'   targets over the *union* of the two lists,
+#'   \deqn{w_{ik} = \frac{|R_i \cap R_k|}{|R_i \cup R_k|}.}
+#'   Like the angle it only counts, but it is never above it and penalises
+#'   more the pairs whose lists have very different lengths;
+#' - `"strength"` \insertCite{shen2019}{networkflow},
 #'   where a shared target counts less when it is linked to many sources,
 #'   in the spirit of an inverse document frequency:
 #'   \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};}
-#' - `"coupling_similarity"`, the idf-weighted cosine of
+#' - `"similarity"`, the idf-weighted cosine of
 #'   \insertCite{shen2019;textual}{networkflow}: each source is described by
 #'   a vector with one component per target, equal to
 #'   \eqn{\sqrt{\log(N / f_j)}}, and the weight is the cosine of the vectors
@@ -131,9 +193,26 @@
 #'   weighted size of the bibliography:
 #'   \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.}
 #'   Like the coupling angle, it lies between 0 and 1; like the coupling
-#'   strength, it discounts the targets linked to many sources. (Versions
-#'   0.1.1 and earlier of biblionetwork computed this measure wrongly: use
-#'   biblionetwork 0.1.1.9000 or later.)
+#'   strength, it discounts the targets linked to many sources;
+#' - `"vladutz"`, the formula of \insertCite{vladutz1984;textual}{networkflow}
+#'   reported by \insertCite{shen2019;textual}{networkflow}, the ancestor of the
+#'   coupling strength, with a much steeper discount (\eqn{1/f_j} instead of
+#'   \eqn{\log(N/f_j)}), so that it is almost driven by the rarest targets:
+#'   \deqn{w_{ik} = \frac{4}{L_i + L_k} \sum_{j \in R_i \cap R_k} \frac{1}{f_j}.}
+#'
+#' The measures fall into two families: those that only count the shared
+#' targets (angle, Jaccard) and those that give more weight to rare targets
+#' (strength, similarity, Vladutz-Cook). The angle and the Jaccard index give
+#' very similar rankings of the pairs in practice (Pearson correlation of
+#' 0.956 in the corpus of \insertCite{shen2019;textual}{networkflow}), whereas
+#' the Vladutz-Cook formula departs markedly from the others there
+#' (correlations of about 0.6 to 0.7). It is provided mainly for comparison
+#' and replication. See the
+#' [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) documentation of each
+#' measure (`coupling_angle()`, `coupling_jaccard()`, `coupling_strength()`,
+#' `coupling_similarity()`, `coupling_vladutz()`) for the intuition behind
+#' them. (Versions 0.1.1 and earlier of `biblionetwork` computed the
+#' similarity wrongly: `biblionetwork` 0.2.0 or later is required.)
 #'
 #' Targets linked to a single source cannot create a tie and are dropped
 #' before the computation. The threshold applies to the raw count
@@ -144,7 +223,7 @@
 #' practice, clusters are often robust to the choice, but it is worth
 #' checking on one's own data.
 #'
-#' **Statistical backbones** (`projection_method = "statistical"`). Instead
+#' **Statistical backbones**. Instead
 #' of fixing a threshold, the backbone approach asks, for each pair, whether
 #' the observed number of shared targets is larger than in random bipartite
 #' networks that preserve some properties of the observed one: the degrees of
@@ -206,8 +285,11 @@
 #'   method.
 #'
 #' @seealso [build_network()] for a single network;
-#'   [biblionetwork::coupling_angle()], [biblionetwork::coupling_strength()],
-#'   [biblionetwork::coupling_similarity()], [backbone::backbone_from_projection()].
+#'   [biblionetwork::biblio_coupling()] and the measures it offers
+#'   ([biblionetwork::coupling_angle()], [biblionetwork::coupling_jaccard()],
+#'   [biblionetwork::coupling_strength()], [biblionetwork::coupling_similarity()],
+#'   [biblionetwork::coupling_vladutz()]), [biblionetwork::entity_network()],
+#'   [backbone::backbone_from_projection()].
 #'   The next steps of the pipeline are [add_clusters()] and
 #'   [merge_dynamic_clusters()].
 #'
@@ -226,8 +308,7 @@
 #'   target_id = "target_id",
 #'   time_variable = "source_year",
 #'   time_window = 13,
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1,
 #'   verbose = FALSE
 #' )
@@ -253,7 +334,7 @@
 #'   time_in = "edges",
 #'   time_variable = "source_year",
 #'   time_window = 13,
-#'   cooccurrence_method = "coupling_angle",
+#'   method = "angle",
 #'   edges_threshold = 2,
 #'   compute_size = TRUE,
 #'   verbose = FALSE
@@ -271,8 +352,7 @@
 #'   source_id = "author_name",
 #'   target_id = "target_id",
 #'   document_id = "source_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_strength",
+#'   method = "strength",
 #'   edges_threshold = 2
 #' )
 #' author_coupling
@@ -288,8 +368,7 @@
 #'   target_id = "target_id",
 #'   time_variable = "source_year",
 #'   time_window = 20,
-#'   projection_method = "statistical",
-#'   model = "sdsm",
+#'   method = "sdsm",
 #'   alpha = 0.05,
 #'   backbone_args = list(mtc = "holm"),
 #'   verbose = FALSE
@@ -305,14 +384,8 @@ build_dynamic_networks <- function(
   target_id,
   document_id = NULL,
   projection_on = c("source", "target"),
-  projection_method = c("structured", "statistical"),
-  cooccurrence_method = c(
-    "coupling_angle",
-    "coupling_strength",
-    "coupling_similarity"
-  ),
+  method,
   edges_threshold = 1,
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
   alpha = NULL,
   backbone_args = list(),
   time_variable = NULL,
@@ -326,19 +399,48 @@ build_dynamic_networks <- function(
   ...,
   verbose = TRUE
 ) {
-  size <- node_size <- N <- method <- edge_time <- document <- V1 <- NULL
+  check_former_arguments(names(rlang::list2(...)))
+  # A dynamic network needs time: without `time_variable` and `time_window`,
+  # the function would build the same network as build_network(). Stopping
+  # (rather than silently building one network) avoids a result that is not
+  # the one the user expects from a function called "dynamic". build_network()
+  # passes `no_time_variable`, an internal marker, to build a single network.
+  static_network <- identical(time_variable, no_time_variable)
+  if (static_network) {
+    time_variable <- NULL
+  } else if (is.null(time_variable) || is.null(time_window)) {
+    candidates <- time_candidates(if (identical(time_in, "edges")) directed_edges else nodes)
+    missing_args <- c(
+      if (is.null(time_variable)) "time_variable",
+      if (is.null(time_window)) "time_window"
+    )
+    cli::cli_abort(c(
+      "{.fn build_dynamic_networks} builds one network per time window: {.arg {missing_args}} {?is/are} missing.",
+      "i" = "Give the column with the time of each node in {.arg time_variable} and the width of the windows in {.arg time_window}.",
+      if (length(candidates) > 0 && is.null(time_variable)) {
+        c("i" = "Column{?s} that look{?s/} like a time variable: {.field {candidates}}.")
+      },
+      "i" = "For a single network of the whole corpus, use {.fn build_network}."
+    ))
+  }
 
-  # Checks of the arguments. `projection_method` has a default (structured),
-  # but the similarity measure and the null model must be chosen explicitly:
-  # they change the network, and a silent default would hide that choice.
-  projection_missing <- missing(projection_method)
-  projection_method <- rlang::arg_match(projection_method)
+  size <- node_size <- N <- edge_time <- document <- V1 <- NULL
+
+  # Checks of the arguments. There is no default `method`: the way ties are
+  # built changes the network, and a silent default would hide that choice.
+  # The two families of methods (similarity measures, statistical backbones)
+  # are turned into the internal `projection_method`, `cooccurrence_method`
+  # and `model` used in the rest of the function.
+  dots <- rlang::list2(...)
+  method <- check_method(method)
+  projection_method <- if (method %in% structured_methods) "structured" else "statistical"
+  cooccurrence_method <- if (projection_method == "structured") paste0("coupling_", method)
+  model <- if (projection_method == "statistical") method
   projection_on <- rlang::arg_match(projection_on)
   time_in <- rlang::arg_match(time_in)
 
   # `...` is only for filter_components(): anything else is an error, and the
   # former `overlapping_window` is explained.
-  dots <- rlang::list2(...)
   if ("overlapping_window" %in% names(dots)) {
     cli::cli_abort(c(
       "{.arg overlapping_window} no longer exists.",
@@ -358,7 +460,7 @@ build_dynamic_networks <- function(
   if (!is.null(document_id)) {
     if (projection_method != "structured" || projection_on != "source") {
       cli::cli_abort(c(
-        "{.arg document_id} (coupling of entities such as authors) needs {.code projection_method = \"structured\"} and {.code projection_on = \"source\"}.",
+        "{.arg document_id} (coupling of entities such as authors) needs a similarity measure ({.val {structured_methods}}) and {.code projection_on = \"source\"}, not {.val {method}}.",
         "i" = "Statistical backbones and co-citation do not count the documents of each entity."
       ))
     }
@@ -379,26 +481,12 @@ build_dynamic_networks <- function(
                   if (time_in == "nodes") "nodes" else "directed_edges")
   }
 
-  if (projection_method == "structured") {
-    cooccurrence_method <- check_explicit_choice(
-      cooccurrence_method,
-      if (is.null(document_id)) c("coupling_angle", "coupling_strength", "coupling_similarity")
-      else c("coupling_angle", "coupling_strength"),
-      "cooccurrence_method",
-      context = "With {.code projection_method = \"structured\"}"
-    )
-  } else {
+  if (projection_method == "statistical") {
     rlang::check_installed("backbone", reason = "for statistical backbones.")
-    model <- check_explicit_choice(
-      model,
-      c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
-      "model",
-      context = "With {.code projection_method = \"statistical\"}"
-    )
     if (is.null(alpha) && is.null(backbone_args$alpha)) {
       cli::cli_abort(c(
         "{.arg alpha} is missing.",
-        "i" = "With {.code projection_method = \"statistical\"}, give the significance level of the test of each edge (e.g. {.code alpha = 0.05})."
+        "i" = "With the backbone method {.val {method}}, give the significance level of the test of each edge (e.g. {.code alpha = 0.05})."
       ))
     }
   }
@@ -423,9 +511,8 @@ build_dynamic_networks <- function(
   }
 
   if (verbose) {
-    if (projection_missing) {
-      cli::cli_inform(c("i" = "No {.arg projection_method} given: using {.val {projection_method}}."))
-    }
+    inform_method(method, source_id, target_id, edges_threshold, alpha,
+                  backbone_args, document_id, projection_on)
     if (!keep_singleton) {
       cli::cli_inform(c("i" = "Nodes without any edge are removed ({.code keep_singleton = FALSE})."))
     }
@@ -650,12 +737,8 @@ build_dynamic_networks <- function(
         from = character(0), to = character(0), weight = numeric(0)
       )
     } else if (projection_method == "structured") {
-      biblio_function <- switch(
-        cooccurrence_method,
-        coupling_angle = biblionetwork::coupling_angle,
-        coupling_strength = biblionetwork::coupling_strength,
-        coupling_similarity = biblionetwork::coupling_similarity
-      )
+      # `biblio_coupling()` is the general function of biblionetwork (and
+      # `entity_network()` for entities): `method` is the name of the measure.
 
       # evaluate the expression and catch internal errors to biblionetwork package
 
@@ -664,10 +747,11 @@ build_dynamic_networks <- function(
           edges_for_biblio <- data.table::copy(edges_of_the_year)
           if (is.null(document_id)) {
             data.table::setnames(edges_for_biblio, c("from", "to"), c(source_id, target_id))
-            edges_of_the_year <- biblio_function(
+            edges_of_the_year <- biblionetwork::biblio_coupling(
               dt = edges_for_biblio,
               source = source_id,
               ref = target_id,
+              method = method,
               weight_threshold = edges_threshold
             )
           } else {
@@ -682,13 +766,13 @@ build_dynamic_networks <- function(
               entity = "entity",
               weight_threshold = edges_threshold,
               output_in_character = TRUE,
-              method = sub("^coupling_", "", cooccurrence_method)
+              method = method
             )
           }
         },
         error = function(e) {
           cli::cli_abort(
-            "The computation of {.val {cooccurrence_method}} failed for the window {.val {label}}.",
+            "The computation of {.val {method}} failed for the window {.val {label}}.",
             parent = e
           )
         }
@@ -747,14 +831,14 @@ build_dynamic_networks <- function(
 #' literature behind them.
 #'
 #' @inheritParams build_dynamic_networks
-#' @param projection_method `"structured"` or `"statistical"`. Required.
-#' @param cooccurrence_method For `projection_method = "structured"`,
-#'   `"coupling_angle"`, `"coupling_strength"` or `"coupling_similarity"`.
 #' @param ... With `filter_components = TRUE`, arguments of
 #'   [filter_components()] (e.g. `nb_components`).
 #'
 #' @details
-#' `build_network()` runs silently (`verbose = FALSE`).
+#' The cases (which arguments for which kind of network), the methods and
+#' where they come from are described in the Details of
+#' [build_dynamic_networks()]. With `verbose = TRUE` (default), the function
+#' says which method it applies.
 #'
 #' @return A `tbl_graph`, undirected, with the columns of `nodes` as node
 #'   attributes and, for the structured method, a `weight` edge column.
@@ -770,8 +854,7 @@ build_dynamic_networks <- function(
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 2
 #' )
 #' network
@@ -784,29 +867,18 @@ build_network <- function(
   target_id,
   document_id = NULL,
   projection_on = c("source", "target"),
-  projection_method,
-  cooccurrence_method = c(
-    "coupling_angle",
-    "coupling_strength",
-    "coupling_similarity"
-  ),
+  method,
   edges_threshold = 1,
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
   alpha = NULL,
   backbone_args = list(),
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
-  ...
+  ...,
+  verbose = TRUE
 ) {
-  if (missing(projection_method)) {
-    cli::cli_abort(c(
-      "{.arg projection_method} is missing.",
-      "i" = "Choose {.val structured} or {.val statistical}."
-    ))
-  }
-  projection_method <- rlang::arg_match(projection_method, c("structured", "statistical"))
-
+  check_former_arguments(names(rlang::list2(...)))
+  method <- check_method(method)
   # `...` is reserved for filter_components(): the arguments of the projection
   # are explicit, so that they cannot be sent to the wrong function.
   graph <- build_dynamic_networks(
@@ -816,16 +888,15 @@ build_network <- function(
     target_id = target_id,
     document_id = document_id,
     projection_on = projection_on,
-    projection_method = projection_method,
-    cooccurrence_method = cooccurrence_method,
+    method = method,
     edges_threshold = edges_threshold,
-    model = model,
     alpha = alpha,
     backbone_args = backbone_args,
     compute_size = compute_size,
     keep_singleton = keep_singleton,
     filter_components = FALSE,
-    verbose = FALSE
+    time_variable = no_time_variable,
+    verbose = verbose
   )
   if (filter_components) {
     graph <- filter_components(graph, ...)

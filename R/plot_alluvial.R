@@ -1,6 +1,8 @@
 #' Plot the evolution of dynamic clusters as an alluvial
 #'
 #' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' `plot_alluvial()` draws the table created by [networks_to_alluv()] with
 #' ggalluvial: one column per time window, one block per dynamic cluster,
 #' with a height proportional to its share of the window, and flows that
@@ -9,14 +11,18 @@
 #' ([minimize_crossing_alluvial()]) and position their labels
 #' ([prepare_label_alluvial()]) on the way.
 #'
-#' @param alluv_dt A data frame created with [networks_to_alluv()].
+#' @param alluv_dt A data frame created with [networks_to_alluv()], or
+#'   directly the list of `tbl_graph`s with dynamic clusters (see
+#'   [merge_dynamic_clusters()]), which is then converted with
+#'   [networks_to_alluv()] (`color_column` and `cluster_label_column` are
+#'   the columns kept).
 #' @param intertemporal_cluster_column Character scalar, the column with the
 #'   dynamic clusters (e.g. `"dynamic_cluster_leiden"`).
 #' @param node_id Character scalar, the column with the node identifiers.
 #' @param window_column Character scalar, the column with the time windows
 #'   (`"window"` by default).
 #' @param color_column Character scalar, the column with the colours of the
-#'   clusters (`"color"` by default). If absent or `NULL`, ggplot2 chooses
+#'   clusters (`"color"` by default). If absent or `NULL`, [`ggplot2`](https://ggplot2.tidyverse.org/) chooses
 #'   the colours.
 #' @param color_alluvial Logical. If `TRUE`, runs [color_alluvial()] first.
 #' @param color With `color_alluvial = TRUE`, the colours passed to
@@ -28,11 +34,16 @@
 #'   first, which adds a `label_x` column with one label per cluster.
 #' @param cluster_label_column Character scalar, the column with the labels
 #'   used by [prepare_label_alluvial()] (`"cluster_label"` by default).
-#' @param print_plot_code Logical. If `TRUE`, prints the ggplot2 code of the
+#' @param min_share_cluster,min_windows_cluster Optional numbers to keep the
+#'   main clusters only: the clusters whose largest share of a window
+#'   (`share_cluster_max`, in per cent) is at least `min_share_cluster`,
+#'   and which exist in at least `min_windows_cluster` windows
+#'   (`length_cluster`). `NULL` (default) keeps all the clusters.
+#' @param print_plot_code Logical. If `TRUE`, prints the `ggplot2` code of the
 #'   plot.
 #'
 #' @details
-#' Labels are drawn with ggrepel, which must be installed, when `alluv_dt`
+#' Labels are drawn with [`ggrepel`](https://ggrepel.slowkow.com/), which must be installed, when `alluv_dt`
 #' has a `label_x` column. Small clusters clutter alluvials: filtering the
 #' table on `share_cluster_max` or `length_cluster` (see
 #' [networks_to_alluv()]) before plotting keeps the main ones.
@@ -50,7 +61,7 @@
 #'   target_id = "target_id",
 #'   time_variable = "source_year",
 #'   time_window = 10,
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1,
 #'   verbose = FALSE
 #' )
@@ -93,9 +104,31 @@ plot_alluvial <- function(alluv_dt,
                           minimize_crossing = FALSE,
                           prepare_label = FALSE,
                           cluster_label_column = "cluster_label",
+                          min_share_cluster = NULL,
+                          min_windows_cluster = NULL,
                           print_plot_code = FALSE)
 {
-  . <- N <- y_alluv <- label_x <- NULL
+  . <- N <- y_alluv <- label_x <- share_cluster_max <- length_cluster <- NULL
+  rlang::check_installed("ggalluvial", reason = "to draw alluvial plots.")
+  # A list of graphs is converted first: the whole workflow in one call
+  if (!is.data.frame(alluv_dt)) {
+    is_single_graph(alluv_dt, arg = "alluv_dt") # error if neither a table nor a list of graphs
+    alluv_dt <- networks_to_alluv(
+      alluv_dt,
+      intertemporal_cluster_column = intertemporal_cluster_column,
+      node_id = node_id,
+      color_column = color_column,
+      cluster_label_column = cluster_label_column
+    )
+  }
+  if (!is.null(min_share_cluster) || !is.null(min_windows_cluster)) {
+    check_columns(alluv_dt, c("share_cluster_max", "length_cluster"), "alluv_dt")
+    min_share <- if (is.null(min_share_cluster)) 0 else min_share_cluster
+    min_windows <- if (is.null(min_windows_cluster)) 0 else min_windows_cluster
+    alluv_dt <- data.table::as.data.table(alluv_dt)[
+      share_cluster_max >= min_share & length_cluster >= min_windows
+    ]
+  }
   check_columns(alluv_dt, c(intertemporal_cluster_column, node_id, window_column), "alluv_dt")
 
   if(color_alluvial){
@@ -137,10 +170,12 @@ plot_alluvial <- function(alluv_dt,
   }
 
   if("minimize_crossing_order" %in% colnames(alluv_dt)){
-    alluv_dt[[intertemporal_cluster_column]] <- forcats::fct_reorder(alluv_dt[[intertemporal_cluster_column]],
-                                                            alluv_dt[["minimize_crossing_order"]],
-                                                            min,
-                                                            .desc = TRUE)
+    # levels ordered by decreasing minimal order (the former forcats::fct_reorder())
+    alluv_dt[[intertemporal_cluster_column]] <- stats::reorder(
+      factor(alluv_dt[[intertemporal_cluster_column]]),
+      alluv_dt[["minimize_crossing_order"]],
+      FUN = function(x) -min(x)
+    )
 
   }
 

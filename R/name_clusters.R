@@ -30,7 +30,7 @@
 #' @param label_name Character scalar, the name of the new column
 #'   (`"cluster_label"` by default).
 #' @param tidygraph_function For `"tidygraph_functions"`, a call to a
-#'   centrality function of tidygraph, such as
+#'   centrality function of [`tidygraph`](https://tidygraph.data-imaginist.com/), such as
 #'   `tidygraph::centrality_pagerank()` (see [tidygraph::centrality]).
 #' @param order_by For `"given_column"`, the numeric node column used to
 #'   choose the node (e.g. `"node_size"` from [build_network()] with
@@ -82,8 +82,7 @@
 #'   directed_edges = Ref_stagflation,
 #'   source_id = "source_id",
 #'   target_id = "target_id",
-#'   projection_method = "structured",
-#'   cooccurrence_method = "coupling_similarity",
+#'   method = "similarity",
 #'   edges_threshold = 1
 #' )
 #' network <- add_clusters(
@@ -157,8 +156,8 @@ name_clusters <- function(graphs,
         "i" = "A centrality depends on one network; use {.val given_column} or {.val tf-idf}."
       ))
     }
-    order_by <- stringr::str_extract(rlang::as_label(fun), "centrality_[a-z_]+")
-    if (is.na(order_by)) order_by <- "centrality"
+    order_by <- regmatches(rlang::as_label(fun), regexpr("centrality_[a-z_]+", rlang::as_label(fun)))
+    if (length(order_by) == 0) order_by <- "centrality"
     graphs <- lapply(graphs, function(graph) graph %N>% dplyr::mutate(!!order_by := !!fun))
   }
   if (method == "given_column") {

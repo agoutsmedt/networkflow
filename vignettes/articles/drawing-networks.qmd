@@ -1,0 +1,278 @@
+---
+title: "Drawing networks"
+description: >
+  How a layout turns a network into a map: force-directed layouts
+  (Fruchterman-Reingold, Kamada-Kawai, ForceAtlas2), UMAP, and how to
+  colour, label and draw the clusters.
+bibliography: references.bib
+lightbox: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(fig.width = 10, fig.height = 7, dpi = 110, message = FALSE, warning = FALSE)
+```
+
+This guide covers the drawing of a network. A network has no natural
+position on a page: it is a set of nodes and of ties, and the figure we
+see depends on coordinates that something has to compute. This is the job
+of a *layout*, and the choice of the layout shapes what the reader sees.
+The guide starts from the bibliographic coupling network of the
+explanations of the 1970s stagflation built in [the first
+guide](from-references-to-networks.html), whose clusters were detected in
+[the second one](finding-and-reading-clusters.html).
+
+```{r}
+#| label: network
+library(networkflow)
+library(ggplot2)
+library(dplyr)
+
+nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
+network <- build_network(
+  nodes = nodes,
+  directed_edges = Ref_stagflation,
+  source_id = "source_id",
+  target_id = "target_id",
+  method = "similarity",
+  edges_threshold = 2,
+  filter_components = TRUE,
+  verbose = FALSE
+)
+network <- add_clusters(
+  network,
+  clustering_method = "leiden",
+  objective_function = "modularity",
+  resolution = 1,
+  seed = 123,
+  verbose = FALSE
+)
+network <- name_clusters(
+  network,
+  method = "tf-idf",
+  cluster_id = "cluster_leiden",
+  text_columns = "source_title",
+  nb_terms_label = 3,
+  clean_word_method = "lemmatize"
+)
+```
+
+We keep the main component of a network with a threshold of two shared
+references (`filter_components = TRUE`): some layouts push the small,
+disconnected components far away from the rest, and the main component is
+the one we want to read.
+
+## What a layout does
+
+A layout is a function that gives each node $i$ a position
+$p_i \in \mathbb{R}^2$. Most layouts used in bibliometrics are
+*force-directed*: they treat the network as a physical system, in which
+tied nodes attract each other and all nodes repel each other, and look for
+positions where the forces balance. The clusters of a network, which are
+dense regions, then appear as groups of nodes close to each other.
+
+`layout_networks()` computes the coordinates and adds them to the node
+table, in columns `x` and `y`. The layouts of
+[`igraph`](https://r.igraph.org/) and
+[`graphlayouts`](https://schochastics.github.io/graphlayouts/) are
+available through `ggraph::create_layout()`; `"forceatlas2"` and
+`"umap"` are added by `networkflow`.
+
+Two cautions apply to all of them. First, layouts are *stochastic* (they
+start from random positions) and sensitive to their starting point:
+another seed gives another, equally valid picture, so set a seed before
+calling the function to reproduce a figure. Second, distances in the
+picture are only roughly interpretable. Two clusters drawn side by side
+are more tied than two clusters at opposite ends, but distances should not
+be measured, and a layout is a compromise between many constraints.
+
+## Force-directed layouts
+
+### Fruchterman-Reingold
+
+Fruchterman-Reingold (`"fr"`) is the default choice of `networkflow`
+[@fruchterman1991]. With $d$ the distance between two nodes and $k$ an
+ideal distance, every pair of nodes repels with a force $k^2/d$, and every
+pair of tied nodes attracts with a force $d^2/k$, multiplied by the weight
+of the tie in `igraph`: heavier edges pull nodes closer.
+
+```{r}
+#| label: layout-fr
+set.seed(1)
+laid_out <- layout_networks(network, node_id = "source_id", layout = "fr")
+head(as_tibble(laid_out, active = "nodes")[c("source_id", "cluster_leiden", "x", "y")])
+```
+
+### Kamada-Kawai, and a trap with weights
+
+Kamada-Kawai (`"kk"`) takes the opposite approach [@kamada1989]: it
+places the nodes so that their geometric distances reproduce their graph
+distances, as if each pair of nodes were joined by a spring whose rest
+length is the length of the shortest path between them. The trap is that
+`igraph` reads the `weight` column of the edges as a *distance* for this
+layout, whereas a similarity is the opposite of a distance: the most
+similar documents would be pushed apart, and the weakly tied ones drawn at
+the margins. With similarity weights, either use `"fr"` or ignore the
+weights with `weights = NA`.
+
+### ForceAtlas2
+
+ForceAtlas2 (`"forceatlas2"`) is the layout of the visualisation software
+Gephi, designed for the exploration of networks [@jacomy2014]. Its forces
+are close to those of Fruchterman-Reingold, with two differences that
+matter for bibliographic networks. The repulsion between two nodes grows
+with the product of their degrees: with $\deg_i$ the number of ties of
+node $i$ and $d_{ij}$ the distance between $i$ and $j$,
+
+$$
+F_{\text{repulsion}}(i, j) = k_r \, \frac{(\deg_i + 1)(\deg_j + 1)}{d_{ij}},
+\qquad
+F_{\text{attraction}}(i, j) = w_{ij} \, d_{ij},
+$$
+
+so that hubs, which have many ties, push other nodes away more strongly
+than peripheral nodes do. A gravity $F_{\text{gravity}}(i) = k_g (\deg_i + 1)$ keeps the nodes
+around the centre. Finally, the speed of the nodes adapts to the stability
+of the system: it increases when forces are consistent and decreases when
+nodes oscillate.
+
+```{r}
+#| label: layout-fa2
+set.seed(1)
+laid_out_fa2 <- layout_networks(network, node_id = "source_id", layout = "forceatlas2")
+```
+
+The implementation of `networkflow` is compact: it computes the repulsion
+between all the pairs of nodes, instead of the approximation of Gephi, so
+that its cost grows with the square of the number of nodes. It is
+comfortable up to a few thousand nodes. Three arguments change the picture:
+`scaling_ratio` is the strength of the repulsion $k_r$ (smaller values give
+a more compact layout), `linlog = TRUE` replaces the attraction by a
+logarithm of the distance, which separates clusters more, and
+`strong_gravity = TRUE` keeps disconnected components close to the centre.
+
+## UMAP
+
+UMAP (Uniform Manifold Approximation and Projection) is not a graph
+layout: it is a method to embed points in a low-dimensional space while
+preserving their neighbourhoods [@mcinnes2018]. It often gives nice
+visualisations, with compact and well separated clusters. It needs
+distances between points, which a network does not provide directly, so
+`layout_networks()` builds them from the network: the distance between two
+nodes is the length of the shortest path between them, an edge being as long
+as the *inverse* of its weight (a strong tie is a short one). UMAP then
+describes each node by its `n_neighbors` nearest nodes and finds
+coordinates that reproduce this neighbourhood structure.
+
+```{r}
+#| label: layout-umap
+set.seed(1)
+laid_out_umap <- layout_networks(network, node_id = "source_id", layout = "umap", n_neighbors = 15)
+```
+
+`n_neighbors` is the size of the neighbourhood that is preserved: small
+values emphasise local structure and many small groups, large values a
+global view of the network. `min_dist` (0.1 by default) sets how tightly
+nodes are packed. The picture is thus partly built by the user, and a UMAP
+should be checked with several values of `n_neighbors`. Unlike
+force-directed layouts, UMAP does not put the nodes of two components
+close by default: nodes of different components are set farther apart than
+any connected pair. The package `uwot` computes it, and must be installed.
+
+## Comparing the layouts
+
+The same network, with the same clusters, in three layouts, each node
+being coloured by its Leiden cluster (the labels are the cluster numbers).
+
+```{r}
+#| label: fig-layouts
+#| fig-width: 7
+#| fig-height: 6
+#| layout-ncol: 3
+#| fig-cap: "The same network in three layouts."
+#| fig-subcap:
+#|   - "Fruchterman-Reingold"
+#|   - "ForceAtlas2"
+#|   - "UMAP"
+#| fig-alt: >
+#|   Three maps of the same bibliographic coupling network, nodes coloured
+#|   by cluster, drawn with the Fruchterman-Reingold, ForceAtlas2 and UMAP
+#|   layouts.
+network <- color_networks(network, column_to_color = "cluster_leiden", verbose = FALSE)
+for (layout in c("fr", "forceatlas2", "umap")) {
+  set.seed(1)
+  laid_out <- layout_networks(network, node_id = "source_id", layout = layout)
+  print(plot_networks(laid_out, cluster_label_column = "cluster_leiden", node_size_column = NULL))
+}
+```
+
+None of them is the right one: they answer different questions.
+
+| Layout | Idea | Uses the weights | Cost | Reads well when |
+|---|---|---|---|---|
+| `"fr"` | attraction along edges, repulsion between all nodes | as attraction | light | a first look at a network of a few hundred nodes |
+| `"kk"` | geometric distances reproduce graph distances | as distances (see above) | grows fast with size | small networks, unweighted or with `weights = NA` |
+| `"forceatlas2"` | as `"fr"`, with a repulsion that grows with degrees | as attraction | square of the number of nodes | networks with hubs, which need space |
+| `"umap"` | preserves the neighbourhood of each node | through the shortest paths | light | networks of clusters one wants to see apart |
+
+A practical rule: try a force-directed layout first, and a UMAP to check
+whether the clusters found by Leiden also appear as separate groups of
+nodes. When a cluster is split or scattered in all the layouts, it is
+worth reading its documents again.
+
+## Colours and labels
+
+`color_networks()` gives each cluster a colour, in the order of decreasing
+size of the clusters, and each edge a mix of the colours of its two ends. The colours are the ones of
+a palette that you can choose, here the perceptually uniform `batlow`
+palette of [`scico`](https://github.com/thomasp85/scico), and a category
+keeps its colour in every figure if the palette is given explicitly.
+
+```{r}
+#| label: colours
+n_clusters <- length(unique(as_tibble(network, active = "nodes")$cluster_leiden))
+palette <- data.frame(
+  cluster_leiden = sort(unique(as_tibble(network, active = "nodes")$cluster_leiden)),
+  color = scico::scico(n_clusters, palette = "batlow")
+)
+network <- color_networks(network, column_to_color = "cluster_leiden", color = palette, verbose = FALSE)
+```
+
+The label of each cluster is drawn at the centre of gravity of its nodes:
+`prepare_label_networks()` computes these positions, and `plot_networks()`
+calls it when they are missing. `plot_networks()` assembles the figure:
+edges as light arcs, nodes as points, the cluster labels, without
+decoration. It is meant as a quick, ready-made figure, and
+`print_plot_code = TRUE` prints the `ggplot2` code, to copy and adapt for a
+figure to publish.
+
+```{r}
+#| label: fig-network
+#| fig-alt: >
+#|   Bibliographic coupling network of the documents explaining the 1970s
+#|   stagflation, drawn with a UMAP layout, with nodes coloured by Leiden
+#|   cluster and a label at the centre of each cluster made of its three
+#|   most distinctive title words.
+set.seed(1)
+network <- layout_networks(network, node_id = "source_id", layout = "umap")
+plot_networks(
+  network,
+  cluster_label_column = "cluster_label",
+  node_size_column = NULL
+)
+```
+
+For a list of networks (one per time window), `layout_networks()` accepts
+`compute_dynamic_coordinates = TRUE`, which starts the layout of each
+window from the positions of the previous one so that documents present
+in two windows stay in the same region: this is used in [the last
+guide](following-clusters-over-time.html).
+
+## What comes next
+
+A single network of the whole period mixes literatures that did not
+coexist. The [last guide](following-clusters-over-time.html) builds one
+network per time window and follows the clusters across windows.
+
+## References

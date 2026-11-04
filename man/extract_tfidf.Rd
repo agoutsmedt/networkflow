@@ -42,7 +42,7 @@ words and pairs of words).}
 \item{stopwords_vector}{Optional character vector of stop words, used
 instead of \code{stopwords_type}.}
 
-\item{clean_word_method}{\code{"lemmatize"}, \code{"stemming"} (with the textstem
+\item{clean_word_method}{\code{"lemmatize"}, \code{"stemming"} (with the \href{https://github.com/trinker/textstem}{\code{textstem}}
 package) or \code{"none"} (chosen when no method is given).}
 
 \item{ngrams_filter}{Integer, the minimum number of occurrences of a term
@@ -86,7 +86,7 @@ the other clusters of the same period; computed on the stacked windows
 with \code{grouping_across_list = TRUE}, it also distinguishes a cluster from
 its own past and future.
 
-Lemmatising and stemming are optional and need the textstem package. For
+Lemmatising and stemming are optional and need the \code{textstem} package. For
 larger corpora or other weighting schemes, the text-mining functions of
 the mintR package (\url{https://codeberg.org/agoutsmedt/mintR}) can be used
 on the node table.
@@ -97,8 +97,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 network <- add_clusters(

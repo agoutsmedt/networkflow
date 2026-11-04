@@ -11,16 +11,15 @@ build_network(
   target_id,
   document_id = NULL,
   projection_on = c("source", "target"),
-  projection_method,
-  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
+  method,
   edges_threshold = 1,
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
   alpha = NULL,
   backbone_args = list(),
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
-  ...
+  ...,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -43,7 +42,7 @@ document through which each link exists. With it, \code{source_id} entities
 are not documents but \emph{entities that publish documents} (authors,
 journals, institutions) and a reference cited by several documents of an
 entity counts several times, following
-\code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
+\code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}}. Only for the similarity measures.}
 
 \item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
 that share \code{target_id} entities (bibliographic coupling: articles
@@ -52,25 +51,31 @@ share \code{source_id} entities (co-citation: cited documents linked when
 they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
 by \code{target_id}.}
 
-\item{projection_method}{\code{"structured"} or \code{"statistical"}. Required.}
-
-\item{cooccurrence_method}{For \code{projection_method = "structured"},
-\code{"coupling_angle"}, \code{"coupling_strength"} or \code{"coupling_similarity"}.}
-
-\item{edges_threshold}{For \code{projection_method = "structured"}, the minimum
-number of shared targets for two sources to be linked (1 by default).}
-
-\item{model}{For \code{projection_method = "statistical"}, the null model of
+\item{method}{Required, no default. How the ties between sources are
+built; the origin of each method is given in the details. One of
+\itemize{
+\item the similarity measures of
+\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}
+(\code{biblionetwork::biblio_coupling(method = )}, or
+\code{biblionetwork::entity_network()} with \code{document_id}): \code{"angle"},
+\code{"strength"}, \code{"similarity"}, \code{"jaccard"}, \code{"vladutz"};
+\item the null models of the statistical backbones of
 \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}: \code{"sdsm"}, \code{"fdsm"},
-\code{"fixedfill"}, \code{"fixedrow"} or \code{"fixedcol"}.}
+\code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"}. They need \code{alpha}.
+}}
 
-\item{alpha}{For \code{projection_method = "statistical"}, the significance
-level of the test of each tie. Lower values keep fewer edges.}
+\item{edges_threshold}{For the similarity measures, the minimum number of
+shared targets for two sources to be linked (1 by default). Ignored by
+the backbone methods.}
+
+\item{alpha}{For the backbone methods, the significance level of the test
+of each tie (e.g. 0.05). Lower values keep fewer edges. Required for
+them, ignored by the similarity measures.}
 
 \item{backbone_args}{Optional list of further arguments for
 \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}} (e.g. \code{mtc = "holm"} to correct
-for multiple tests). \code{alpha} or \code{model} given here override the
-arguments of the function.}
+for multiple tests). \code{alpha} given here overrides the argument of the
+function.}
 
 \item{compute_size}{Logical. If \code{TRUE}, adds a \code{node_size} column: the
 number of times each node is a target of the sources of the same window
@@ -85,6 +90,8 @@ component(s) with \code{\link[=filter_components]{filter_components()}}.}
 
 \item{...}{With \code{filter_components = TRUE}, arguments of
 \code{\link[=filter_components]{filter_components()}} (e.g. \code{nb_components}).}
+
+\item{verbose}{Logical. If \code{TRUE} (default), reports the steps.}
 }
 \value{
 A \code{tbl_graph}, undirected, with the columns of \code{nodes} as node
@@ -100,7 +107,10 @@ windows: see that function for the measures, the thresholds and the
 literature behind them.
 }
 \details{
-\code{build_network()} runs silently (\code{verbose = FALSE}).
+The cases (which arguments for which kind of network), the methods and
+where they come from are described in the Details of
+\code{\link[=build_dynamic_networks]{build_dynamic_networks()}}. With \code{verbose = TRUE} (default), the function
+says which method it applies.
 }
 \examples{
 nodes <- subset(Nodes_stagflation, source_type == "Stagflation")
@@ -110,8 +120,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 2
 )
 network

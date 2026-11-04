@@ -1,24 +1,119 @@
 # networkflow (development version, to be released on CRAN as 0.1.0)
 
+Development versions are numbered 0.0.9.900x, from the first step (rewrite)
+to the latest; the steps are listed from the most recent to the oldest.
+
+# networkflow 0.0.9.9003 (2026-11-04)
+
+Fourth step: one `method` to build networks, and the Shiny application moves
+to its own package.
+
 ## Breaking changes
 
-- `merge_dynamic_clusters()`: `similarity_type` must be given (`"complete"`
-  or `"partial"`). Its former default could not be used anyway (it failed
-  with "the condition has length > 1").
-- `add_clusters()`: cluster identifiers are numbered by decreasing size for
-  every algorithm ("01" is the largest cluster). Leiden identifiers were
-  previously in the order returned by igraph: partitions are unchanged, but
-  labels may differ from those obtained with an earlier version.
-- `add_clusters()`: Louvain, fast greedy, walktrap and Infomap now use the
-  `weight` edge column, as documented. Through tidygraph, they used to
-  ignore it (only Leiden used the weights): partitions obtained with these
-  algorithms on weighted networks change.
-- `build_network()`: `model`, `alpha` and `backbone_args` are explicit
-  arguments; `...` only goes to `filter_components()`.
-- `build_dynamic_networks()` keeps `node_size` computed by `compute_size`
-  instead of duplicating an existing `node_size` column.
+- `build_network()` and `build_dynamic_networks()`: a single argument,
+  `method`, replaces `projection_method`, `cooccurrence_method` and `model`.
+  There is no default, so that the choice stays explicit. The similarity
+  measures of biblionetwork are `"angle"`, `"strength"`, `"similarity"`,
+  `"jaccard"` and `"vladutz"` (formerly `"coupling_angle"`...); the
+  statistical backbones of the backbone package are `"sdsm"`, `"fdsm"`,
+  `"fixedfill"`, `"fixedrow"` and `"fixedcol"` (with `alpha`). Using the
+  former arguments gives an error that shows the translation, for example
+  `projection_method = "structured", cooccurrence_method = "coupling_angle"`
+  becomes `method = "angle"`.
+- `launch_network_app()` is removed from networkflow: the application moves
+  to the package networkflowapp. `shiny`, `DT`, `ggiraph` and
+  `shinycssloaders` are no longer suggested.
 
-## Breaking changes (second round)
+## New features
+
+- `layout_networks()` has two new layouts: `"forceatlas2"` (the layout of
+  Gephi, Jacomy et al., 2014, in a compact implementation) and `"umap"`
+  (UMAP of McInnes et al., 2018, computed with uwot on the shortest-path
+  distances of the network). The package uwot is suggested.
+- A new guide, "Drawing networks", explains what a layout does, compares
+  the layouts, and covers colours, labels and `plot_networks()`; this part
+  of "Finding and reading clusters" is moved there. In "Finding and reading
+  clusters", the table of cluster sizes is a labelled tibble, the CPM
+  example uses the density of the network as the scale of the resolution,
+  `name_clusters()` is shown with a centrality (`"tidygraph_functions"`), and
+  the interpretation of clusters cites Delcey et al.
+- With `verbose = TRUE` (now also the default of `build_network()`), the
+  functions say which method they apply, what it measures and where it comes
+  from (Sen and Gan, Shen et al., Neal...). The details of
+  `build_dynamic_networks()` document the origin of each method.
+
+# networkflow 0.0.9.9002 (2026-11-04)
+
+Third step of the development: alignment with biblionetwork 0.2.0, a lighter
+installation, clearer entry functions and documentation, and a new README
+and website theme (changes of 2026-11-02 to 2026-11-04).
+
+## Breaking changes
+
+- `build_dynamic_networks()` now stops when `time_variable` or `time_window`
+  is missing, instead of silently building the single network of
+  `build_network()`: that was not what a user calling a "dynamic" function
+  meant. The error says to use `build_network()` and suggests the columns
+  that look like a time variable (dates, or numbers named like a year).
+  `build_network()` is unchanged.
+
+## New features
+
+- All the similarity measures of biblionetwork 0.2.0 are available in
+  `cooccurrence_method`: `"coupling_jaccard"` and `"coupling_vladutz"` join
+  `"coupling_angle"`, `"coupling_strength"` and `"coupling_similarity"`. The
+  edges are computed with `biblionetwork::biblio_coupling(method = )`, and
+  `document_id` (entity coupling) accepts the five measures through
+  `biblionetwork::entity_network()` (it used to refuse
+  `"coupling_similarity"`).
+- `plot_alluvial()` accepts the list of graphs with dynamic clusters directly
+  (it calls `networks_to_alluv()`), and `min_share_cluster` and
+  `min_windows_cluster` keep the main clusters only: the whole alluvial
+  workflow in one call. The separate functions remain available.
+
+## Lighter installation
+
+- `ggalluvial` and `tidytext` are moved from Imports to Suggests, with
+  `lifecycle` (only used to write the documentation), and `forcats`,
+  `stringr` and `stopwords`, which the package barely used, are removed: 16
+  packages are imported instead of 22. `plot_alluvial()`, `extract_tfidf()`
+  and `name_clusters(method = "tf-idf")` ask to install `ggalluvial` or
+  `tidytext` when they are needed (`rlang::check_installed()`).
+
+## Documentation and website
+
+- `build_dynamic_networks()` and `build_network()` document, case by case,
+  which arguments to choose (coupling, backbone, one network per period,
+  co-citation, authors, other two-mode tables) and what each
+  `projection_method` uses and ignores.
+- The five measures are described, with their formulas, in the documentation
+  and in the first guide, and linked to the explanations of biblionetwork.
+  The first guide compares the coupling angle, the Jaccard index and the
+  coupling similarity, and shows how much a statistical backbone prunes a
+  network, with the numbers of nodes and edges of a coupling angle network.
+- The formulas of the function documentation are displayed on the website
+  (KaTeX), and the footer names the two maintainers.
+- The README is written in Quarto (`README.qmd`); its illustration comes in a
+  light and a dark version that follow the theme of the website. It
+  mentions the Digital History of Macroeconomics project.
+- Package names are written in code font, with a link at first mention, in
+  the documentation and the guides.
+- New site theme, logo and favicons.
+
+## Other changes
+
+- biblionetwork >= 0.2.0 is required (`biblio_coupling()` is the general
+  function; `coupling_entity()` is deprecated in favour of `entity_network()`),
+  which also fixes the coupling similarity (the idf-weighted cosine of Shen
+  et al., 2019) and the weights of the coupling strength.
+- The `Authors@R` field of `DESCRIPTION` is fixed (a missing comma).
+
+# networkflow 0.0.9.9001 (2026-11-01)
+
+Second step: the pipeline is generalised beyond bibliographic coupling, and
+time windows are reworked.
+
+## Breaking changes
 
 - `build_dynamic_networks()`: `overlapping_window` is replaced by
   `window_step`, the number of units between the starts of two windows
@@ -63,7 +158,7 @@
   date (authors). Successive windows can then be matched, since nodes persist.
 - `document_id`: coupling of entities that publish documents (authors,
   journals, institutions), counting the documents that cite each reference,
-  through `biblionetwork::coupling_entity()`.
+  through `biblionetwork::entity_network()`.
 - `compute_size` counts the citing documents of each node when the nodes
   are linked through their own links (co-citation, `time_in = "edges"`).
 - A fourth guide, "Beyond bibliographic coupling", shows co-citation, author
@@ -73,6 +168,30 @@
   `filter_components()`, `add_clusters()` and the following steps accept;
   nodes or links with a missing time are dropped with a warning (they used
   to make the function fail).
+
+# networkflow 0.0.9.9000 (2026-11-01)
+
+First step: rewrite of the documentation and of the code of the former
+GitHub version (0.0.9), with tests and benchmarks. To be released on CRAN as
+0.1.0.
+
+## Breaking changes
+
+- `merge_dynamic_clusters()`: `similarity_type` must be given (`"complete"`
+  or `"partial"`). Its former default could not be used anyway (it failed
+  with "the condition has length > 1").
+- `add_clusters()`: cluster identifiers are numbered by decreasing size for
+  every algorithm ("01" is the largest cluster). Leiden identifiers were
+  previously in the order returned by igraph: partitions are unchanged, but
+  labels may differ from those obtained with an earlier version.
+- `add_clusters()`: Louvain, fast greedy, walktrap and Infomap now use the
+  `weight` edge column, as documented. Through tidygraph, they used to
+  ignore it (only Leiden used the weights): partitions obtained with these
+  algorithms on weighted networks change.
+- `build_network()`: `model`, `alpha` and `backbone_args` are explicit
+  arguments; `...` only goes to `filter_components()`.
+- `build_dynamic_networks()` keeps `node_size` computed by `compute_size`
+  instead of duplicating an existing `node_size` column.
 
 ## Removed
 
@@ -131,51 +250,6 @@
   and missing texts no longer produce the term "na".
 - `color_networks()`: with more than 14 categories, the default palette used
   13 colours; it now uses 14 and warns that colours are recycled.
-
-## Performance
-
-- `color_networks()` mixes edge colours in one vectorised call instead of
-  one call per edge.
-- `extract_tfidf()` lemmatises or stems each distinct word once instead of
-  each occurrence.
-- `add_clusters()` computes partitions directly with igraph.
-- `bench/benchmark_functions.R` compares the time, memory and results of the
-  pipeline with the former version on samples of a Scopus corpus.
-
-## Messages and checks
-
-- All messages go through cli: `cli_abort()`, `cli_warn()` and
-  `cli_inform()` (which can be silenced), with progress bars over time
-  windows; errors from biblionetwork and backbone are chained.
-- Arguments are checked with informative errors (missing columns, choices
-  that must be explicit, wrong input types).
-- `color_networks()` and `color_alluvial()` gain a `verbose` argument.
-
-## Package
-
-- Tests (testthat 3) for every exported function, on hand-computed examples
-  and the packaged data.
-- DESCRIPTION: new title, R (>= 4.1.0), no `Remotes`, `Author` or `Date`
-  fields; ggrepel, stopwords and withr move to `Imports`.
-
-## Documentation
-
-- The documentation was rewritten as the documentation of a research
-  pipeline: each step explains the method behind it (projection and
-  similarity measures, statistical backbones, modularity and CPM, the
-  matching rule of dynamic clusters, Guimerà-Amaral roles, tf-idf), with
-  formulas and references to the literature (`inst/REFERENCES.bib`).
-- The vignette `networkflow_presentation` is replaced by three Quarto guides
-  on the website: "From references to networks", "Finding and reading
-  clusters" and "Following clusters over time".
-- The README presents the pipeline and the research that used it.
-- The documentation of `"coupling_similarity"` describes the idf-weighted
-  cosine of Shen et al. (2019), as computed by biblionetwork 0.1.1.9000 and
-  later (earlier versions computed it wrongly).
-- `filter_components()` is no longer described as deprecated: it is the
-  replacement of `tbl_main_component()`.
-- `layout_networks()` documents that Kamada-Kawai reads edge weights as
-  distances; examples now use Fruchterman-Reingold.
 
 # networkflow 0.0.9
 

@@ -50,7 +50,7 @@ networks <- build_dynamic_networks(
   time_variable = "source_year",
   time_window = 10,
   window_step = 4,
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 2,
   verbose = FALSE
 )

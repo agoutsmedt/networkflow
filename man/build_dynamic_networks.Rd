@@ -11,10 +11,8 @@ build_dynamic_networks(
   target_id,
   document_id = NULL,
   projection_on = c("source", "target"),
-  projection_method = c("structured", "statistical"),
-  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
+  method,
   edges_threshold = 1,
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
   alpha = NULL,
   backbone_args = list(),
   time_variable = NULL,
@@ -49,7 +47,7 @@ document through which each link exists. With it, \code{source_id} entities
 are not documents but \emph{entities that publish documents} (authors,
 journals, institutions) and a reference cited by several documents of an
 entity counts several times, following
-\code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}}. Only for \code{projection_method = "structured"} with \code{"coupling_angle"} or \code{"coupling_strength"}.}
+\code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}}. Only for the similarity measures.}
 
 \item{projection_on}{\code{"source"} (default) links the \code{source_id} entities
 that share \code{target_id} entities (bibliographic coupling: articles
@@ -58,34 +56,37 @@ share \code{source_id} entities (co-citation: cited documents linked when
 they are cited by the same documents). With \code{"target"}, \code{nodes} is keyed
 by \code{target_id}.}
 
-\item{projection_method}{\code{"structured"} (default) or \code{"statistical"}, see
-the description and the details.}
-
-\item{cooccurrence_method}{For \code{projection_method = "structured"}, the
-similarity measure used as edge weight: \code{"coupling_angle"},
-\code{"coupling_strength"} or \code{"coupling_similarity"} (see the details).
-There is no default: the choice must be explicit.}
-
-\item{edges_threshold}{For \code{projection_method = "structured"}, the minimum
-number of shared targets for two sources to be linked (1 by default).}
-
-\item{model}{For \code{projection_method = "statistical"}, the null model of
+\item{method}{Required, no default. How the ties between sources are
+built; the origin of each method is given in the details. One of
+\itemize{
+\item the similarity measures of
+\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}
+(\code{biblionetwork::biblio_coupling(method = )}, or
+\code{biblionetwork::entity_network()} with \code{document_id}): \code{"angle"},
+\code{"strength"}, \code{"similarity"}, \code{"jaccard"}, \code{"vladutz"};
+\item the null models of the statistical backbones of
 \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}: \code{"sdsm"}, \code{"fdsm"},
-\code{"fixedfill"}, \code{"fixedrow"} or \code{"fixedcol"}.}
+\code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"}. They need \code{alpha}.
+}}
 
-\item{alpha}{For \code{projection_method = "statistical"}, the significance
-level of the test of each tie. Lower values keep fewer edges.}
+\item{edges_threshold}{For the similarity measures, the minimum number of
+shared targets for two sources to be linked (1 by default). Ignored by
+the backbone methods.}
+
+\item{alpha}{For the backbone methods, the significance level of the test
+of each tie (e.g. 0.05). Lower values keep fewer edges. Required for
+them, ignored by the similarity measures.}
 
 \item{backbone_args}{Optional list of further arguments for
 \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}} (e.g. \code{mtc = "holm"} to correct
-for multiple tests). \code{alpha} or \code{model} given here override the
-arguments of the function.}
+for multiple tests). \code{alpha} given here overrides the argument of the
+function.}
 
-\item{time_variable}{Optional name of a column with the time of each node
+\item{time_variable}{Name of a column with the time of each node
 (or of each link, with \code{time_in = "edges"}): a number (e.g. a year), a
 \code{Date}, a \code{POSIXct}, or an ISO date written as text (\code{"2001-03"},
-\code{"2001-03-15"}). Years written as text (\code{"2001"}) are numbers. Without
-it, a single network is built.}
+\code{"2001-03-15"}). Years written as text (\code{"2001"}) are numbers. Required
+by \code{build_dynamic_networks()} (without time, use \code{build_network()}).}
 
 \item{time_in}{\code{"nodes"} (default): \code{time_variable} is a column of \code{nodes}
 and a window selects the nodes of the period. \code{"edges"}: \code{time_variable}
@@ -100,9 +101,9 @@ own (authors).}
 Mondays) or \code{"day"}. For numbers, the unit is the one of the variable
 and \code{time_unit} must stay \code{NULL}.}
 
-\item{time_window}{Optional whole number, the width of each window in
+\item{time_window}{Whole number, the width of each window in
 \code{time_unit}s (or in units of the variable): 10 for ten years, 12 with
-\code{time_unit = "month"} for a year. \code{NULL} builds a single network.}
+\code{time_unit = "month"} for a year. Required by \code{build_dynamic_networks()}.}
 
 \item{window_step}{Optional whole number, the number of units between the
 starts of two windows. \code{NULL} (default) gives successive windows
@@ -136,15 +137,20 @@ method.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-The first step of the networkflow pipeline. Research data rarely come as a
+The first step of the \code{networkflow} pipeline. Research data rarely come as a
 network: they come as a table of links between two kinds of entities, such
 as articles and the references they cite, authors and the papers they sign,
-or accounts and the hashtags they use. \code{build_dynamic_networks()} \emph{projects}
-this two-mode (bipartite) relation onto the first kind of entity: two
+or accounts and the hashtags they use. These functions \emph{project} this
+two-mode (bipartite) relation onto the first kind of entity: two
 \code{source_id} entities (e.g. two articles) are linked when they share
-\code{target_id} entities (e.g. references). With \code{time_variable} and
-\code{time_window}, it builds one such network per time window, which is the
-starting point of a dynamic analysis.
+\code{target_id} entities (e.g. references).
+\itemize{
+\item \code{build_network()} builds \strong{one network} from the whole table.
+\item \code{build_dynamic_networks()} builds \strong{one network per time window}
+(\code{time_variable} and \code{time_window} are required), which is the starting
+point of a dynamic analysis. It is \code{build_network()} repeated on
+slices of the corpus, with a few more arguments for time.
+}
 
 Write \eqn{a_{ij} = 1} when source \eqn{i} is linked to target \eqn{j}. The
 raw strength of the tie between sources \eqn{i} and \eqn{k} is the number
@@ -157,31 +163,86 @@ as \code{source_id}, citing documents as \code{target_id}) gives a co-citation
 network \insertCite{small1973}{networkflow}.
 
 Raw counts favour sources with many targets (articles with long
-bibliographies), and most pairs share a target or two by chance. The two
-\code{projection_method}s answer this problem in different ways:
+bibliographies), and most pairs share a target or two by chance. The
+single \code{method} argument chooses how this problem is answered, among two
+families:
 \itemize{
-\item \code{"structured"} normalises the counts with a bibliometric similarity
-measure computed by \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}
-and keeps the pairs sharing at least \code{edges_threshold} targets;
-\item \code{"statistical"} keeps only the ties that are stronger than expected
-under a null model of random co-occurrence, using the
-\href{https://github.com/zpneal/backbone}{backbone} package
+\item a \strong{similarity measure} (\code{"angle"}, \code{"strength"}, \code{"similarity"},
+\code{"jaccard"}, \code{"vladutz"}) normalises the counts, as implemented in
+\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork}, and the
+pairs sharing at least \code{edges_threshold} targets are kept, with their
+weight;
+\item a \strong{statistical backbone} (\code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"},
+\code{"fixedrow"}, \code{"fixedcol"}) keeps only the ties that are stronger than
+expected under a null model of random co-occurrence, as implemented in
+the \href{https://github.com/zpneal/backbone}{\code{backbone}} package
 \insertCite{neal2014,neal2022}{networkflow}.
 }
+
+There is no default \code{method}: the choice changes the network, so it must
+be explicit. With \code{verbose = TRUE} the function says which method it uses
+and where it comes from. (The arguments \code{projection_method},
+\code{cooccurrence_method} and \code{model} of earlier versions are replaced by
+\code{method} and give an error that explains the translation.)
 }
 \details{
-\strong{Similarity measures} (\code{projection_method = "structured"}). With
+\strong{The arguments to choose, case by case.} \code{projection_on} says which side
+of the links becomes the nodes, and \code{method} says how the ties between
+them are built:\tabular{ll}{
+   You want \tab Function and main arguments \cr
+   A network of the whole corpus, ties weighted by a similarity measure (bibliographic coupling) \tab \code{build_network(method = "similarity", edges_threshold = )} (or another measure) \cr
+   The same, with only the ties unlikely under a null model \tab \code{build_network(method = "sdsm", alpha = 0.05)} (or another backbone model) \cr
+   One such network per period \tab \code{build_dynamic_networks(time_variable = , time_window = )}, plus \code{window_step} and \code{time_unit} if needed, with any \code{method} \cr
+   Cited works linked when cited together (co-citation) \tab \code{projection_on = "target"}; for windows, \code{time_in = "edges"} with the time of the citing documents in \code{directed_edges} \cr
+   Authors, journals or institutions linked through the references of their documents \tab \verb{document_id = } the column of the document, with a similarity measure \cr
+   Any other two-mode table (accounts and hashtags, members and boards) \tab the same arguments: nothing is specific to citations \cr
+}
+
+
+\strong{The two families of \code{method}.} They do not use the same arguments:\tabular{lll}{
+    \tab Similarity measures \tab Statistical backbones \cr
+   \code{method} \tab \code{"angle"}, \code{"strength"}, \code{"similarity"}, \code{"jaccard"}, \code{"vladutz"} \tab \code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"} \cr
+   Idea \tab normalise the number of shared targets, then keep the pairs sharing at least \code{edges_threshold} targets \tab test, for each pair, whether the number of shared targets is larger than in random networks that keep some properties of the data, and keep the significant pairs \cr
+   Edges \tab weighted (\code{weight}) \tab unweighted (each edge means "more than expected by chance") \cr
+   Arguments used \tab \code{edges_threshold}, \code{document_id} \tab \code{alpha} (required), \code{backbone_args} \cr
+   Ignored \tab \code{alpha}, \code{backbone_args} \tab \code{edges_threshold}; \code{document_id} is an error \cr
+   Cost \tab fast, sparse matrices \tab slow on large corpora (a test for each pair) \cr
+   Computed by \tab \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} \tab the \code{backbone} package \cr
+}
+
+
+\strong{Where the methods come from.} The names are those of the packages that
+compute them, so that the documentation of each method can be found there:\tabular{llll}{
+   \code{method} \tab What it is \tab Origin \tab Function behind \cr
+   \code{"angle"} \tab cosine of the lists of targets \tab \insertCite{sen1983}{networkflow} \tab \code{biblionetwork::coupling_angle()} \cr
+   \code{"jaccard"} \tab shared targets over the union of the lists \tab \insertCite{sen1983}{networkflow} \tab \code{biblionetwork::coupling_jaccard()} \cr
+   \code{"strength"} \tab shared targets weighted by their rarity \tab \insertCite{shen2019}{networkflow} \tab \code{biblionetwork::coupling_strength()} \cr
+   \code{"similarity"} \tab idf-weighted cosine \tab \insertCite{shen2019}{networkflow} \tab \code{biblionetwork::coupling_similarity()} \cr
+   \code{"vladutz"} \tab Vladutz-Cook formula \tab \insertCite{vladutz1984}{networkflow}, as reported by \insertCite{shen2019}{networkflow} \tab \code{biblionetwork::coupling_vladutz()} \cr
+   \code{"sdsm"}, \code{"fdsm"}, \code{"fixedfill"}, \code{"fixedrow"}, \code{"fixedcol"} \tab null models of random bipartite networks \tab \insertCite{neal2014,neal2022,domagalski2021}{networkflow} \tab \code{backbone::backbone_from_projection(model = )} \cr
+}
+
+
+\strong{Similarity measures}. With
 \eqn{L_i = |R_i|} the number of targets of source \eqn{i}, \eqn{N} the
 number of sources and \eqn{f_j} the number of sources linked to target
-\eqn{j}, the three measures computed by biblionetwork are:
+\eqn{j}, the five measures computed by \href{https://agoutsmedt.github.io/biblionetwork/}{\code{biblionetwork}}
+(through \code{biblionetwork::biblio_coupling()}, or \code{biblionetwork::entity_network()}
+with \code{document_id}) are:
 \itemize{
-\item \code{"coupling_angle"}, the cosine of \insertCite{sen1983;textual}{networkflow}:
+\item \code{"angle"}, the cosine of \insertCite{sen1983;textual}{networkflow}:
 \deqn{w_{ik} = \frac{|R_i \cap R_k|}{\sqrt{L_i L_k}};}
-\item \code{"coupling_strength"} \insertCite{vladutz1984,shen2019}{networkflow},
+\item \code{"jaccard"}, the relative coupling strength of
+\insertCite{sen1983;textual}{networkflow}, a Jaccard index: the shared
+targets over the \emph{union} of the two lists,
+\deqn{w_{ik} = \frac{|R_i \cap R_k|}{|R_i \cup R_k|}.}
+Like the angle it only counts, but it is never above it and penalises
+more the pairs whose lists have very different lengths;
+\item \code{"strength"} \insertCite{shen2019}{networkflow},
 where a shared target counts less when it is linked to many sources,
 in the spirit of an inverse document frequency:
 \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};}
-\item \code{"coupling_similarity"}, the idf-weighted cosine of
+\item \code{"similarity"}, the idf-weighted cosine of
 \insertCite{shen2019;textual}{networkflow}: each source is described by
 a vector with one component per target, equal to
 \eqn{\sqrt{\log(N / f_j)}}, and the weight is the cosine of the vectors
@@ -189,10 +250,27 @@ of two sources, with \eqn{S_i = \sum_{j \in R_i} \log(N / f_j)} the
 weighted size of the bibliography:
 \deqn{w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.}
 Like the coupling angle, it lies between 0 and 1; like the coupling
-strength, it discounts the targets linked to many sources. (Versions
-0.1.1 and earlier of biblionetwork computed this measure wrongly: use
-biblionetwork 0.1.1.9000 or later.)
+strength, it discounts the targets linked to many sources;
+\item \code{"vladutz"}, the formula of \insertCite{vladutz1984;textual}{networkflow}
+reported by \insertCite{shen2019;textual}{networkflow}, the ancestor of the
+coupling strength, with a much steeper discount (\eqn{1/f_j} instead of
+\eqn{\log(N/f_j)}), so that it is almost driven by the rarest targets:
+\deqn{w_{ik} = \frac{4}{L_i + L_k} \sum_{j \in R_i \cap R_k} \frac{1}{f_j}.}
 }
+
+The measures fall into two families: those that only count the shared
+targets (angle, Jaccard) and those that give more weight to rare targets
+(strength, similarity, Vladutz-Cook). The angle and the Jaccard index give
+very similar rankings of the pairs in practice (Pearson correlation of
+0.956 in the corpus of \insertCite{shen2019;textual}{networkflow}), whereas
+the Vladutz-Cook formula departs markedly from the others there
+(correlations of about 0.6 to 0.7). It is provided mainly for comparison
+and replication. See the
+\href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} documentation of each
+measure (\code{coupling_angle()}, \code{coupling_jaccard()}, \code{coupling_strength()},
+\code{coupling_similarity()}, \code{coupling_vladutz()}) for the intuition behind
+them. (Versions 0.1.1 and earlier of \code{biblionetwork} computed the
+similarity wrongly: \code{biblionetwork} 0.2.0 or later is required.)
 
 Targets linked to a single source cannot create a tie and are dropped
 before the computation. The threshold applies to the raw count
@@ -203,7 +281,7 @@ differ in how they treat very cited targets and long target lists; in
 practice, clusters are often robust to the choice, but it is worth
 checking on one's own data.
 
-\strong{Statistical backbones} (\code{projection_method = "statistical"}). Instead
+\strong{Statistical backbones}. Instead
 of fixing a threshold, the backbone approach asks, for each pair, whether
 the observed number of shared targets is larger than in random bipartite
 networks that preserve some properties of the observed one: the degrees of
@@ -270,8 +348,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 13,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   verbose = FALSE
 )
@@ -297,7 +374,7 @@ cocitation <- build_dynamic_networks(
   time_in = "edges",
   time_variable = "source_year",
   time_window = 13,
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 2,
   compute_size = TRUE,
   verbose = FALSE
@@ -315,8 +392,7 @@ author_coupling <- build_network(
   source_id = "author_name",
   target_id = "target_id",
   document_id = "source_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_strength",
+  method = "strength",
   edges_threshold = 2
 )
 author_coupling
@@ -332,8 +408,7 @@ backbones <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 20,
-  projection_method = "statistical",
-  model = "sdsm",
+  method = "sdsm",
   alpha = 0.05,
   backbone_args = list(mtc = "holm"),
   verbose = FALSE
@@ -347,8 +422,11 @@ backbones <- build_dynamic_networks(
 }
 \seealso{
 \code{\link[=build_network]{build_network()}} for a single network;
-\code{\link[biblionetwork:coupling_angle]{biblionetwork::coupling_angle()}}, \code{\link[biblionetwork:coupling_strength]{biblionetwork::coupling_strength()}},
-\code{\link[biblionetwork:coupling_similarity]{biblionetwork::coupling_similarity()}}, \code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}.
+\code{\link[biblionetwork:biblio_coupling]{biblionetwork::biblio_coupling()}} and the measures it offers
+(\code{\link[biblionetwork:coupling_angle]{biblionetwork::coupling_angle()}}, \code{\link[biblionetwork:coupling_jaccard]{biblionetwork::coupling_jaccard()}},
+\code{\link[biblionetwork:coupling_strength]{biblionetwork::coupling_strength()}}, \code{\link[biblionetwork:coupling_similarity]{biblionetwork::coupling_similarity()}},
+\code{\link[biblionetwork:coupling_vladutz]{biblionetwork::coupling_vladutz()}}), \code{\link[biblionetwork:entity_network]{biblionetwork::entity_network()}},
+\code{\link[backbone:backbone_from_projection]{backbone::backbone_from_projection()}}.
 The next steps of the pipeline are \code{\link[=add_clusters]{add_clusters()}} and
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}.
 }

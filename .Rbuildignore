@@ -1,7 +1,8 @@
 ^networkflow\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
-^README\.Rmd$
+^README\.qmd$
+^\.quarto$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
