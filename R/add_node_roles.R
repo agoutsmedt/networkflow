@@ -27,9 +27,10 @@
 #'   The default, `"dynamic_cluster_leiden"`, fits the output of
 #'   [merge_dynamic_clusters()]; use `"cluster_leiden"` after
 #'   [add_clusters()] alone.
-#' @param weight_col Character scalar, the edge column with the weights
-#'   (`"weight"` by default). Use a column of ones for an unweighted
-#'   analysis.
+#' @param weights Edge weights, as in [add_clusters()] and the functions of
+#'   `tidygraph`. `NULL` (default) uses the `weight` edge column if there is
+#'   one, and treats the graph as unweighted otherwise. A character scalar
+#'   names another edge column. `NA` ignores the weights.
 #' @param z_threshold Number, the within-module z-score above which a node
 #'   is a hub (2.5, the value of Guimerà and Amaral).
 #'
@@ -121,7 +122,7 @@
 #'   `within_module_degree` (\eqn{\kappa_i}), `within_module_z`
 #'   (\eqn{z_i}, 0 when all members of the cluster have the same
 #'   \eqn{\kappa}), `participation_coeff` (\eqn{P_i}, 0 for isolated nodes)
-#'   and `role_ga` (the role).
+#'   and `roles` (the role).
 #'
 #' @references
 #'   \insertAllCited{}
@@ -144,13 +145,13 @@
 #' )
 #'
 #' network <- add_node_roles(network, cluster_id = "cluster_leiden")
-#' table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
+#' table(tidygraph::as_tibble(network, active = "nodes")$roles)
 #'
 #' @export
 add_node_roles <- function(
   graphs,
   cluster_id = "dynamic_cluster_leiden",
-  weight_col = "weight",
+  weights = NULL,
   z_threshold = 2.5
 ) {
   if (inherits(graphs, "list")) {
@@ -158,7 +159,7 @@ add_node_roles <- function(
       add_node_roles_one(
         graph,
         cluster_id = cluster_id,
-        weight_col = weight_col,
+        weights = weights,
         z_threshold = z_threshold
       )
     }))
@@ -168,7 +169,7 @@ add_node_roles <- function(
     return(add_node_roles_one(
       graphs,
       cluster_id = cluster_id,
-      weight_col = weight_col,
+      weights = weights,
       z_threshold = z_threshold
     ))
   }
@@ -181,11 +182,11 @@ add_node_roles <- function(
 add_node_roles_one <- function(
   graph,
   cluster_id = "dynamic_cluster_leiden",
-  weight_col = "weight",
+  weights = NULL,
   z_threshold = 2.5
 ) {
   . <- .node_id <- module <- module_from <- module_to <- node_id <- w <- k_i <- k_is <- kappa <- participation <- NULL
-  within_module_z <- within_module_degree <- participation_coeff <- role_ga <- NULL
+  within_module_z <- within_module_degree <- participation_coeff <- roles <- NULL
   kappa_mean <- kappa_sd <- swapped_from <- swapped_to <- NULL
 
   # Check if the module column exists in the node data
@@ -232,11 +233,17 @@ add_node_roles_one <- function(
       .to = as.integer(.data[[to_col]])
     )
 
-  # checking for weight column in edges data
-  if (!weight_col %in% names(edges_tbl)) {
-    cli::cli_abort("Column {.field {weight_col}} is missing from edge data.")
+  # the weights: a named column, the `weight` column, or ones
+  if (is.character(weights)) {
+    if (!weights %in% names(edges_tbl)) {
+      cli::cli_abort("Column {.field {weights}} is missing from edge data.")
+    }
+    edges_tbl$..weight <- edges_tbl[[weights]]
+  } else if (is.null(weights) && "weight" %in% names(edges_tbl)) {
+    edges_tbl$..weight <- edges_tbl[["weight"]]
+  } else {
+    edges_tbl$..weight <- 1
   }
-  edges_tbl$..weight <- edges_tbl[[weight_col]]
 
   # join nodes id to edges to get module information for both ends of the edges
   edges_tbl <- edges_tbl %>%
@@ -324,7 +331,7 @@ add_node_roles_one <- function(
   # classify the nodes into 7 roles following Guimera and Amaral (2005)
   roles_tbl <- roles_tbl %>%
     dplyr::mutate(
-      role_ga = dplyr::case_when(
+      roles = dplyr::case_when(
         # classify hubs first
         within_module_z >= z_threshold &
           participation < 0.30 ~ "R5 provincial hub",
@@ -345,13 +352,13 @@ add_node_roles_one <- function(
       within_module_degree = kappa,
       within_module_z,
       participation_coeff = participation,
-      role_ga
+      roles
     )
 
   # final join to the graph (roles of an earlier run are replaced)
   graph %>%
     tidygraph::activate(nodes) %>%
-    dplyr::select(-dplyr::any_of(c("within_module_degree", "within_module_z", "participation_coeff", "role_ga"))) %>%
+    dplyr::select(-dplyr::any_of(c("within_module_degree", "within_module_z", "participation_coeff", "roles"))) %>%
     dplyr::mutate(.node_id = dplyr::row_number()) %>%
     dplyr::left_join(roles_tbl, by = ".node_id") %>%
     dplyr::select(-.node_id)

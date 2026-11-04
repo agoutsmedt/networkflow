@@ -7,7 +7,7 @@
 add_node_roles(
   graphs,
   cluster_id = "dynamic_cluster_leiden",
-  weight_col = "weight",
+  weights = NULL,
   z_threshold = 2.5
 )
 }
@@ -20,9 +20,10 @@ The default, \code{"dynamic_cluster_leiden"}, fits the output of
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}; use \code{"cluster_leiden"} after
 \code{\link[=add_clusters]{add_clusters()}} alone.}
 
-\item{weight_col}{Character scalar, the edge column with the weights
-(\code{"weight"} by default). Use a column of ones for an unweighted
-analysis.}
+\item{weights}{Edge weights, as in \code{\link[=add_clusters]{add_clusters()}} and the functions of
+\code{tidygraph}. \code{NULL} (default) uses the \code{weight} edge column if there is
+one, and treats the graph as unweighted otherwise. A character scalar
+names another edge column. \code{NA} ignores the weights.}
 
 \item{z_threshold}{Number, the within-module z-score above which a node
 is a hub (2.5, the value of Guimerà and Amaral).}
@@ -32,7 +33,7 @@ The same object as \code{graphs} with four new node columns:
 \code{within_module_degree} (\eqn{\kappa_i}), \code{within_module_z}
 (\eqn{z_i}, 0 when all members of the cluster have the same
 \eqn{\kappa}), \code{participation_coeff} (\eqn{P_i}, 0 for isolated nodes)
-and \code{role_ga} (the role).
+and \code{roles} (the role).
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -158,7 +159,7 @@ network <- add_clusters(
 )
 
 network <- add_node_roles(network, cluster_id = "cluster_leiden")
-table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
+table(tidygraph::as_tibble(network, active = "nodes")$roles)
 
 }
 \references{

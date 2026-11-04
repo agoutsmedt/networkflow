@@ -321,7 +321,7 @@ clusters.
 #|   above 2.5 are hubs of their cluster.
 network <- add_node_roles(network, cluster_id = "cluster_leiden")
 roles <- as_tibble(network, active = "nodes")
-table(roles$role_ga)
+table(roles$roles)
 
 ggplot(roles, aes(participation_coeff, within_module_z, colour = cluster_label)) +
   annotate("rect", xmin = -Inf, xmax = Inf, ymin = 2.5, ymax = Inf, alpha = 0.08) +
@@ -343,12 +343,12 @@ that best illustrate the roles that exist in this network:
 ```{r}
 #| label: role-examples
 roles |>
-  filter(role_ga %in% c("R5 provincial hub", "R6 connector hub", "R3 non-hub connector", "R4 non-hub kinless")) |>
-  arrange(role_ga, desc(if_else(grepl("^R[567]", role_ga), within_module_z, participation_coeff))) |>
-  group_by(role_ga) |>
+  filter(roles %in% c("R5 provincial hub", "R6 connector hub", "R3 non-hub connector", "R4 non-hub kinless")) |>
+  arrange(roles, desc(if_else(grepl("^R[567]", roles), within_module_z, participation_coeff))) |>
+  group_by(roles) |>
   slice_head(n = 3) |>
   ungroup() |>
-  transmute(role = role_ga, document = source_label, title = stringr::str_to_sentence(source_title),
+  transmute(role = roles, document = source_label, title = stringr::str_to_sentence(source_title),
             cluster = cluster_label, z = round(within_module_z, 1), participation = round(participation_coeff, 2)) |>
   as.data.frame()
 ```
@@ -400,7 +400,7 @@ bind_rows(by_resolution) |>
   group_by(resolution) |>
   summarise(
     clusters = n_distinct(cluster_leiden),
-    hubs = sum(role_ga %in% c("R5 provincial hub", "R6 connector hub", "R7 kinless hub")),
+    hubs = sum(roles %in% c("R5 provincial hub", "R6 connector hub", "R7 kinless hub")),
     mean_participation = round(mean(participation_coeff), 2)
   ) |>
   as.data.frame()
@@ -408,8 +408,8 @@ bind_rows(by_resolution) |>
 bind_rows(by_resolution) |>
   filter(source_label %in% c("LANSING-K-2000a", "NORDHAUS-W-2007", "PINDYCK-R-1980",
                              "BLINDER-A-2013", "NITZAN-J-2001")) |>
-  select(document = source_label, resolution, role_ga) |>
-  tidyr::pivot_wider(names_from = resolution, values_from = role_ga, names_prefix = "resolution ") |>
+  select(document = source_label, resolution, roles) |>
+  tidyr::pivot_wider(names_from = resolution, values_from = roles, names_prefix = "resolution ") |>
   as.data.frame()
 ```
 

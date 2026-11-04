@@ -40,14 +40,14 @@ given with respect to 0.0.9.9000.
   (`add_node_roles()`) and `intertemporal_cluster_column`
   (`networks_to_alluv()`, `minimize_crossing_alluvial()`, `plot_alluvial()`),
   and `graphs` replaces `list_graph` (`merge_dynamic_clusters()`,
-  `merge_diagnostics()`). `extract_tfidf()` keeps `data`, as it also takes
+  `merge_diagnostics()`). `add_node_roles()` takes `weights`, as `add_clusters()`
+  and tidygraph (`NULL` uses the `weight` edge column if any), and writes the
+  roles in a column named `roles` (it was `role_ga`). `extract_tfidf()` keeps `data`, as it also takes
   plain tables.
 - `plot_networks()` returns a named list of ggplot objects for a list of
   graphs.
 - `networks_to_alluv()` returns `window` as a factor in the order of the list
   of graphs.
-- `launch_network_app()` is removed: the Shiny application moves to the
-  package networkflowapp.
 - biblionetwork >= 0.2.0 is required.
 
 ## New features
@@ -120,9 +120,6 @@ Science:
 - The documentation of each function explains its method and its choices,
   with formulas displayed on the website, the origin of each measure, and the
   cost of the slow methods (statistical backbones, ForceAtlas2, Kamada-Kawai).
-- The README is written in Quarto, with an illustration in a light and a
-  dark version, and the studies that used the package.
-- New theme, logo and favicons.
 
 # networkflow 0.0.9.9000 (2026-11-01)
 
