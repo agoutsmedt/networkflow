@@ -14,7 +14,7 @@
 #'
 #' @param graphs A list of `tbl_graph`s with dynamic clusters (see
 #'   [merge_dynamic_clusters()]).
-#' @param intertemporal_cluster_column Character scalar, the node column with
+#' @param cluster_id Character scalar, the node column with
 #'   the dynamic clusters (e.g. `"dynamic_cluster_leiden"`).
 #' @param node_id Character scalar, the node column with a stable identifier;
 #'   it is the "alluvium" that the flows follow.
@@ -83,14 +83,14 @@
 #'
 #' alluv_dt <- networks_to_alluv(
 #'   networks,
-#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   cluster_id = "dynamic_cluster_leiden",
 #'   node_id = "source_id"
 #' )
 #' alluv_dt[1:5]
 #'
 #' @export
 networks_to_alluv <- function(graphs,
-                              intertemporal_cluster_column,
+                              cluster_id,
                               node_id,
                               summary_cluster_stats = TRUE,
                               keep_color = TRUE,
@@ -102,7 +102,7 @@ networks_to_alluv <- function(graphs,
   . <- y_alluv <- window <- share_cluster_alluv <- intertemporal_name <- tot_window_leiden <- tot_window <- share_cluster_window <- share_cluster_max <- head <- N <- nodes <- NULL
 
   columns <- c(node_id,
-               intertemporal_cluster_column,
+               cluster_id,
                if(!is.null(color_column) & keep_color) color_column,
                if(!is.null(cluster_label_column) & keep_cluster_label) cluster_label_column)
 
@@ -126,25 +126,25 @@ networks_to_alluv <- function(graphs,
   }
 
   if(summary_cluster_stats){
-    alluv_dt[,share_cluster_alluv:= round(.N/alluv_dt[,.N], 4) * 100, intertemporal_cluster_column,
-             env = list(intertemporal_cluster_column = intertemporal_cluster_column)] # share of cl in alluv
-    alluv_dt[,tot_window_leiden := .N, .(window,intertemporal_cluster_column),
-             env = list(intertemporal_cluster_column = intertemporal_cluster_column)]
+    alluv_dt[,share_cluster_alluv:= round(.N/alluv_dt[,.N], 4) * 100, cluster_id,
+             env = list(cluster_id = cluster_id)] # share of cl in alluv
+    alluv_dt[,tot_window_leiden := .N, .(window,cluster_id),
+             env = list(cluster_id = cluster_id)]
     alluv_dt[,tot_window := .N, .(window)]
     alluv_dt[,share_cluster_window := round(tot_window_leiden/tot_window, 4) * 100] # share of cl in time window
-    alluv_dt[,share_cluster_max := max(share_cluster_window), intertemporal_cluster_column,
-             env = list(intertemporal_cluster_column = intertemporal_cluster_column)] # max share of cl in all time windows
+    alluv_dt[,share_cluster_max := max(share_cluster_window), cluster_id,
+             env = list(cluster_id = cluster_id)] # max share of cl in all time windows
     alluv_dt[,tot_window_leiden := NULL]
     alluv_dt[,tot_window := NULL]
 
-    n_years <- alluv_dt[, head(.SD, 1), .(window, intertemporal_cluster_column),
-                        env = list(intertemporal_cluster_column = intertemporal_cluster_column)][,.N, intertemporal_cluster_column, env = list(intertemporal_cluster_column = intertemporal_cluster_column)]
+    n_years <- alluv_dt[, head(.SD, 1), .(window, cluster_id),
+                        env = list(cluster_id = cluster_id)][,.N, cluster_id, env = list(cluster_id = cluster_id)]
     n_years <- n_years %>%
       dplyr::rename(length_cluster = N)
 
     alluv_dt <- merge(alluv_dt,
                       n_years,
-                      by = intertemporal_cluster_column,
+                      by = cluster_id,
                       all.x = TRUE) %>%  # length of cl
       .[order(window)]
   }

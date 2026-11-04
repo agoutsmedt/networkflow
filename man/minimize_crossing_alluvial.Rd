@@ -6,7 +6,7 @@
 \usage{
 minimize_crossing_alluvial(
   alluv_dt,
-  intertemporal_cluster_column = NULL,
+  cluster_id = NULL,
   node_id = NULL,
   window_column = "window",
   refine = TRUE,
@@ -20,7 +20,7 @@ follow the chronological order of the windows (the order of the levels of
 \code{window_column} if it is a factor, as in \code{\link[=networks_to_alluv]{networks_to_alluv()}}, or of
 their appearance).}
 
-\item{intertemporal_cluster_column}{Character scalar, the column with the
+\item{cluster_id}{Character scalar, the column with the
 dynamic clusters.}
 
 \item{node_id}{Character scalar, the column with the node identifiers.}
@@ -112,13 +112,13 @@ networks <- merge_dynamic_clusters(
 )
 alluv_dt <- networks_to_alluv(
   networks,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 
 alluv_dt <- minimize_crossing_alluvial(
   alluv_dt,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 unique(alluv_dt[, c("dynamic_cluster_leiden", "minimize_crossing_order")])

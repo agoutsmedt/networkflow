@@ -36,6 +36,12 @@ given with respect to 0.0.9.9000.
   need `method = "majority"` and a threshold.
 - `name_clusters()`: `name_merged_clusters` is renamed `name_dynamic_clusters`
   (the old name still works, with a deprecation warning).
+- Argument names are harmonised: `cluster_id` replaces `module_col`
+  (`add_node_roles()`) and `intertemporal_cluster_column`
+  (`networks_to_alluv()`, `minimize_crossing_alluvial()`, `plot_alluvial()`),
+  and `graphs` replaces `list_graph` (`merge_dynamic_clusters()`,
+  `merge_diagnostics()`). `extract_tfidf()` keeps `data`, as it also takes
+  plain tables.
 - `plot_networks()` returns a named list of ggplot objects for a list of
   graphs.
 - `networks_to_alluv()` returns `window` as a factor in the order of the list

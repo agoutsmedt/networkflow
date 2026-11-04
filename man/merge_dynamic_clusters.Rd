@@ -5,7 +5,7 @@
 \title{Follow clusters across time windows}
 \usage{
 merge_dynamic_clusters(
-  list_graph,
+  graphs,
   cluster_id,
   node_id,
   method = c("majority", "jaccard"),
@@ -15,7 +15,7 @@ merge_dynamic_clusters(
 )
 }
 \arguments{
-\item{list_graph}{A list of at least two \code{tbl_graph}s in chronological
+\item{graphs}{A list of at least two \code{tbl_graph}s in chronological
 order (oldest first), as produced by \code{\link[=build_dynamic_networks]{build_dynamic_networks()}} and
 \code{\link[=add_clusters]{add_clusters()}}.}
 

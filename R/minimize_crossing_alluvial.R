@@ -41,7 +41,7 @@
 #'   follow the chronological order of the windows (the order of the levels of
 #'   `window_column` if it is a factor, as in [networks_to_alluv()], or of
 #'   their appearance).
-#' @param intertemporal_cluster_column Character scalar, the column with the
+#' @param cluster_id Character scalar, the column with the
 #'   dynamic clusters.
 #' @param node_id Character scalar, the column with the node identifiers.
 #' @param window_column Character scalar, the column with the time windows
@@ -90,20 +90,20 @@
 #' )
 #' alluv_dt <- networks_to_alluv(
 #'   networks,
-#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   cluster_id = "dynamic_cluster_leiden",
 #'   node_id = "source_id"
 #' )
 #'
 #' alluv_dt <- minimize_crossing_alluvial(
 #'   alluv_dt,
-#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   cluster_id = "dynamic_cluster_leiden",
 #'   node_id = "source_id"
 #' )
 #' unique(alluv_dt[, c("dynamic_cluster_leiden", "minimize_crossing_order")])
 #'
 #' @export
 minimize_crossing_alluvial <- function(alluv_dt ,
-                                       intertemporal_cluster_column = NULL,
+                                       cluster_id = NULL,
                                        node_id = NULL,
                                        window_column = "window",
                                        refine = TRUE,
@@ -114,9 +114,9 @@ minimize_crossing_alluvial <- function(alluv_dt ,
   . <- N <- Origin <- Source <- Window <- cl_id <- cosine_strength <- head <- link_strength <- minimize_crossing_order <- nodes <- nodes_id <- order_column_raw <- tot_window_leiden_Origin <- tot_window_leiden_Source <- weight <- cl <- node <- w <- step <- id <- NULL
 
   dt <- data.table::copy(alluv_dt)
-  dt <- dt[, .SD, .SDcols = c(intertemporal_cluster_column, node_id, window_column)]
-  dt[, c(intertemporal_cluster_column, node_id, window_column) := lapply(.SD, as.character), .SDcols = c(intertemporal_cluster_column, node_id, window_column)]
-  data.table::setnames(dt, c(intertemporal_cluster_column, node_id, window_column), c("cl_id", "nodes_id", "Window"))
+  dt <- dt[, .SD, .SDcols = c(cluster_id, node_id, window_column)]
+  dt[, c(cluster_id, node_id, window_column) := lapply(.SD, as.character), .SDcols = c(cluster_id, node_id, window_column)]
+  data.table::setnames(dt, c(cluster_id, node_id, window_column), c("cl_id", "nodes_id", "Window"))
 
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
   #### Create a network of communities ####
@@ -178,7 +178,7 @@ minimize_crossing_alluvial <- function(alluv_dt ,
   position <- stats::setNames(seq_along(clusters), clusters)
 
   # Then the order is refined to reduce the crossings themselves.
-  flows <- alluvial_flows(alluv_dt, intertemporal_cluster_column, node_id, window_column)
+  flows <- alluvial_flows(alluv_dt, cluster_id, node_id, window_column)
   crossings_before <- weighted_crossings(position, flows)
   if (refine && length(clusters) > 2 && nrow(flows$table) > 1) {
     position <- refine_crossing_order(position, flows, max_passes)
@@ -189,10 +189,10 @@ minimize_crossing_alluvial <- function(alluv_dt ,
   }
 
   community_order <- data.table::data.table(cl_id = names(position), minimize_crossing_order = as.integer(position))
-  data.table::setnames(community_order, c("cl_id"), c(intertemporal_cluster_column))
+  data.table::setnames(community_order, c("cl_id"), c(cluster_id))
 
   alluv_dt <- alluv_dt[, setdiff(names(alluv_dt), "minimize_crossing_order"), with = FALSE]
-  alluv_dt_meta <- merge(alluv_dt, community_order[, .SD, .SDcols = c(intertemporal_cluster_column, "minimize_crossing_order")], by = intertemporal_cluster_column, all.x = TRUE)
+  alluv_dt_meta <- merge(alluv_dt, community_order[, .SD, .SDcols = c(cluster_id, "minimize_crossing_order")], by = cluster_id, all.x = TRUE)
 
   return(alluv_dt_meta)
 }

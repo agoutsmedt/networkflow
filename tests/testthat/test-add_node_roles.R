@@ -1,6 +1,6 @@
 test_that("participation coefficients and z-scores follow Guimera and Amaral", {
   graph <- tidygraph::mutate(toy_graph(), cluster = c("A", "A", "A", "B", "B", "B"))
-  roles <- node_table(add_node_roles(graph, module_col = "cluster"))
+  roles <- node_table(add_node_roles(graph, cluster_id = "cluster"))
 
   # c: weight 2 towards A, 0.1 towards B.
   k_c <- 2.1
@@ -21,15 +21,15 @@ test_that("a node strongly tied to its cluster is a hub", {
   )
   graph <- tidygraph::tbl_graph(nodes = data.frame(id = c("h", leaves), cluster = "A"),
                                 edges = transform(edges, weight = 1), directed = FALSE)
-  roles <- node_table(add_node_roles(graph, module_col = "cluster", z_threshold = 2.5))
+  roles <- node_table(add_node_roles(graph, cluster_id = "cluster", z_threshold = 2.5))
   expect_equal(roles$role_ga[roles$id == "h"], "R5 provincial hub")
   expect_gt(roles$within_module_z[roles$id == "h"], 2.5)
 })
 
 test_that("lists are supported and missing columns are reported", {
   graph <- tidygraph::mutate(toy_graph(), cluster = c("A", "A", "A", "B", "B", "B"))
-  result <- add_node_roles(list(w1 = graph, w2 = graph), module_col = "cluster")
+  result <- add_node_roles(list(w1 = graph, w2 = graph), cluster_id = "cluster")
   expect_named(result, c("w1", "w2"))
-  expect_error(add_node_roles(graph, module_col = "nope"), "nope")
-  expect_error(add_node_roles(graph, module_col = "cluster", weight_col = "nope"), "nope")
+  expect_error(add_node_roles(graph, cluster_id = "nope"), "nope")
+  expect_error(add_node_roles(graph, cluster_id = "cluster", weight_col = "nope"), "nope")
 })

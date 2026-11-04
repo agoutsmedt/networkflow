@@ -5,7 +5,7 @@
 \title{Diagnose the threshold of the matching of clusters across windows}
 \usage{
 merge_diagnostics(
-  list_graph,
+  graphs,
   cluster_id,
   node_id,
   method = c("majority", "jaccard"),
@@ -16,7 +16,7 @@ merge_diagnostics(
 )
 }
 \arguments{
-\item{list_graph}{A list of at least two \code{tbl_graph}s in chronological
+\item{graphs}{A list of at least two \code{tbl_graph}s in chronological
 order, with the clusters of each window (see \code{\link[=add_clusters]{add_clusters()}}).}
 
 \item{cluster_id}{Character scalar, the node column with the clusters of

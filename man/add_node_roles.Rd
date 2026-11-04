@@ -6,7 +6,7 @@
 \usage{
 add_node_roles(
   graphs,
-  module_col = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   weight_col = "weight",
   z_threshold = 2.5
 )
@@ -15,7 +15,7 @@ add_node_roles(
 \item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s with a cluster
 column.}
 
-\item{module_col}{Character scalar, the node column with the clusters.
+\item{cluster_id}{Character scalar, the node column with the clusters.
 The default, \code{"dynamic_cluster_leiden"}, fits the output of
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}; use \code{"cluster_leiden"} after
 \code{\link[=add_clusters]{add_clusters()}} alone.}
@@ -157,7 +157,7 @@ network <- add_clusters(
   verbose = FALSE
 )
 
-network <- add_node_roles(network, module_col = "cluster_leiden")
+network <- add_node_roles(network, cluster_id = "cluster_leiden")
 table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
 
 }

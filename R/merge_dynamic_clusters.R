@@ -52,7 +52,7 @@
 #' they change the dynamic clusters, so the choice must be explicit, and
 #' `verbose = TRUE` reports the rule that is applied.
 #'
-#' @param list_graph A list of at least two `tbl_graph`s in chronological
+#' @param graphs A list of at least two `tbl_graph`s in chronological
 #'   order (oldest first), as produced by [build_dynamic_networks()] and
 #'   [add_clusters()].
 #' @param cluster_id Character scalar, the node column with the clusters of
@@ -164,7 +164,7 @@
 #' )
 #'
 #' @export
-merge_dynamic_clusters <- function(list_graph,
+merge_dynamic_clusters <- function(graphs,
                                    cluster_id,
                                    node_id,
                                    method = c("majority", "jaccard"),
@@ -182,19 +182,19 @@ merge_dynamic_clusters <- function(list_graph,
     similarity_type, c("complete", "partial"), "similarity_type",
     context = "To compare clusters across windows"
   )
-  if (is_single_graph(list_graph, arg = "list_graph") || length(list_graph) < 2) {
-    cli::cli_abort("{.arg list_graph} must be a list of at least two {.cls tbl_graph}s.")
+  if (is_single_graph(graphs, arg = "graphs") || length(graphs) < 2) {
+    cli::cli_abort("{.arg graphs} must be a list of at least two {.cls tbl_graph}s.")
   }
   check_merge_threshold(if (missing(threshold_similarity)) NULL else threshold_similarity, method)
   if (verbose) inform_merge_method(method, threshold_similarity, similarity_type)
-  for (graph in list_graph) check_columns(node_table(graph), c(cluster_id, node_id), "list_graph")
+  for (graph in graphs) check_columns(node_table(graph), c(cluster_id, node_id), "graphs")
 
   # Running the function again replaces the dynamic clusters of a previous run.
   new_name_col <- paste0("dynamic_", cluster_id)
   previous <- paste0(new_name_col, c("", "_from", "_to"))
-  if (new_name_col %in% names(node_table(list_graph[[1]]))) {
+  if (new_name_col %in% names(node_table(graphs[[1]]))) {
     cli::cli_inform(c("i" = "The existing {.field {new_name_col}} columns are replaced."))
-    list_graph <- lapply(list_graph, function(graph) {
+    graphs <- lapply(graphs, function(graph) {
       graph %E>%
         dplyr::select(-dplyr::any_of(previous)) %N>%
         dplyr::select(-dplyr::any_of(previous))
@@ -202,7 +202,7 @@ merge_dynamic_clusters <- function(list_graph,
   }
 
   # Matching needs nodes present in consecutive windows.
-  ids <- lapply(list_graph, function(graph) node_table(graph)[[node_id]])
+  ids <- lapply(graphs, function(graph) node_table(graph)[[node_id]])
   shared <- vapply(seq_along(ids)[-1], function(i) length(intersect(ids[[i - 1]], ids[[i]])), integer(1))
   if (any(shared == 0)) {
     cli::cli_warn(c(
@@ -215,18 +215,18 @@ merge_dynamic_clusters <- function(list_graph,
 
   # The matching works on the node tables only (window, node, cluster): the
   # graphs are touched once, at the end, to add the dynamic clusters.
-  old_list_name <- names(list_graph)
-  all_nodes <- data.table::rbindlist(lapply(unname(list_graph), function(graph) {
+  old_list_name <- names(graphs)
+  all_nodes <- data.table::rbindlist(lapply(unname(graphs), function(graph) {
     nodes <- node_table(graph)
     data.table::data.table(node = nodes[[node_id]], cluster = as.character(nodes[[cluster_id]]))
   }), idcol = "network_num")
   data.table::setnames(all_nodes, c("node", "cluster"), c(node_id, cluster_id))
   dynamic <- match_dynamic_clusters(all_nodes, node_id, cluster_id, method,
                                     threshold_similarity, similarity_type,
-                                    n_windows = length(list_graph))
+                                    n_windows = length(graphs))
 
-  intertemporal_naming <- lapply(seq_along(list_graph), function(i) {
-    graph <- list_graph[[i]]
+  intertemporal_naming <- lapply(seq_along(graphs), function(i) {
+    graph <- graphs[[i]]
     clusters <- as.character(node_table(graph)[[cluster_id]])
     mapping <- unique(dynamic[[i]][, .SD, .SDcols = c(cluster_id, "intertemporal_name")])
     graph %N>%

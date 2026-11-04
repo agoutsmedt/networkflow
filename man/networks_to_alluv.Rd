@@ -6,7 +6,7 @@
 \usage{
 networks_to_alluv(
   graphs,
-  intertemporal_cluster_column,
+  cluster_id,
   node_id,
   summary_cluster_stats = TRUE,
   keep_color = TRUE,
@@ -19,7 +19,7 @@ networks_to_alluv(
 \item{graphs}{A list of \code{tbl_graph}s with dynamic clusters (see
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}).}
 
-\item{intertemporal_cluster_column}{Character scalar, the node column with
+\item{cluster_id}{Character scalar, the node column with
 the dynamic clusters (e.g. \code{"dynamic_cluster_leiden"}).}
 
 \item{node_id}{Character scalar, the node column with a stable identifier;
@@ -102,7 +102,7 @@ networks <- merge_dynamic_clusters(
 
 alluv_dt <- networks_to_alluv(
   networks,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 alluv_dt[1:5]

@@ -23,7 +23,7 @@
 #'
 #' @param graphs A `tbl_graph` or a list of `tbl_graph`s with a cluster
 #'   column.
-#' @param module_col Character scalar, the node column with the clusters.
+#' @param cluster_id Character scalar, the node column with the clusters.
 #'   The default, `"dynamic_cluster_leiden"`, fits the output of
 #'   [merge_dynamic_clusters()]; use `"cluster_leiden"` after
 #'   [add_clusters()] alone.
@@ -143,13 +143,13 @@
 #'   verbose = FALSE
 #' )
 #'
-#' network <- add_node_roles(network, module_col = "cluster_leiden")
+#' network <- add_node_roles(network, cluster_id = "cluster_leiden")
 #' table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
 #'
 #' @export
 add_node_roles <- function(
   graphs,
-  module_col = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   weight_col = "weight",
   z_threshold = 2.5
 ) {
@@ -157,7 +157,7 @@ add_node_roles <- function(
     return(lapply(graphs, function(graph) {
       add_node_roles_one(
         graph,
-        module_col = module_col,
+        cluster_id = cluster_id,
         weight_col = weight_col,
         z_threshold = z_threshold
       )
@@ -167,7 +167,7 @@ add_node_roles <- function(
   if (inherits(graphs, "tbl_graph")) {
     return(add_node_roles_one(
       graphs,
-      module_col = module_col,
+      cluster_id = cluster_id,
       weight_col = weight_col,
       z_threshold = z_threshold
     ))
@@ -180,7 +180,7 @@ add_node_roles <- function(
 
 add_node_roles_one <- function(
   graph,
-  module_col = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   weight_col = "weight",
   z_threshold = 2.5
 ) {
@@ -190,14 +190,14 @@ add_node_roles_one <- function(
 
   # Check if the module column exists in the node data
   if (
-    !module_col %in%
+    !cluster_id %in%
       names(graph %>% tidygraph::activate(nodes) %>% dplyr::as_tibble())
   ) {
-    cli::cli_abort("Column {.field {module_col}} is missing from node data.")
+    cli::cli_abort("Column {.field {cluster_id}} is missing from node data.")
   }
 
   # use name col as variable in dplyr
-  module_sym <- rlang::sym(module_col)
+  module_sym <- rlang::sym(cluster_id)
 
   nodes_tbl <- graph %>%
     tidygraph::activate(nodes) %>%

@@ -17,7 +17,7 @@
 #' between long-lived and short-lived clusters. [plot_merge_diagnostics()]
 #' draws the result.
 #'
-#' @param list_graph A list of at least two `tbl_graph`s in chronological
+#' @param graphs A list of at least two `tbl_graph`s in chronological
 #'   order, with the clusters of each window (see [add_clusters()]).
 #' @param cluster_id Character scalar, the node column with the clusters of
 #'   each window (e.g. `"cluster_leiden"`).
@@ -106,7 +106,7 @@
 #' diagnostics[, c("similarity_type", "threshold", "n_dynamic_clusters", "median_lifespan")]
 #'
 #' @export
-merge_diagnostics <- function(list_graph,
+merge_diagnostics <- function(graphs,
                               cluster_id,
                               node_id,
                               method = c("majority", "jaccard"),
@@ -116,10 +116,10 @@ merge_diagnostics <- function(list_graph,
                               verbose = TRUE) {
   window <- cluster <- node <- dynamic <- lifespan <- n_rows <- NULL
 
-  if (is_single_graph(list_graph, arg = "list_graph") || length(list_graph) < 2) {
-    cli::cli_abort("{.arg list_graph} must be a list of at least two {.cls tbl_graph}s.")
+  if (is_single_graph(graphs, arg = "graphs") || length(graphs) < 2) {
+    cli::cli_abort("{.arg graphs} must be a list of at least two {.cls tbl_graph}s.")
   }
-  for (graph in list_graph) check_columns(node_table(graph), c(cluster_id, node_id), "list_graph")
+  for (graph in graphs) check_columns(node_table(graph), c(cluster_id, node_id), "graphs")
   method <- check_explicit_choice(
     method, c("majority", "jaccard"), "method",
     context = "To diagnose the linking of clusters across windows"
@@ -135,20 +135,20 @@ merge_diagnostics <- function(list_graph,
   min_length <- check_positive_integer(min_length, "min_length")
 
   # Windows that share no node cannot be matched, whatever the threshold.
-  ids <- lapply(list_graph, function(graph) node_table(graph)[[node_id]])
+  ids <- lapply(graphs, function(graph) node_table(graph)[[node_id]])
   shared <- vapply(seq_along(ids)[-1], function(i) length(intersect(ids[[i - 1]], ids[[i]])), integer(1))
   if (any(shared == 0)) {
     cli::cli_warn("{sum(shared == 0)} pair{?s} of consecutive windows share no node: {cli::qty(sum(shared == 0))}{?its/their} clusters cannot be matched, whatever the threshold.")
   }
 
-  window_clusters <- data.table::rbindlist(lapply(unname(list_graph), function(graph) {
+  window_clusters <- data.table::rbindlist(lapply(unname(graphs), function(graph) {
     nodes <- node_table(graph)
     data.table::data.table(cluster = as.character(nodes[[cluster_id]]))
   }), idcol = "window")
   n_window_clusters <- nrow(unique(window_clusters))
   n_first <- length(unique(window_clusters[window == 1, cluster]))
 
-  all_nodes <- data.table::rbindlist(lapply(unname(list_graph), function(graph) {
+  all_nodes <- data.table::rbindlist(lapply(unname(graphs), function(graph) {
     nodes <- node_table(graph)
     data.table::data.table(node = nodes[[node_id]], cluster = as.character(nodes[[cluster_id]]))
   }), idcol = "network_num")
@@ -163,7 +163,7 @@ merge_diagnostics <- function(list_graph,
     # the matching on the node tables, without rebuilding the graphs
     dynamic <- match_dynamic_clusters(all_nodes, node_id, cluster_id, method,
                                       settings$threshold[i], settings$similarity_type[i],
-                                      n_windows = length(list_graph))
+                                      n_windows = length(graphs))
     rows <- data.table::rbindlist(lapply(dynamic, function(nodes) {
       data.table::data.table(dynamic = nodes$intertemporal_name)
     }), idcol = "window")

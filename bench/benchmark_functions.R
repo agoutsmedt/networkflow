@@ -131,16 +131,16 @@ run_pipeline <- function(sample_file, output_file) {
     cluster_id = "dynamic_cluster_leiden", text_columns = "title",
     nb_terms_label = 3, clean_word_method = "none"
   ))
-  networks <- step("add_node_roles", add_node_roles(networks, module_col = "dynamic_cluster_leiden"))
+  networks <- step("add_node_roles", add_node_roles(networks, cluster_id = "dynamic_cluster_leiden"))
   networks <- step("color_networks", color_networks(networks, column_to_color = "dynamic_cluster_leiden"))
   last <- step("layout_networks (last window)", withr::with_seed(1, layout_networks(
     networks[[length(networks)]], node_id = "source_id", layout = "fr"
   )))
   alluv <- step("networks_to_alluv", networks_to_alluv(
-    networks, intertemporal_cluster_column = "dynamic_cluster_leiden", node_id = "source_id"
+    networks, cluster_id = "dynamic_cluster_leiden", node_id = "source_id"
   ))
   alluv <- step("minimize_crossing_alluvial", minimize_crossing_alluvial(
-    alluv, intertemporal_cluster_column = "dynamic_cluster_leiden", node_id = "source_id"
+    alluv, cluster_id = "dynamic_cluster_leiden", node_id = "source_id"
   ))
   # Results kept for the comparison of both versions.
   saveRDS(list(

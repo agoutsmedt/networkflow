@@ -27,7 +27,7 @@ nm3 <- run("name_clusters pagerank", name_clusters(maj, method = "tidygraph_func
 x <- run("name_clusters tf-idf without method", name_clusters(maj[1:2], cluster_id = "cluster_leiden", text_columns = "title"))
 tf <- run("extract_tfidf grouping across list", extract_tfidf(maj, text_columns = "title", grouping_columns = "dynamic_cluster_leiden", grouping_across_list = TRUE, clean_word_method = "none"))
 if (!inherits(tf, "err")) print(head(tf, 3))
-rl <- run("add_node_roles", add_node_roles(nm, module_col = "cluster_leiden"))
+rl <- run("add_node_roles", add_node_roles(nm, cluster_id = "cluster_leiden"))
 if (!inherits(rl, "err")) print(table(unlist(lapply(rl, function(g) tidygraph::as_tibble(g)$role_ga))))
 if (!inherits(rl, "err")) print(table(unlist(lapply(rl, function(g) tidygraph::as_tibble(g)$role))))
 co <- run("color_networks dynamic", color_networks(nm, column_to_color = "dynamic_cluster_leiden"))

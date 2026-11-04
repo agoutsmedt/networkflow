@@ -16,7 +16,7 @@
 #'   [merge_dynamic_clusters()]), which is then converted with
 #'   [networks_to_alluv()] (`color_column` and `cluster_label_column` are
 #'   the columns kept).
-#' @param intertemporal_cluster_column Character scalar, the column with the
+#' @param cluster_id Character scalar, the column with the
 #'   dynamic clusters (e.g. `"dynamic_cluster_leiden"`).
 #' @param node_id Character scalar, the column with the node identifiers.
 #' @param window_column Character scalar, the column with the time windows
@@ -81,12 +81,12 @@
 #' )
 #' alluv_dt <- networks_to_alluv(
 #'   networks,
-#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   cluster_id = "dynamic_cluster_leiden",
 #'   node_id = "source_id"
 #' )
 #' plot_alluvial(
 #'   alluv_dt,
-#'   intertemporal_cluster_column = "dynamic_cluster_leiden",
+#'   cluster_id = "dynamic_cluster_leiden",
 #'   node_id = "source_id",
 #'   color_alluvial = TRUE,
 #'   minimize_crossing = TRUE
@@ -95,7 +95,7 @@
 #'
 #' @export
 plot_alluvial <- function(alluv_dt,
-                          intertemporal_cluster_column,
+                          cluster_id,
                           node_id,
                           window_column = "window",
                           color_column = "color",
@@ -115,7 +115,7 @@ plot_alluvial <- function(alluv_dt,
     is_single_graph(alluv_dt, arg = "alluv_dt") # error if neither a table nor a list of graphs
     alluv_dt <- networks_to_alluv(
       alluv_dt,
-      intertemporal_cluster_column = intertemporal_cluster_column,
+      cluster_id = cluster_id,
       node_id = node_id,
       color_column = color_column,
       cluster_label_column = cluster_label_column
@@ -129,18 +129,18 @@ plot_alluvial <- function(alluv_dt,
       share_cluster_max >= min_share & length_cluster >= min_windows
     ]
   }
-  check_columns(alluv_dt, c(intertemporal_cluster_column, node_id, window_column), "alluv_dt")
+  check_columns(alluv_dt, c(cluster_id, node_id, window_column), "alluv_dt")
 
   if(color_alluvial){
     alluv_dt <- color_alluvial(alluv_dt,
-                               column_to_color = intertemporal_cluster_column,
+                               column_to_color = cluster_id,
                                color = color,
                                verbose = FALSE)
     color_column <- "color"
   }
   if(minimize_crossing){
     alluv_dt <- minimize_crossing_alluvial(alluv_dt = alluv_dt,
-                                           intertemporal_cluster_column = intertemporal_cluster_column,
+                                           cluster_id = cluster_id,
                                            node_id = node_id,
                                            verbose = FALSE)
   }
@@ -151,7 +151,7 @@ plot_alluvial <- function(alluv_dt,
   }
 
   window_column <- rlang::ensym(window_column)
-  stratum_column <- rlang::ensym(intertemporal_cluster_column)
+  stratum_column <- rlang::ensym(cluster_id)
   alluvium_column <- rlang::ensym(node_id)
 
   if("label_x" %in% colnames(alluv_dt)) {
@@ -172,8 +172,8 @@ plot_alluvial <- function(alluv_dt,
 
   if("minimize_crossing_order" %in% colnames(alluv_dt)){
     # levels ordered by decreasing minimal order (the former forcats::fct_reorder())
-    alluv_dt[[intertemporal_cluster_column]] <- stats::reorder(
-      factor(alluv_dt[[intertemporal_cluster_column]]),
+    alluv_dt[[cluster_id]] <- stats::reorder(
+      factor(alluv_dt[[cluster_id]]),
       alluv_dt[["minimize_crossing_order"]],
       FUN = function(x) -min(x)
     )
