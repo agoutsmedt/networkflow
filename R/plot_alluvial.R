@@ -191,7 +191,7 @@ plot_alluvial <- function(alluv_dt,
       {if(! is.null(color_column)) ggplot2::scale_fill_identity()} +
       {if("label_x" %in% colnames(alluv_dt)) ggrepel::geom_label_repel(ggplot2::aes(label = label_x),
                                                                        stat = ggalluvial::StatStratum,
-                                                                       show.legend = FALSE)} +
+                                                                       show.legend = FALSE, na.rm = TRUE)} +
       ggplot2::theme_minimal())
 
 

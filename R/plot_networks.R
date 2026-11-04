@@ -29,6 +29,12 @@
 #'   with `cluster_label_column` as the categories.
 #' @param color With `color_networks = TRUE`, the colours passed to
 #'   [color_networks()].
+#' @param max_arcs Whole number. Edges are drawn as arcs whose width follows
+#'   their weight, unless a graph has more than `max_arcs` edges (20,000 by
+#'   default): they are then drawn as straight lines of constant width, which
+#'   is much faster (on a network of 140,000 edges, about 2 seconds and 1 GB
+#'   of memory to draw, against 100 seconds and 11 GB with arcs). Set it to
+#'   `Inf` to always draw arcs.
 #' @param print_plot_code Logical. If `TRUE`, prints the [`ggplot2`](https://ggplot2.tidyverse.org/)/`ggraph` code
 #'   of the plot.
 #'
@@ -79,6 +85,7 @@ plot_networks <- function(graphs,
                           color_column = "color",
                           color_networks = FALSE,
                           color = NULL,
+                          max_arcs = 20000,
                           print_plot_code = FALSE) {
   single <- is_single_graph(graphs)
   graph_list <- if (single) list(graphs) else graphs
@@ -109,13 +116,17 @@ plot_networks <- function(graphs,
   if (print_plot_code) {
     plot_network(graph_list[[1]], x = x, y = y, title = titles[1],
                  color_column = color_column, cluster_label_column = cluster_label_column,
-                 node_size_column = node_size_column, print_plot_code = TRUE)
+                 node_size_column = node_size_column, max_arcs = max_arcs, print_plot_code = TRUE)
   }
   plots <- lapply(seq_along(graph_list), function(i) {
     plot_network(graph_list[[i]], x = x, y = y, title = titles[i],
                  color_column = color_column, cluster_label_column = cluster_label_column,
-                 node_size_column = node_size_column, print_plot_code = FALSE)
+                 node_size_column = node_size_column, max_arcs = max_arcs, print_plot_code = FALSE)
   })
+  n_edges <- vapply(graph_list, igraph::ecount, numeric(1))
+  if (any(n_edges > max_arcs)) {
+    cli::cli_inform(c("i" = "{sum(n_edges > max_arcs)} graph{?s} with more than {max_arcs} edges: edges are drawn as straight lines of constant width, much faster to draw than arcs (see {.arg max_arcs})."))
+  }
   if (single) {
     return(plots[[1]])
   }
@@ -130,8 +141,13 @@ plot_network <- function(graph,
                          color_column = color_column,
                          cluster_label_column = cluster_label_column,
                          node_size_column = node_size_column,
+                         max_arcs = 20000,
                          print_plot_code = print_plot_code){
   . <- weight <- label_x <- label_y <- NULL
+  # An empty window (no node): an empty plot with its title
+  if (igraph::vcount(graph) == 0) {
+    return(ggplot2::ggplot() + ggraph::theme_graph(base_family = "sans") + ggplot2::labs(title = title))
+  }
 
   if (!"weight" %in% names(tidygraph::as_tibble(graph, active = "edges"))) {
     graph <- graph %E>% dplyr::mutate(weight = 1)
@@ -157,14 +173,24 @@ plot_network <- function(graph,
   color_column_plot <- rlang::ensym(color_column)
   label_column_plot <- rlang::ensym(cluster_label_column)
 
+  # Arcs whose width follows the weight are drawn point by point: on large
+  # networks they dominate the time and the memory of the plot (on 140,000
+  # edges, 100 seconds and 11 GB against 2 seconds and 1 GB), and straight
+  # lines of constant width are drawn instead.
+  if (igraph::ecount(graph) > max_arcs) {
+    edge_layer <- rlang::expr(ggraph::geom_edge_link0(ggplot2::aes(color = !!color_column_plot), alpha = 0.3, width = 0.3))
+  } else {
+    edge_layer <- rlang::expr(ggraph::geom_edge_arc(ggplot2::aes(color = !!color_column_plot, width = weight),
+                                                    alpha = 0.5,
+                                                    strength = 0.2))
+  }
+
   plot_network <- rlang::expr(ggraph::ggraph(graph, layout = "manual", x = !!x_coordinates_column_plot, y = !!y_coordinates_column_plot) +
-                                ggraph::geom_edge_arc(ggplot2::aes(color = !!color_column_plot, width = weight),
-                                                      alpha = 0.5,
-                                                      strength = 0.2) +
+                                !!edge_layer +
                                 ggraph::geom_node_point(ggplot2::aes(fill = !!color_column_plot, size = !!node_size_column_plot), pch = 21) +
                                 ggplot2::scale_color_identity() +
                                 ggraph::scale_edge_width_continuous(range = c(0.5, 1)) +
-                                ggraph::theme_graph() +
+                                ggraph::theme_graph(base_family = "sans") + # the default, Arial Narrow, fails on PDF devices where it is not installed
                                 ggrepel::geom_label_repel(data = labels,
                                                           ggplot2::aes(x = label_x, y = label_y, label = !!label_column_plot, fill = !!color_column_plot)) +
                                 ggplot2::scale_fill_identity() +

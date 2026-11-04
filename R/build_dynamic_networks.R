@@ -151,7 +151,7 @@
 #' | Edges | weighted (`weight`) | unweighted (each edge means "more than expected by chance") |
 #' | Arguments used | `edges_threshold`, `document_id` | `alpha` (required), `backbone_args` |
 #' | Ignored | `alpha`, `backbone_args` | `edges_threshold`; `document_id` is an error |
-#' | Cost | fast, sparse matrices | slow on large corpora (a test for each pair) |
+#' | Cost | fast, sparse matrices: seconds for tens of thousands of documents | a test for each pair: on a Scopus sample, about 20 seconds and 2 GB for 1,000 documents with `"sdsm"`; `"fdsm"` simulates random networks and needs `backbone_args = list(trials = )` to finish (about a minute for 100 documents with 1,000 trials) |
 #' | Computed by | [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) | the `backbone` package |
 #'
 #' **Where the methods come from.** The names are those of the packages that
@@ -444,7 +444,7 @@ build_dynamic_networks <- function(
   if ("overlapping_window" %in% names(dots)) {
     cli::cli_abort(c(
       "{.arg overlapping_window} no longer exists.",
-      "i" = "Use {.arg window_step}: {.code window_step = 1} slides the window by one time unit (the former {.code window_step = 1}); by default, windows follow each other ({.code window_step = time_window})."
+      "i" = "Use {.arg window_step}: {.code window_step = 1} slides the window by one time unit (the former {.code overlapping_window = TRUE}); by default, windows follow each other ({.code window_step = time_window})."
     ))
   }
   if (!filter_components && length(dots) > 0) {
@@ -455,6 +455,9 @@ build_dynamic_networks <- function(
   }
   if (!is.null(time_unit)) {
     time_unit <- rlang::arg_match(time_unit, time_units)
+  }
+  if (projection_method == "structured") {
+    edges_threshold <- check_positive_integer(edges_threshold, "edges_threshold")
   }
 
   if (!is.null(document_id)) {
@@ -502,20 +505,19 @@ build_dynamic_networks <- function(
   nodes <- data.table::data.table(nodes)
   directed_edges <- data.table::data.table(directed_edges)
 
+  # (the test is computed outside of `[`: inside, `source_id` would be read
+  # as the column of that name)
+  missing_id <- is.na(nodes[[source_id]])
+  if (any(missing_id)) {
+    cli::cli_warn("{sum(missing_id)} row{?s} of {.arg nodes} {?has/have} no {.field {source_id}}: {cli::qty(sum(missing_id))}{?it is/they are} dropped.")
+    nodes <- nodes[!missing_id]
+  }
   n_duplicated <- nodes[, .N, by = source_id, env = list(source_id = source_id)][N > 1, .N]
   if (n_duplicated > 0) {
     cli::cli_warn(c(
-      "{n_duplicated} identifier{?s} of {.field {source_id}} appear{?s/} more than once in {.arg nodes}.",
+      "{n_duplicated} identifier{?s} of {.field {source_id}} {cli::qty(n_duplicated)}appear{?s/} more than once in {.arg nodes}.",
       "i" = "{.arg nodes} must have one row per node."
     ))
-  }
-
-  if (verbose) {
-    inform_method(method, source_id, target_id, edges_threshold, alpha,
-                  backbone_args, document_id, projection_on)
-    if (!keep_singleton) {
-      cli::cli_inform(c("i" = "Nodes without any edge are removed ({.code keep_singleton = FALSE})."))
-    }
   }
 
   # CHECKING THE DATA
@@ -582,6 +584,12 @@ build_dynamic_networks <- function(
     edges[, edge_time := time_index(directed_edges[[time_variable]], unit)]
   }
   edges <- unique(edges)
+  n_missing_link <- sum(!stats::complete.cases(edges[, c("from", "to", if (!is.null(document_id)) "document"), with = FALSE]))
+  if (n_missing_link > 0) {
+    cli::cli_warn("{n_missing_link} link{?s} of {.arg directed_edges} {?has/have} a missing identifier: {cli::qty(n_missing_link)}{?it is/they are} dropped.")
+    edges <- edges[stats::complete.cases(edges[, c("from", "to", if (!is.null(document_id)) "document"), with = FALSE])]
+  }
+  check_placeholder_target(edges, target_id)
 
   ######################### Dynamics networks *********************
 
@@ -631,6 +639,14 @@ build_dynamic_networks <- function(
     }
   }
 
+  if (verbose) {
+    inform_method(method, source_id, target_id, edges_threshold, alpha,
+                  backbone_args, document_id, projection_on)
+    if (!keep_singleton) {
+      cli::cli_inform(c("i" = "Nodes without any edge are removed ({.code keep_singleton = FALSE})."))
+    }
+  }
+
   # Prepare our list
   tbl_coup_list <- list()
   show_progress <- verbose && length(starts) > 1
@@ -677,7 +693,9 @@ build_dynamic_networks <- function(
 
     # A window where no target is shared by two sources has no edge (and
     # biblionetwork fails on it): build an empty edge table instead.
-    no_shared_target <- edges_of_the_year[, data.table::uniqueN(from), by = to][V1 > 1, .N] == 0
+    # (with hashing: grouping by target with uniqueN() was the slowest step)
+    pairs_of_the_year <- if (is.null(document_id)) edges_of_the_year else unique(edges_of_the_year[, list(from, to)])
+    no_shared_target <- !anyDuplicated(pairs_of_the_year$to)
 
     # backbone
 
@@ -790,7 +808,13 @@ build_dynamic_networks <- function(
     }
 
     if (nrow(nodes_of_the_year) == 0 && !keep_singleton) {
-      cli::cli_warn("The network of the window {.val {label}} is empty: no pair of nodes has {edges_threshold} shared link{?s} or more.")
+      where <- if (length(starts) == 1) "The network" else "The network of the window {.val {label}}"
+      why <- if (projection_method == "structured") {
+        "no pair of nodes shares {edges_threshold} {.field {target_id}} or more"
+      } else {
+        "no tie is significant at the level {.arg alpha}"
+      }
+      cli::cli_warn(paste0(where, " is empty: ", why, "."))
     }
 
     # make tbl

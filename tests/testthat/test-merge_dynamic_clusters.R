@@ -177,3 +177,20 @@ test_that("merge_diagnostics works with the Jaccard matching", {
   expect_s3_class(plot_merge_diagnostics(d), "ggplot")
   expect_error(merge_diagnostics(jaccard_windows(), "cluster", "id", method = "jaccard", thresholds = 1.5), "jaccard")
 })
+
+test_that("empty windows (a first one, and one in the middle) are accepted", {
+  empty <- tidygraph::tbl_graph(nodes = data.frame(id = character(0), cluster = character(0)), directed = FALSE)
+  windows <- c(list(empty), toy_windows(c(a = "01", b = "01", c = "02")), list(empty),
+               toy_windows(c(a = "01", b = "01", c = "02")))
+  for (method in c("majority", "jaccard")) {
+    merged <- suppressWarnings(merge_dynamic_clusters(windows, "cluster", "id", method = method,
+                                                      threshold_similarity = 0.6, similarity_type = "partial",
+                                                      verbose = FALSE))
+    expect_length(merged, 4)
+    expect_equal(nrow(node_table(merged[[1]])), 0)
+    expect_false(anyNA(node_table(merged[[2]])$dynamic_cluster))
+  }
+  d <- suppressWarnings(merge_diagnostics(windows, "cluster", "id", method = "majority", thresholds = 0.6,
+                                          similarity_types = "partial", verbose = FALSE))
+  expect_equal(d$n_dynamic_clusters, 4)
+})

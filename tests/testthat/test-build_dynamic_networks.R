@@ -514,3 +514,23 @@ test_that("the method is described to the user", {
     build_network(toy_documents(), toy_citations(), "doc", "ref", method = "jaccard", verbose = FALSE)
   )
 })
+
+test_that("missing identifiers are dropped with a warning", {
+  documents <- toy_documents()
+  names(documents)[1] <- "source_id"
+  citations <- toy_citations()
+  names(citations)[names(citations) == "doc"] <- "source_id"
+  documents$source_id[4] <- NA
+  expect_warning(g <- build_network(documents, citations, "source_id", "ref", method = "angle", verbose = FALSE),
+                 "no source_id")
+  citations$ref[1] <- NA
+  expect_warning(build_network(documents, citations, "source_id", "ref", method = "angle", verbose = FALSE),
+                 "missing identifier")
+})
+
+test_that("a target linked to most sources is reported", {
+  citations <- data.frame(doc = paste0("d", 1:30), ref = "0")
+  citations <- rbind(citations, data.frame(doc = paste0("d", 1:30), ref = paste0("r", rep(1:10, 3))))
+  expect_warning(build_network(data.frame(doc = paste0("d", 1:30)), citations, "doc", "ref", method = "angle", verbose = FALSE),
+                 "linked to 100%")
+})

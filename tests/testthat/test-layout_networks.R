@@ -71,3 +71,18 @@ test_that("umap keeps the components apart and the layouts take starting coordin
   expect_false(anyNA(node_table(laid_out[[2]])$x))
   expect_error(layout_networks(toy_graph(), node_id = "id", layout = "umap", weights = c(1, 2)), "weights")
 })
+
+test_that("the forces along the edges are summed at the right nodes", {
+  expect_equal(tabulate_edges(c(3, 1, 3), c(1, 2, 5), 4), c(2, 0, 6, 0))
+})
+
+test_that("the linlog mode of forceatlas2 also separates the triangles", {
+  withr::local_seed(2)
+  nodes <- node_table(layout_networks(toy_graph(), node_id = "id", layout = "forceatlas2", linlog = TRUE))
+  d <- as.matrix(dist(as.matrix(nodes[c("x", "y")])))
+  expect_lt(mean(d[1:3, 1:3][upper.tri(d[1:3, 1:3])]), mean(d[1:3, 4:6]))
+})
+
+test_that("an unknown layout gives a clear error", {
+  expect_error(layout_networks(toy_graph(), node_id = "id", layout = "nope"), "not a known layout")
+})

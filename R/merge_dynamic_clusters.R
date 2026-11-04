@@ -213,68 +213,98 @@ merge_dynamic_clusters <- function(list_graph,
 
   . <- network_num <- nodes <- n_nodes <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
 
-  #########################  Prepare everything **********************
+  # The matching works on the node tables only (window, node, cluster): the
+  # graphs are touched once, at the end, to add the dynamic clusters.
+  old_list_name <- names(list_graph)
+  all_nodes <- data.table::rbindlist(lapply(unname(list_graph), function(graph) {
+    nodes <- node_table(graph)
+    data.table::data.table(node = nodes[[node_id]], cluster = as.character(nodes[[cluster_id]]))
+  }), idcol = "network_num")
+  data.table::setnames(all_nodes, c("node", "cluster"), c(node_id, cluster_id))
+  dynamic <- match_dynamic_clusters(all_nodes, node_id, cluster_id, method,
+                                    threshold_similarity, similarity_type,
+                                    n_windows = length(list_graph))
 
-    list_graph <- lapply(list_graph,
-                       function(tbl) tbl %N>%
-                         dplyr::mutate(dplyr::across(dplyr::all_of(cluster_id), ~ as.character(.))))
+  intertemporal_naming <- lapply(seq_along(list_graph), function(i) {
+    graph <- list_graph[[i]]
+    clusters <- as.character(node_table(graph)[[cluster_id]])
+    mapping <- unique(dynamic[[i]][, .SD, .SDcols = c(cluster_id, "intertemporal_name")])
+    graph %N>%
+      dplyr::mutate(
+        !!cluster_id := clusters,
+        # (as.character(): an empty window keeps a character column)
+        !!new_name_col := as.character(mapping$intertemporal_name[match(clusters, mapping[[cluster_id]])])
+      )
+  })
+  names(intertemporal_naming) <- old_list_name
+  intertemporal_naming <- lapply(intertemporal_naming,
+                                 add_dynamic_cluster_to_edges,
+                                 cluster_id = cluster_id,
+                                 new_name_col = new_name_col) # add dynamic cluster id to edges
+  intertemporal_naming
+}
 
-  # get all years to study
-  old_list_name <- names(list_graph) # save old list name
-  all_years <- seq_along(list_graph) # numeric list name (works for unnamed lists)
-  names(list_graph) <- all_years
+# The matching itself, on a table with one row per node and window
+# (`network_num`, the node identifier and the cluster, as characters). Returns
+# a list with, for each window, the nodes, their cluster and their dynamic
+# cluster (`intertemporal_name`). Used by merge_dynamic_clusters() and
+# merge_diagnostics().
+match_dynamic_clusters <- function(all_nodes, node_id, cluster_id, method,
+                                   threshold_similarity, similarity_type,
+                                   n_windows = max(all_nodes$network_num)) {
+  . <- network_num <- nodes <- n_nodes <- past_id_com <- present_id_com <- share <- N <- same_evolution <- same_origin <- past_id_com.x <- past_id_com.y <- intertemporal_name <- new_cluster_column <- NULL
+  # Many small data.table operations: on one thread they run twice as fast
+  # (starting threads costs more than they save on small tables).
+  threads <- data.table::setDTthreads(1)
+  withr::defer(data.table::setDTthreads(threads))
+  # all the windows, including the empty ones (they have no row in all_nodes)
+  all_years <- seq_len(n_windows)
+  tables <- lapply(all_years, function(i) all_nodes[network_num == i, .SD, .SDcols = c(node_id, cluster_id)])
+  names(tables) <- all_years
 
-  # get the number of unique communities
-  all_nodes <- lapply(list_graph, function(tbl) tbl %N>%
-                        data.table::as.data.table()) %>%
-    data.table::rbindlist(idcol = "network_num")
   n_com_unique <- all_nodes[, .N, .(cluster_id, network_num),
                             env = list(cluster_id = cluster_id)][,.N]
-
-  unique_ids <- paste0("cl_",1:n_com_unique) # generate a number of unique ids equal to the maximum number of communities
+  unique_ids <- paste0("cl_", seq_len(n_com_unique)) # generate a number of unique ids equal to the maximum number of communities
 
   intertemporal_naming <- list()
   for (Year in all_years) {
 
     ######################### For the first year, let's just give clusters unique ids **********************
 
-    if(is.null(list_graph[[paste0(Year-1)]])){
+    if(is.null(tables[[paste0(Year-1)]])){
       dt_year <- all_nodes[network_num == as.character(Year), env = list(Year = Year)] %>%
         .[,.SD,.SDcols = c(node_id, cluster_id)] %>%  # extract the nodes of the period
         .[order(cluster_id), env = list(cluster_id = cluster_id)] #just to have a more informative numerotation of cluster then
       n_com <- dt_year[, .N, cluster_id,
                        env = list(cluster_id = cluster_id)][,.N] # number of communities
-      id_com_corr <- data.table(intertemporal_name = unique_ids[1:n_com],
+      id_com_corr <- data.table(intertemporal_name = unique_ids[seq_len(n_com)],
                                 dt_year[, .SD,.SDcols = cluster_id] %>% unique) #give a unique ids to com
-      unique_ids <- unique_ids[-c(1:n_com)] #remove ids taken from list
+      if (n_com > 0) unique_ids <- unique_ids[-seq_len(n_com)] #remove ids taken from list
       dt_year <- dt_year[id_com_corr, on = cluster_id] %>%
         .[, .SD, .SDcols = c(cluster_id, "intertemporal_name")] %>%  #merge with unique id
         unique
 
-      intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        dplyr::left_join(dt_year, by = cluster_id)
+      intertemporal_naming[[paste0(Year)]] <- data.table::merge.data.table(
+        tables[[paste0(Year)]], dt_year, by = cluster_id, all.x = TRUE, sort = FALSE
+      )
     }
 
     ######################### For other years, we need to take the previous years and give new names to community of the new year  **********************
 
-    else if(!is.null(list_graph[[paste0(Year-1)]])){
+    else if(!is.null(tables[[paste0(Year-1)]])){
 
       ######################### Communities from previous year  **********************
 
-      dt_year <- intertemporal_naming[[paste0(Year-1)]] %N>%
-        dplyr::rename("past_id_com" = intertemporal_name) %>%
-        dplyr::select(dplyr::all_of(c(node_id, "past_id_com"))) %>% # this is the nodes from the past
-        data.table::as.data.table()
+      dt_year <- intertemporal_naming[[paste0(Year-1)]][, .SD, .SDcols = c(node_id, "intertemporal_name")] # this is the nodes from the past
+      data.table::setnames(dt_year, "intertemporal_name", "past_id_com")
 
       ######################### Communities from present  **********************
 
-      dt_year2 <- list_graph[[paste0(Year)]] %N>%
-        dplyr::select(dplyr::all_of(c(node_id, cluster_id))) %>%
-        data.table::as.data.table()
+      dt_year2 <- data.table::copy(tables[[paste0(Year)]])
       n_com <- dt_year2[, .N, cluster_id, env = list(cluster_id = cluster_id)][,.N] # number of communities
-      id_com_corr <- data.table(new_cluster_column = unique_ids[1:n_com],
+      id_com_corr <- data.table(new_cluster_column = unique_ids[seq_len(n_com)],
                                 dt_year2[, .SD,.SDcols = cluster_id] %>% unique) #give a unique ids to com that not 1,2,3...
-      unique_ids <- unique_ids[-c(1:n_com)] #remove ids taken from list
+      if (n_com > 0) unique_ids <- unique_ids[-seq_len(n_com)] #remove ids taken from list
       data.table::setnames(dt_year2, cluster_id, "present_id_com")   # this is the nodes from the present
 
       if (method == "majority") {
@@ -339,18 +369,12 @@ merge_dynamic_clusters <- function(list_graph,
       final_names[is.na(intertemporal_name), intertemporal_name := new_cluster_column] # if there is no correspondence, a present community is a new community, and is given a new name
       final_names <- final_names[, .SD, .SDcols = c(cluster_id, "intertemporal_name")]
 
-      intertemporal_naming[[paste0(Year)]] <- list_graph[[paste0(Year)]] %N>%
-        dplyr::left_join(final_names, by = cluster_id)
+      intertemporal_naming[[paste0(Year)]] <- data.table::merge.data.table(
+        tables[[paste0(Year)]], final_names, by = cluster_id, all.x = TRUE, sort = FALSE
+      )
     }
   }
-  names(intertemporal_naming) <- old_list_name
-  intertemporal_naming <- lapply(intertemporal_naming,
-                                 function(tbl) tbl %N>% dplyr::rename({{ new_name_col }} := intertemporal_name)) # We want a name that corresponds to the initial column
-  intertemporal_naming <- lapply(intertemporal_naming,
-                                 add_dynamic_cluster_to_edges,
-                                 cluster_id = cluster_id,
-                                 new_name_col = new_name_col) # add dynamic cluster id to edges
-  return (intertemporal_naming)
+  unname(intertemporal_naming)
 }
 
 # The dynamic cluster of the two ends of each edge, and their common dynamic

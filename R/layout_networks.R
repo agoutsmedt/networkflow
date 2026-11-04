@@ -63,7 +63,9 @@
 #' forces. This is a compact implementation, not the one of Gephi: the
 #' repulsion is computed between all the pairs of nodes (no Barnes-Hut
 #' approximation), so that the cost grows with the square of the number of
-#' nodes (comfortable up to a few thousand). Arguments: `iterations` (500),
+#' nodes: on a Web of Science sample, about 1 minute for 1,000 nodes and
+#' 4 to 5 minutes for 2,000, so that `"fr"` or `"umap"` are better choices
+#' for larger networks. Arguments: `iterations` (500),
 #' `scaling_ratio` (2, the strength of the repulsion: smaller values give a
 #' more compact layout), `gravity` (1), `strong_gravity` (`FALSE`; `TRUE`
 #' keeps disconnected components close), `linlog` (`FALSE`; `TRUE` uses a
@@ -91,7 +93,12 @@
 #' For dynamic coordinates, nodes absent from the previous window start at
 #' (0, 0). The starting positions are passed to the layout as its `coords`
 #' argument: this works only with layouts that accept it, such as `"fr"` and
-#' `"kk"` of `igraph`, and `"forceatlas2"`; `"umap"` ignores them.
+#' `"kk"` of `igraph`, and `"forceatlas2"`; `"umap"` ignores them. With
+#' starting positions, `igraph`'s Fruchterman-Reingold no longer uses its fast
+#' grid approximation: on a Web of Science window of 9,600 nodes, about 80
+#' seconds instead of 1. As the positions are already close to the result,
+#' fewer iterations are often enough (e.g. `niter = 100`, passed to
+#' `igraph::layout_with_fr()`).
 #'
 #' @return The same object as `graphs`, with node columns `x` and `y` (any
 #'   existing `x` and `y` are replaced) and, if `save_coordinates = TRUE`,

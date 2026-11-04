@@ -90,3 +90,29 @@ test_that("name_merged_clusters is deprecated in favour of name_dynamic_clusters
     "name_dynamic_clusters"
   )
 })
+
+test_that("labels skip the terms that overlap a better one", {
+  expect_equal(label_from_terms(c("business cycle", "real business", "business", "cycle theory", "money"), 3),
+               "business cycle, real business, cycle theory")
+  expect_equal(label_from_terms(c("deficit", "budget deficit", "budget", "tax"), 2), "deficit, budget")
+  expect_equal(label_from_terms("one", 3), "one")
+})
+
+test_that("empty windows go through naming and plotting", {
+  empty <- tidygraph::tbl_graph(nodes = data.frame(id = character(0), cluster = character(0), title = character(0)), directed = FALSE)
+  full <- toy_windows(c(a = "01", b = "01", c = "02"))[[1]] %>%
+    tidygraph::mutate(title = c("inflation rules", "inflation policy", "oil shock"))
+  windows <- list(w1 = full, w2 = empty, w3 = full)
+  merged <- suppressWarnings(merge_dynamic_clusters(windows, "cluster", "id", method = "majority",
+                                                    threshold_similarity = 0.6, similarity_type = "partial",
+                                                    verbose = FALSE))
+  expect_type(node_table(merged$w2)$dynamic_cluster, "character")
+  skip_if_not_installed("tidytext")
+  named <- suppressMessages(name_clusters(merged, method = "tf-idf", name_dynamic_clusters = TRUE,
+                                          cluster_id = "dynamic_cluster", text_columns = "title",
+                                          clean_word_method = "none"))
+  expect_equal(nrow(node_table(named$w2)), 0)
+  laid_out <- lapply(named, tidygraph::mutate, x = seq_along(id), y = seq_along(id), color = "grey")
+  plots <- suppressMessages(plot_networks(laid_out, cluster_label_column = "cluster_label", node_size_column = NULL))
+  expect_s3_class(plots$w2, "ggplot")
+})

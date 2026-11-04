@@ -53,7 +53,9 @@ choose the node (e.g. \code{"node_size"} from \code{\link[=build_network]{build_
 abstracts, keywords), passed to \code{\link[=extract_tfidf]{extract_tfidf()}}.}
 
 \item{nb_terms_label}{For \code{"tf-idf"}, the number of terms in each label (3
-by default), separated by commas.}
+by default), separated by commas. A term that is part of a term already
+in the label, or contains one, is skipped ("business" after "business
+cycle").}
 
 \item{name_merged_clusters}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Former name
 of \code{name_dynamic_clusters}.}

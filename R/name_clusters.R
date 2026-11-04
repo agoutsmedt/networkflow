@@ -38,7 +38,9 @@
 #' @param text_columns For `"tf-idf"`, the node column(s) with text (titles,
 #'   abstracts, keywords), passed to [extract_tfidf()].
 #' @param nb_terms_label For `"tf-idf"`, the number of terms in each label (3
-#'   by default), separated by commas.
+#'   by default), separated by commas. A term that is part of a term already
+#'   in the label, or contains one, is skipped ("business" after "business
+#'   cycle").
 #' @param name_merged_clusters `r lifecycle::badge("deprecated")` Former name
 #'   of `name_dynamic_clusters`.
 #' @param ... For `"tf-idf"`, other arguments of [extract_tfidf()] (e.g.
@@ -131,11 +133,11 @@ name_clusters <- function(graphs,
                           nb_terms_label = 3,
                           name_merged_clusters = NULL,
                           ...) {
-  term <- NULL
-  # `name_merged_clusters` was renamed `name_dynamic_clusters` in 0.0.9.9002
+  term <- tf_idf <- NULL
+  # `name_merged_clusters` was renamed `name_dynamic_clusters` in 0.0.9.9001
   if (!is.null(name_merged_clusters)) {
     cli::cli_warn(c(
-      "{.arg name_merged_clusters} is deprecated since networkflow 0.0.9.9002.",
+      "{.arg name_merged_clusters} is deprecated since networkflow 0.0.9.9001.",
       "i" = "Use {.arg name_dynamic_clusters} instead."
     ))
     name_dynamic_clusters <- name_merged_clusters
@@ -184,9 +186,13 @@ name_clusters <- function(graphs,
   # Label table (one row per cluster) computed on a node table.
   make_labels <- function(nodes) {
     if (method == "tf-idf") {
+      # More terms than needed are extracted, so that terms overlapping a better
+      # one can be skipped ("business" after "business cycle").
       terms <- extract_tfidf(nodes, grouping_columns = cluster_id, text_columns = text_columns,
-                             nb_terms = nb_terms_label, ...)
-      labels <- terms[, .(label = paste0(term, collapse = ", ")), by = cluster_id]
+                             nb_terms = 4 * nb_terms_label, ...)
+      terms <- terms[order(-tf_idf), .SD, by = cluster_id, env = list(cluster_id = cluster_id)]
+      labels <- terms[, .(label = label_from_terms(term, nb_terms_label)), by = cluster_id,
+                      env = list(cluster_id = cluster_id)]
     } else {
       labels <- nodes %>%
         dplyr::group_by(.data[[cluster_id]]) %>%
@@ -201,13 +207,18 @@ name_clusters <- function(graphs,
   }
 
   add_labels <- function(graph, labels) {
+    # The column of an empty window is logical (no value): give it the type of
+    # the labels, so that the join works
+    as_label_type <- function(x) if (is.logical(x)) labels[[cluster_id]][0][seq_along(x)] else x
     graph <- graph %N>%
+      dplyr::mutate(!!cluster_id := as_label_type(.data[[cluster_id]])) %>%
       dplyr::select(-dplyr::any_of(label_name)) %>%
       dplyr::left_join(labels, by = cluster_id) %>%
       dplyr::mutate(!!label_name := dplyr::coalesce(.data[[label_name]], "no_name"))
     edges <- tidygraph::as_tibble(graph, active = "edges")
     if (cluster_id %in% names(edges)) {
       graph <- graph %E>%
+        dplyr::mutate(!!cluster_id := as_label_type(.data[[cluster_id]])) %>%
         dplyr::select(-dplyr::any_of(label_name)) %>%
         dplyr::left_join(labels, by = cluster_id) %>%
         tidygraph::activate("nodes")
@@ -224,4 +235,20 @@ name_clusters <- function(graphs,
   }
   if (single) graphs <- graphs[[1]]
   graphs
+}
+
+# The label of a cluster: its first `n` terms (by decreasing tf-idf), skipping
+# a term that is part of a term already kept, or contains one ("business"
+# and "real business" after "business cycle"... but not "cycle theory").
+label_from_terms <- function(terms, n) {
+  kept <- character(0)
+  for (term in terms) {
+    padded <- paste0(" ", term, " ")
+    overlaps <- vapply(kept, function(k) {
+      grepl(padded, paste0(" ", k, " "), fixed = TRUE) || grepl(paste0(" ", k, " "), padded, fixed = TRUE)
+    }, logical(1))
+    if (!any(overlaps)) kept <- c(kept, term)
+    if (length(kept) == n) break
+  }
+  paste(kept, collapse = ", ")
 }

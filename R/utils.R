@@ -98,15 +98,18 @@ inform_method <- function(method, source_id, target_id, edges_threshold, alpha,
     cli::cli_inform(c(
       "i" = paste0(what, " with {.val {method}}: ties weighted by ", info$what,
                    ", after {info$origin}, between {.field {source_id}} entities sharing {.field {target_id}} entities."),
-      "i" = "Pairs sharing fewer than {edges_threshold} {.field {target_id}} are dropped ({.arg edges_threshold})."
+      "i" = "Two {.field {source_id}} are linked when they share at least {edges_threshold} {.field {target_id}} ({.arg edges_threshold})."
     ))
   } else {
-    level <- if (!is.null(alpha)) alpha else backbone_args$alpha
+    level <- if (!is.null(backbone_args$alpha)) backbone_args$alpha else alpha
     cli::cli_inform(c(
       "i" = paste0("Statistical backbone ({.pkg backbone}) with {.val {method}}: ", info$what,
                    ", after {info$origin}."),
       "i" = "A tie between two {.field {source_id}} is kept when the number of shared {.field {target_id}} is larger than in the random networks at the level {.arg alpha} = {level}: the edges are unweighted."
     ))
+  }
+  if (method == "fdsm" && is.null(backbone_args$trials)) {
+    cli::cli_inform(c("!" = "{.val fdsm} approximates the distribution of each tie by simulating random networks: with the default number of trials of {.pkg backbone}, it can take hours even for a few hundred nodes. Set it with {.code backbone_args = list(trials = 1000)}, or use {.val sdsm}."))
   }
   invisible()
 }
@@ -178,4 +181,28 @@ mixcolor <- function(col1, col2, amount1 = 0.5) {
   rgb2 <- grDevices::col2rgb(col2, alpha = TRUE)
   mix <- amount1 * rgb1 + (1 - amount1) * rgb2
   grDevices::rgb(mix[1, ], mix[2, ], mix[3, ], mix[4, ], maxColorValue = 255)
+}
+
+# A target linked to most sources is often a code for a missing identifier
+# (e.g. 0 for the references that a database could not match): it would tie
+# almost every pair of sources. Warn when one target is linked to more than
+# half of the sources (with at least 20 sources).
+check_placeholder_target <- function(edges, target_id) {
+  # counted with hashing (match/tabulate), much faster than grouping
+  links <- if ("document" %in% names(edges)) unique(edges[, c("from", "to")]) else edges
+  n_sources <- length(unique(links$from))
+  if (n_sources < 20) {
+    return(invisible())
+  }
+  targets <- unique(links$to)
+  counts <- tabulate(match(links$to, targets), length(targets))
+  top <- data.frame(to = targets[which.max(counts)], n = max(counts))
+  if (nrow(top) == 1 && top$n / n_sources > 0.5) {
+    share <- round(100 * top$n / n_sources)
+    cli::cli_warn(c(
+      "The {.field {target_id}} {.val {top$to}} is linked to {share}% of the sources.",
+      "i" = "Is it a code for a missing identifier (e.g. an unmatched reference)? It ties almost every pair of sources: set it to {.code NA} or remove its rows."
+    ))
+  }
+  invisible()
 }

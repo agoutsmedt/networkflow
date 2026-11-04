@@ -148,21 +148,24 @@ merge_diagnostics <- function(list_graph,
   n_window_clusters <- nrow(unique(window_clusters))
   n_first <- length(unique(window_clusters[window == 1, cluster]))
 
+  all_nodes <- data.table::rbindlist(lapply(unname(list_graph), function(graph) {
+    nodes <- node_table(graph)
+    data.table::data.table(node = nodes[[node_id]], cluster = as.character(nodes[[cluster_id]]))
+  }), idcol = "network_num")
+  data.table::setnames(all_nodes, c("node", "cluster"), c(node_id, cluster_id))
+
   settings <- expand.grid(similarity_type = similarity_types, threshold = thresholds, stringsAsFactors = FALSE)
   if (verbose) cli::cli_progress_bar("Matching clusters ({method})", total = nrow(settings))
   new_col <- paste0("dynamic_", cluster_id)
   results <- vector("list", nrow(settings))
   lifespans <- vector("list", nrow(settings))
   for (i in seq_len(nrow(settings))) {
-    merged <- suppressMessages(suppressWarnings(merge_dynamic_clusters(
-      list_graph, cluster_id, node_id, method = method,
-      threshold_similarity = settings$threshold[i],
-      similarity_type = settings$similarity_type[i],
-      verbose = FALSE
-    )))
-    rows <- data.table::rbindlist(lapply(unname(merged), function(graph) {
-      nodes <- node_table(graph)
-      data.table::data.table(dynamic = as.character(nodes[[new_col]]))
+    # the matching on the node tables, without rebuilding the graphs
+    dynamic <- match_dynamic_clusters(all_nodes, node_id, cluster_id, method,
+                                      settings$threshold[i], settings$similarity_type[i],
+                                      n_windows = length(list_graph))
+    rows <- data.table::rbindlist(lapply(dynamic, function(nodes) {
+      data.table::data.table(dynamic = nodes$intertemporal_name)
     }), idcol = "window")
     per_cluster <- rows[, list(lifespan = data.table::uniqueN(window), n_rows = .N), by = dynamic]
     persistent <- per_cluster$lifespan >= min_length

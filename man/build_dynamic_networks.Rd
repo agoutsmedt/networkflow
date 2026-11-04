@@ -206,7 +206,7 @@ them are built:\tabular{ll}{
    Edges \tab weighted (\code{weight}) \tab unweighted (each edge means "more than expected by chance") \cr
    Arguments used \tab \code{edges_threshold}, \code{document_id} \tab \code{alpha} (required), \code{backbone_args} \cr
    Ignored \tab \code{alpha}, \code{backbone_args} \tab \code{edges_threshold}; \code{document_id} is an error \cr
-   Cost \tab fast, sparse matrices \tab slow on large corpora (a test for each pair) \cr
+   Cost \tab fast, sparse matrices: seconds for tens of thousands of documents \tab a test for each pair: on a Scopus sample, about 20 seconds and 2 GB for 1,000 documents with \code{"sdsm"}; \code{"fdsm"} simulates random networks and needs \code{backbone_args = list(trials = )} to finish (about a minute for 100 documents with 1,000 trials) \cr
    Computed by \tab \href{https://agoutsmedt.github.io/biblionetwork/}{biblionetwork} \tab the \code{backbone} package \cr
 }
 

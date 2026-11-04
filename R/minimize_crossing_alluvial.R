@@ -18,8 +18,9 @@
 #' strongest, and records at each step the connected component of each
 #' cluster. Clusters are ordered by this sequence of components: clusters
 #' that stay together until the strongest ties are removed end up side by
-#' side. This groups clusters that exchange nodes, but it does not count the
-#' crossings.
+#' side (this is the order of the leaves of a single-linkage hierarchical
+#' clustering of the clusters, computed with [stats::hclust()]). This groups
+#' clusters that exchange nodes, but it does not count the crossings.
 #'
 #' Second (`refine = TRUE`, the default), the order is improved against the
 #' crossings themselves. For each pair of consecutive windows, the flows are
@@ -29,7 +30,12 @@
 #' product of the two flows. Each cluster in turn is moved to the position that
 #' minimises the total, until no move helps. This is a local search, which
 #' can end in a local optimum, and which costs more with many clusters and
-#' flows.
+#' flows. For large alluvials (more than 100 clusters, or more than two million
+#' pairs of flows), the barycentre heuristic is used
+#' instead: each cluster is placed at the mean position of the clusters it
+#' exchanges nodes with, as long as this reduces the crossings. Filtering the
+#' small clusters first (see [networks_to_alluv()]) gives faster and more
+#' readable alluvials.
 #'
 #' @param alluv_dt A data frame created with [networks_to_alluv()], whose rows
 #'   follow the chronological order of the windows (the order of the levels of
@@ -144,47 +150,31 @@ minimize_crossing_alluvial <- function(alluv_dt ,
   # Nodes
   nodes_meta <- dt[,.N,cl_id]
 
-  # Network
-  tbl_meta <- tidygraph::tbl_graph(nodes = nodes_meta, edges = edges_meta, directed = FALSE, node_key = "cl_id")
 
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
   #### Find an order ####
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
 
-  # First we extract the different components, we want to keep stratum with the same
-  components <- tbl_meta %N>%
-    dplyr::mutate(components_att = tidygraph::group_components(type = "weak")) %>%
-    data.table::as.data.table()
-
-  data.table::setnames(components, "components_att", paste0("components_att_","0"))
-  components <- components[,.(cl_id, "components_att_0"= get("components_att_0"))] # the column components_att_0 give us the first order of statums
-
-  for (links_to_remove in unique(edges_meta[order(weight)]$weight)) { # then we remove each the weakeast link, and create a new column, with a new order for each components
-    edges_meta <- edges_meta[weight > links_to_remove] # remove link of this treshold
-
-    tbl_meta <- tidygraph::tbl_graph(nodes = nodes_meta, edges = edges_meta, directed = FALSE, node_key = "cl_id")
-
-    components2 <- tbl_meta %N>%
-      dplyr::mutate(components_att = tidygraph::group_components(type = "weak")) %>%
-      data.table::as.data.table()
-
-    name <- paste0("components_att_", links_to_remove)
-    data.table::setnames(components2, "components_att", name)
-    components2 <- components2[, .SD, .SDcols = c("cl_id", name)]
-    components <- merge(components, components2, all.x = TRUE, all.y = TRUE, by= "cl_id")
-
+  # Removing the links from the weakest to the strongest and following the
+  # connected components is a single-linkage hierarchical clustering of the
+  # clusters (two clusters are in the same component at a given step if a
+  # chain of links stronger than the step joins them). Its dendrogram gives
+  # the first order: clusters that stay together until the strongest links
+  # are removed are side by side. It is computed in one call to hclust(),
+  # instead of one graph per weight.
+  cluster_ids <- as.character(nodes_meta$cl_id)
+  if (length(cluster_ids) > 2 && nrow(edges_meta) > 0) {
+    max_weight <- max(edges_meta$weight)
+    distance <- matrix(max_weight + 2, length(cluster_ids), length(cluster_ids),
+                       dimnames = list(cluster_ids, cluster_ids)) # no link: farther than any link
+    link_index <- cbind(match(edges_meta$Source, cluster_ids), match(edges_meta$Origin, cluster_ids))
+    distance[link_index] <- max_weight + 1 - edges_meta$weight
+    distance[link_index[, 2:1, drop = FALSE]] <- max_weight + 1 - edges_meta$weight
+    diag(distance) <- 0
+    clusters <- cluster_ids[stats::hclust(stats::as.dist(distance), method = "single")$order]
+  } else {
+    clusters <- cluster_ids
   }
-
-  columns_to_paste <- names(components)
-  columns_to_paste <- columns_to_paste[columns_to_paste != "cl_id"]
-
-  # The components at each step of the removal of the links give a first
-  # order: clusters that stay in the same component the longest are side by
-  # side. The component numbers are compared as numbers, one step after the
-  # other (they were once pasted into a string, which mixes "1" "10" and
-  # "11" "0" as soon as there are ten components).
-  starting_order <- do.call(order, unname(as.list(components[, .SD, .SDcols = columns_to_paste])))
-  clusters <- components$cl_id[starting_order]
   position <- stats::setNames(seq_along(clusters), clusters)
 
   # Then the order is refined to reduce the crossings themselves.
@@ -213,7 +203,8 @@ minimize_crossing_alluvial <- function(alluv_dt ,
 # Returns the flows as two parallel tables: `from` and `to` (clusters, by
 # step) and the number of nodes `n`, and the pairs of flows of the same step
 # that can cross, with the product of their sizes.
-alluvial_flows <- function(alluv_dt, cluster_column, node_id, window_column) {
+alluvial_flows <- function(alluv_dt, cluster_column, node_id, window_column, max_pairs = 2e6) {
+  cl <- node <- w <- step <- id <- from <- to <- NULL
   dt <- data.table::as.data.table(alluv_dt)[, .SD, .SDcols = c(cluster_column, node_id, window_column)]
   data.table::setnames(dt, c(cluster_column, node_id, window_column), c("cl", "node", "w"))
   dt[, cl := as.character(cl)]
@@ -232,7 +223,14 @@ alluvial_flows <- function(alluv_dt, cluster_column, node_id, window_column) {
     return(list(table = flows, pairs = data.frame(i = integer(0), j = integer(0), weight = numeric(0))))
   }
   flows[, id := .I]
-  # pairs of flows of the same step (the flows of different steps never cross)
+  # Pairs of flows of the same step (the flows of different steps never cross).
+  # The table of pairs makes the local search fast, but its size is the square
+  # of the number of flows: beyond `max_pairs`, it is not built, and the
+  # crossings are counted step by step (see weighted_crossings()).
+  n_pairs <- sum(choose(flows[, .N, by = step]$N, 2))
+  if (n_pairs > max_pairs) {
+    return(list(table = flows, pairs = NULL))
+  }
   pairs <- lapply(split(flows, by = "step"), function(f) {
     if (nrow(f) < 2) return(NULL)
     combos <- utils::combn(f$id, 2)
@@ -247,6 +245,18 @@ alluvial_flows <- function(alluv_dt, cluster_column, node_id, window_column) {
 # the product of their sizes. `position` is the rank of each cluster.
 weighted_crossings <- function(position, flows) {
   pairs <- flows$pairs
+  if (is.null(pairs)) {
+    # step by step, without the table of pairs (large alluvials)
+    total <- 0
+    for (f in split(flows$table, by = "step")) {
+      if (nrow(f) < 2) next
+      from <- position[f$from]
+      to <- position[f$to]
+      crossing <- outer(from, from, "-") * outer(to, to, "-") < 0
+      total <- total + sum(outer(f$n, f$n)[crossing]) / 2
+    }
+    return(total)
+  }
   if (nrow(pairs) == 0) return(0)
   from <- position[flows$table$from]
   to <- position[flows$table$to]
@@ -258,24 +268,70 @@ weighted_crossings <- function(position, flows) {
 # gives the fewest crossings, until no move helps (or `max_passes` passes). It
 # finds a local optimum, not the optimum of the crossing problem.
 refine_crossing_order <- function(position, flows, max_passes = 10) {
-  best <- weighted_crossings(position, flows)
+  pairs <- flows$pairs
+  # the local search costs about the square of the number of clusters times
+  # the number of pairs: beyond 100 clusters (or without the table of pairs),
+  # the barycentre heuristic is used
+  if (is.null(pairs) || length(position) > 100) return(barycentre_order(position, flows, max_passes))
+  if (nrow(pairs) == 0) return(position)
+  table <- flows$table
+  # Moving a cluster only changes the crossings of the pairs of flows that
+  # involve it (as origin or destination of one of the two flows): only these
+  # pairs are evaluated for each candidate position.
+  pair_clusters <- cbind(table$from[pairs$i], table$to[pairs$i], table$from[pairs$j], table$to[pairs$j])
+  involved <- lapply(names(position), function(cluster) which(rowSums(pair_clusters == cluster) > 0))
+  names(involved) <- names(position)
+  crossings_of <- function(position, idx) {
+    from <- position[table$from]
+    to <- position[table$to]
+    p <- pairs[idx, , drop = FALSE]
+    sum(p$weight[(from[p$i] - from[p$j]) * (to[p$i] - to[p$j]) < 0])
+  }
   for (pass in seq_len(max_passes)) {
     improved <- FALSE
     for (cluster in names(sort(position))) {
+      idx <- involved[[cluster]]
+      if (length(idx) == 0) next
+      current <- crossings_of(position, idx)
       others <- setdiff(names(sort(position)), cluster)
       candidates <- vapply(0:length(others), function(k) {
         candidate <- append(others, cluster, after = k)
-        weighted_crossings(stats::setNames(seq_along(candidate), candidate)[names(position)], flows)
+        crossings_of(stats::setNames(seq_along(candidate), candidate)[names(position)], idx)
       }, numeric(1))
-      if (min(candidates) < best - 1e-9) {
-        k <- which.min(candidates) - 1
-        candidate <- append(others, cluster, after = k)
+      if (min(candidates) < current - 1e-9) {
+        candidate <- append(others, cluster, after = which.min(candidates) - 1)
         position <- stats::setNames(seq_along(candidate), candidate)[names(position)]
-        best <- min(candidates)
         improved <- TRUE
       }
     }
     if (!improved) break
+  }
+  position
+}
+
+# For large alluvials (too many pairs of flows for the local search): the
+# barycentre heuristic of crossing reduction. Each cluster is placed at the
+# mean position of the clusters it exchanges nodes with, weighted by the
+# flows; the new order is kept as long as it reduces the crossings.
+barycentre_order <- function(position, flows, max_passes = 10) {
+  cl <- other <- n <- pos <- NULL
+  table <- flows$table
+  partners <- data.table::rbindlist(list(
+    data.table::data.table(cl = table$from, other = table$to, n = table$n),
+    data.table::data.table(cl = table$to, other = table$from, n = table$n)
+  ))
+  best <- weighted_crossings(position, flows)
+  for (pass in seq_len(max_passes)) {
+    partners[, pos := position[other]]
+    barycentre <- partners[, list(b = sum(n * pos) / sum(n)), by = cl]
+    target <- position
+    target[barycentre$cl] <- barycentre$b
+    new_order <- names(target)[order(target, position)]
+    candidate <- stats::setNames(seq_along(new_order), new_order)[names(position)]
+    value <- weighted_crossings(candidate, flows)
+    if (value >= best) break
+    position <- candidate
+    best <- value
   }
   position
 }

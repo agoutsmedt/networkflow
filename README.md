@@ -227,7 +227,7 @@ maintained by Thomas Delcey and Aurélien Goutsmedt.
 If you use `networkflow` in your research, please cite it:
 
     Goutsmedt A, Truc A, Delcey T (2026). _networkflow: A Research Pipeline
-    for Projected and Dynamic Networks_. R package version 0.0.9.9002,
+    for Projected and Dynamic Networks_. R package version 0.0.9.9001,
     <https://agoutsmedt.github.io/networkflow/>.
 
 ## References

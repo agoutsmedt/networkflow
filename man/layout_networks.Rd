@@ -87,7 +87,9 @@ components around the centre. The speed adapts to the stability of the
 forces. This is a compact implementation, not the one of Gephi: the
 repulsion is computed between all the pairs of nodes (no Barnes-Hut
 approximation), so that the cost grows with the square of the number of
-nodes (comfortable up to a few thousand). Arguments: \code{iterations} (500),
+nodes: on a Web of Science sample, about 1 minute for 1,000 nodes and
+4 to 5 minutes for 2,000, so that \code{"fr"} or \code{"umap"} are better choices
+for larger networks. Arguments: \code{iterations} (500),
 \code{scaling_ratio} (2, the strength of the repulsion: smaller values give a
 more compact layout), \code{gravity} (1), \code{strong_gravity} (\code{FALSE}; \code{TRUE}
 keeps disconnected components close), \code{linlog} (\code{FALSE}; \code{TRUE} uses a
@@ -115,7 +117,12 @@ are not to be measured, and the picture is partly built by the choice of
 For dynamic coordinates, nodes absent from the previous window start at
 (0, 0). The starting positions are passed to the layout as its \code{coords}
 argument: this works only with layouts that accept it, such as \code{"fr"} and
-\code{"kk"} of \code{igraph}, and \code{"forceatlas2"}; \code{"umap"} ignores them.
+\code{"kk"} of \code{igraph}, and \code{"forceatlas2"}; \code{"umap"} ignores them. With
+starting positions, \code{igraph}'s Fruchterman-Reingold no longer uses its fast
+grid approximation: on a Web of Science window of 9,600 nodes, about 80
+seconds instead of 1. As the positions are already close to the result,
+fewer iterations are often enough (e.g. \code{niter = 100}, passed to
+\code{igraph::layout_with_fr()}).
 }
 \examples{
 network <- build_network(

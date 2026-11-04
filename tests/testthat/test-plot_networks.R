@@ -43,3 +43,11 @@ test_that("missing columns are reported", {
   expect_error(plot_networks(ready_toy(), x = "nope", cluster_label_column = "cluster_leiden"), "nope")
   expect_error(plot_networks(ready_toy(), cluster_label_column = NULL), "cluster_label_column")
 })
+
+test_that("large graphs are drawn with straight edges", {
+  graph <- tidygraph::mutate(toy_graph(), x = seq_len(6), y = seq_len(6), color = "grey", cluster = "a")
+  arcs <- plot_networks(graph, cluster_label_column = "cluster", node_size_column = NULL)
+  expect_s3_class(arcs$layers[[1]]$geom, "GeomEdgePath")
+  expect_message(lines <- plot_networks(graph, cluster_label_column = "cluster", node_size_column = NULL, max_arcs = 3), "straight lines")
+  expect_s3_class(lines$layers[[1]]$geom, "GeomEdgeSegment")
+})

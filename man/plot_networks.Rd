@@ -13,6 +13,7 @@ plot_networks(
   color_column = "color",
   color_networks = FALSE,
   color = NULL,
+  max_arcs = 20000,
   print_plot_code = FALSE
 )
 }
@@ -38,6 +39,13 @@ with \code{cluster_label_column} as the categories.}
 
 \item{color}{With \code{color_networks = TRUE}, the colours passed to
 \code{\link[=color_networks]{color_networks()}}.}
+
+\item{max_arcs}{Whole number. Edges are drawn as arcs whose width follows
+their weight, unless a graph has more than \code{max_arcs} edges (20,000 by
+default): they are then drawn as straight lines of constant width, which
+is much faster (on a network of 140,000 edges, about 2 seconds and 1 GB
+of memory to draw, against 100 seconds and 11 GB with arcs). Set it to
+\code{Inf} to always draw arcs.}
 
 \item{print_plot_code}{Logical. If \code{TRUE}, prints the \href{https://ggplot2.tidyverse.org/}{\code{ggplot2}}/\code{ggraph} code
 of the plot.}

@@ -35,14 +35,29 @@ layout_umap <- function(graph, n_neighbors = 15, min_dist = 0.1, spread = 1,
     cli::cli_abort("A UMAP layout needs at least 4 nodes, not {n}.")
   }
   lengths <- 1 / layout_edge_weights(graph, weights)
-  distances <- igraph::distances(graph, weights = lengths)
-  finite <- is.finite(distances)
-  if (!all(finite)) {
-    distances[!finite] <- 1.5 * max(distances[finite])
+  # UMAP only uses the nearest neighbours of each point: they are computed
+  # from the shortest paths by blocks of rows and given to uwot, instead of
+  # the matrix of all the distances (on 9,600 nodes, 90 seconds and 5.7 GB
+  # with the full matrix).
+  k <- min(n_neighbors, n - 1) + 1 # uwot counts the point itself as its first neighbour
+  block_size <- max(1L, floor(2e7 / n))
+  blocks <- split(seq_len(n), ceiling(seq_len(n) / block_size))
+  nn_idx <- matrix(0L, n, k)
+  nn_dist <- matrix(0, n, k)
+  for (rows in blocks) {
+    d <- igraph::distances(graph, v = rows, weights = lengths)
+    finite <- is.finite(d)
+    if (!all(finite)) {
+      # nodes of another component: farther than any connected pair
+      d[!finite] <- 1.5 * max(d[finite])
+    }
+    nearest <- t(apply(d, 1, function(row) order(row)[seq_len(k)]))
+    nn_idx[rows, ] <- nearest
+    nn_dist[rows, ] <- matrix(d[cbind(rep(seq_along(rows), k), as.vector(nearest))], ncol = k)
   }
   coords <- uwot::umap(
-    stats::as.dist(distances),
-    n_neighbors = min(n_neighbors, n - 1),
+    X = NULL,
+    nn_method = list(idx = nn_idx, dist = nn_dist),
     n_components = 2,
     min_dist = min_dist,
     spread = spread,
@@ -58,8 +73,10 @@ layout_umap <- function(graph, n_neighbors = 15, min_dist = 0.1, spread = 1,
 # degrees plus one (so that hubs push others away), and a gravity that keeps
 # the components around the origin. This is a compact implementation: the
 # repulsion between all pairs is computed exactly (no Barnes-Hut
-# approximation), with a cost in the square of the number of nodes. It is
-# comfortable up to a few thousand nodes.
+# approximation), with a cost in the square of the number of nodes: on a Web
+# of Science sample, about 1 minute for 1,000 nodes and 4 to 5 minutes for
+# 2,000 (500 iterations). A faster version would need Barnes-Hut in compiled
+# code (see to_do.qmd).
 layout_forceatlas2 <- function(graph, iterations = 500, scaling_ratio = 2,
                                gravity = 1, strong_gravity = FALSE,
                                linlog = FALSE, jitter_tolerance = 1,
@@ -73,12 +90,14 @@ layout_forceatlas2 <- function(graph, iterations = 500, scaling_ratio = 2,
   w <- layout_edge_weights(graph, weights)
   w <- w / max(w)
   edge_list <- igraph::as_edgelist(graph, names = FALSE)
-  # (a dense matrix: the repulsion below is already a matrix of all pairs)
-  adjacency <- matrix(0, n, n)
-  adjacency[edge_list] <- w
-  adjacency[edge_list[, 2:1, drop = FALSE]] <- w
   mass <- igraph::degree(graph) + 1
-  mass_product <- outer(mass, mass)
+  if (n > 1000) {
+    cli::cli_inform(c("!" = "{.val forceatlas2} computes the repulsion between all the pairs of nodes: with {n} nodes, expect several minutes (about 1 minute for 1,000 nodes, the time growing with the square of the number of nodes). {.val fr} and {.val umap} are much faster on large networks."))
+  }
+  # The repulsion is computed by blocks of rows, so that memory stays bounded
+  # (about 20 million pairs at a time) whatever the number of nodes.
+  block_size <- max(1L, floor(2e7 / n))
+  blocks <- split(seq_len(n), ceiling(seq_len(n) / block_size))
 
   # Starting positions: the ones given (e.g. the previous window), or random
   # ones (set a seed before calling the function to reproduce the layout).
@@ -92,29 +111,30 @@ layout_forceatlas2 <- function(graph, iterations = 500, scaling_ratio = 2,
   speed_efficiency <- 1
 
   for (iteration in seq_len(iterations)) {
-    dx <- outer(x, x, "-")
-    dy <- outer(y, y, "-")
-    squared_distance <- dx^2 + dy^2
-    diag(squared_distance) <- Inf
-    squared_distance <- pmax(squared_distance, 1e-9) # two nodes at the same place
-
     # Repulsion between all the pairs: kr (m_i m_j) / d, along the unit vector
-    repulsion <- scaling_ratio * mass_product / squared_distance
-    fx <- rowSums(repulsion * dx)
-    fy <- rowSums(repulsion * dy)
+    fx <- fy <- numeric(n)
+    for (rows in blocks) {
+      dx <- outer(x[rows], x, "-")
+      dy <- outer(y[rows], y, "-")
+      squared_distance <- dx^2 + dy^2
+      squared_distance[cbind(seq_along(rows), rows)] <- Inf # a node does not repel itself
+      squared_distance <- pmax(squared_distance, 1e-9) # two nodes at the same place
+      repulsion <- scaling_ratio * outer(mass[rows], mass) / squared_distance
+      fx[rows] <- rowSums(repulsion * dx)
+      fy[rows] <- rowSums(repulsion * dy)
+    }
 
     # Attraction along the edges: w d (linear) or w log(1 + d) (linlog)
-    if (linlog) {
-      edge_x <- x[edge_list[, 2]] - x[edge_list[, 1]]
-      edge_y <- y[edge_list[, 2]] - y[edge_list[, 1]]
+    edge_x <- x[edge_list[, 2]] - x[edge_list[, 1]]
+    edge_y <- y[edge_list[, 2]] - y[edge_list[, 1]]
+    factor <- if (linlog) {
       edge_d <- sqrt(edge_x^2 + edge_y^2)
-      factor <- w * log1p(edge_d) / pmax(edge_d, 1e-9)
-      fx <- fx + tabulate_edges(edge_list[, 1], factor * edge_x, n) - tabulate_edges(edge_list[, 2], factor * edge_x, n)
-      fy <- fy + tabulate_edges(edge_list[, 1], factor * edge_y, n) - tabulate_edges(edge_list[, 2], factor * edge_y, n)
+      w * log1p(edge_d) / pmax(edge_d, 1e-9)
     } else {
-      fx <- fx + as.numeric(adjacency %*% x) - rowSums(adjacency) * x
-      fy <- fy + as.numeric(adjacency %*% y) - rowSums(adjacency) * y
+      w
     }
+    fx <- fx + tabulate_edges(edge_list[, 1], factor * edge_x, n) - tabulate_edges(edge_list[, 2], factor * edge_x, n)
+    fy <- fy + tabulate_edges(edge_list[, 1], factor * edge_y, n) - tabulate_edges(edge_list[, 2], factor * edge_y, n)
 
     # Gravity towards the origin: constant (or growing with the distance when
     # `strong_gravity`), proportional to the mass
@@ -153,9 +173,14 @@ layout_forceatlas2 <- function(graph, iterations = 500, scaling_ratio = 2,
   cbind(x, y, deparse.level = 0)
 }
 
-# Sum of `values` by node, for the linlog attraction
+# Sum of `values` by node (the forces along the edges)
 tabulate_edges <- function(nodes, values, n) {
-  as.numeric(rowsum(values, factor(nodes, levels = seq_len(n)), reorder = FALSE)[, 1])
+  # (rowsum() returns one row per node present, named by the node: the sums
+  # are put back at the position of their node)
+  sums <- rowsum(values, nodes)
+  out <- numeric(n)
+  out[as.integer(rownames(sums))] <- sums[, 1]
+  out
 }
 
 # Coordinates of a graph with the layout: UMAP and ForceAtlas2 above, or any
@@ -169,10 +194,21 @@ compute_layout <- function(graph, layout, coords = NULL, ...) {
     }
     return(layout_forceatlas2(igraph_graph, coords = coords, ...))
   }
-  if (is.null(coords)) {
-    layout_df <- ggraph::create_layout(graph, layout = layout, ...)
-  } else {
-    layout_df <- ggraph::create_layout(graph, layout = layout, coords = coords, ...)
-  }
+  layout_df <- tryCatch(
+    if (is.null(coords)) {
+      ggraph::create_layout(graph, layout = layout, ...)
+    } else {
+      ggraph::create_layout(graph, layout = layout, coords = coords, ...)
+    },
+    error = function(e) {
+      if (grepl("layout_tbl_graph_", conditionMessage(e), fixed = TRUE)) {
+        cli::cli_abort(c(
+          "{.val {layout}} is not a known layout.",
+          "i" = "Use a layout of {.fn ggraph::create_layout} (e.g. {.val fr}, {.val kk}, {.val stress}, {.val drl}), or {.val forceatlas2} or {.val umap}."
+        ), call = rlang::caller_env(4))
+      }
+      cli::cli_abort("The layout {.val {layout}} failed.", parent = e, call = rlang::caller_env(4))
+    }
+  )
   cbind(x = layout_df$x, y = layout_df$y)
 }

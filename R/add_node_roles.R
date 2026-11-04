@@ -174,7 +174,7 @@ add_node_roles <- function(
   }
 
   cli::cli_abort(
-    "Your {.field graphs} data is neither a tibble graph, nor a list of tibble graphs."
+    "{.arg graphs} must be a {.cls tbl_graph} or a list of {.cls tbl_graph}s, not {.obj_type_friendly {graphs}}."
   )
 }
 
