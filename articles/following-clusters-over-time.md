@@ -409,7 +409,7 @@ share in a window, and the number of windows where it exists.
 
 alluv_dt <- networks_to_alluv(
   networks,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 cluster_stats <- unique(alluv_dt[, c("dynamic_cluster_leiden", "cluster_label",
@@ -476,7 +476,7 @@ palette <- data.frame(
 )
 plot_alluvial(
   main_alluv,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id",
   color_alluvial = TRUE,
   color = palette,

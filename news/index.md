@@ -42,6 +42,17 @@ changes are given with respect to 0.0.9.9000.
 - [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md):
   `name_merged_clusters` is renamed `name_dynamic_clusters` (the old
   name still works, with a deprecation warning).
+- Argument names are harmonised: `cluster_id` replaces `module_col`
+  ([`add_node_roles()`](https://agoutsmedt.github.io/networkflow/reference/add_node_roles.md))
+  and `intertemporal_cluster_column`
+  ([`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md),
+  [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md),
+  [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)),
+  and `graphs` replaces `list_graph`
+  ([`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md),
+  [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)).
+  [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
+  keeps `data`, as it also takes plain tables.
 - [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
   returns a named list of ggplot objects for a list of graphs.
 - [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)

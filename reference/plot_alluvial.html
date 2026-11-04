@@ -69,7 +69,7 @@ follow the nodes from one window to the next. It can colour the clusters
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_alluvial</span><span class="op">(</span></span>
 <span>  <span class="va">alluv_dt</span>,</span>
-<span>  <span class="va">intertemporal_cluster_column</span>,</span>
+<span>  <span class="va">cluster_id</span>,</span>
 <span>  <span class="va">node_id</span>,</span>
 <span>  window_column <span class="op">=</span> <span class="st">"window"</span>,</span>
 <span>  color_column <span class="op">=</span> <span class="st">"color"</span>,</span>
@@ -96,7 +96,7 @@ directly the list of <code>tbl_graph</code>s with dynamic clusters (see
 the columns kept).</p></dd>
 
 
-<dt id="arg-intertemporal-cluster-column">intertemporal_cluster_column<a class="anchor" aria-label="anchor" href="#arg-intertemporal-cluster-column"></a></dt>
+<dt id="arg-cluster-id">cluster_id<a class="anchor" aria-label="anchor" href="#arg-cluster-id"></a></dt>
 <dd><p>Character scalar, the column with the
 dynamic clusters (e.g. <code>"dynamic_cluster_leiden"</code>).</p></dd>
 
@@ -209,14 +209,14 @@ table on <code>share_cluster_max</code> or <code>length_cluster</code> (see
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>   window without edges.</span>
 <span class="r-in"><span><span class="va">alluv_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="networks_to_alluv.html">networks_to_alluv</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">networks</span>,</span></span>
-<span class="r-in"><span>  intertemporal_cluster_column <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
+<span class="r-in"><span>  cluster_id <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
 <span class="r-in"><span>  node_id <span class="op">=</span> <span class="st">"source_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #00BB00;">color</span> column in the graphs: no colour kept (see `color_alluvial()`).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #00BB00;">cluster_label</span> column in the graphs: no label kept (see `name_clusters()`).</span>
 <span class="r-in"><span><span class="fu">plot_alluvial</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">alluv_dt</span>,</span></span>
-<span class="r-in"><span>  intertemporal_cluster_column <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
+<span class="r-in"><span>  cluster_id <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
 <span class="r-in"><span>  node_id <span class="op">=</span> <span class="st">"source_id"</span>,</span></span>
 <span class="r-in"><span>  color_alluvial <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  minimize_crossing <span class="op">=</span> <span class="cn">TRUE</span></span></span>

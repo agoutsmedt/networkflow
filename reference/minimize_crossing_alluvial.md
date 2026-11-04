@@ -43,7 +43,7 @@ gives faster and more readable alluvials.
 ``` r
 minimize_crossing_alluvial(
   alluv_dt,
-  intertemporal_cluster_column = NULL,
+  cluster_id = NULL,
   node_id = NULL,
   window_column = "window",
   refine = TRUE,
@@ -63,7 +63,7 @@ minimize_crossing_alluvial(
   [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md),
   or of their appearance).
 
-- intertemporal_cluster_column:
+- cluster_id:
 
   Character scalar, the column with the dynamic clusters.
 
@@ -148,7 +148,7 @@ networks <- merge_dynamic_clusters(
 #>   window without edges.
 alluv_dt <- networks_to_alluv(
   networks,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 #> ℹ No color column in the graphs: no colour kept (see `color_alluvial()`).
@@ -156,7 +156,7 @@ alluv_dt <- networks_to_alluv(
 
 alluv_dt <- minimize_crossing_alluvial(
   alluv_dt,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 #> Warning: no non-missing arguments to max; returning -Inf

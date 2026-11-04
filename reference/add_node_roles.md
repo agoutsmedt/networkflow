@@ -24,7 +24,7 @@ spread evenly across clusters: \$\$P_i = 1 - \sum_s \left(
 ``` r
 add_node_roles(
   graphs,
-  module_col = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   weight_col = "weight",
   z_threshold = 2.5
 )
@@ -36,7 +36,7 @@ add_node_roles(
 
   A `tbl_graph` or a list of `tbl_graph`s with a cluster column.
 
-- module_col:
+- cluster_id:
 
   Character scalar, the node column with the clusters. The default,
   `"dynamic_cluster_leiden"`, fits the output of
@@ -190,7 +190,7 @@ network <- add_clusters(
   verbose = FALSE
 )
 
-network <- add_node_roles(network, module_col = "cluster_leiden")
+network <- add_node_roles(network, cluster_id = "cluster_leiden")
 table(tidygraph::as_tibble(network, active = "nodes")$role_ga)
 #> 
 #>  R1 ultra-peripheral        R2 peripheral R3 non-hub connector 

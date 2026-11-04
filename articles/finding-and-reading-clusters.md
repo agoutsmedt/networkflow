@@ -348,7 +348,7 @@ clusters.
 
 ``` r
 
-network <- add_node_roles(network, module_col = "cluster_leiden")
+network <- add_node_roles(network, cluster_id = "cluster_leiden")
 roles <- as_tibble(network, active = "nodes")
 table(roles$role_ga)
 ```
@@ -457,7 +457,7 @@ by_resolution <- lapply(resolutions, function(resolution) {
   graph <- network |>
     add_clusters(clustering_method = "leiden", objective_function = "modularity",
                  resolution = resolution, seed = 123, verbose = FALSE) |>
-    add_node_roles(module_col = "cluster_leiden")
+    add_node_roles(cluster_id = "cluster_leiden")
   as_tibble(graph, active = "nodes") |> mutate(resolution = resolution)
 })
 bind_rows(by_resolution) |>

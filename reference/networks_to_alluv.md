@@ -15,7 +15,7 @@ and window) and adds summary statistics on the clusters.
 ``` r
 networks_to_alluv(
   graphs,
-  intertemporal_cluster_column,
+  cluster_id,
   node_id,
   summary_cluster_stats = TRUE,
   keep_color = TRUE,
@@ -32,7 +32,7 @@ networks_to_alluv(
   A list of `tbl_graph`s with dynamic clusters (see
   [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)).
 
-- intertemporal_cluster_column:
+- cluster_id:
 
   Character scalar, the node column with the dynamic clusters (e.g.
   `"dynamic_cluster_leiden"`).
@@ -151,7 +151,7 @@ networks <- merge_dynamic_clusters(
 
 alluv_dt <- networks_to_alluv(
   networks,
-  intertemporal_cluster_column = "dynamic_cluster_leiden",
+  cluster_id = "dynamic_cluster_leiden",
   node_id = "source_id"
 )
 #> ℹ No color column in the graphs: no colour kept (see `color_alluvial()`).

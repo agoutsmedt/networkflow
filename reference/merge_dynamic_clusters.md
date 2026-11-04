@@ -55,7 +55,7 @@ be explicit, and `verbose = TRUE` reports the rule that is applied.
 
 ``` r
 merge_dynamic_clusters(
-  list_graph,
+  graphs,
   cluster_id,
   node_id,
   method = c("majority", "jaccard"),
@@ -67,7 +67,7 @@ merge_dynamic_clusters(
 
 ## Arguments
 
-- list_graph:
+- graphs:
 
   A list of at least two `tbl_graph`s in chronological order (oldest
   first), as produced by

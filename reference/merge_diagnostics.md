@@ -22,7 +22,7 @@ draws the result.
 
 ``` r
 merge_diagnostics(
-  list_graph,
+  graphs,
   cluster_id,
   node_id,
   method = c("majority", "jaccard"),
@@ -35,7 +35,7 @@ merge_diagnostics(
 
 ## Arguments
 
-- list_graph:
+- graphs:
 
   A list of at least two `tbl_graph`s in chronological order, with the
   clusters of each window (see
