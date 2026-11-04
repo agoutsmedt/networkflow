@@ -18,7 +18,7 @@ what distinguishes them from neighbouring clusters (Ding 2011) .
 name_clusters(
   graphs,
   method = c("tidygraph_functions", "given_column", "tf-idf"),
-  name_merged_clusters = FALSE,
+  name_dynamic_clusters = FALSE,
   cluster_id,
   label_columns,
   label_name = "cluster_label",
@@ -26,6 +26,7 @@ name_clusters(
   order_by = NULL,
   text_columns = NULL,
   nb_terms_label = 3,
+  name_merged_clusters = NULL,
   ...
 )
 ```
@@ -41,7 +42,7 @@ name_clusters(
   `"tf-idf"` (chosen when no method is given), `"tidygraph_functions"`
   or `"given_column"` (see the details).
 
-- name_merged_clusters:
+- name_dynamic_clusters:
 
   Logical. `TRUE` when `cluster_id` identifies clusters across a list of
   graphs (the dynamic clusters of
@@ -68,7 +69,7 @@ name_clusters(
 - tidygraph_function:
 
   For `"tidygraph_functions"`, a call to a centrality function of
-  tidygraph, such as
+  [`tidygraph`](https://tidygraph.data-imaginist.com/), such as
   [`tidygraph::centrality_pagerank()`](https://tidygraph.data-imaginist.com/reference/centrality.html)
   (see
   [tidygraph::centrality](https://tidygraph.data-imaginist.com/reference/centrality.html)).
@@ -92,6 +93,10 @@ name_clusters(
   For `"tf-idf"`, the number of terms in each label (3 by default),
   separated by commas.
 
+- name_merged_clusters:
+
+  **\[deprecated\]** Former name of `name_dynamic_clusters`.
+
 - ...:
 
   For `"tf-idf"`, other arguments of
@@ -113,7 +118,7 @@ Salton and Buckley 1988) , with \\n\_{tc}\\ the number of occurrences of
 \\t\\ in cluster \\c\\, \\C\\ the number of clusters and
 \\\mathrm{df}\_t\\ the number of clusters where \\t\\ appears. The label
 gathers the terms with the highest weight: frequent in the cluster, rare
-in the others. With `name_merged_clusters = FALSE`, the comparison is
+in the others. With `name_dynamic_clusters = FALSE`, the comparison is
 made within each graph, so clusters of different windows may get the
 same label.
 
@@ -122,7 +127,7 @@ given in `tidygraph_function` on each graph (it is added as a node
 column) and labels each cluster with the node with the highest value.
 The centrality is computed on the whole graph, not within the cluster.
 This method needs a network structure and therefore cannot be used with
-`name_merged_clusters = TRUE`.
+`name_dynamic_clusters = TRUE`.
 
 **Given column.** `"given_column"` labels each cluster with its node
 with the highest `order_by` value: for an article network, typically its
@@ -157,10 +162,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,
   clustering_method = "leiden",

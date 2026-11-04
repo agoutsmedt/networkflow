@@ -19,16 +19,15 @@ build_network(
   target_id,
   document_id = NULL,
   projection_on = c("source", "target"),
-  projection_method,
-  cooccurrence_method = c("coupling_angle", "coupling_strength", "coupling_similarity"),
+  method,
   edges_threshold = 1,
-  model = c("sdsm", "fdsm", "fixedfill", "fixedrow", "fixedcol"),
   alpha = NULL,
   backbone_args = list(),
   compute_size = FALSE,
   keep_singleton = FALSE,
   filter_components = FALSE,
-  ...
+  ...,
+  verbose = TRUE
 )
 ```
 
@@ -63,9 +62,8 @@ build_network(
   documents but *entities that publish documents* (authors, journals,
   institutions) and a reference cited by several documents of an entity
   counts several times, following
-  [`biblionetwork::entity_network()`](https://agoutsmedt.github.io/biblionetwork//reference/entity_network.html).
-  Only for `projection_method = "structured"` with `"coupling_angle"` or
-  `"coupling_strength"`.
+  [`biblionetwork::entity_network()`](https://agoutsmedt.github.io/biblionetwork/reference/entity_network.html).
+  Only for the similarity measures.
 
 - projection_on:
 
@@ -76,37 +74,41 @@ build_network(
   are cited by the same documents). With `"target"`, `nodes` is keyed by
   `target_id`.
 
-- projection_method:
+- method:
 
-  `"structured"` or `"statistical"`. Required.
+  Required, no default. How the ties between sources are built; the
+  origin of each method is given in the details. One of
 
-- cooccurrence_method:
+  - the similarity measures of
+    [biblionetwork](https://agoutsmedt.github.io/biblionetwork/)
+    (`biblionetwork::biblio_coupling(method = )`, or
+    [`biblionetwork::entity_network()`](https://agoutsmedt.github.io/biblionetwork/reference/entity_network.html)
+    with `document_id`): `"angle"`, `"strength"`, `"similarity"`,
+    `"jaccard"`, `"vladutz"`;
 
-  For `projection_method = "structured"`, `"coupling_angle"`,
-  `"coupling_strength"` or `"coupling_similarity"`.
+  - the null models of the statistical backbones of
+    [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html):
+    `"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"`, `"fixedcol"`. They
+    need `alpha`.
 
 - edges_threshold:
 
-  For `projection_method = "structured"`, the minimum number of shared
-  targets for two sources to be linked (1 by default).
-
-- model:
-
-  For `projection_method = "statistical"`, the null model of
-  [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html):
-  `"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"` or `"fixedcol"`.
+  For the similarity measures, the minimum number of shared targets for
+  two sources to be linked (1 by default). Ignored by the backbone
+  methods.
 
 - alpha:
 
-  For `projection_method = "statistical"`, the significance level of the
-  test of each tie. Lower values keep fewer edges.
+  For the backbone methods, the significance level of the test of each
+  tie (e.g. 0.05). Lower values keep fewer edges. Required for them,
+  ignored by the similarity measures.
 
 - backbone_args:
 
   Optional list of further arguments for
   [`backbone::backbone_from_projection()`](https://rdrr.io/pkg/backbone/man/backbone_from_projection.html)
-  (e.g. `mtc = "holm"` to correct for multiple tests). `alpha` or
-  `model` given here override the arguments of the function.
+  (e.g. `mtc = "holm"` to correct for multiple tests). `alpha` given
+  here overrides the argument of the function.
 
 - compute_size:
 
@@ -130,6 +132,10 @@ build_network(
   [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
   (e.g. `nb_components`).
 
+- verbose:
+
+  Logical. If `TRUE` (default), reports the steps.
+
 ## Value
 
 A `tbl_graph`, undirected, with the columns of `nodes` as node
@@ -137,7 +143,11 @@ attributes and, for the structured method, a `weight` edge column.
 
 ## Details
 
-`build_network()` runs silently (`verbose = FALSE`).
+The cases (which arguments for which kind of network), the methods and
+where they come from are described in the Details of
+[`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md).
+With `verbose = TRUE` (default), the function says which method it
+applies.
 
 ## See also
 
@@ -156,10 +166,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 2
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 2 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network
 #> # A tbl_graph: 131 nodes and 1501 edges
 #> #

@@ -1,12 +1,12 @@
 # networkflow
 
-networkflow is a research pipeline for studying networks built from
+`networkflow` is a research pipeline for studying networks built from
 tabular data. Research data rarely come as networks: they come as tables
 of links between two kinds of entities, such as articles and the
-references they cite, authors and the papers they sign, or accounts and
-what they share. networkflow turns such tables into networks, finds the
-communities they contain, follows these communities over time, and helps
-name, draw and explore them.
+references they cite, authors and the papers they sign, or even social
+media accounts and what they share. `networkflow` turns such tables into
+networks, finds the communities they contain, follows these communities
+over time, and helps name, draw and explore them.
 
 The pipeline is not specific to citations: any table of links between
 two kinds of entities can be projected onto one of them. Besides
@@ -16,28 +16,44 @@ articles, and co-authorship; the same logic applies to accounts and the
 hashtags they use, or to members and the boards they sit on.
 
 The package was written for, and used in, research on the history and
-sociology of science, where bibliographic coupling networks (articles
+sociology of sciences, where bibliographic coupling networks (articles
 linked by the references they share) map the research fronts of a
 literature ([Kessler 1963](#ref-kessler1963); [Boyack and Klavans
 2010](#ref-boyack2010)). Its central feature is the *dynamic* workflow:
 one network per time window, clusters in each window, and a rule that
-links the clusters of successive windows, so that a literature can be
-seen being born, growing, splitting and fading. Each step is a
-documented function whose choices (similarity measure, threshold, time
-window, clustering algorithm, resolution, matching rule) are explicit
-arguments that can be varied and reported. Everything returns
-`tbl_graph` objects from tidygraph, or lists of them, which can be
-manipulated with dplyr and drawn with ggraph.
+links the clusters of successive windows (building “intertemporal” or
+“dynamic” clusters), so that a literature can be seen being born,
+growing, splitting and fading. Each step is a documented function whose
+choices (similarity measure, threshold, time window, clustering
+algorithm, resolution, matching rule) are explicit arguments that can be
+varied and reported. Everything returns `tbl_graph` objects from
+[`tidygraph`](https://tidygraph.data-imaginist.com/), or lists of them,
+which can be manipulated with [`dplyr`](https://dplyr.tidyverse.org/)
+and drawn with [`ggraph`](https://ggraph.data-imaginist.com/).
 
 ## Installation
 
-You can install the development version of networkflow from GitHub:
+You can install the development version of `networkflow` from GitHub:
 
 ``` r
 
 # install.packages("remotes")
 remotes::install_github("agoutsmedt/networkflow")
 ```
+
+The package imports only what the core pipeline needs. Some steps use
+packages that are suggested, not imported, and the function that needs
+one asks to install it:
+[`ggalluvial`](https://corybrunson.github.io/ggalluvial/) for
+[`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md),
+[`tidytext`](https://juliasilge.github.io/tidytext/) for the tf-idf
+names of
+[`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
+and
+[`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md),
+[`textstem`](https://github.com/trinker/textstem) to lemmatise terms,
+[`backbone`](https://github.com/zpneal/backbone) for the statistical
+backbones (`method = "sdsm"`…).
 
 ## A first look
 
@@ -64,8 +80,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 
@@ -93,18 +108,14 @@ and
 [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
 then draw it:
 
-``` r
-
-set.seed(1)
-network <- layout_networks(network, node_id = "source_id", layout = "fr")
-network <- color_networks(network, column_to_color = "cluster_leiden")
-plot_networks(network, cluster_label_column = "cluster_label", node_size_column = NULL)
-```
-
 ![Bibliographic coupling network of the explanations of the 1970s
 stagflation, with nodes coloured by cluster and a label made of the
 three most distinctive title words of each
-cluster.](reference/figures/README-first-plot-1.png)
+cluster.](reference/figures/README-first-plot-light.png#gh-light-mode-only)![Bibliographic
+coupling network of the explanations of the 1970s stagflation, with
+nodes coloured by cluster and a label made of the three most distinctive
+title words of each
+cluster.](reference/figures/README-first-plot-dark.png#gh-dark-mode-only)
 
 The clusters already sketch the history that Goutsmedt
 ([2021](#ref-goutsmedt2021)) tells: explanations of the late 1970s
@@ -114,7 +125,7 @@ how to follow this change window by window.
 
 ## Guides
 
-Four guides, written around the same example, follow the steps of a
+Five guides, written around the same example, follow the steps of a
 study. Each explains the method behind the step, with the literature it
 comes from, before showing the code.
 
@@ -126,8 +137,13 @@ comes from, before showing the code.
 - [Finding and reading
   clusters](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.html)
   presents community detection with the Leiden algorithm, the role of
-  the resolution and of the random seed, and how to name clusters,
-  characterise the role of their members and draw the network.
+  the resolution and of the random seed, and how to name clusters and
+  characterise the role of their members.
+- [Drawing
+  networks](https://agoutsmedt.github.io/networkflow/articles/drawing-networks.html)
+  explains what a layout does and compares the force-directed layouts
+  (Fruchterman-Reingold, Kamada-Kawai, ForceAtlas2) with UMAP, then
+  shows how to colour, label and draw the clusters.
 - [Following clusters over
   time](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.html)
   links the clusters of successive windows into dynamic clusters and
@@ -147,10 +163,12 @@ and
 project a two-mode table (e.g. articles and their references) onto a
 network of the first entities, for the whole corpus or one network per
 time window (in years, months or days, sliding by any step). Ties are
-weighted with the bibliometric similarity measures of biblionetwork
+weighted with one of the five bibliometric similarity measures of
+[`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
 ([Goutsmedt, Truc, and Claveau 2023](#ref-goutsmedt2023biblionetwork)),
 or kept only when they are statistically significant under a null model,
-with the backbone package ([Neal 2022](#ref-neal2022)).
+with the [`backbone`](https://github.com/zpneal/backbone) package ([Neal
+2022](#ref-neal2022)).
 [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
 keeps the main component(s).
 
@@ -183,10 +201,7 @@ draw networks;
 [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
 and
 [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)
-draw the history of dynamic clusters;
-[`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md)
-opens an interactive Shiny application to explore clusters and their
-members.
+draw the history of dynamic clusters.
 
 The
 [reference](https://agoutsmedt.github.io/networkflow/reference/index.html)
@@ -208,7 +223,7 @@ those of the former version, except for the intended changes listed in
 
 ## Research using networkflow
 
-networkflow grew out of, and was used in, the following studies:
+`networkflow` grew out of, and was used in, the following studies:
 
 - Goutsmedt ([2021](#ref-goutsmedt2021)) on the explanations of the
   1970s US stagflation, whose data are the examples of the package;
@@ -217,30 +232,41 @@ networkflow grew out of, and was used in, the following studies:
 - Delcey, Goutsmedt, and Truc ([2026](#ref-delcey2026)) on the history
   of rationality in economic thought;
 - Duluins et al. ([2026](#ref-duluins2026)) on the scientific reception
-  of the *Livestock’s Long Shadow* report.
+  of the *Livestock’s Long Shadow* report;
+- the [Digital History of
+  Macroeconomics](https://www.digitalhistoryofscience.org/dhm/) project
+  ([Goutsmedt and Truc 2025](#ref-goutsmedt2025dhm)), which maps the
+  macroeconomics literature since the 1970s and whose deliverable is
+  archived on Zenodo;
+- Boucher and Fan ([2025](#ref-boucher2025)) on productivity and
+  citations in the field of contemporary China studies.
 
 ## Authors
 
-networkflow is developed by Aurélien Goutsmedt, Alexandre Truc and
-Thomas Delcey. Alexandre Truc initiated the alluvial method for
+`networkflow` was developed by Aurélien Goutsmedt, Thomas Delcey and
+Alexandre Truc. Alexandre Truc initiated the alluvial method for
 following clusters over time
 ([`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md),
 [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md),
 [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)).
-The package is maintained by Thomas Delcey and Aurélien Goutsmedt; on
-CRAN, Aurélien Goutsmedt is the contact maintainer.
+The package is maintained by Thomas Delcey and Aurélien Goutsmedt.
 
 ## Citation
 
-If you use networkflow in your research, please cite it:
+If you use `networkflow` in your research, please cite it:
 
 ``` R
 Goutsmedt A, Truc A, Delcey T (2026). _networkflow: A Research Pipeline
-for Projected and Dynamic Networks_. R package version 0.0.9.9000,
+for Projected and Dynamic Networks_. R package version 0.0.9.9004,
 <https://agoutsmedt.github.io/networkflow/>.
 ```
 
 ## References
+
+Boucher, Aurélien, and Xiaoguang Fan. 2025. “Scholars Like Any Other? An
+Inquiry into Productivity and Citations in the Field of Contemporary
+China Studies.” *Chinese Journal of Sociology* 11 (3): 349–73.
+<https://doi.org/10.1177/2057150X251345124>.
 
 Boyack, Kevin W., and Richard Klavans. 2010. “Co-Citation Analysis,
 Bibliographic Coupling, and Direct Citation: Which Citation Approach
@@ -266,6 +292,9 @@ Goutsmedt, Aurélien, and Alexandre Truc. 2023. “An Independent European
 Macroeconomics? A History of European Macroeconomics Through the Lens of
 the European Economic Review.” *European Economic Review* 158: 104559.
 <https://doi.org/10.1016/j.euroecorev.2023.104559>.
+
+———. 2025. “Digital History of Macroeconomics.” Zenodo.
+<https://doi.org/10.5281/zenodo.14627002>.
 
 Goutsmedt, Aurélien, Alexandre Truc, and François Claveau. 2023.
 “Biblionetwork: An R Package for Creating Different Types of

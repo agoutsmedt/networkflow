@@ -14,7 +14,14 @@
 
   What community detection does, how the Leiden algorithm and its
   resolution shape the clusters, how to check their stability, and how
-  to name, characterise and draw them.
+  to name and characterise them.
+
+- [Drawing
+  networks](https://agoutsmedt.github.io/networkflow/articles/drawing-networks.md):
+
+  How a layout turns a network into a map: force-directed layouts
+  (Fruchterman-Reingold, Kamada-Kawai, ForceAtlas2), UMAP, and how to
+  colour, label and draw the clusters.
 
 - [Following clusters over
   time](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.md):

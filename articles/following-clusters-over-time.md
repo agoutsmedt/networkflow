@@ -6,10 +6,19 @@ and [found its
 clusters](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.md).
 A single network of a long period, however, puts side by side
 literatures that never coexisted, and hides how a literature is born,
-grows, splits or fades. This guide follows the dynamic workflow that is
-the core of networkflow: one network per time window, clusters in each
-window, and a rule that links the clusters of successive windows into
-*dynamic clusters* whose history can be told and drawn.
+grows, splits or fades. It can also build the wrong communities. In
+bibliographic coupling, two documents are tied by the references they
+share, and research tends to cite recent work: documents of the same
+years share more references than documents of different periods,
+whatever their topic. Over a long period, the communities then risk
+being communities of documents of the same period, rather than the
+thematic communities that one expects on a shorter window. Co-citation,
+where works are tied by the documents that cite them together, may
+suffer from a related problem, since these citing documents also belong
+to a period. This guide follows the dynamic workflow that is the core of
+networkflow: one network per time window, clusters in each window, and a
+rule that links the clusters of successive windows into *dynamic
+clusters* whose history can be told and drawn.
 
 ## One network per window
 
@@ -33,8 +42,7 @@ networks <- build_dynamic_networks(
   time_variable = "source_year",
   time_window = 10,
   window_step = 1,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   filter_components = TRUE,
   verbose = FALSE
@@ -57,7 +65,9 @@ c(windows = length(networks), clusters = n_window_clusters)
 
 Each window has its own clusters, numbered “01”, “02”… These numbers
 mean nothing across windows: cluster “01” of 1975-1984 and cluster “01”
-of 1976-1985 may be two different literatures.
+of 1976-1985 may be two different literatures. Clusters are just ordered
+by their size in each window. Cluster “01” of 1975-1984 is the largest
+cluster of that window.
 
 ## Linking clusters across windows
 
@@ -65,28 +75,29 @@ of 1976-1985 may be two different literatures.
 
 [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
 links each cluster to a cluster of the previous window when they share
-most of their documents. Let $`V_a`$ be the documents of cluster $`a`$
-in window $`t-1`$, and $`V_b`$ those of cluster $`b`$ in window $`t`$.
-Cluster $`b`$ inherits the identifier of $`a`$ when a majority of $`a`$
-goes to $`b`$*and* a majority of $`b`$ comes from $`a`$:
+enough of their documents, and gives them a common identifier. Two rules
+are available, chosen with `method`, and the threshold and the type of
+similarity must be given explicitly. Let V_a be the documents of cluster
+a in window t-1, and V_b those of cluster b in window t.
 
-``` math
-\frac{|V_a \cap V_b|}{D_a} > \tau
-\quad \text{and} \quad
-\frac{|V_a \cap V_b|}{D_b} > \tau,
-```
+**The double majority** (`method = "majority"`). Cluster b inherits the
+identifier of a when a majority of a goes to b *and* a majority of b
+comes from a:
 
-with $`\tau`$ the `threshold_similarity`, strictly above 0.5 so that
-each cluster inherits at most one identifier and passes it to at most
-one cluster. The denominators depend on `similarity_type`:
+\frac{\|V_a \cap V_b\|}{D_a} \> \tau \quad \text{and} \quad \frac{\|V_a
+\cap V_b\|}{D_b} \> \tau,
 
-- `"complete"`: $`D_a = |V_a|`$ and $`D_b = |V_b|`$, all the documents
-  of both clusters;
-- `"partial"`: only the documents present in both windows count,
-  $`D_a = |V_a \cap V_t|`$ and $`D_b = |V_b \cap V_{t-1}|`$.
+with \tau the `threshold_similarity`, strictly above 0.5 so that each
+cluster inherits at most one identifier and passes it to at most one
+cluster. The denominators depend on `similarity_type`:
 
-With sliding windows, window $`t`$ loses the documents of the first year
-of window $`t-1`$ and gains those of a new year. With `"complete"`, a
+- `"complete"`: D_a = \|V_a\| and D_b = \|V_b\|, all the documents of
+  both clusters;
+- `"partial"`: only the documents present in both windows count, D_a =
+  \|V_a \cap V_t\| and D_b = \|V_b \cap V\_{t-1}\|.
+
+With overlapping windows, window t loses the documents of the first year
+of window t-1 and gains those of a new year. With `"complete"`, a
 cluster that recruits many new documents, or loses many old ones, may
 lose its identifier because its composition changed. With `"partial"`,
 only the documents present in both windows are compared, and a cluster
@@ -95,12 +106,29 @@ documents join it. The first view treats a cluster as a group of
 documents, the second as a structure that recruits documents: which one
 fits depends on the question.
 
-The rule needs documents present in successive windows. With successive
-windows (the default of
+**The Jaccard matching** (`method = "jaccard"`), an overlap matching
+with a Jaccard threshold, as in the tracking of dynamic communities of
+Greene et al. ([2010](#ref-greene2010)). The Jaccard index of two
+clusters is the share of their union that they have in common,
+
+J(a, b) = \frac{\|V_a \cap V_b\|}{\|V_a \cup V_b\|},
+
+and the pairs with J(a, b) \geq \theta are candidate matches. They are
+taken by decreasing J, skipping the pairs where a or b has already been
+matched, so that each past identifier goes to the present cluster that
+resembles it most and each cluster inherits at most one identifier.
+\theta can be well below 0.5: a cluster that loses a large part of its
+members to another cluster keeps its identity if it remains the best
+match of its predecessor. `similarity_type = "partial"` restricts the
+union to the documents present in both windows, as above.
+
+The rules need documents present in successive windows. If windows
+follow each other without overlap (the default of
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)),
 a network of documents shares no document from one window to the next
-(each document has a single year), and no cluster can be matched:
-sliding windows (`window_step = 1`) are necessary here.
+(each document has a single year), and no cluster can be matched: the
+windows must overlap, that is `window_step` must be smaller than
+`time_window` (here `window_step = 1`).
 
 ``` r
 
@@ -109,7 +137,7 @@ networks <- merge_dynamic_clusters(
   window_networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
-  threshold_similarity = 0.51,
+  method = "majority", threshold_similarity = 0.51,
   similarity_type = "partial"
 )
 ```
@@ -131,6 +159,7 @@ diagnostics <- merge_diagnostics(
   window_networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
+  method = "majority",
   thresholds = c(0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9),
   min_length = 3,
   verbose = FALSE
@@ -213,22 +242,129 @@ the nodes at 0.9. The sensitivity of a continuity that matters for the
 story, here between 0.55 and 0.6, is exactly what the diagnostics are
 meant to reveal before it is hidden in a figure.
 
+### Comparing with the Jaccard matching
+
+The same diagnostics exist for the Jaccard matching. Its threshold has a
+different meaning, so the grid is different (0.1 to 0.6): a Jaccard
+index of 0.3 means that clusters share 30% of their union, which is far
+below a majority.
+
+``` r
+
+jaccard_diagnostics <- merge_diagnostics(
+  window_networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  method = "jaccard",
+  thresholds = c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
+  similarity_types = "partial",
+  min_length = 3,
+  verbose = FALSE
+)
+jaccard_diagnostics[, c("threshold", "n_dynamic_clusters", "share_continued", "median_lifespan",
+                        "n_persistent", "share_nodes_persistent")]
+```
+
+      threshold n_dynamic_clusters share_continued median_lifespan n_persistent
+    1       0.1                 13       0.9326923             9.0           11
+    2       0.2                 13       0.9326923             9.0           11
+    3       0.3                 13       0.9326923             9.0           11
+    4       0.4                 16       0.9038462             5.5           10
+    5       0.5                 18       0.8846154             4.0           11
+    6       0.6                 23       0.8365385             2.0           10
+      share_nodes_persistent
+    1              0.9737639
+    2              0.9737639
+    3              0.9737639
+    4              0.9101917
+    5              0.9101917
+    6              0.8213925
+
+``` r
+
+plot_merge_diagnostics(jaccard_diagnostics)
+```
+
+[![Four panels against the Jaccard threshold, from 0.1 to 0.6, for the
+partial similarity: the number of dynamic clusters, the share of window
+clusters with a predecessor, the median lifespan and the share of nodes
+in clusters of three windows or
+more.](following-clusters-over-time_files/figure-html/fig-jaccard-diagnostics-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-jaccard-diagnostics-1.png "Figure 3: ")
+
+Figure 3
+
+To compare the two rules directly, we take the double majority at 0.51
+and the Jaccard matching at a few thresholds, all with the partial
+similarity, and measure how much their dynamic clusters agree. The
+adjusted Rand index compares the dynamic cluster of each document in
+each window under two settings (1 for identical partitions, about 0 for
+no more agreement than chance).
+
+``` r
+
+dynamic_labels <- function(graphs) {
+  unlist(lapply(graphs, function(graph) as_tibble(graph, active = "nodes")$dynamic_cluster_leiden))
+}
+majority <- dynamic_labels(networks)
+comparison <- do.call(rbind, lapply(c(0.2, 0.3, 0.4, 0.5), function(threshold) {
+  jaccard <- merge_dynamic_clusters(
+    window_networks,
+    cluster_id = "cluster_leiden",
+    node_id = "source_id",
+    method = "jaccard",
+    threshold_similarity = threshold,
+    similarity_type = "partial",
+    verbose = FALSE
+  )
+  data.frame(
+    threshold = threshold,
+    dynamic_clusters = length(unique(dynamic_labels(jaccard))),
+    agreement_with_majority = igraph::compare(
+      as.integer(factor(majority)), as.integer(factor(dynamic_labels(jaccard))), method = "adjusted.rand"
+    )
+  )
+}))
+rbind(
+  data.frame(threshold = "majority 0.51", dynamic_clusters = length(unique(majority)), agreement_with_majority = 1),
+  transform(comparison, threshold = paste("Jaccard", threshold))
+)
+```
+
+          threshold dynamic_clusters agreement_with_majority
+    1 majority 0.51               19               1.0000000
+    2   Jaccard 0.2               13               0.9506719
+    3   Jaccard 0.3               13               0.9506719
+    4   Jaccard 0.4               16               0.9659037
+    5   Jaccard 0.5               18               0.9996588
+
+The two rules largely agree on this corpus. The Jaccard matching is on a
+plateau from 0.1 to 0.3, where it finds 13 dynamic clusters, and breaks
+continuities beyond: 23 dynamic clusters at 0.6. At 0.5, it gives almost
+exactly the dynamic clusters of the double majority at 0.51 (an
+agreement of 1.00): a cluster that shares more than half of its union
+with its predecessor also shares a majority with it. The difference lies
+in the low thresholds. At 0.3, the Jaccard matching links clusters that
+the double majority leaves apart (13 dynamic clusters instead of 19, an
+agreement of 0.95), because a cluster whose members partly go elsewhere
+keeps its identity as long as it is the best match of its predecessor.
+Whether this is desirable depends on what a continuity is taken to be: a
+literature that loses part of its documents to another one, or two
+different literatures. Reading the documents of the clusters that only
+one rule links, rather than the indicators, is the way to decide.
+
 ### Other ways to follow clusters
 
-The rule of
-[`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
-is simple and transparent, with limits worth knowing. It compares a
-cluster only with the previous window, so a cluster that vanishes for
-one window and comes back gets a new identifier. Splits and merges are
-not recorded as such: the part that meets the double majority keeps the
-identifier, the others are new clusters. And the clusters of each window
-are detected independently, which adds instability between windows.
-Other approaches exist, and some could be tested on the same data:
+Both rules compare a cluster only with the previous window, so a cluster
+that vanishes for one window and comes back gets a new identifier.
+Splits and merges are not recorded as such: the part that meets the rule
+keeps the identifier, the others are new clusters. And the clusters of
+each window are detected independently, which adds instability between
+windows. Other approaches exist, which are not implemented in the
+package for now, but could be added and compared on the same data:
 
-| Approach | Idea | Compared with the double majority |
+| Approach | Idea | Compared with the two rules |
 |----|----|----|
-| Overlap matching with a Jaccard threshold ([Greene et al. 2010](#ref-greene2010)) | Match the clusters of successive windows whose Jaccard similarity $`\lvert V_a \cap V_b \rvert / \lvert V_a \cup V_b \rvert`$ exceeds a threshold, and chain the matches into *dynamic communities*; splits and merges show up as one cluster matched to several. | Symmetric by construction, and gives a name to events; a one-to-one assignment (best match first) could replace the majority rule. |
-| Multislice community detection ([Mucha et al. 2010](#ref-mucha2010)) | Detect communities in all windows at once, in a network where each node is tied to itself in adjacent windows with a coupling weight $`\omega`$. Identifiers are shared by construction. | The coupling $`\omega`$ plays the role of the threshold, but clusters of one window are influenced by the neighbouring windows: more stable, less independent. It needs nodes present in several windows (co-citation, authors, journals rather than documents). |
+| Multislice community detection ([Mucha et al. 2010](#ref-mucha2010)) | Detect communities in all windows at once, in a network where each node is tied to itself in adjacent windows with a coupling weight \omega. Identifiers are shared by construction. | The coupling \omega plays the role of the threshold, but clusters of one window are influenced by the neighbouring windows: more stable, less independent. It needs nodes present in several windows (co-citation, authors, journals rather than documents). |
 | Significance-clustered alluvial maps ([Rosvall and Bergstrom 2010](#ref-rosvall2010)) | Bootstrap the network to find which clusters are robust, then draw the flows between robust clusters. | Addresses the instability of each partition rather than the matching rule; heavier. |
 
 Two simpler checks are available with the tools of the package: running
@@ -238,22 +374,20 @@ the dynamic clusters with
 and varying the window and its step (see the [first
 guide](https://agoutsmedt.github.io/networkflow/articles/from-references-to-networks.md)),
 since instability often comes from windows that are too short to contain
-a stable structure. Implementing the first two approaches in the
-package, as alternatives to the double majority with the same output
-columns, would allow comparing them on real corpora.
+a stable structure.
 
 ## Naming dynamic clusters
 
 Once clusters are linked, each dynamic cluster can be named on all its
-documents across windows (`name_merged_clusters = TRUE`), with the words
-of the titles that distinguish it from the other dynamic clusters.
+documents across windows (`name_dynamic_clusters = TRUE`), with the
+words of the titles that distinguish it from the other dynamic clusters.
 
 ``` r
 
 networks <- name_clusters(
   networks,
   method = "tf-idf",
-  name_merged_clusters = TRUE,
+  name_dynamic_clusters = TRUE,
   cluster_id = "dynamic_cluster_leiden",
   text_columns = "source_title",
   nb_terms_label = 3,
@@ -379,9 +513,9 @@ plot_alluvial(
 stagflation, from the 1975-1984 window to the 2004-2013 window. Several
 clusters dominate the first windows and disappear in the late 1980s;
 three clusters appear in the 1990s and last until the
-end.](following-clusters-over-time_files/figure-html/fig-alluvial-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-alluvial-1.png "Figure 3: ")
+end.](following-clusters-over-time_files/figure-html/fig-alluvial-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-alluvial-1.png "Figure 4: ")
 
-Figure 3
+Figure 4
 
 The plot draws the history that Goutsmedt ([2021](#ref-goutsmedt2021))
 tells with qualitative and quantitative methods. The early windows are

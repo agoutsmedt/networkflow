@@ -35,15 +35,15 @@ cited$label <- paste0(cited$target_author, " (", cited$target_year, ")")
 
 ## Two sides of one table
 
-A citation table links citing documents $`i`$ to cited works $`j`$
-($`a_{ij} = 1`$ when $`i`$ cites $`j`$). Two projections are possible:
+A citation table links citing documents i to cited works j (a\_{ij} = 1
+when i cites j). Two projections are possible:
 
-- on the citing documents, $`A A^\top`$: two documents are linked by the
-  number of works they cite in common, $`|R_i \cap R_k|`$. This is
+- on the citing documents, A A^\top: two documents are linked by the
+  number of works they cite in common, \|R_i \cap R_k\|. This is
   **bibliographic coupling** ([Kessler 1963](#ref-kessler1963));
-- on the cited works, $`A^\top A`$: two works are linked by the number
-  of documents that cite both, $`|C_j \cap C_l|`$, with $`C_j`$ the set
-  of documents citing $`j`$. This is **co-citation** ([Small
+- on the cited works, A^\top A: two works are linked by the number of
+  documents that cite both, \|C_j \cap C_l\|, with C_j the set of
+  documents citing j. This is **co-citation** ([Small
   1973](#ref-small1973)).
 
 Coupling is fixed when a document is published; co-citation changes as
@@ -72,8 +72,7 @@ cocitation <- build_network(
   source_id = "source_id",
   target_id = "target_id",
   projection_on = "target",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 4,
   compute_size = TRUE
 )
@@ -297,8 +296,7 @@ windows <- build_dynamic_networks(
   time_in = "edges",
   time_variable = "source_year",
   time_window = 13,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 3,
   compute_size = TRUE,
   filter_components = TRUE,
@@ -334,13 +332,13 @@ windows <- suppressWarnings(merge_dynamic_clusters(
   windows,
   cluster_id = "cluster_leiden",
   node_id = "target_id",
-  threshold_similarity = 0.51,
+  method = "majority", threshold_similarity = 0.51,
   similarity_type = "partial"
 ))
 windows <- name_clusters(
   windows,
   method = "given_column",
-  name_merged_clusters = TRUE,
+  name_dynamic_clusters = TRUE,
   cluster_id = "dynamic_cluster_leiden",
   label_columns = "label",
   order_by = "node_size"
@@ -399,16 +397,15 @@ author), the reference (`target_id`) and the document through which the
 author cites it (`document_id`). The last one matters because an author
 may cite a reference in several documents, and this counts more than one
 citation. Following Zhao and Strotmann ([2008](#ref-zhao2008)),
-`entity_network()` of biblionetwork ([Goutsmedt et al.
-2023](#ref-goutsmedt2023biblionetwork)) weights the tie between authors
-$`A`$ and $`B`$ by the number of times they cite the same references
-“together”. With $`C_{Aj}`$ the number of documents of $`A`$ citing
-reference $`j`$ and $`L(A) = \sum_j C_{Aj}`$ the total number of
-citations of $`A`$, the coupling angle is
+`entity_network()` of
+[`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
+([Goutsmedt et al. 2023](#ref-goutsmedt2023biblionetwork)) weights the
+tie between authors A and B by the number of times they cite the same
+references “together”. With C\_{Aj} the number of documents of A citing
+reference j and L(A) = \sum_j C\_{Aj} the total number of citations of
+A, the coupling angle is
 
-``` math
-w_{AB} = \frac{\sum_{j} \min(C_{Aj}, C_{Bj})}{\sqrt{L(A)\, L(B)}}.
-```
+w\_{AB} = \frac{\sum\_{j} \min(C\_{Aj}, C\_{Bj})}{\sqrt{L(A)\\ L(B)}}.
 
 ``` r
 
@@ -426,8 +423,7 @@ author_network <- build_network(
   source_id = "author_name",
   target_id = "target_id",
   document_id = "source_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_strength",
+  method = "strength",
   edges_threshold = 3
 )
 author_network <- filter_components(author_network) |>
@@ -480,7 +476,7 @@ links, as for co-citation.
 
 The same function links entities by *any* two-mode relation. Authors
 linked by the documents they sign form a co-authorship network: the
-links are `authors` $`\to`$ documents, and the shared “targets” are
+links are `authors` \to documents, and the shared “targets” are
 documents.
 
 ``` r
@@ -490,8 +486,7 @@ coauthorship <- build_network(
   directed_edges = authors,
   source_id = "author_name",
   target_id = "source_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle"
+  method = "angle"
 )
 c(authors = igraph::vcount(coauthorship), ties = igraph::ecount(coauthorship),
   components = igraph::components(coauthorship)$no)
@@ -526,11 +521,11 @@ and where time lies, in the nodes or in the links (`time_in`).
 
 | You want to link… | Table of links | Main arguments |
 |----|----|----|
-| documents sharing references (coupling) | document $`\to`$ reference | defaults |
-| works cited together (co-citation) | document $`\to`$ reference | `projection_on = "target"` |
+| documents sharing references (coupling) | document \to reference | defaults |
+| works cited together (co-citation) | document \to reference | `projection_on = "target"` |
 | co-citation over the citing period | \+ year of the citing document | `time_in = "edges"` |
 | authors sharing references | author, document, reference | `document_id` |
-| authors signing the same documents | author $`\to`$ document | defaults |
+| authors signing the same documents | author \to document | defaults |
 
 ## References
 

@@ -77,12 +77,14 @@ Giving the same colour to a cluster in every figure (network plots,
 alluvial, tables) is what lets a reader follow it. Pass the same data
 frame of colours to `color_networks()` and `color_alluvial()` for this.
 
-Without `color`, the function uses the ggplot2 palette (without black)
-for up to 7 categories, completed by the Okabe-Ito palette (without
-black and grey) for up to 14; beyond 14 categories, the colours are
-recycled and several clusters share a colour. For many clusters, give a
-palette explicitly (e.g. from the scico or paletteer packages), or
-colour only the largest clusters and give the others a neutral grey.
+Without `color`, the function uses the
+[`ggplot2`](https://ggplot2.tidyverse.org/) palette (without black) for
+up to 7 categories, completed by the Okabe-Ito palette (without black
+and grey) for up to 14; beyond 14 categories, the colours are recycled
+and several clusters share a colour. For many clusters, give a palette
+explicitly (e.g. from the [`scico`](https://github.com/thomasp85/scico)
+or [`paletteer`](https://emilhvitfeldt.github.io/paletteer/) packages),
+or colour only the largest clusters and give the others a neutral grey.
 
 A vector with fewer colours than categories is recycled, a longer one is
 truncated. A data frame of colours that misses some categories leaves
@@ -96,10 +98,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,
   clustering_method = "leiden",

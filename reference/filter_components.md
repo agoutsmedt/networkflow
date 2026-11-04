@@ -74,10 +74,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 2
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 2 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 main_component <- filter_components(network, nb_components = 1)
 c(before = igraph::vcount(network), after = igraph::vcount(main_component))
 #> before  after 

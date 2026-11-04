@@ -28,7 +28,7 @@ A data frame with 2,593 rows and 5 variables:
 - weight:
 
   Coupling angle between the two documents (see
-  [`biblionetwork::coupling_angle()`](https://agoutsmedt.github.io/biblionetwork//reference/coupling_angle.html)).
+  [`biblionetwork::coupling_angle()`](https://agoutsmedt.github.io/biblionetwork/reference/coupling_angle.html)).
 
 - Source:
 

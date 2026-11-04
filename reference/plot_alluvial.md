@@ -1,5 +1,7 @@
 # Plot the evolution of dynamic clusters as an alluvial
 
+**\[experimental\]**
+
 `plot_alluvial()` draws the table created by
 [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
 with ggalluvial: one column per time window, one block per dynamic
@@ -27,6 +29,8 @@ plot_alluvial(
   minimize_crossing = FALSE,
   prepare_label = FALSE,
   cluster_label_column = "cluster_label",
+  min_share_cluster = NULL,
+  min_windows_cluster = NULL,
   print_plot_code = FALSE
 )
 ```
@@ -36,7 +40,12 @@ plot_alluvial(
 - alluv_dt:
 
   A data frame created with
-  [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md).
+  [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md),
+  or directly the list of `tbl_graph`s with dynamic clusters (see
+  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)),
+  which is then converted with
+  [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
+  (`color_column` and `cluster_label_column` are the columns kept).
 
 - intertemporal_cluster_column:
 
@@ -55,8 +64,8 @@ plot_alluvial(
 - color_column:
 
   Character scalar, the column with the colours of the clusters
-  (`"color"` by default). If absent or `NULL`, ggplot2 chooses the
-  colours.
+  (`"color"` by default). If absent or `NULL`,
+  [`ggplot2`](https://ggplot2.tidyverse.org/) chooses the colours.
 
 - color_alluvial:
 
@@ -88,9 +97,17 @@ plot_alluvial(
   [`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
   (`"cluster_label"` by default).
 
+- min_share_cluster, min_windows_cluster:
+
+  Optional numbers to keep the main clusters only: the clusters whose
+  largest share of a window (`share_cluster_max`, in per cent) is at
+  least `min_share_cluster`, and which exist in at least
+  `min_windows_cluster` windows (`length_cluster`). `NULL` (default)
+  keeps all the clusters.
+
 - print_plot_code:
 
-  Logical. If `TRUE`, prints the ggplot2 code of the plot.
+  Logical. If `TRUE`, prints the `ggplot2` code of the plot.
 
 ## Value
 
@@ -98,9 +115,10 @@ A ggplot object.
 
 ## Details
 
-Labels are drawn with ggrepel, which must be installed, when `alluv_dt`
-has a `label_x` column. Small clusters clutter alluvials: filtering the
-table on `share_cluster_max` or `length_cluster` (see
+Labels are drawn with [`ggrepel`](https://ggrepel.slowkow.com/), which
+must be installed, when `alluv_dt` has a `label_x` column. Small
+clusters clutter alluvials: filtering the table on `share_cluster_max`
+or `length_cluster` (see
 [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md))
 before plotting keeps the main ones.
 
@@ -117,7 +135,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   verbose = FALSE
 )
@@ -134,14 +152,19 @@ networks <- merge_dynamic_clusters(
   networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
-  threshold_similarity = 0.51,
+  method = "majority", threshold_similarity = 0.51,
   similarity_type = "partial"
 )
+#> ℹ Linking clusters across windows with the "majority" rule: a cluster inherits
+#>   the identifier of a past cluster when more than 0.51 of the nodes of each go
+#>   to / come from the other (double majority). The comparison counts the nodes
+#>   present in both windows only (`similarity_type` = "partial").
 #> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
 #> ℹ Clusters are matched through the nodes they share. In a network of documents
-#>   (coupling), each node has one date: use sliding windows (`window_step = 1` in
-#>   `build_dynamic_networks()`). If windows already slide, the nodes may have
-#>   changed completely, or the threshold may leave a window without edges.
+#>   (coupling), each node has one date: the windows must overlap (`window_step`
+#>   smaller than `time_window` in `build_dynamic_networks()`). If windows already
+#>   overlap, the nodes may have changed completely, or the threshold may leave a
+#>   window without edges.
 alluv_dt <- networks_to_alluv(
   networks,
   intertemporal_cluster_column = "dynamic_cluster_leiden",

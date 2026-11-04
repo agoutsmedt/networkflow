@@ -19,8 +19,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 ```
@@ -38,27 +37,25 @@ algorithms differ, but most formalise “more ties inside than outside”
 with the **modularity** of a partition ([Newman and Girvan
 2004](#ref-newman2004)):
 
-``` math
-Q = \frac{1}{2m} \sum_{i,j} \left( A_{ij} - \gamma \frac{k_i k_j}{2m} \right) \delta(c_i, c_j),
-```
+Q = \frac{1}{2m} \sum\_{i,j} \left( A\_{ij} - \gamma \frac{k_i k_j}{2m}
+\right) \delta(c_i, c_j),
 
-with $`A_{ij}`$ the weight of the edge between documents $`i`$ and
-$`j`$, $`k_i`$ the total weight of the edges of $`i`$, $`m`$ the total
-weight of the network, $`\delta(c_i, c_j) = 1`$ when $`i`$ and $`j`$ are
-in the same cluster, and $`\gamma`$ the *resolution*. The term
-$`k_i k_j / 2m`$ is the weight expected between $`i`$ and $`j`$ if edges
-were placed at random given each node’s weight: a partition has a high
-modularity when clusters gather much more weight than expected by
-chance.
+with A\_{ij} the weight of the edge between documents i and j, k_i the
+total weight of the edges of i, m the total weight of the network,
+\delta(c_i, c_j) = 1 when i and j are in the same cluster, and \gamma
+the *resolution*. The term k_i k_j / 2m is the weight expected between i
+and j if edges were placed at random given each node’s weight: a
+partition has a high modularity when clusters gather much more weight
+than expected by chance.
 
 ## Detecting clusters with Leiden
 
 [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)
-gives access to five algorithms of igraph. The Leiden algorithm ([Traag
-et al. 2019](#ref-traag2019)) is the default choice of recent
-bibliometric work. It improves on Louvain ([Blondel et al.
-2008](#ref-blondel2008)) by guaranteeing that clusters are connected,
-and iterating it keeps refining the partition.
+gives access to five algorithms of [`igraph`](https://r.igraph.org/).
+The Leiden algorithm ([Traag et al. 2019](#ref-traag2019)) is the
+default choice of recent bibliometric work. It improves on Louvain
+([Blondel et al. 2008](#ref-blondel2008)) by guaranteeing that clusters
+are connected, and iterating it keeps refining the partition.
 
 ``` r
 
@@ -78,24 +75,32 @@ the cluster of their two ends, or “00” when they connect two clusters.
 ``` r
 
 node_table <- as_tibble(network, active = "nodes")
-sort(table(node_table$cluster_leiden), decreasing = TRUE)
+node_table |>
+  count(cluster_leiden, name = "number_of_nodes", sort = TRUE) |>
+  rename(community = cluster_leiden)
 ```
 
+    # A tibble: 4 × 2
+      community number_of_nodes
+      <chr>               <int>
+    1 01                     69
+    2 02                     51
+    3 03                     18
+    4 04                      9
 
-    01 02 03 04
-    69 51 18  9 
+The table gives, for each community (the cluster number, “01” being the
+largest), its number of nodes, that is of documents.
 
 ### Resolution and the number of clusters
 
-The partition depends on $`\gamma`$: a higher resolution makes the
-expected weight larger and favours more, smaller clusters. Modularity
-also has a *resolution limit*: in large networks, it can merge small
-communities that are clearly separated ([Fortunato
-2010](#ref-fortunato2010)). A network can legitimately be described at
-several levels of detail, from fields to specialties ([Sjögårde and
-Ahlgren 2020](#ref-sjogarde2020)), and choosing the resolution is
-choosing the level of the study. A scan of resolutions shows how the
-number of clusters reacts.
+The partition depends on \gamma: a higher resolution makes the expected
+weight larger and favours more, smaller clusters. Modularity also has a
+*resolution limit*: in large networks, it can merge small communities
+that are clearly separated ([Fortunato 2010](#ref-fortunato2010)). A
+network can legitimately be described at several levels of detail, from
+fields to specialties ([Sjögårde and Ahlgren 2020](#ref-sjogarde2020)),
+and choosing the resolution is choosing the level of the study. A scan
+of resolutions shows how the number of clusters reacts.
 
 Leiden is also stochastic: two runs with different seeds can give
 different partitions. A partition we can trust should come back from one
@@ -160,35 +165,74 @@ to check that the clusters a narrative relies on survive at close values
 ### Modularity or CPM?
 
 Leiden can also maximise the **constant Potts model** ([Traag et al.
-2011](#ref-traag2011)), which compares the internal weight $`e_c`$ of
-each cluster with $`\gamma`$ times its number of pairs:
-$`H = \sum_c [e_c - \gamma \binom{n_c}{2}]`$. A cluster is worth
-creating when its density exceeds $`\gamma`$. Unlike modularity, CPM
-does not depend on the size of the network, which helps when comparing
-clusters across networks of very different sizes, as time windows often
-are. But $`\gamma`$ then lives on the scale of the edge weights:
+2011](#ref-traag2011)), which compares the internal weight e_c of each
+cluster with \gamma times its number of pairs: H = \sum_c \[e_c - \gamma
+\binom{n_c}{2}\]. A cluster is worth creating when its density exceeds
+\gamma. Unlike modularity, CPM does not depend on the size of the
+network, which helps when comparing clusters across networks of very
+different sizes, as time windows often are. But \gamma then lives on the
+scale of the edge weights:
 
 ``` r
 
-summary(igraph::E(network)$weight)
+edge_weights <- as_tibble(network, active = "edges")$weight
+n_documents <- igraph::vcount(network)
+density <- sum(edge_weights) / choose(n_documents, 2)
+c(smallest = min(edge_weights), median = median(edge_weights), largest = max(edge_weights), density = density)
 ```
 
-        Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
-    0.005403 0.023470 0.038993 0.052589 0.066302 0.399613 
+       smallest      median     largest     density
+    0.005403465 0.038992699 0.399613285 0.013310240 
+
+The weights of this network lie between 0.0054 and 0.4, so that a
+resolution of 1 asks clusters to be denser than any pair of documents
+can be: every document would be its own cluster. A natural scale for
+\gamma is the **density** of the network, here the mean weight over all
+the pairs of documents, \bar{w} = \sum\_{ik} w\_{ik} / \binom{n}{2} =
+0.013. A cluster created with \gamma = \bar{w} is, on average, as dense
+as the whole network; with \gamma = 2\bar{w} or 3\bar{w}, it must be two
+or three times denser. The higher the multiple, the more the clusters
+split into small, very cohesive groups:
 
 ``` r
 
-cpm <- add_clusters(network, clustering_method = "leiden", objective_function = "CPM",
-                    resolution = 1, seed = 123, verbose = FALSE)
-length(unique(as_tibble(cpm, active = "nodes")$cluster_leiden))
+cpm_scan <- lapply(c(1, 2, 3), function(multiple) {
+  clustered <- add_clusters(
+    network,
+    clustering_method = "leiden",
+    objective_function = "CPM",
+    resolution = multiple * density,
+    seed = 123,
+    verbose = FALSE
+  )
+  sizes <- as_tibble(clustered, active = "nodes") |>
+    count(cluster_leiden, name = "number_of_nodes")
+  tibble(
+    resolution = multiple * density,
+    multiple_of_density = multiple,
+    clusters = nrow(sizes),
+    largest_cluster = max(sizes$number_of_nodes),
+    clusters_of_5_nodes_or_more = sum(sizes$number_of_nodes >= 5)
+  )
+})
+bind_rows(cpm_scan)
 ```
 
-    [1] 147
+    # A tibble: 3 × 5
+      resolution multiple_of_density clusters largest_cluster clusters_of_5_nodes_…¹
+           <dbl>               <dbl>    <int>           <int>                  <int>
+    1     0.0133                   1       21              65                      5
+    2     0.0266                   2       28              50                      9
+    3     0.0399                   3       37              45                      8
+    # ℹ abbreviated name: ¹​clusters_of_5_nodes_or_more
 
-With weights around $`10^{-4}`$, no group of documents is dense enough
-for $`\gamma = 1`$, and every document is its own cluster. With CPM, the
-resolution must be chosen from the distribution of the weights, for
-instance close to the density of the network for an unweighted graph.
+At the density of the network, CPM finds a few sizeable clusters, close
+to the readings of modularity, and a tail of small groups; at three
+times the density, the largest cluster is much smaller and most
+documents are in clusters that are too small to be read. The density
+gives a starting point, not a rule: as for modularity, the resolution
+has to be explored, and the clusters that a narrative relies on checked
+at neighbouring values.
 
 ## Reading clusters
 
@@ -208,13 +252,11 @@ and its label gathers the terms with the highest tf-idf ([Spärck Jones
 1988](#ref-salton1988)): terms frequent in the cluster and rare in the
 others,
 
-``` math
-\text{tf-idf}_{tc} = \frac{n_{tc}}{\sum_u n_{uc}} \times \log\frac{C}{\mathrm{df}_t},
-```
+\text{tf-idf}\_{tc} = \frac{n\_{tc}}{\sum_u n\_{uc}} \times
+\log\frac{C}{\mathrm{df}\_t},
 
-with $`n_{tc}`$ the count of term $`t`$ in cluster $`c`$, $`C`$ the
-number of clusters and $`\mathrm{df}_t`$ the number of clusters where
-$`t`$ appears.
+with n\_{tc} the count of term t in cluster c, C the number of clusters
+and \mathrm{df}\_t the number of clusters where t appears.
 
 ``` r
 
@@ -261,23 +303,53 @@ only a first guess.
 shows more terms per cluster, and abstracts, when available, give better
 labels than titles.
 
-Other methods name a cluster after one of its documents:
-`method = "tidygraph_functions"` uses the most central document, for
-instance by PageRank, and `method = "given_column"` the document with
-the highest value of a column, such as the number of citations received.
+Other methods name a cluster after one of its documents.
+`method = "tidygraph_functions"` uses the most central document: the
+centrality is any function of
+[`tidygraph`](https://tidygraph.data-imaginist.com/) that computes a
+node measure, given as a call in `tidygraph_function`, and
+`label_columns` says which column of the node table makes the label.
+Here, each cluster is named after its document with the highest
+PageRank:
+
+``` r
+
+central <- name_clusters(
+  network,
+  method = "tidygraph_functions",
+  tidygraph_function = tidygraph::centrality_pagerank(),
+  cluster_id = "cluster_leiden",
+  label_columns = c("source_author", "source_year")
+)
+as_tibble(central, active = "nodes") |>
+  distinct(cluster_leiden, cluster_label) |>
+  arrange(cluster_leiden)
+```
+
+    # A tibble: 4 × 2
+      cluster_leiden cluster_label
+      <chr>          <chr>
+    1 01             WACHTER-M_1978
+    2 02             VELDE-F_2004
+    3 03             BARSKY-R_2002
+    4 04             DELONG-B_1997 
+
+`method = "given_column"` does the same with the highest value of a
+column that you provide, such as the number of citations received within
+the corpus (`order_by = "node_size"`, with `compute_size = TRUE` in
+[`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)).
 
 ### The role of documents: hubs and bridges
 
 Within a cluster, documents do not play the same role. Guimerà and Nunes
 Amaral ([2005](#ref-guimera2005)) propose to place each node with two
-measures. The **within-module degree** compares the weight $`\kappa_i`$
-of the ties of $`i`$ with its own cluster $`s_i`$ with that of the other
-members,
-$`z_i = (\kappa_i - \bar{\kappa}_{s_i}) / \sigma_{\kappa_{s_i}}`$. The
-**participation coefficient** $`P_i = 1 - \sum_s (k_{is} / k_i)^2`$,
-with $`k_{is}`$ the weight of the ties of $`i`$ with cluster $`s`$, is 0
-when all ties stay in one cluster and approaches 1 when they spread
-evenly across clusters.
+measures. The **within-module degree** compares the weight \kappa_i of
+the ties of i with its own cluster s_i with that of the other members,
+z_i = (\kappa_i - \bar{\kappa}\_{s_i}) / \sigma\_{\kappa\_{s_i}}. The
+**participation coefficient** P_i = 1 - \sum_s (k\_{is} / k_i)^2, with
+k\_{is} the weight of the ties of i with cluster s, is 0 when all ties
+stay in one cluster and approaches 1 when they spread evenly across
+clusters.
 
 ``` r
 
@@ -313,7 +385,7 @@ cluster.](finding-and-reading-clusters_files/figure-html/fig-roles-1.png)](https
 
 Figure 2
 
-The shaded area holds the hubs of their cluster ($`z \geq 2.5`$, the
+The shaded area holds the hubs of their cluster (z \geq 2.5, the
 threshold of Guimerà and Amaral). Documents on the right have ties
 spread over several clusters. The two measures combine into seven roles,
 which are easier to understand with documents in hand. Here are the
@@ -451,77 +523,13 @@ authors coupled through their references (see [beyond bibliographic
 coupling](https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.md)),
 a connector is an author who cites several literatures.
 
-## Drawing the network
-
-Plotting needs coordinates, colours and label positions.
-[`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)
-computes coordinates with a force-directed layout: here
-Fruchterman-Reingold ([Fruchterman and Reingold
-1991](#ref-fruchterman1991)), which balances an attraction along edges,
-stronger for heavier edges, with a repulsion between all nodes.
-Kamada-Kawai (`"kk"`, Kamada and Kawai ([1989](#ref-kamada1989))), which
-draws graph distances as geometric distances, is another common choice,
-with a trap: igraph reads the `weight` column as a *distance* for this
-layout, so that similarity weights pull weakly tied documents to the
-margins. With similarity weights, either use `"fr"` or ignore the
-weights (`weights = NA`).
-[`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
-gives each cluster a colour, and edges a mix of the colours of their
-ends.
-[`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
-assembles the figure.
-
-``` r
-
-set.seed(1)
-network <- layout_networks(network, node_id = "source_id", layout = "fr")
-n_clusters <- length(unique(roles$cluster_leiden))
-palette <- data.frame(
-  cluster_leiden = sort(unique(roles$cluster_leiden)),
-  color = scico::scico(n_clusters, palette = "batlow")
-)
-network <- color_networks(network, column_to_color = "cluster_leiden", color = palette)
-plot_networks(
-  network,
-  cluster_label_column = "cluster_label",
-  node_size_column = NULL
-)
-```
-
-[![Bibliographic coupling network of the documents explaining the 1970s
-stagflation, with nodes coloured by Leiden cluster and a label at the
-centre of each cluster made of its three most distinctive title
-words.](finding-and-reading-clusters_files/figure-html/fig-network-1.png)](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters_files/figure-html/fig-network-1.png "Figure 3: ")
-
-Figure 3
-
-Clusters drawn next to each other share more references than clusters at
-opposite ends, but distances in such a figure should not be measured:
-the layout is a compromise between many constraints, and another seed
-gives another, equally valid, picture.
-
-For a closer reading,
-[`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md)
-opens the same network in an interactive application: clicking a cluster
-lists its documents with their authors, titles and journals.
-
-``` r
-
-launch_network_app(
-  graph_tbl = network,
-  cluster_id = "cluster_label",
-  cluster_information = c("source_author", "source_title", "source_year", "source_journal"),
-  node_id = "source_id",
-  node_tooltip = "source_label",
-  color = "color",
-  layout = NULL
-)
-```
-
 ## What comes next
 
-A single network of the whole period mixes literatures that did not
-coexist. The [last
+Clusters are easier to read on a map. The [next
+guide](https://agoutsmedt.github.io/networkflow/articles/drawing-networks.md)
+shows how to compute the coordinates of the nodes, with several layouts,
+to colour the clusters and to draw the network. A single network of the
+whole period also mixes literatures that did not coexist: the [last
 guide](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.md)
 builds one network per time window and follows the clusters across
 windows.
@@ -547,10 +555,6 @@ Fortunato, Santo. 2010. “Community Detection in Graphs.” *Physics
 Reports* 486 (3): 75–174.
 <https://doi.org/10.1016/j.physrep.2009.11.002>.
 
-Fruchterman, Thomas M. J., and Edward M. Reingold. 1991. “Graph Drawing
-by Force-Directed Placement.” *Software: Practice and Experience* 21
-(11): 1129–64. <https://doi.org/10.1002/spe.4380211102>.
-
 Goutsmedt, Aurélien. 2021. “From the Stagflation to the Great Inflation:
 Explaining the US Economy of the 1970s.” *Revue d’Économie Politique*
 131 (3): 557–82.
@@ -559,10 +563,6 @@ Explaining the US Economy of the 1970s.” *Revue d’Économie Politique*
 Guimerà, Roger, and Luís A. Nunes Amaral. 2005. “Functional Cartography
 of Complex Metabolic Networks.” *Nature* 433 (7028): 895–900.
 <https://doi.org/10.1038/nature03288>.
-
-Kamada, Tomihisa, and Satoru Kawai. 1989. “An Algorithm for Drawing
-General Undirected Graphs.” *Information Processing Letters* 31 (1):
-7–15. <https://doi.org/10.1016/0020-0190(89)90102-6>.
 
 Morris, Steven A., and Betsy Van der Veer Martens. 2008. “Mapping
 Research Specialties.” *Annual Review of Information Science and

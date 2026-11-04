@@ -1,11 +1,11 @@
 # networkflow: a research pipeline for projected and dynamic networks
 
-networkflow organises the study of networks built from tabular research
-data (articles and their references, authors and their papers, accounts
-and what they share) as a sequence of explicit, documented steps. Each
-step is a function whose choices are arguments that can be changed and
-reported, and each returns a `tbl_graph` (or a list of them, one per
-time window) that the next step enriches.
+`networkflow` organises the study of networks built from tabular
+research data (articles and their references, authors and their papers,
+accounts and what they share) as a sequence of explicit, documented
+steps. Each step is a function whose choices are arguments that can be
+changed and reported, and each returns a `tbl_graph` (or a list of them,
+one per time window) that the next step enriches.
 
 ## Details
 
@@ -14,8 +14,10 @@ time window) that the next step enriches.
   [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
   (bibliographic coupling, co-citation, coupling of authors and other
   projections of two-mode tables, with similarity measures from
-  biblionetwork or statistical backbones from backbone, one network per
-  time window),
+  [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) or
+  statistical backbones from
+  [`backbone`](https://github.com/zpneal/backbone), one network per time
+  window),
   [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md).
 
 - **Finding and reading clusters**:
@@ -38,8 +40,7 @@ time window) that the next step enriches.
   [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md),
   [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md),
   [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md),
-  [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md),
-  [`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md).
+  [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md).
 
 The guides of the package website
 (<https://agoutsmedt.github.io/networkflow/>) explain the methods behind
@@ -67,9 +68,8 @@ Authors:
 - Aurélien Goutsmedt <agoutsmedt@hotmail.fr>
   ([ORCID](https://orcid.org/0000-0002-3788-7237))
 
-- Alexandre Truc <alexandre.truc77@gmail.com>
-  ([ORCID](https://orcid.org/0000-0002-1328-7819)) (initiated the
-  alluvial method)
-
 - Thomas Delcey ([ORCID](https://orcid.org/0000-0003-0546-1474))
   (co-maintainer)
+
+- Alexandre Truc ([ORCID](https://orcid.org/0000-0002-1328-7819))
+  (initiated the alluvial method)

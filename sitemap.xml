@@ -3,6 +3,7 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/LICENSE-text.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/LICENSE.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.html</loc></url>
+<url><loc>https://agoutsmedt.github.io/networkflow/articles/drawing-networks.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/articles/from-references-to-networks.html</loc></url>
@@ -23,7 +24,6 @@
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/filter_components.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/index.html</loc></url>
-<url><loc>https://agoutsmedt.github.io/networkflow/reference/launch_network_app.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/layout_networks.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.html</loc></url>
 <url><loc>https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.html</loc></url>

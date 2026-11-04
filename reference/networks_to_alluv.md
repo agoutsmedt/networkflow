@@ -118,7 +118,7 @@ networks <- build_dynamic_networks(
   target_id = "target_id",
   time_variable = "source_year",
   time_window = 10,
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   verbose = FALSE
 )
@@ -135,14 +135,19 @@ networks <- merge_dynamic_clusters(
   networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
-  threshold_similarity = 0.51,
+  method = "majority", threshold_similarity = 0.51,
   similarity_type = "partial"
 )
+#> ℹ Linking clusters across windows with the "majority" rule: a cluster inherits
+#>   the identifier of a past cluster when more than 0.51 of the nodes of each go
+#>   to / come from the other (double majority). The comparison counts the nodes
+#>   present in both windows only (`similarity_type` = "partial").
 #> Warning: 3 pairs of consecutive windows share no node: their clusters cannot be matched.
 #> ℹ Clusters are matched through the nodes they share. In a network of documents
-#>   (coupling), each node has one date: use sliding windows (`window_step = 1` in
-#>   `build_dynamic_networks()`). If windows already slide, the nodes may have
-#>   changed completely, or the threshold may leave a window without edges.
+#>   (coupling), each node has one date: the windows must overlap (`window_step`
+#>   smaller than `time_window` in `build_dynamic_networks()`). If windows already
+#>   overlap, the nodes may have changed completely, or the threshold may leave a
+#>   window without edges.
 
 alluv_dt <- networks_to_alluv(
   networks,
@@ -153,7 +158,7 @@ alluv_dt <- networks_to_alluv(
 #> ℹ No cluster_label column in the graphs: no label kept (see `name_clusters()`).
 alluv_dt[1:5]
 #>    dynamic_cluster_leiden    window  source_id share_cluster_alluv
-#>                    <char>    <char>     <char>               <num>
+#>                    <char>    <fctr>     <char>               <num>
 #> 1:                   cl_1 1975-1984    1172921               11.11
 #> 2:                   cl_1 1975-1984   14371905               11.11
 #> 3:                   cl_1 1975-1984    2901822               11.11

@@ -75,7 +75,8 @@ extract_tfidf(
 
 - clean_word_method:
 
-  `"lemmatize"`, `"stemming"` (with the textstem package) or `"none"`
+  `"lemmatize"`, `"stemming"` (with the
+  [`textstem`](https://github.com/trinker/textstem) package) or `"none"`
   (chosen when no method is given).
 
 - ngrams_filter:
@@ -110,10 +111,10 @@ the other clusters of the same period; computed on the stacked windows
 with `grouping_across_list = TRUE`, it also distinguishes a cluster from
 its own past and future.
 
-Lemmatising and stemming are optional and need the textstem package. For
-larger corpora or other weighting schemes, the text-mining functions of
-the mintR package (<https://codeberg.org/agoutsmedt/mintR>) can be used
-on the node table.
+Lemmatising and stemming are optional and need the `textstem` package.
+For larger corpora or other weighting schemes, the text-mining functions
+of the mintR package (<https://codeberg.org/agoutsmedt/mintR>) can be
+used on the node table.
 
 ## References
 
@@ -135,10 +136,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,
   clustering_method = "leiden",

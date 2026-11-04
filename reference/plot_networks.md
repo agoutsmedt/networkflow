@@ -1,5 +1,7 @@
 # Plot networks
 
+**\[experimental\]**
+
 `plot_networks()` draws a network from the columns created by the
 previous steps of the pipeline: coordinates
 ([`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)),
@@ -13,11 +15,10 @@ Edges are drawn as light arcs whose width follows their weight, nodes as
 points whose size follows `node_size_column`, and each cluster gets a
 label at its centre of gravity.
 
-It is meant as a quick, ready-made figure. For exploration, the
-interactive app of
-[`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md)
-is more convenient; for a figure to publish, `print_plot_code = TRUE`
-prints the ggraph code, which can be copied and adapted.
+It is meant as a quick, ready-made figure. For a figure to publish,
+`print_plot_code = TRUE` prints the
+[`ggraph`](https://ggraph.data-imaginist.com/) code, which can be copied
+and adapted.
 
 ## Usage
 
@@ -79,7 +80,8 @@ plot_networks(
 
 - print_plot_code:
 
-  Logical. If `TRUE`, prints the ggplot2/ggraph code of the plot.
+  Logical. If `TRUE`, prints the
+  [`ggplot2`](https://ggplot2.tidyverse.org/)/`ggraph` code of the plot.
 
 ## Value
 
@@ -91,7 +93,8 @@ of ggplot objects, one per graph (e.g. per time window).
 Missing pieces are filled in: labels are positioned with
 [`prepare_label_networks()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
 when `label_x` is absent, and edges without a `weight` column get a
-weight of 1. Labels are drawn with ggrepel, which must be installed.
+weight of 1. Labels are drawn with
+[`ggrepel`](https://ggrepel.slowkow.com/), which must be installed.
 
 ## Examples
 
@@ -102,10 +105,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,
   clustering_method = "leiden",

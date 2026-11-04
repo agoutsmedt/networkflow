@@ -1,6 +1,6 @@
 # From references to networks
 
-This guide covers the first step of the networkflow pipeline: building
+This guide covers the first step of the `networkflow` pipeline: building
 the network. It explains what a projected network is, how the similarity
 between two documents is measured, and which choices (measure,
 threshold, time windows) shape the network before any cluster is
@@ -23,7 +23,7 @@ history of economics ([Claveau and Gingras 2016](#ref-claveau2016);
 2018](#ref-cherrier2018); [Goutsmedt, Claveau, et al.
 2023](#ref-goutsmedt2023quantitative)).
 
-networkflow was written for this kind of research. It organises the
+`networkflow` was written for this kind of research. It organises the
 analysis as a *pipeline*: building networks from tabular data, detecting
 clusters, following them over time, naming and plotting them. Each step
 is a function whose choices are explicit arguments, so that they can be
@@ -85,27 +85,24 @@ between two kinds of entities.
 
 Citations link two sets of entities: citing documents and cited
 references. Such a *two-mode*, or *bipartite*, relation can be written
-as a matrix $`A`$ with one row per citing document, one column per
-reference, and $`a_{ij} = 1`$ when document $`i`$ cites reference $`j`$.
-To study the citing documents, we *project* this relation onto them: two
+as a matrix A with one row per citing document, one column per
+reference, and a\_{ij} = 1 when document i cites reference j. To study
+the citing documents, we *project* this relation onto them: two
 documents are linked when they cite the same references. The raw
 strength of the tie is the number of shared references,
 
-``` math
-c_{ik} = \sum_j a_{ij} a_{kj} = |R_i \cap R_k|,
-```
+c\_{ik} = \sum_j a\_{ij} a\_{kj} = \|R_i \cap R_k\|,
 
-with $`R_i`$ the bibliography of document $`i`$. In matrix form,
-$`C = A A^\top`$. This is **bibliographic coupling** ([Kessler
-1963](#ref-kessler1963)): two articles are coupled when their
-bibliographies overlap. Projecting on the other set gives
-**co-citation** ([Small 1973](#ref-small1973)): two references are
-linked when they are cited together, $`A^\top A`$. The two networks
-answer different questions. Coupling groups the citing documents, and is
-fixed once they are published: it maps the *research fronts* of a
-period. Co-citation groups the cited works, and evolves as new articles
-cite them: it maps the *intellectual base* of a literature as its users
-see it.
+with R_i the bibliography of document i. In matrix form, C = A A^\top.
+This is **bibliographic coupling** ([Kessler 1963](#ref-kessler1963)):
+two articles are coupled when their bibliographies overlap. Projecting
+on the other set gives **co-citation** ([Small 1973](#ref-small1973)):
+two references are linked when they are cited together, A^\top A. The
+two networks answer different questions. Coupling groups the citing
+documents, and is fixed once they are published: it maps the *research
+fronts* of a period. Co-citation groups the cited works, and evolves as
+new articles cite them: it maps the *intellectual base* of a literature
+as its users see it.
 
 A third relation is often used: **direct citation**, where documents are
 linked when one cites the other. It is not a projection (the nodes and
@@ -123,26 +120,21 @@ measures of accuracy (textual coherence and the concentration of
 grants). With another criterion, the concentration of the references of
 articles with long bibliographies, Klavans and Boyack
 ([2017](#ref-klavans2017)) found on the contrary that direct citation
-was more accurate than coupling and co-citation. Waltman and Eck
-([2012](#ref-waltman2012)) built a classification of almost ten million
-publications on direct citation only, noting that the exclusive reliance
-on direct citation relations is the main limit of their method, and
-Rivest et al. ([2021](#ref-rivest2021)) found direct citation, a simple
-label propagation approach, on par with a deep learning classification
-of more than 40 million articles. Sjögårde and Ahlgren
-([2024](#ref-sjogarde2024)) show that direct citation networks cluster
-better when citations are normalised. The relations can also be
-complementary: for the identification of research topics in computer
-science, Kleminski et al. ([2022](#ref-kleminski2022)) find that
-bibliographic coupling captures more unique information than direct
-citation or co-citation, and Yan and Ding ([2012](#ref-yan2012)) show
-how the various scholarly networks (coupling, co-citation,
-co-authorship, co-words) relate to each other. The choice of the
-relation is therefore a research choice, not a technical one: coupling
-is well suited to follow what a set of documents cites over time (as
-here), direct citation to classify very large corpora, co-citation to
-study the base that a literature draws on. It is worth checking that the
-main results of a study hold with a second relation.
+was more accurate than coupling and co-citation. Rivest et al.
+([2021](#ref-rivest2021)) found direct citation and a simple label
+propagation approach on par with a deep learning classification of more
+than 40 million articles. The relations can also be complementary: for
+the identification of research topics in computer science, Kleminski et
+al. ([2022](#ref-kleminski2022)) find that bibliographic coupling
+captures more unique information than direct citation or co-citation,
+and Yan and Ding ([2012](#ref-yan2012)) show how the various scholarly
+networks (coupling, co-citation, co-authorship, co-words) relate to each
+other. The choice of the relation is therefore a research choice, not a
+technical one: coupling is well suited to follow what a set of documents
+cites over time (as here), direct citation to classify very large
+corpora, co-citation to study the base that a literature draws on. It is
+worth checking that the main results of a study hold with a second
+relation.
 
 The same logic applies far beyond citations: authors and the papers they
 sign (co-authorship), accounts and the hashtags they use, members and
@@ -158,8 +150,7 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
 network
@@ -195,7 +186,8 @@ network
 
 The result is a `tbl_graph` from tidygraph: a node table (the columns of
 `nodes`) and an edge table (`from`, `to`, `weight`), which can be
-manipulated with dplyr verbs and drawn with ggraph. Documents without
+manipulated with [`dplyr`](https://dplyr.tidyverse.org/) verbs and drawn
+with [`ggraph`](https://ggraph.data-imaginist.com/). Documents without
 any shared reference are dropped (`keep_singleton = FALSE`).
 
 ### Measuring similarity
@@ -203,36 +195,65 @@ any shared reference are dropped (`keep_singleton = FALSE`).
 Raw counts are a poor measure of similarity. An article with 150
 references shares some with almost every other article; two short notes
 sharing three references may be much closer. Normalised measures correct
-for this. With $`L_i`$ the length of the bibliography of $`i`$, $`N`$
-the number of citing documents and $`f_j`$ the number of documents
-citing reference $`j`$, the three measures available through
-biblionetwork ([Goutsmedt, Truc, et al.
-2023](#ref-goutsmedt2023biblionetwork)) are:
+for this. [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
+([Goutsmedt, Truc, et al. 2023](#ref-goutsmedt2023biblionetwork)), which
+computes the ties, offers five of them, all available as a `method`.
+With R_i the set of references of i, L_i = \|R_i\| the length of its
+bibliography, N the number of citing documents and f_j the number of
+documents citing reference j, they fall into two families.
 
-- the **coupling angle**, the cosine of the two bibliographies ([Sen and
-  Gan 1983](#ref-sen1983)):
-  ``` math
-  w_{ik} = \frac{|R_i \cap R_k|}{\sqrt{L_i L_k}};
-  ```
-- the **coupling strength** ([Vladutz and Cook 1984](#ref-vladutz1984);
-  [Shen et al. 2019](#ref-shen2019)), which gives less weight to the
-  references that everybody cites, in the spirit of the inverse document
-  frequency of text mining:
-  ``` math
-  w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{L_i L_k};
-  ```
-- the **coupling similarity**, the idf-weighted cosine of Shen et al.
-  ([2019](#ref-shen2019)), which normalises the same weighted sum by the
-  weighted length of each bibliography,
-  $`S_i = \sum_{j \in R_i} \log(N / f_j)`$, as a cosine:
-  ``` math
-  w_{ik} = \frac{\sum_{j \in R_i \cap R_k} \log(N / f_j)}{\sqrt{S_i S_k}}.
-  ```
+**Measures that only count the shared references.**
+
+- `"angle"`, the **coupling angle**, the cosine of the two
+  bibliographies ([Sen and Gan 1983](#ref-sen1983)): w\_{ik} =
+  \frac{\|R_i \cap R_k\|}{\sqrt{L_i L_k}};
+- `"jaccard"`, the **relative coupling strength** ([Sen and Gan
+  1983](#ref-sen1983)), a Jaccard index: the references shared over all
+  the references cited by at least one of the two documents, w\_{ik} =
+  \frac{\|R_i \cap R_k\|}{\|R_i \cup R_k\|}. If a note cites 5
+  references, all cited by an article that cites 50, the cosine is 5 /
+  \sqrt{250} \approx 0.32 and the Jaccard index 5/50 = 0.1: the Jaccard
+  index sees that the article reads much more than the note. It is never
+  above the cosine.
+
+**Measures that give less weight to the references that everybody
+cites**, in the spirit of the inverse document frequency of text mining.
+
+- `"strength"`, the **coupling strength** ([Shen et al.
+  2019](#ref-shen2019)): w\_{ik} = \frac{\sum\_{j \in R_i \cap R_k}
+  \log(N / f_j)}{L_i L_k};
+- `"similarity"`, the **coupling similarity**, the idf-weighted cosine
+  of Shen et al. ([2019](#ref-shen2019)), which normalises the same
+  weighted sum by the weighted length of each bibliography, S_i =
+  \sum\_{j \in R_i} \log(N / f_j), as a cosine, so that it lies between
+  0 and 1 like the angle: w\_{ik} = \frac{\sum\_{j \in R_i \cap R_k}
+  \log(N / f_j)}{\sqrt{S_i S_k}};
+- `"vladutz"`, the **Vladutz-Cook formula** ([Vladutz and Cook
+  1984](#ref-vladutz1984)), the ancestor of the coupling strength, whose
+  discount is much steeper (1/f_j instead of \log(N/f_j)), so that it is
+  almost driven by the rarest references: w\_{ik} = \frac{4}{L_i + L_k}
+  \sum\_{j \in R_i \cap R_k} \frac{1}{f_j}.
 
 Sharing a citation of Taylor’s 1993 article on policy rules, cited by 22
 documents of the corpus, says less about two explanations of the
-stagflation than sharing a reference cited by only two: the second and
-third measures encode this idea.
+stagflation than sharing a reference cited by only two: the second
+family encodes this idea. The five measures keep the same pairs (the
+threshold applies to the raw count of shared references) and only change
+their weights. The `biblionetwork` documentation explains the intuition
+behind each of them
+([angle](https://agoutsmedt.github.io/biblionetwork/reference/coupling_angle.html),
+[Jaccard](https://agoutsmedt.github.io/biblionetwork/reference/coupling_jaccard.html),
+[strength](https://agoutsmedt.github.io/biblionetwork/reference/coupling_strength.html),
+[similarity](https://agoutsmedt.github.io/biblionetwork/reference/coupling_similarity.html),
+[Vladutz-Cook](https://agoutsmedt.github.io/biblionetwork/reference/coupling_vladutz.html))
+and compares them on a corpus in its article [Comparing
+measures](https://agoutsmedt.github.io/biblionetwork/articles/comparing_measures.html).
+There, as in Shen et al. ([2019](#ref-shen2019)), the angle and the
+Jaccard index give very similar rankings of the pairs (a Pearson
+correlation of 0.956 in the corpus of Shen et al.
+([2019](#ref-shen2019))), whereas the Vladutz-Cook formula departs
+markedly from the others; it is offered mainly for comparison and
+replication.
 
 All measures assume that a work has a single identifier. Raw citation
 strings do not guarantee it: in `Ref_stagflation`, Friedman’s 1968 “The
@@ -251,20 +272,21 @@ matter: the [last
 guide](https://agoutsmedt.github.io/networkflow/articles/beyond-bibliographic-coupling.md)
 explains why this matters most for co-citation.
 
-How different are the measures in practice? We compute the three
-networks and compare the weights of the same pairs.
+How different are the measures in practice? No need to compare all of
+them: we take the coupling angle, its close relative the Jaccard index,
+and the coupling similarity, which discounts the common references. We
+compute the three networks and compare the weights of the same pairs.
 
 ``` r
 
-measures <- c("coupling_angle", "coupling_strength", "coupling_similarity")
+measures <- c("angle", "jaccard", "similarity")
 weights <- lapply(measures, function(measure) {
   graph <- build_network(
     nodes = nodes,
     directed_edges = Ref_stagflation,
     source_id = "source_id",
     target_id = "target_id",
-    projection_method = "structured",
-    cooccurrence_method = measure,
+    method = measure,
     edges_threshold = 1
   )
   ids <- tidygraph::as_tibble(graph, active = "nodes")$source_id
@@ -276,33 +298,32 @@ weights <- lapply(measures, function(measure) {
 })
 pairs <- Reduce(function(a, b) merge(a, b, by = "pair"), weights)
 names(pairs) <- c("pair", measures)
-round(cor(pairs[, measures], method = "spearman"), 3)
+correlations <- cor(pairs[, measures], method = "spearman")
+round(correlations, 3)
 ```
 
-                        coupling_angle coupling_strength coupling_similarity
-    coupling_angle               1.000             0.819               0.958
-    coupling_strength            0.819             1.000               0.884
-    coupling_similarity          0.958             0.884               1.000
+               angle jaccard similarity
+    angle      1.000   0.979      0.958
+    jaccard    0.979   1.000      0.929
+    similarity 0.958   0.929      1.000
 
-The three measures keep the same pairs (the threshold applies to the raw
-count) but weight them differently. The coupling similarity is a cosine
-like the coupling angle, and discounts the common references like the
-coupling strength: its ranking of the pairs is close to the angle’s (a
-rank correlation above 0.95) and nearer to the strength’s than the
-angle’s is. The coupling angle, which treats all references alike,
-departs most from the coupling strength (a rank correlation of about
-0.82). Such a correlation still leaves room for different clusters at
-the margin: when the conclusions of a study rest on the exact
-composition of a cluster, it is worth checking them with a second
-measure. `biblionetwork` has tools to compare measures on a corpus
-(`compute_couplings()`, `correlate_weights()`).
+The three measures keep the same pairs but weight them differently. As
+expected, the angle and the Jaccard index rank the pairs almost
+identically (a rank correlation of 0.98), while the coupling similarity,
+which discounts the references that everybody cites, is further from
+both (0.96 with the angle and 0.93 with the Jaccard index). Such a
+correlation still leaves room for different clusters at the margin: when
+the conclusions of a study rest on the exact composition of a cluster,
+it is worth checking them with a second measure. `biblionetwork` has
+tools to compare measures on a corpus (`compute_couplings()`,
+`correlate_weights()`).
 
 ### Thresholds
 
 Most pairs of articles in a literature share one or two classic
 references. These ties say little, and they make the network dense
 (`edges_threshold = 1` links a quarter of all pairs here). Raising the
-threshold keeps the pairs that share at least $`n`$ references:
+threshold keeps the pairs that share at least n references:
 
 ``` r
 
@@ -313,8 +334,7 @@ thresholds[c("nodes", "edges", "components")] <- t(sapply(thresholds$threshold, 
     directed_edges = Ref_stagflation,
     source_id = "source_id",
     target_id = "target_id",
-    projection_method = "structured",
-    cooccurrence_method = "coupling_similarity",
+    method = "similarity",
     edges_threshold = n
   )
   c(igraph::vcount(graph), igraph::ecount(graph), igraph::components(graph)$no)
@@ -343,10 +363,11 @@ notes with five. The *backbone* approach replaces the fixed threshold
 with a test ([Neal 2014](#ref-neal2014)): for each pair, is the number
 of shared targets larger than in random bipartite networks that keep
 some properties of the observed one? The stochastic degree sequence
-model (`model = "sdsm"`) keeps, on average, the number of references of
+model (`method = "sdsm"`) keeps, on average, the number of references of
 each document and the number of citations of each reference; the
-backbone package ([Domagalski et al. 2021](#ref-domagalski2021); [Neal
-2022](#ref-neal2022)) computes the probabilities.
+[`backbone`](https://github.com/zpneal/backbone) package ([Domagalski et
+al. 2021](#ref-domagalski2021); [Neal 2022](#ref-neal2022)) computes the
+probabilities.
 
 ``` r
 
@@ -355,8 +376,7 @@ backbone <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "statistical",
-  model = "sdsm",
+  method = "sdsm",
   alpha = 0.05
 )
 c(nodes = igraph::vcount(backbone), edges = igraph::ecount(backbone))
@@ -364,6 +384,33 @@ c(nodes = igraph::vcount(backbone), edges = igraph::ecount(backbone))
 
     nodes edges
       113   553 
+
+To see how much the backbone prunes, we compare it with the coupling
+angle network (a `biblionetwork` measure) built on the same corpus, with
+no threshold and with the threshold of two shared references.
+
+``` r
+
+angle <- lapply(c(1, 2), function(threshold) {
+  build_network(
+    nodes = nodes,
+    directed_edges = Ref_stagflation,
+    source_id = "source_id",
+    target_id = "target_id",
+    method = "angle",
+    edges_threshold = threshold
+  )
+})
+n_angle <- sapply(angle, function(graph) c(igraph::vcount(graph), igraph::ecount(graph)))
+```
+
+With the coupling angle and a threshold of one shared reference, the
+network has 147 nodes and 2716 edges; with a threshold of two, 131 nodes
+and 1501 edges. The backbone at the 5% level keeps 113 nodes and 553
+edges: it removes 80% of the edges of the first network and 63% of those
+of the second, and drops the documents that no longer have any
+significant tie. It is a much sparser network than the one obtained with
+a threshold of two references, which is itself already pruned.
 
 The backbone keeps the ties that are unlikely under the null model at
 the 5% level. Its edges are unweighted: each edge means “more shared
@@ -388,8 +435,7 @@ network_2 <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 2
 )
 main_component <- filter_components(network_2)
@@ -406,16 +452,19 @@ marginal literature that matters to the story.
 
 A network of the whole period mixes literatures that did not coexist.
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
-builds one network per time window: a window starting in year $`s`$
-gathers the documents published in $`[s, s + w - 1]`$, $`w`$ being
-`time_window`, and the network is computed as if the corpus were limited
-to them. A new window starts every `window_step` units. By default,
-windows follow each other (`window_step = time_window`: 1975-1984,
-1985-1994…); with `window_step = 1`, the window slides by one unit
-(1975-1984, 1976-1985…); with a step of 5 and a window of 10, each
-window shares half of its period with the next one. The step is a way to
-trade resolution in time for computing time and for the number of
-networks to read.
+builds one network per time window (it needs a `time_variable` and a
+`time_window`: without time,
+[`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)
+builds the single network): a window starting in year s gathers the
+documents published in \[s, s + w - 1\], w being `time_window`, and the
+network is computed as if the corpus were limited to them. A new window
+starts every `window_step` units. By default, windows follow each other
+(`window_step = time_window`: 1975-1984, 1985-1994…); with
+`window_step = 1`, the window slides by one unit (1975-1984,
+1976-1985…); with a step of 5 and a window of 10, each window shares
+half of its period with the next one. The step is a way to trade
+resolution in time for computing time and for the number of networks to
+read.
 
 **Months, weeks and days.** The unit is the one of the time variable
 when it is a number. When it is a date (`Date`, `POSIXct`, or an ISO
@@ -438,8 +487,7 @@ build_dynamic_networks(
   time_unit = "month",
   time_window = 12,
   window_step = 3,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_angle"
+  method = "angle"
 )
 ```
 
@@ -457,8 +505,7 @@ networks <- build_dynamic_networks(
   time_variable = "source_year",
   time_window = 10,
   window_step = 1,
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1,
   filter_components = TRUE,
   verbose = FALSE
@@ -608,11 +655,6 @@ Shen, Si, Danhao Zhu, Ronald Rousseau, Xinning Su, and Dongbo Wang.
 *Journal of Informetrics* 13 (2): 605–15.
 <https://doi.org/10.1016/j.joi.2019.01.012>.
 
-Sjögårde, Peter, and Per Ahlgren. 2024. “Normalization of Direct
-Citations for Clustering in Publication-Level Networks: Evaluation of
-Six Approaches.” *Scientometrics* 129 (3): 1949–68.
-<https://doi.org/10.1007/s11192-024-04932-5>.
-
 Small, Henry. 1973. “Co-Citation in the Scientific Literature: A New
 Measure of the Relationship Between Two Documents.” *Journal of the
 American Society for Information Science* 24 (4): 265–69.
@@ -621,11 +663,6 @@ American Society for Information Science* 24 (4): 265–69.
 Vladutz, George, and James Cook. 1984. “Bibliographic Coupling and
 Subject Relatedness.” *Proceedings of the American Society for
 Information Science* 21: 204–7.
-
-Waltman, Ludo, and Nees Jan van Eck. 2012. “A New Methodology for
-Constructing a Publication-Level Classification System of Science.”
-*Journal of the American Society for Information Science and Technology*
-63 (12): 2378–92. <https://doi.org/10.1002/asi.22748>.
 
 Yan, Erjia, and Ying Ding. 2012. “Scholarly Network Similarities: How
 Bibliographic Coupling Networks, Citation Networks, Cocitation Networks,

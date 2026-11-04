@@ -68,7 +68,7 @@ networks <- build_dynamic_networks(
   time_variable = "source_year",
   time_window = 10,
   window_step = 4,
-  cooccurrence_method = "coupling_angle",
+  method = "angle",
   edges_threshold = 2,
   verbose = FALSE
 )
@@ -82,7 +82,7 @@ networks <- add_clusters(
   verbose = FALSE
 )
 diagnostics <- merge_diagnostics(
-  networks, "cluster_leiden", "source_id",
+  networks, "cluster_leiden", "source_id", method = "majority",
   thresholds = c(0.51, 0.6, 0.75), similarity_types = "partial", verbose = FALSE
 )
 #> Warning: 1 pair of consecutive windows share no node: its clusters cannot be matched,

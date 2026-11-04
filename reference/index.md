@@ -40,8 +40,7 @@ characterise the role of their members.
 
 ## Step 3: Drawing networks
 
-Compute coordinates, colours and label positions, and plot the networks
-or explore them in an interactive application.
+Compute coordinates, colours and label positions, and plot the networks.
 
 - [`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)
   **\[experimental\]** : Compute the coordinates of nodes
@@ -53,10 +52,7 @@ or explore them in an interactive application.
   [`prepare_label_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/prepare_label_networks.md)
   : Position the labels of clusters in network and alluvial plots
 - [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
-  : Plot networks
-- [`launch_network_app()`](https://agoutsmedt.github.io/networkflow/reference/launch_network_app.md)
-  **\[experimental\]** : Launch an Interactive Shiny App to Explore a
-  Network Graph
+  **\[experimental\]** : Plot networks
 
 ## Step 4: Drawing the history of clusters
 
@@ -69,7 +65,8 @@ Turn a list of networks with dynamic clusters into an alluvial plot.
   **\[experimental\]** : Order the clusters of an alluvial to reduce
   crossing flows
 - [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)
-  : Plot the evolution of dynamic clusters as an alluvial
+  **\[experimental\]** : Plot the evolution of dynamic clusters as an
+  alluvial
 
 ## Example data
 

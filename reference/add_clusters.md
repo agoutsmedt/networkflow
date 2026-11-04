@@ -8,9 +8,9 @@ themselves than with the rest of the network, are a usual operational
 definition of a research specialty or a research front (Boyack and
 Klavans 2010; Morris and Van der Veer Martens 2008) . `add_clusters()`
 finds such groups (communities, or clusters) with one of five algorithms
-of igraph, adds the cluster of each node and of each edge, and the
-relative size of each cluster. It works on one `tbl_graph` or on each
-graph of a list, as produced by
+of [`igraph`](https://r.igraph.org/), adds the cluster of each node and
+of each edge, and the relative size of each cluster. It works on one
+`tbl_graph` or on each graph of a list, as produced by
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md).
 
 Most methods search for the partition that maximises the *modularity*
@@ -147,7 +147,7 @@ active.
 - `"infomap"` (Rosvall and Bergstrom 2008) , which finds the partition
   that best compresses the description of a random walk on the network.
 
-All algorithms are called from igraph
+All algorithms are called from `igraph`
 ([`igraph::cluster_leiden()`](https://r.igraph.org/reference/cluster_leiden.html),
 [`igraph::cluster_louvain()`](https://r.igraph.org/reference/cluster_louvain.html),
 [`igraph::cluster_fast_greedy()`](https://r.igraph.org/reference/cluster_fast_greedy.html),
@@ -259,10 +259,14 @@ network <- build_network(
   directed_edges = Ref_stagflation,
   source_id = "source_id",
   target_id = "target_id",
-  projection_method = "structured",
-  cooccurrence_method = "coupling_similarity",
+  method = "similarity",
   edges_threshold = 1
 )
+#> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
+#>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
+#>   et al. (2019), between source_id entities sharing target_id entities.
+#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 
 network <- add_clusters(
   network,
