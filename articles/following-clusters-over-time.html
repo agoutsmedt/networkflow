@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -475,7 +475,7 @@ Figure 4
 <p>Reading the plot requires care. Flows between clusters are documents that change cluster when the window slides, which may reflect a change in the literature or simply the instability of a partition of a small network. Windows of a dozen documents give fragile clusters: their part of the plot should be read with the documents in hand.</p>
 </section><section class="level2"><h2 id="coordinates-that-follow-the-documents">Coordinates that follow the documents<a class="anchor" aria-label="anchor" href="#coordinates-that-follow-the-documents"></a>
 </h2>
-<p>To draw the networks of successive windows side by side, <code>layout_networks(compute_dynamic_coordinates = TRUE)</code> starts the layout of each window from the coordinates of the previous one, so that a document stays in the same region from one plot to the next. Giving the dynamic clusters the same colours as in the alluvial (<code><a href="../reference/color_networks.html">color_networks()</a></code> with the same palette) completes the picture: a cluster can be followed in the alluvial and located in each network.</p>
+<p>The alluvial shows the history of the clusters, but not the networks themselves. To look into the networks of successive windows side by side, the coordinates of a document should not jump from one plot to the next: an independent layout of each window would draw the same documents in unrelated places. <code>layout_networks(compute_dynamic_coordinates = TRUE)</code> starts the layout of each window from the coordinates of the previous one (documents new to the window start at the centre), so that a document tends to stay in the same region as long as it is in the corpus (see the <a href="drawing-networks.html">guide on layouts</a>). Giving the dynamic clusters the colours of the alluvial (<code><a href="../reference/color_networks.html">color_networks()</a></code> with the same palette, the small clusters being grey) completes the picture: a cluster can be followed in the alluvial and located in each network.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
@@ -485,8 +485,72 @@ Figure 4
 <span>  layout <span class="op">=</span> <span class="st">"fr"</span>,</span>
 <span>  compute_dynamic_coordinates <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/color_networks.html">color_networks</a></span><span class="op">(</span><span class="va">networks</span>, column_to_color <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>, color <span class="op">=</span> <span class="va">palette</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># the colours of the alluvial, and grey for the small clusters left out of it</span></span>
+<span><span class="va">all_dynamic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">networks</span>, <span class="kw">function</span><span class="op">(</span><span class="va">graph</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">graph</span>, active <span class="op">=</span> <span class="st">"nodes"</span><span class="op">)</span><span class="op">$</span><span class="va">dynamic_cluster_leiden</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">network_palette</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="va">palette</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    dynamic_cluster_leiden <span class="op">=</span> <span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">all_dynamic</span>, <span class="va">palette</span><span class="op">$</span><span class="va">dynamic_cluster_leiden</span><span class="op">)</span>,</span>
+<span>    color <span class="op">=</span> <span class="st">"grey70"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/color_networks.html">color_networks</a></span><span class="op">(</span></span>
+<span>  <span class="va">networks</span>,</span>
+<span>  column_to_color <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span>
+<span>  color <span class="op">=</span> <span class="va">network_palette</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">shown</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1990-1999"</span>, <span class="st">"1993-2002"</span>, <span class="st">"1996-2005"</span><span class="op">)</span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_networks.html">plot_networks</a></span><span class="op">(</span></span>
+<span>  <span class="va">networks</span><span class="op">[</span><span class="va">shown</span><span class="op">]</span>,</span>
+<span>  cluster_label_column <span class="op">=</span> <span class="st">"cluster_label"</span>,</span>
+<span>  node_size_column <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">window</span> <span class="kw">in</span> <span class="va">shown</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">plots</span><span class="op">[[</span><span class="va">window</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<div id="fig-dynamic-networks" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-dynamic-networks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-dynamic-networks" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-dynamic-networks-1" class="quarto-float quarto-figure quarto-figure-center" alt="Three bibliographic coupling networks of the windows 1990-1999, 1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in the alluvial plot; the documents present in several windows keep similar positions.">
+<figure class="quarto-float quarto-subfloat-fig"><div aria-describedby="fig-dynamic-networks-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="following-clusters-over-time_files/figure-html/fig-dynamic-networks-1.png" class="lightbox" data-gallery="fig-dynamic-networks" title="Figure 5 (a): 1990-1999"><img src="following-clusters-over-time_files/figure-html/fig-dynamic-networks-1.png" data-ref-parent="fig-dynamic-networks" alt="Three bibliographic coupling networks of the windows 1990-1999, 1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in the alluvial plot; the documents present in several windows keep similar positions." width="770"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-dynamic-networks-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) 1990-1999
+</figcaption></figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-dynamic-networks" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-dynamic-networks-2" class="quarto-float quarto-figure quarto-figure-center" alt="Three bibliographic coupling networks of the windows 1990-1999, 1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in the alluvial plot; the documents present in several windows keep similar positions.">
+<figure class="quarto-float quarto-subfloat-fig"><div aria-describedby="fig-dynamic-networks-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="following-clusters-over-time_files/figure-html/fig-dynamic-networks-2.png" class="lightbox" data-gallery="fig-dynamic-networks" title="Figure 5 (b): 1993-2002"><img src="following-clusters-over-time_files/figure-html/fig-dynamic-networks-2.png" data-ref-parent="fig-dynamic-networks" alt="Three bibliographic coupling networks of the windows 1990-1999, 1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in the alluvial plot; the documents present in several windows keep similar positions." width="770"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-dynamic-networks-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) 1993-2002
+</figcaption></figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-dynamic-networks" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-dynamic-networks-3" class="quarto-float quarto-figure quarto-figure-center" alt="Three bibliographic coupling networks of the windows 1990-1999, 1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in the alluvial plot; the documents present in several windows keep similar positions.">
+<figure class="quarto-float quarto-subfloat-fig"><div aria-describedby="fig-dynamic-networks-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="following-clusters-over-time_files/figure-html/fig-dynamic-networks-3.png" class="lightbox" data-gallery="fig-dynamic-networks" title="Figure 5 (c): 1996-2005"><img src="following-clusters-over-time_files/figure-html/fig-dynamic-networks-3.png" data-ref-parent="fig-dynamic-networks" alt="Three bibliographic coupling networks of the windows 1990-1999, 1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in the alluvial plot; the documents present in several windows keep similar positions." width="770"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-dynamic-networks-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) 1996-2005
+</figcaption></figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dynamic-networks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 5: Three windows, three years apart, with coordinates that follow the documents and the colours of the alluvial.
+</figcaption></figure>
+</div>
+<p>Successive windows share seven years out of ten, so most documents are present in the three plots and keep similar positions. The positions are not frozen, though: each layout starts from the previous one and moves the nodes again, so that a document can drift when its ties change. The layout must accept starting coordinates, which is the case of <code>"fr"</code>, <code>"kk"</code> and <code>"forceatlas2"</code>, not of <code>"umap"</code>.</p>
 </section><section class="level2"><h2 id="in-research">In research<a class="anchor" aria-label="anchor" href="#in-research"></a>
 </h2>
 <p>The dynamic workflow was designed for histories of research fields, where the question is less “what are the communities?” than “when did a literature appear, what did it come from, and what did it become?”. <span class="citation" data-cites="goutsmedt2023eer">Goutsmedt and Truc (<a href="#ref-goutsmedt2023eer" role="doc-biblioref">2023</a>)</span> use bibliographic coupling and topic models to compare the macroeconomics published in the <em>European Economic Review</em> with the top five journals, between 1969 and 2002. <span class="citation" data-cites="delcey2026">Delcey et al. (<a href="#ref-delcey2026" role="doc-biblioref">2026</a>)</span> follow the discussions of rationality in a corpus of nearly 260,000 economics articles from 1900 to 2009. <span class="citation" data-cites="duluins2026">Duluins et al. (<a href="#ref-duluins2026" role="doc-biblioref">2026</a>)</span> apply the same tools to the scientific reception of a report on the environmental impact of livestock. In each case, the networks do not replace reading: they tell the historian which documents to read, and which continuities and breaks need an explanation.</p>

@@ -539,14 +539,21 @@ of the plot should be read with the documents in hand.
 
 ## Coordinates that follow the documents
 
-To draw the networks of successive windows side by side,
+The alluvial shows the history of the clusters, but not the networks
+themselves. To look into the networks of successive windows side by
+side, the coordinates of a document should not jump from one plot to the
+next: an independent layout of each window would draw the same documents
+in unrelated places.
 `layout_networks(compute_dynamic_coordinates = TRUE)` starts the layout
-of each window from the coordinates of the previous one, so that a
-document stays in the same region from one plot to the next. Giving the
-dynamic clusters the same colours as in the alluvial
+of each window from the coordinates of the previous one (documents new
+to the window start at the centre), so that a document tends to stay in
+the same region as long as it is in the corpus (see the [guide on
+layouts](https://agoutsmedt.github.io/networkflow/articles/drawing-networks.md)).
+Giving the dynamic clusters the colours of the alluvial
 ([`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md)
-with the same palette) completes the picture: a cluster can be followed
-in the alluvial and located in each network.
+with the same palette, the small clusters being grey) completes the
+picture: a cluster can be followed in the alluvial and located in each
+network.
 
 ``` r
 
@@ -557,8 +564,66 @@ networks <- layout_networks(
   layout = "fr",
   compute_dynamic_coordinates = TRUE
 )
-networks <- color_networks(networks, column_to_color = "dynamic_cluster_leiden", color = palette)
+# the colours of the alluvial, and grey for the small clusters left out of it
+all_dynamic <- unique(unlist(lapply(networks, function(graph) {
+  as_tibble(graph, active = "nodes")$dynamic_cluster_leiden
+})))
+network_palette <- rbind(
+  palette,
+  data.frame(
+    dynamic_cluster_leiden = setdiff(all_dynamic, palette$dynamic_cluster_leiden),
+    color = "grey70"
+  )
+)
+networks <- color_networks(
+  networks,
+  column_to_color = "dynamic_cluster_leiden",
+  color = network_palette,
+  verbose = FALSE
+)
+shown <- c("1990-1999", "1993-2002", "1996-2005")
+plots <- plot_networks(
+  networks[shown],
+  cluster_label_column = "cluster_label",
+  node_size_column = NULL
+)
 ```
+
+``` r
+
+for (window in shown) print(plots[[window]])
+```
+
+[![Three bibliographic coupling networks of the windows 1990-1999,
+1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in
+the alluvial plot; the documents present in several windows keep similar
+positions.](following-clusters-over-time_files/figure-html/fig-dynamic-networks-1.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-dynamic-networks-1.png "Figure 5 (a): 1990-1999")
+
+\(a\) 1990-1999
+
+[![Three bibliographic coupling networks of the windows 1990-1999,
+1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in
+the alluvial plot; the documents present in several windows keep similar
+positions.](following-clusters-over-time_files/figure-html/fig-dynamic-networks-2.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-dynamic-networks-2.png "Figure 5 (b): 1993-2002")
+
+\(b\) 1993-2002
+
+[![Three bibliographic coupling networks of the windows 1990-1999,
+1993-2002 and 1996-2005, with nodes coloured by dynamic cluster as in
+the alluvial plot; the documents present in several windows keep similar
+positions.](following-clusters-over-time_files/figure-html/fig-dynamic-networks-3.png)](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time_files/figure-html/fig-dynamic-networks-3.png "Figure 5 (c): 1996-2005")
+
+\(c\) 1996-2005
+
+Figure 5: Three windows, three years apart, with coordinates that follow
+the documents and the colours of the alluvial.
+
+Successive windows share seven years out of ten, so most documents are
+present in the three plots and keep similar positions. The positions are
+not frozen, though: each layout starts from the previous one and moves
+the nodes again, so that a document can drift when its ties change. The
+layout must accept starting coordinates, which is the case of `"fr"`,
+`"kk"` and `"forceatlas2"`, not of `"umap"`.
 
 ## In research
 

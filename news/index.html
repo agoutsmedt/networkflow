@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,10 +40,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.9.9004" id="networkflow-0099004-2026-11-05">networkflow 0.0.9.9004 (2026-11-05)<a class="anchor" aria-label="anchor" href="#networkflow-0099004-2026-11-05"></a></h2>
-<p>Fifth step: a second rule to follow clusters across windows, a clearer name for the naming of dynamic clusters, and a better order for alluvial plots.</p>
+<h2 class="pkg-version" data-toc-text="0.0.9.9002" id="networkflow-0099002-2026-11-05">networkflow 0.0.9.9002 (2026-11-05)<a class="anchor" aria-label="anchor" href="#networkflow-0099002-2026-11-05"></a></h2>
+<p>Third step: a second rule to follow clusters across windows, a clearer name for the naming of dynamic clusters, and a better order for alluvial plots.</p>
 <div class="section level3">
-<h3 id="breaking-changes-0-0-9-9004">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9004"></a></h3>
+<h3 id="breaking-changes-0-0-9-9002">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9002"></a></h3>
 <ul><li>
 <code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code> has a required <code>method</code>: <code>"majority"</code> (the double majority, the only rule so far) or <code>"jaccard"</code> (new, see below). <code>threshold_similarity</code> has no default any more (it used to be 0.5001): the rule, its threshold and the type of similarity change the dynamic clusters, so all three must be given. Calls of earlier versions need <code>method = "majority"</code> and a threshold.</li>
 <li>
@@ -52,7 +52,7 @@
 <code><a href="../reference/networks_to_alluv.html">networks_to_alluv()</a></code> returns <code>window</code> as a factor whose levels follow the order of the list: windows with numeric names (“2”, “10”) are no longer sorted alphabetically in the table and in the plot.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="new-features-0-0-9-9004">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9-9004"></a></h3>
+<h3 id="new-features-0-0-9-9002">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9-9002"></a></h3>
 <ul><li>
 <code>merge_dynamic_clusters(method = "jaccard")</code>: overlap matching with a Jaccard threshold, as in the tracking of dynamic communities of Greene et al. (2010). Candidate pairs have a Jaccard index of at least the threshold (which can be well below 0.5); they are taken by decreasing index, each past identifier going to one cluster at most. <code>similarity_type = "partial"</code> restricts the union to the nodes present in both windows. With <code>verbose = TRUE</code>, the function says which rule it applies. <code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> work with both rules, and the guide “Following clusters over time” compares them.</li>
 <li>
@@ -61,101 +61,60 @@
 <code><a href="../reference/name_clusters.html">name_clusters()</a></code>: <code>name_merged_clusters</code> is renamed <code>name_dynamic_clusters</code> (the old name still works, with a deprecation warning).</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-0-0-9-9004">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-9-9004"></a></h3>
+<h3 id="bug-fixes-0-0-9-9002">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-9-9002"></a></h3>
 <ul><li>
 <code><a href="../reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> pasted the numbers of the components into a string to sort the clusters, which mixed “1” “10” and “11” “0” as soon as there were ten components or more.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-0-0-9-9004">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-9-9004"></a></h3>
+<h3 id="documentation-0-0-9-9002">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-9-9002"></a></h3>
 <ul><li>The guide “Following clusters over time” discusses the risk of building communities of documents of the same years rather than thematic communities on a long period (coupling, and possibly co-citation), says that windows must overlap (<code>window_step</code> smaller than <code>time_window</code>, not only <code>window_step = 1</code>) for documents to be matched, and presents the multislice community detection and the significance-clustered alluvial maps as possible future methods.</li>
+<li>The guide “Following clusters over time” draws three windows with <code>layout_networks(compute_dynamic_coordinates = TRUE)</code> and the colours of the alluvial.</li>
+<li>The guide “Drawing networks” draws on Venturini, Jacomy and Jensen on visual network analysis (reading densities rather than distances, no axes, the settings of ForceAtlas2) and checks the layouts against the clusters with k-means, as they suggest.</li>
 <li>The README lists the study of Boucher and Fan (2025) among those that used the package.</li>
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.9.9003" id="networkflow-0099003-2026-11-04">networkflow 0.0.9.9003 (2026-11-04)<a class="anchor" aria-label="anchor" href="#networkflow-0099003-2026-11-04"></a></h2>
-<p>Fourth step: one <code>method</code> to build networks, and the Shiny application moves to its own package.</p>
-<div class="section level3">
-<h3 id="breaking-changes-0-0-9-9003">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9003"></a></h3>
-<ul><li>
-<code><a href="../reference/build_network.html">build_network()</a></code> and <code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code>: a single argument, <code>method</code>, replaces <code>projection_method</code>, <code>cooccurrence_method</code> and <code>model</code>. There is no default, so that the choice stays explicit. The similarity measures of biblionetwork are <code>"angle"</code>, <code>"strength"</code>, <code>"similarity"</code>, <code>"jaccard"</code> and <code>"vladutz"</code> (formerly <code>"coupling_angle"</code>…); the statistical backbones of the backbone package are <code>"sdsm"</code>, <code>"fdsm"</code>, <code>"fixedfill"</code>, <code>"fixedrow"</code> and <code>"fixedcol"</code> (with <code>alpha</code>). Using the former arguments gives an error that shows the translation, for example <code>projection_method = "structured", cooccurrence_method = "coupling_angle"</code> becomes <code>method = "angle"</code>.</li>
-<li>
-<code>launch_network_app()</code> is removed from networkflow: the application moves to the package networkflowapp. <code>shiny</code>, <code>DT</code>, <code>ggiraph</code> and <code>shinycssloaders</code> are no longer suggested.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="new-features-0-0-9-9003">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9-9003"></a></h3>
-<ul><li>
-<code><a href="../reference/layout_networks.html">layout_networks()</a></code> has two new layouts: <code>"forceatlas2"</code> (the layout of Gephi, Jacomy et al., 2014, in a compact implementation) and <code>"umap"</code> (UMAP of McInnes et al., 2018, computed with uwot on the shortest-path distances of the network). The package uwot is suggested.</li>
-<li>A new guide, “Drawing networks”, explains what a layout does, compares the layouts, and covers colours, labels and <code><a href="../reference/plot_networks.html">plot_networks()</a></code>; this part of “Finding and reading clusters” is moved there. In “Finding and reading clusters”, the table of cluster sizes is a labelled tibble, the CPM example uses the density of the network as the scale of the resolution, <code><a href="../reference/name_clusters.html">name_clusters()</a></code> is shown with a centrality (<code>"tidygraph_functions"</code>), and the interpretation of clusters cites Delcey et al.</li>
-<li>With <code>verbose = TRUE</code> (now also the default of <code><a href="../reference/build_network.html">build_network()</a></code>), the functions say which method they apply, what it measures and where it comes from (Sen and Gan, Shen et al., Neal…). The details of <code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> document the origin of each method.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.9.9002" id="networkflow-0099002-2026-11-04">networkflow 0.0.9.9002 (2026-11-04)<a class="anchor" aria-label="anchor" href="#networkflow-0099002-2026-11-04"></a></h2>
-<p>Third step of the development: alignment with biblionetwork 0.2.0, a lighter installation, clearer entry functions and documentation, and a new README and website theme (changes of 2026-11-02 to 2026-11-04).</p>
-<div class="section level3">
-<h3 id="breaking-changes-0-0-9-9002">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9002"></a></h3>
-<ul><li>
-<code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> now stops when <code>time_variable</code> or <code>time_window</code> is missing, instead of silently building the single network of <code><a href="../reference/build_network.html">build_network()</a></code>: that was not what a user calling a “dynamic” function meant. The error says to use <code><a href="../reference/build_network.html">build_network()</a></code> and suggests the columns that look like a time variable (dates, or numbers named like a year). <code><a href="../reference/build_network.html">build_network()</a></code> is unchanged.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="new-features-0-0-9-9002">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9-9002"></a></h3>
-<ul><li>All the similarity measures of biblionetwork 0.2.0 are available in <code>cooccurrence_method</code>: <code>"coupling_jaccard"</code> and <code>"coupling_vladutz"</code> join <code>"coupling_angle"</code>, <code>"coupling_strength"</code> and <code>"coupling_similarity"</code>. The edges are computed with <code>biblionetwork::biblio_coupling(method = )</code>, and <code>document_id</code> (entity coupling) accepts the five measures through <code><a href="https://agoutsmedt.github.io/biblionetwork/reference/entity_network.html" class="external-link">biblionetwork::entity_network()</a></code> (it used to refuse <code>"coupling_similarity"</code>).</li>
-<li>
-<code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code> accepts the list of graphs with dynamic clusters directly (it calls <code><a href="../reference/networks_to_alluv.html">networks_to_alluv()</a></code>), and <code>min_share_cluster</code> and <code>min_windows_cluster</code> keep the main clusters only: the whole alluvial workflow in one call. The separate functions remain available.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="lighter-installation-0-0-9-9002">Lighter installation<a class="anchor" aria-label="anchor" href="#lighter-installation-0-0-9-9002"></a></h3>
-<ul><li>
-<code>ggalluvial</code> and <code>tidytext</code> are moved from Imports to Suggests, with <code>lifecycle</code> (only used to write the documentation), and <code>forcats</code>, <code>stringr</code> and <code>stopwords</code>, which the package barely used, are removed: 16 packages are imported instead of 22. <code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code>, <code><a href="../reference/extract_tfidf.html">extract_tfidf()</a></code> and <code>name_clusters(method = "tf-idf")</code> ask to install <code>ggalluvial</code> or <code>tidytext</code> when they are needed (<code><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">rlang::check_installed()</a></code>).</li>
-</ul></div>
-<div class="section level3">
-<h3 id="documentation-and-website-0-0-9-9002">Documentation and website<a class="anchor" aria-label="anchor" href="#documentation-and-website-0-0-9-9002"></a></h3>
-<ul><li>
-<code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> and <code><a href="../reference/build_network.html">build_network()</a></code> document, case by case, which arguments to choose (coupling, backbone, one network per period, co-citation, authors, other two-mode tables) and what each <code>projection_method</code> uses and ignores.</li>
-<li>The five measures are described, with their formulas, in the documentation and in the first guide, and linked to the explanations of biblionetwork. The first guide compares the coupling angle, the Jaccard index and the coupling similarity, and shows how much a statistical backbone prunes a network, with the numbers of nodes and edges of a coupling angle network.</li>
-<li>The formulas of the function documentation are displayed on the website (KaTeX), and the footer names the two maintainers.</li>
-<li>The README is written in Quarto (<code>README.qmd</code>); its illustration comes in a light and a dark version that follow the theme of the website. It mentions the Digital History of Macroeconomics project.</li>
-<li>Package names are written in code font, with a link at first mention, in the documentation and the guides.</li>
-<li>New site theme, logo and favicons.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="other-changes-0-0-9-9002">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-0-0-9-9002"></a></h3>
-<ul><li>biblionetwork &gt;= 0.2.0 is required (<code>biblio_coupling()</code> is the general function; <code>coupling_entity()</code> is deprecated in favour of <code>entity_network()</code>), which also fixes the coupling similarity (the idf-weighted cosine of Shen et al., 2019) and the weights of the coupling strength.</li>
-<li>The <code>Authors@R</code> field of <code>DESCRIPTION</code> is fixed (a missing comma).</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.9.9001" id="networkflow-0099001-2026-11-01">networkflow 0.0.9.9001 (2026-11-01)<a class="anchor" aria-label="anchor" href="#networkflow-0099001-2026-11-01"></a></h2>
-<p>Second step: the pipeline is generalised beyond bibliographic coupling, and time windows are reworked.</p>
+<h2 class="pkg-version" data-toc-text="0.0.9.9001" id="networkflow-0099001-2026-11-01-to-2026-11-04">networkflow 0.0.9.9001 (2026-11-01 to 2026-11-04)<a class="anchor" aria-label="anchor" href="#networkflow-0099001-2026-11-01-to-2026-11-04"></a></h2>
+<p>Second step: the pipeline goes beyond bibliographic coupling, networks are built with one explicit <code>method</code>, time windows are reworked, and the package is lighter. The changes are given with respect to 0.0.9.9000.</p>
 <div class="section level3">
 <h3 id="breaking-changes-0-0-9-9001">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9001"></a></h3>
 <ul><li>
-<code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code>: <code>overlapping_window</code> is replaced by <code>window_step</code>, the number of units between the starts of two windows (<code>window_step = 1</code> replaces <code>overlapping_window = TRUE</code>; by default, windows follow each other). Using <code>overlapping_window</code> gives an error that says so.</li>
+<code><a href="../reference/build_network.html">build_network()</a></code> and <code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code>: one required argument, <code>method</code>, replaces <code>projection_method</code>, <code>cooccurrence_method</code> and <code>model</code>. It is either one of the five similarity measures of biblionetwork (<code>"angle"</code>, <code>"strength"</code>, <code>"similarity"</code>, <code>"jaccard"</code>, <code>"vladutz"</code>) or one of the null models of the statistical backbones of the backbone package (<code>"sdsm"</code>, <code>"fdsm"</code>, <code>"fixedfill"</code>, <code>"fixedrow"</code>, <code>"fixedcol"</code>, with <code>alpha</code>). There is no default. The former arguments give an error that shows the translation (<code>projection_method = "structured", cooccurrence_method = "coupling_angle"</code> becomes <code>method = "angle"</code>).</li>
 <li>
-<code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code>: the arguments are reordered (data, entities, projection, time, options) and <code>...</code> only accepts the arguments of <code><a href="../reference/filter_components.html">filter_components()</a></code>: a misspelt argument is now an error instead of being ignored. <code><a href="../reference/build_network.html">build_network()</a></code> follows the same order.</li>
-<li>Windows of a single time unit are named after the unit (<code>"1990"</code>, <code>"2001-Q2"</code>) instead of <code>"1990-1990"</code>.</li>
+<code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> needs <code>time_variable</code> and <code>time_window</code>, and points to <code><a href="../reference/build_network.html">build_network()</a></code> otherwise (it used to build the single network silently).</li>
 <li>
-<code><a href="../reference/plot_networks.html">plot_networks()</a></code> returns a named list of ggplot objects for a list of graphs (it used to store the plots in the graphs, in an element <code>plot</code>).</li>
-<li>The research scripts that call <code>build_dynamic_networks(overlapping_window = TRUE)</code> must use <code>window_step = 1</code>.</li>
+<code>overlapping_window</code> is replaced by <code>window_step</code>, the number of units between the starts of two windows (<code>window_step = 1</code> replaces <code>overlapping_window = TRUE</code>). The arguments are reordered, and <code>...</code> only accepts the arguments of <code><a href="../reference/filter_components.html">filter_components()</a></code>. Windows of a single time unit are named after the unit (<code>"1990"</code> instead of <code>"1990-1990"</code>).</li>
+<li>
+<code><a href="../reference/plot_networks.html">plot_networks()</a></code> returns a named list of ggplot objects for a list of graphs.</li>
+<li>
+<code>launch_network_app()</code> is removed: the Shiny application moves to the package networkflowapp.</li>
+<li>biblionetwork &gt;= 0.2.0 is required.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="new-features-0-0-9-9001">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9-9001"></a></h3>
-<ul><li>Dates and finer time units: <code>time_variable</code> can be a <code>Date</code>, a <code>POSIXct</code> or an ISO date written as text, and <code>time_unit</code> (<code>"year"</code>, <code>"quarter"</code>, <code>"month"</code>, <code>"week"</code>, <code>"day"</code>) sets the unit in which <code>time_window</code> and <code>window_step</code> are counted. The time column of the user is not modified.</li>
+<ul><li>Beyond bibliographic coupling: co-citation (<code>projection_on = "target"</code>), time carried by the links (<code>time_in = "edges"</code>), coupling of entities that publish documents, such as authors or journals (<code>document_id</code>, through <code><a href="https://agoutsmedt.github.io/biblionetwork/reference/entity_network.html" class="external-link">biblionetwork::entity_network()</a></code>), and a <code>compute_size</code> that counts the citing documents of each node.</li>
+<li>Dates (<code>Date</code>, <code>POSIXct</code>, ISO dates) and finer time units (<code>time_unit</code>: year, quarter, month, week, day).</li>
+<li>With <code>verbose = TRUE</code>, the building functions say which method they apply, what it measures and where it comes from.</li>
 <li>
-<code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> show how the dynamic clusters change with the threshold and the type of similarity of <code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code> (number of clusters, lifespans, share of nodes in persistent clusters).</li>
+<code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> show how the dynamic clusters depend on the threshold of <code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code>.</li>
 <li>
-<code><a href="../reference/add_node_roles.html">add_node_roles()</a></code> documents how to read each role, with examples from the stagflation data, and the guide shows how roles change with the resolution. Running <code><a href="../reference/add_node_roles.html">add_node_roles()</a></code> again replaces the earlier roles instead of duplicating the columns.</li>
-<li>The guides cite the literature on direct citation (Klavans and Boyack, Waltman and van Eck, Rivest et al., Sjögårde and Ahlgren, Kleminski et al.) and discuss other ways to follow clusters over time (Jaccard matching, multislice community detection, significance-clustered alluvial maps).</li>
-<li>Figures of the guides open in a lightbox.</li>
-<li>Co-citation: <code><a href="../reference/build_network.html">build_network()</a></code> and <code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> gain <code>projection_on = "target"</code>, which links the <code>target_id</code> entities that share <code>source_id</code> entities (e.g. cited works linked when cited together).</li>
+<code><a href="../reference/layout_networks.html">layout_networks()</a></code> has two new layouts, <code>"forceatlas2"</code> (Jacomy et al.,
+<ol start="2014" style="list-style-type: decimal"><li>and <code>"umap"</code> (McInnes et al., 2018).</li>
+</ol></li>
 <li>
-<code>time_in = "edges"</code>: the time variable can be a column of the table of links (e.g. the year of the citing document), so that windows follow the citing documents (co-citation) or the documents of entities without a date (authors). Successive windows can then be matched, since nodes persist.</li>
-<li>
-<code>document_id</code>: coupling of entities that publish documents (authors, journals, institutions), counting the documents that cite each reference, through <code><a href="https://agoutsmedt.github.io/biblionetwork/reference/entity_network.html" class="external-link">biblionetwork::entity_network()</a></code>.</li>
-<li>
-<code>compute_size</code> counts the citing documents of each node when the nodes are linked through their own links (co-citation, <code>time_in = "edges"</code>).</li>
-<li>A fourth guide, “Beyond bibliographic coupling”, shows co-citation, author coupling and co-authorship, and explains why the identifiers of references matter.</li>
-<li>Windows without any edge give an empty network (with a warning) that <code><a href="../reference/filter_components.html">filter_components()</a></code>, <code><a href="../reference/add_clusters.html">add_clusters()</a></code> and the following steps accept; nodes or links with a missing time are dropped with a warning (they used to make the function fail).</li>
+<code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code> accepts the list of graphs directly, and keeps the main clusters with <code>min_share_cluster</code> and <code>min_windows_cluster</code>.</li>
+<li>Windows without any edge give an empty network that the following steps accept; nodes or links with a missing time are dropped with a warning.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="lighter-installation-0-0-9-9001">Lighter installation<a class="anchor" aria-label="anchor" href="#lighter-installation-0-0-9-9001"></a></h3>
+<ul><li>16 packages are imported instead of 22: <code>forcats</code>, <code>stringr</code> and <code>stopwords</code> are removed, and <code>ggalluvial</code>, <code>tidytext</code> and <code>lifecycle</code> are suggested. The functions that need a suggested package (<code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code>, <code><a href="../reference/extract_tfidf.html">extract_tfidf()</a></code>, the statistical backbones, UMAP) ask to install it.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-and-website-0-0-9-9001">Documentation and website<a class="anchor" aria-label="anchor" href="#documentation-and-website-0-0-9-9001"></a></h3>
+<ul><li>Five guides on the website: “From references to networks”, “Finding and reading clusters”, “Drawing networks”, “Following clusters over time” and “Beyond bibliographic coupling”, with the methods, their formulas and the literature behind them.</li>
+<li>The documentation of each function explains its method and its choices, with formulas displayed on the website and the origin of each measure.</li>
+<li>The README is written in Quarto, with an illustration in a light and a dark version, and the studies that used the package.</li>
+<li>New theme, logo and favicons.</li>
 </ul></div>
 </div>
     <div class="section level2">
