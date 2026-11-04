@@ -3,6 +3,61 @@
 Development versions are numbered 0.0.9.900x, from the first step (rewrite)
 to the latest; the steps are listed from the most recent to the oldest.
 
+# networkflow 0.0.9.9004 (2026-11-05)
+
+Fifth step: a second rule to follow clusters across windows, a clearer name
+for the naming of dynamic clusters, and a better order for alluvial plots.
+
+## Breaking changes
+
+- `merge_dynamic_clusters()` has a required `method`: `"majority"` (the
+  double majority, the only rule so far) or `"jaccard"` (new, see below).
+  `threshold_similarity` has no default any more (it used to be 0.5001): the
+  rule, its threshold and the type of similarity change the dynamic clusters,
+  so all three must be given. Calls of earlier versions need
+  `method = "majority"` and a threshold.
+- `merge_diagnostics()` has a required `method` too, and `thresholds` is
+  `NULL` by default (a grid for each rule); its result has a `method` column.
+- `networks_to_alluv()` returns `window` as a factor whose levels follow the
+  order of the list: windows with numeric names ("2", "10") are no longer
+  sorted alphabetically in the table and in the plot.
+
+## New features
+
+- `merge_dynamic_clusters(method = "jaccard")`: overlap matching with a
+  Jaccard threshold, as in the tracking of dynamic communities of Greene et
+  al. (2010). Candidate pairs have a Jaccard index of at least the threshold
+  (which can be well below 0.5); they are taken by decreasing index, each past
+  identifier going to one cluster at most. `similarity_type = "partial"`
+  restricts the union to the nodes present in both windows. With `verbose =
+  TRUE`, the function says which rule it applies. `merge_diagnostics()` and
+  `plot_merge_diagnostics()` work with both rules, and the guide "Following
+  clusters over time" compares them.
+- `minimize_crossing_alluvial()` refines its order against the crossings of
+  the flows themselves (`refine = TRUE`, `max_passes`): on the stagflation
+  data, the weighted crossings fall from about 380 to 90. It reports the
+  crossings before and after (`verbose`).
+- `name_clusters()`: `name_merged_clusters` is renamed `name_dynamic_clusters`
+  (the old name still works, with a deprecation warning).
+
+## Bug fixes
+
+- `minimize_crossing_alluvial()` pasted the numbers of the components into a
+  string to sort the clusters, which mixed "1" "10" and "11" "0" as soon as
+  there were ten components or more.
+
+## Documentation
+
+- The guide "Following clusters over time" discusses the risk of building
+  communities of documents of the same years rather than thematic
+  communities on a long period (coupling, and possibly co-citation), says that
+  windows must overlap (`window_step` smaller than `time_window`, not only
+  `window_step = 1`) for documents to be matched, and presents the
+  multislice community detection and the significance-clustered alluvial maps
+  as possible future methods.
+- The README lists the study of Boucher and Fan (2025) among those that used
+  the package.
+
 # networkflow 0.0.9.9003 (2026-11-04)
 
 Fourth step: one `method` to build networks, and the Shiny application moves

@@ -17,10 +17,10 @@ test_that("given_column works on dynamic clusters across a list", {
     c(a = "01", b = "01", c = "02", d = "02"),
     c(a = "01", b = "01", c = "02", d = "02")
   )
-  merged <- merge_dynamic_clusters(windows, "cluster", "id", similarity_type = "partial")
+  merged <- merge_dynamic_clusters(windows, "cluster", "id", similarity_type = "partial", method = "majority", threshold_similarity = 0.5001)
   merged[[1]] <- tidygraph::mutate(merged[[1]], score = c(1, 2, 3, 4))
   merged[[2]] <- tidygraph::mutate(merged[[2]], score = c(9, 0, 0, 5))
-  named <- name_clusters(merged, method = "given_column", name_merged_clusters = TRUE,
+  named <- name_clusters(merged, method = "given_column", name_dynamic_clusters = TRUE,
                          cluster_id = "dynamic_cluster", label_columns = "id", order_by = "score")
   labels <- node_table(named[[1]])$cluster_label
   # a has the highest score of its cluster over both windows (9), d of its own.
@@ -62,12 +62,12 @@ test_that("arguments are checked", {
     "order_by"
   )
   expect_error(
-    name_clusters(graph, method = "tf-idf", name_merged_clusters = TRUE, cluster_id = "cluster_leiden",
+    name_clusters(graph, method = "tf-idf", name_dynamic_clusters = TRUE, cluster_id = "cluster_leiden",
                   text_columns = "title"),
     "list of graphs"
   )
   expect_error(
-    name_clusters(list(graph, graph), method = "tidygraph_functions", name_merged_clusters = TRUE,
+    name_clusters(list(graph, graph), method = "tidygraph_functions", name_dynamic_clusters = TRUE,
                   cluster_id = "cluster_leiden", label_columns = "id",
                   tidygraph_function = tidygraph::centrality_degree()),
     "across windows"
@@ -76,5 +76,17 @@ test_that("arguments are checked", {
     name_clusters(graph, cluster_id = "cluster_leiden", text_columns = "title",
                   ngrams_filter = 1, clean_word_method = "none"),
     "tf-idf"
+  )
+})
+
+test_that("name_merged_clusters is deprecated in favour of name_dynamic_clusters", {
+  windows <- toy_windows(c(a = "01", b = "01", c = "02"), c(a = "01", b = "01", c = "02"))
+  merged <- merge_dynamic_clusters(windows, "cluster", "id", method = "majority",
+                                   threshold_similarity = 0.51, similarity_type = "partial", verbose = FALSE)
+  merged <- lapply(merged, function(graph) tidygraph::mutate(graph, year = 2000, ref = 1:3))
+  expect_warning(
+    name_clusters(merged, method = "given_column", name_merged_clusters = TRUE,
+                  cluster_id = "dynamic_cluster", label_columns = "id", order_by = "ref"),
+    "name_dynamic_clusters"
   )
 })

@@ -5,7 +5,7 @@ toy_alluvial <- function() {
     c(b = "01", c = "01", d = "02", e = "02")
   )
   names(windows) <- c("1", "2", "3")
-  merge_dynamic_clusters(windows, "cluster", "id", similarity_type = "partial")
+  merge_dynamic_clusters(windows, "cluster", "id", similarity_type = "partial", method = "majority", threshold_similarity = 0.5001)
 }
 
 test_that("the alluvial table has one row per node and window, and heights sum to 1", {
@@ -54,4 +54,29 @@ test_that("plot_alluvial accepts the list of graphs and filters the clusters", {
   expect_error(plot_alluvial(graphs, "dynamic_cluster", "id", min_windows_cluster = 3, min_share_cluster = 200),
                NA)
   expect_error(plot_alluvial(1:3, "dynamic_cluster", "id"), "alluv_dt")
+})
+
+test_that("the refinement of the order removes crossings, and windows keep the order of the list", {
+  alluv <- data.table::data.table(
+    window = factor(rep(c("w1", "w2"), each = 4), levels = c("w1", "w2")),
+    cluster = c("A", "A", "B", "B", "C", "C", "D", "D"),
+    id = rep(c("n1", "n2", "n3", "n4"), 2)
+  )
+  # A goes to D and B to C: with the order A, B, D, C the flows do not cross;
+  # with A, B, C, D they do (weight 2 * 2)
+  alluv[window == "w2", cluster := c("D", "D", "C", "C")]
+  flows <- alluvial_flows(alluv, "cluster", "id", "window")
+  expect_equal(weighted_crossings(c(A = 1, B = 2, C = 3, D = 4), flows), 4)
+  refined <- refine_crossing_order(c(A = 1, B = 2, C = 3, D = 4), flows)
+  expect_equal(weighted_crossings(refined, flows), 0)
+  ordered <- suppressMessages(minimize_crossing_alluvial(alluv, "cluster", "id"))
+  expect_true("minimize_crossing_order" %in% names(ordered))
+  # without refinement, the function still returns an order
+  plain <- suppressMessages(minimize_crossing_alluvial(alluv, "cluster", "id", refine = FALSE))
+  expect_equal(sort(unique(plain$minimize_crossing_order)), 1:4)
+
+  graphs <- toy_alluvial()
+  names(graphs) <- c("2", "10", "3")
+  table <- suppressMessages(networks_to_alluv(graphs, "dynamic_cluster", "id"))
+  expect_equal(levels(table$window), c("2", "10", "3"))
 })

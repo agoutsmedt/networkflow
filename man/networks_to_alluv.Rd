@@ -96,7 +96,7 @@ networks <- merge_dynamic_clusters(
   networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
-  threshold_similarity = 0.51,
+  method = "majority", threshold_similarity = 0.51,
   similarity_type = "partial"
 )
 

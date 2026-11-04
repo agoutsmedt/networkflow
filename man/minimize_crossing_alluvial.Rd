@@ -8,11 +8,17 @@ minimize_crossing_alluvial(
   alluv_dt,
   intertemporal_cluster_column = NULL,
   node_id = NULL,
-  window_column = "window"
+  window_column = "window",
+  refine = TRUE,
+  max_passes = 10,
+  verbose = TRUE
 )
 }
 \arguments{
-\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}.}
+\item{alluv_dt}{A data frame created with \code{\link[=networks_to_alluv]{networks_to_alluv()}}, whose rows
+follow the chronological order of the windows (the order of the levels of
+\code{window_column} if it is a factor, as in \code{\link[=networks_to_alluv]{networks_to_alluv()}}, or of
+their appearance).}
 
 \item{intertemporal_cluster_column}{Character scalar, the column with the
 dynamic clusters.}
@@ -21,6 +27,16 @@ dynamic clusters.}
 
 \item{window_column}{Character scalar, the column with the time windows
 (\code{"window"} by default).}
+
+\item{refine}{Logical. If \code{TRUE} (default), refines the order against the
+crossings (see the description); if \code{FALSE}, keeps the order of the
+components.}
+
+\item{max_passes}{Whole number, the maximum number of passes of the
+refinement over all the clusters.}
+
+\item{verbose}{Logical. If \code{TRUE} (default), reports the weighted number of
+crossings before and after the refinement.}
 }
 \value{
 \code{alluv_dt} with a new column \code{minimize_crossing_order}, the rank
@@ -35,15 +51,27 @@ computes an order of the clusters that places clusters exchanging many
 nodes next to each other. It is a heuristic, not an optimal solution to
 the crossing problem.
 
-The function builds a network of clusters: two clusters are tied when
-nodes move from one to the other between windows, with a cosine weight
+The order is built in two steps. First, the function builds a network of
+clusters: two clusters are tied when nodes move from one to the other
+between windows, with a cosine weight
 \eqn{n_{ab} / \sqrt{\bar{s}_a \bar{s}_b}}, \eqn{n_{ab}} being the number
 of moving nodes and \eqn{\bar{s}_a} the mean size of cluster \eqn{a} over
-its windows. It then removes the ties one by one, from the weakest to the
+its windows. It removes the ties one by one, from the weakest to the
 strongest, and records at each step the connected component of each
 cluster. Clusters are ordered by this sequence of components: clusters
 that stay together until the strongest ties are removed end up side by
-side.
+side. This groups clusters that exchange nodes, but it does not count the
+crossings.
+
+Second (\code{refine = TRUE}, the default), the order is improved against the
+crossings themselves. For each pair of consecutive windows, the flows are
+the numbers of nodes going from a cluster of the first window to a cluster
+of the second; two flows cross when the order of their origins and the
+order of their destinations are opposite, and the pair is weighted by the
+product of the two flows. Each cluster in turn is moved to the position that
+minimises the total, until no move helps. This is a local search, which
+can end in a local optimum, and which costs more with many clusters and
+flows.
 }
 \details{
 The alluvial method (following clusters over time with \code{networks_to_alluv()},
@@ -73,7 +101,7 @@ networks <- merge_dynamic_clusters(
   networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
-  threshold_similarity = 0.51,
+  method = "majority", threshold_similarity = 0.51,
   similarity_type = "partial"
 )
 alluv_dt <- networks_to_alluv(

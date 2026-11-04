@@ -4,8 +4,9 @@
 #' `r lifecycle::badge("experimental")`
 #'
 #' [merge_dynamic_clusters()] links the clusters of successive windows when
-#' they share a majority of their nodes, and the result depends on the
-#' threshold \eqn{\tau} and on the type of similarity. A low threshold links
+#' they share a majority of their nodes (`method = "majority"`) or have a
+#' large enough Jaccard index (`method = "jaccard"`), and the result depends
+#' on the threshold and on the type of similarity. A low threshold links
 #' clusters easily and produces a few long-lived dynamic clusters; a high
 #' one breaks continuities and produces many short-lived clusters. There is no
 #' right value, but there are *unstable* regions, where a small change of the
@@ -22,7 +23,13 @@
 #'   each window (e.g. `"cluster_leiden"`).
 #' @param node_id Character scalar, the node column with an identifier that
 #'   is stable across windows.
-#' @param thresholds Numeric vector of thresholds in \eqn{(0.5, 1]} to try.
+#' @param method `"majority"` or `"jaccard"`, the rule of
+#'   [merge_dynamic_clusters()] to diagnose. Required: run the function once
+#'   for each rule to compare them.
+#' @param thresholds Numeric vector of thresholds to try, in \eqn{(0.5, 1]}
+#'   for `"majority"` and \eqn{(0, 1]} for `"jaccard"`. `NULL` (default) tries
+#'   0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8 and 0.9 for `"majority"`, and 0.1
+#'   to 0.8 by steps of 0.1 for `"jaccard"`.
 #' @param similarity_types Subset of `c("complete", "partial")`: the types to
 #'   try (see [merge_dynamic_clusters()]).
 #' @param min_length Whole number, the number of windows from which a dynamic
@@ -30,7 +37,8 @@
 #' @param verbose Logical. If `TRUE` (default), reports progress.
 #'
 #' @details
-#' For each setting, with a *window cluster* meaning a cluster of one window
+#' The matching is run for each setting (threshold and similarity type)
+#' with [merge_dynamic_clusters()]. For each setting, with a *window cluster* meaning a cluster of one window
 #' and a *dynamic cluster* the set of window clusters that share an
 #' identifier, the columns of the result are:
 #'
@@ -59,8 +67,8 @@
 #' without any shared node cannot be matched whatever the threshold, and are
 #' reported in a warning.
 #'
-#' @return A data frame with one row per threshold and similarity type and
-#'   the columns described above, with the table of lifespans in its
+#' @return A data frame with one row per threshold and similarity type, the
+#'   `method` and the columns described above, with the table of lifespans in its
 #'   `"lifespans"` attribute.
 #'
 #' @seealso [merge_dynamic_clusters()], [plot_merge_diagnostics()].
@@ -90,6 +98,7 @@
 #'   networks,
 #'   cluster_id = "cluster_leiden",
 #'   node_id = "source_id",
+#'   method = "majority",
 #'   thresholds = c(0.51, 0.6, 0.75),
 #'   similarity_types = "partial",
 #'   verbose = FALSE
@@ -100,7 +109,8 @@
 merge_diagnostics <- function(list_graph,
                               cluster_id,
                               node_id,
-                              thresholds = c(0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9),
+                              method = c("majority", "jaccard"),
+                              thresholds = NULL,
                               similarity_types = c("complete", "partial"),
                               min_length = 3,
                               verbose = TRUE) {
@@ -110,9 +120,17 @@ merge_diagnostics <- function(list_graph,
     cli::cli_abort("{.arg list_graph} must be a list of at least two {.cls tbl_graph}s.")
   }
   for (graph in list_graph) check_columns(node_table(graph), c(cluster_id, node_id), "list_graph")
-  if (!is.numeric(thresholds) || length(thresholds) == 0 || any(thresholds <= 0.5 | thresholds > 1)) {
-    cli::cli_abort("{.arg thresholds} must be numbers in (0.5, 1].")
+  method <- check_explicit_choice(
+    method, c("majority", "jaccard"), "method",
+    context = "To diagnose the linking of clusters across windows"
+  )
+  if (is.null(thresholds)) {
+    thresholds <- if (method == "majority") c(0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9) else seq(0.1, 0.8, by = 0.1)
   }
+  if (!is.numeric(thresholds) || length(thresholds) == 0) {
+    cli::cli_abort("{.arg thresholds} must be a numeric vector.")
+  }
+  for (threshold in thresholds) check_merge_threshold(threshold, method)
   similarity_types <- rlang::arg_match(similarity_types, c("complete", "partial"), multiple = TRUE)
   min_length <- check_positive_integer(min_length, "min_length")
 
@@ -131,15 +149,16 @@ merge_diagnostics <- function(list_graph,
   n_first <- length(unique(window_clusters[window == 1, cluster]))
 
   settings <- expand.grid(similarity_type = similarity_types, threshold = thresholds, stringsAsFactors = FALSE)
-  if (verbose) cli::cli_progress_bar("Matching clusters", total = nrow(settings))
+  if (verbose) cli::cli_progress_bar("Matching clusters ({method})", total = nrow(settings))
   new_col <- paste0("dynamic_", cluster_id)
   results <- vector("list", nrow(settings))
   lifespans <- vector("list", nrow(settings))
   for (i in seq_len(nrow(settings))) {
     merged <- suppressMessages(suppressWarnings(merge_dynamic_clusters(
-      list_graph, cluster_id, node_id,
+      list_graph, cluster_id, node_id, method = method,
       threshold_similarity = settings$threshold[i],
-      similarity_type = settings$similarity_type[i]
+      similarity_type = settings$similarity_type[i],
+      verbose = FALSE
     )))
     rows <- data.table::rbindlist(lapply(unname(merged), function(graph) {
       nodes <- node_table(graph)
@@ -148,6 +167,7 @@ merge_diagnostics <- function(list_graph,
     per_cluster <- rows[, list(lifespan = data.table::uniqueN(window), n_rows = .N), by = dynamic]
     persistent <- per_cluster$lifespan >= min_length
     results[[i]] <- data.frame(
+      method = method,
       similarity_type = settings$similarity_type[i],
       threshold = settings$threshold[i],
       n_window_clusters = n_window_clusters,
@@ -172,6 +192,7 @@ merge_diagnostics <- function(list_graph,
   out <- do.call(rbind, results)
   attr(out, "lifespans") <- do.call(rbind, lifespans)
   attr(out, "min_length") <- min_length
+  attr(out, "method") <- method
   out
 }
 
@@ -223,7 +244,7 @@ merge_diagnostics <- function(list_graph,
 #'   verbose = FALSE
 #' )
 #' diagnostics <- merge_diagnostics(
-#'   networks, "cluster_leiden", "source_id",
+#'   networks, "cluster_leiden", "source_id", method = "majority",
 #'   thresholds = c(0.51, 0.6, 0.75), similarity_types = "partial", verbose = FALSE
 #' )
 #' plot_merge_diagnostics(diagnostics)
@@ -242,6 +263,11 @@ plot_merge_diagnostics <- function(diagnostics,
   }
   min_length <- attr(diagnostics, "min_length")
   type_colors <- c(complete = "#1B9E77", partial = "#7570B3")
+  threshold_label <- switch(
+    if (is.null(attr(diagnostics, "method"))) "majority" else attr(diagnostics, "method"),
+    majority = "Threshold (double majority)",
+    jaccard = "Threshold (Jaccard index)"
+  )
 
   if (view == "summary") {
     labels <- c(
@@ -272,7 +298,7 @@ plot_merge_diagnostics <- function(diagnostics,
         ggplot2::scale_colour_manual(values = type_colors, name = "Similarity") +
         ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.03, 0.03))) +
         ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.08))) +
-        ggplot2::labs(x = "Threshold", y = NULL) +
+        ggplot2::labs(x = threshold_label, y = NULL) +
         ggplot2::theme_minimal(base_size = base_size) +
         ggplot2::theme(legend.position = "bottom")
     )
@@ -288,7 +314,7 @@ plot_merge_diagnostics <- function(diagnostics,
     ggplot2::facet_wrap(ggplot2::vars(similarity_type)) +
     ggplot2::scale_fill_viridis_d(option = "mako", direction = -1, begin = 0.1, end = 0.9, name = "Lifespan of the cluster") +
     ggplot2::scale_y_continuous(labels = function(x) paste0(round(100 * x), "%"), expand = ggplot2::expansion(mult = c(0, 0.02))) +
-    ggplot2::labs(x = "Threshold", y = "Share of the nodes of all windows") +
+    ggplot2::labs(x = threshold_label, y = "Share of the nodes of all windows") +
     ggplot2::theme_minimal(base_size = base_size) +
     ggplot2::theme(legend.position = "bottom")
 }

@@ -8,7 +8,8 @@ merge_diagnostics(
   list_graph,
   cluster_id,
   node_id,
-  thresholds = c(0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.9),
+  method = c("majority", "jaccard"),
+  thresholds = NULL,
   similarity_types = c("complete", "partial"),
   min_length = 3,
   verbose = TRUE
@@ -24,7 +25,14 @@ each window (e.g. \code{"cluster_leiden"}).}
 \item{node_id}{Character scalar, the node column with an identifier that
 is stable across windows.}
 
-\item{thresholds}{Numeric vector of thresholds in \eqn{(0.5, 1]} to try.}
+\item{method}{\code{"majority"} or \code{"jaccard"}, the rule of
+\code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} to diagnose. Required: run the function once
+for each rule to compare them.}
+
+\item{thresholds}{Numeric vector of thresholds to try, in \eqn{(0.5, 1]}
+for \code{"majority"} and \eqn{(0, 1]} for \code{"jaccard"}. \code{NULL} (default) tries
+0.51, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8 and 0.9 for \code{"majority"}, and 0.1
+to 0.8 by steps of 0.1 for \code{"jaccard"}.}
 
 \item{similarity_types}{Subset of \code{c("complete", "partial")}: the types to
 try (see \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}).}
@@ -35,16 +43,17 @@ cluster is called \emph{persistent} (3 by default).}
 \item{verbose}{Logical. If \code{TRUE} (default), reports progress.}
 }
 \value{
-A data frame with one row per threshold and similarity type and
-the columns described above, with the table of lifespans in its
+A data frame with one row per threshold and similarity type, the
+\code{method} and the columns described above, with the table of lifespans in its
 \code{"lifespans"} attribute.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}} links the clusters of successive windows when
-they share a majority of their nodes, and the result depends on the
-threshold \eqn{\tau} and on the type of similarity. A low threshold links
+they share a majority of their nodes (\code{method = "majority"}) or have a
+large enough Jaccard index (\code{method = "jaccard"}), and the result depends
+on the threshold and on the type of similarity. A low threshold links
 clusters easily and produces a few long-lived dynamic clusters; a high
 one breaks continuities and produces many short-lived clusters. There is no
 right value, but there are \emph{unstable} regions, where a small change of the
@@ -56,7 +65,8 @@ between long-lived and short-lived clusters. \code{\link[=plot_merge_diagnostics
 draws the result.
 }
 \details{
-For each setting, with a \emph{window cluster} meaning a cluster of one window
+The matching is run for each setting (threshold and similarity type)
+with \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}. For each setting, with a \emph{window cluster} meaning a cluster of one window
 and a \emph{dynamic cluster} the set of window clusters that share an
 identifier, the columns of the result are:
 \itemize{
@@ -111,6 +121,7 @@ diagnostics <- merge_diagnostics(
   networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
+  method = "majority",
   thresholds = c(0.51, 0.6, 0.75),
   similarity_types = "partial",
   verbose = FALSE

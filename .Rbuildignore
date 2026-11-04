@@ -13,3 +13,4 @@
 ^README\.html$
 ^\.vscode$
 ^bench$
+^to_do\.qmd$

@@ -77,7 +77,7 @@
 #'   networks,
 #'   cluster_id = "cluster_leiden",
 #'   node_id = "source_id",
-#'   threshold_similarity = 0.51,
+#'   method = "majority", threshold_similarity = 0.51,
 #'   similarity_type = "partial"
 #' )
 #'
@@ -110,6 +110,10 @@ networks_to_alluv <- function(graphs,
                      function(tbl)(tbl %N>% data.table::as.data.table())) %>%
     data.table::rbindlist(idcol = "window") %>%
     dplyr::select(window, dplyr::any_of(columns)) # We keep all the need columns
+
+  # Windows are kept in the order of the list (chronological), not in
+  # alphabetical order ("10" would come before "2" for unnamed windows)
+  alluv_dt[, window := factor(window, levels = unique(window))]
 
   if(is.null(color_column) | keep_color == FALSE){
     NULL

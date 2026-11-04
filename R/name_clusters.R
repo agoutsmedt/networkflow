@@ -17,7 +17,7 @@
 #' @param graphs A `tbl_graph` or a list of `tbl_graph`s.
 #' @param method `"tf-idf"` (chosen when no method is given),
 #'   `"tidygraph_functions"` or `"given_column"` (see the details).
-#' @param name_merged_clusters Logical. `TRUE` when `cluster_id` identifies
+#' @param name_dynamic_clusters Logical. `TRUE` when `cluster_id` identifies
 #'   clusters across a list of graphs (the dynamic clusters of
 #'   [merge_dynamic_clusters()]): each cluster then gets one name, computed on
 #'   all its nodes in all windows. `FALSE` (default) names the clusters of
@@ -39,6 +39,8 @@
 #'   abstracts, keywords), passed to [extract_tfidf()].
 #' @param nb_terms_label For `"tf-idf"`, the number of terms in each label (3
 #'   by default), separated by commas.
+#' @param name_merged_clusters `r lifecycle::badge("deprecated")` Former name
+#'   of `name_dynamic_clusters`.
 #' @param ... For `"tf-idf"`, other arguments of [extract_tfidf()] (e.g.
 #'   `clean_word_method`, `n_gram`, `ngrams_filter`).
 #'
@@ -51,7 +53,7 @@
 #' number of occurrences of \eqn{t} in cluster \eqn{c}, \eqn{C} the number of
 #' clusters and \eqn{\mathrm{df}_t} the number of clusters where \eqn{t}
 #' appears. The label gathers the terms with the highest weight: frequent in
-#' the cluster, rare in the others. With `name_merged_clusters = FALSE`, the
+#' the cluster, rare in the others. With `name_dynamic_clusters = FALSE`, the
 #' comparison is made within each graph, so clusters of different windows
 #' may get the same label.
 #'
@@ -60,7 +62,7 @@
 #' column) and labels each cluster with the node with the highest value.
 #' The centrality is computed on the whole graph, not within the cluster.
 #' This method needs a network structure and therefore cannot be used with
-#' `name_merged_clusters = TRUE`.
+#' `name_dynamic_clusters = TRUE`.
 #'
 #' **Given column.** `"given_column"` labels each cluster with its node with
 #' the highest `order_by` value: for an article network, typically its most
@@ -119,7 +121,7 @@
 #' @export
 name_clusters <- function(graphs,
                           method = c("tidygraph_functions", "given_column", "tf-idf"),
-                          name_merged_clusters = FALSE,
+                          name_dynamic_clusters = FALSE,
                           cluster_id,
                           label_columns,
                           label_name = "cluster_label",
@@ -127,17 +129,26 @@ name_clusters <- function(graphs,
                           order_by = NULL,
                           text_columns = NULL,
                           nb_terms_label = 3,
+                          name_merged_clusters = NULL,
                           ...) {
   term <- NULL
+  # `name_merged_clusters` was renamed `name_dynamic_clusters` in 0.0.9.9004
+  if (!is.null(name_merged_clusters)) {
+    cli::cli_warn(c(
+      "{.arg name_merged_clusters} is deprecated since networkflow 0.0.9.9004.",
+      "i" = "Use {.arg name_dynamic_clusters} instead."
+    ))
+    name_dynamic_clusters <- name_merged_clusters
+  }
   if (length(method) > 1) {
     method <- "tf-idf"
     cli::cli_inform(c("i" = "No {.arg method} given: using {.val tf-idf}."))
   }
   method <- rlang::arg_match(method, c("tidygraph_functions", "given_column", "tf-idf"))
   single <- is_single_graph(graphs)
-  if (single && name_merged_clusters) {
+  if (single && name_dynamic_clusters) {
     cli::cli_abort(c(
-      "{.code name_merged_clusters = TRUE} needs a list of graphs.",
+      "{.code name_dynamic_clusters = TRUE} needs a list of graphs.",
       "i" = "It names clusters defined across windows, such as those of {.fn merge_dynamic_clusters}."
     ))
   }
@@ -150,7 +161,7 @@ name_clusters <- function(graphs,
     if (rlang::quo_is_null(fun)) {
       cli::cli_abort("With {.code method = \"tidygraph_functions\"}, give a centrality in {.arg tidygraph_function}, e.g. {.code tidygraph::centrality_pagerank()}.")
     }
-    if (name_merged_clusters) {
+    if (name_dynamic_clusters) {
       cli::cli_abort(c(
         "{.val tidygraph_functions} cannot name clusters across windows.",
         "i" = "A centrality depends on one network; use {.val given_column} or {.val tf-idf}."
@@ -204,7 +215,7 @@ name_clusters <- function(graphs,
     graph
   }
 
-  if (name_merged_clusters) {
+  if (name_dynamic_clusters) {
     all_nodes <- dplyr::bind_rows(lapply(graphs, node_table))
     labels <- make_labels(all_nodes)
     graphs <- lapply(graphs, add_labels, labels = labels)

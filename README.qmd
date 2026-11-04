@@ -229,7 +229,9 @@ the intended changes listed in `NEWS.md`.
   Shadow* report;
 - the [Digital History of Macroeconomics](https://www.digitalhistoryofscience.org/dhm/)
   project [@goutsmedt2025dhm], which maps the macroeconomics literature
-  since the 1970s and whose deliverable is archived on Zenodo.
+  since the 1970s and whose deliverable is archived on Zenodo;
+- @boucher2025 on productivity and citations in the field of contemporary
+  China studies.
 
 ## Authors
 

@@ -7,7 +7,7 @@
 name_clusters(
   graphs,
   method = c("tidygraph_functions", "given_column", "tf-idf"),
-  name_merged_clusters = FALSE,
+  name_dynamic_clusters = FALSE,
   cluster_id,
   label_columns,
   label_name = "cluster_label",
@@ -15,6 +15,7 @@ name_clusters(
   order_by = NULL,
   text_columns = NULL,
   nb_terms_label = 3,
+  name_merged_clusters = NULL,
   ...
 )
 }
@@ -24,7 +25,7 @@ name_clusters(
 \item{method}{\code{"tf-idf"} (chosen when no method is given),
 \code{"tidygraph_functions"} or \code{"given_column"} (see the details).}
 
-\item{name_merged_clusters}{Logical. \code{TRUE} when \code{cluster_id} identifies
+\item{name_dynamic_clusters}{Logical. \code{TRUE} when \code{cluster_id} identifies
 clusters across a list of graphs (the dynamic clusters of
 \code{\link[=merge_dynamic_clusters]{merge_dynamic_clusters()}}): each cluster then gets one name, computed on
 all its nodes in all windows. \code{FALSE} (default) names the clusters of
@@ -53,6 +54,9 @@ abstracts, keywords), passed to \code{\link[=extract_tfidf]{extract_tfidf()}}.}
 
 \item{nb_terms_label}{For \code{"tf-idf"}, the number of terms in each label (3
 by default), separated by commas.}
+
+\item{name_merged_clusters}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Former name
+of \code{name_dynamic_clusters}.}
 
 \item{...}{For \code{"tf-idf"}, other arguments of \code{\link[=extract_tfidf]{extract_tfidf()}} (e.g.
 \code{clean_word_method}, \code{n_gram}, \code{ngrams_filter}).}
@@ -84,7 +88,7 @@ its nodes, and each term \eqn{t} (word or n-gram) gets the weight
 number of occurrences of \eqn{t} in cluster \eqn{c}, \eqn{C} the number of
 clusters and \eqn{\mathrm{df}_t} the number of clusters where \eqn{t}
 appears. The label gathers the terms with the highest weight: frequent in
-the cluster, rare in the others. With \code{name_merged_clusters = FALSE}, the
+the cluster, rare in the others. With \code{name_dynamic_clusters = FALSE}, the
 comparison is made within each graph, so clusters of different windows
 may get the same label.
 
@@ -93,7 +97,7 @@ given in \code{tidygraph_function} on each graph (it is added as a node
 column) and labels each cluster with the node with the highest value.
 The centrality is computed on the whole graph, not within the cluster.
 This method needs a network structure and therefore cannot be used with
-\code{name_merged_clusters = TRUE}.
+\code{name_dynamic_clusters = TRUE}.
 
 \strong{Given column.} \code{"given_column"} labels each cluster with its node with
 the highest \code{order_by} value: for an article network, typically its most

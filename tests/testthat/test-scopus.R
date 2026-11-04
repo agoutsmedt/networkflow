@@ -35,8 +35,8 @@ test_that("the dynamic pipeline runs on a real Scopus corpus", {
   networks <- add_clusters(networks, clustering_method = "leiden",
                            objective_function = "modularity", seed = 1, verbose = FALSE)
   networks <- merge_dynamic_clusters(networks, "cluster_leiden", "source_id",
-                                     similarity_type = "partial")
-  networks <- name_clusters(networks, method = "tf-idf", name_merged_clusters = TRUE,
+                                     similarity_type = "partial", method = "majority", threshold_similarity = 0.5001)
+  networks <- name_clusters(networks, method = "tf-idf", name_dynamic_clusters = TRUE,
                             cluster_id = "dynamic_cluster_leiden", text_columns = "title",
                             clean_word_method = "none")
   all_nodes <- dplyr::bind_rows(lapply(networks, node_table))

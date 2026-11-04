@@ -76,7 +76,7 @@
 #'   networks,
 #'   cluster_id = "cluster_leiden",
 #'   node_id = "source_id",
-#'   threshold_similarity = 0.51,
+#'   method = "majority", threshold_similarity = 0.51,
 #'   similarity_type = "partial"
 #' )
 #' alluv_dt <- networks_to_alluv(
@@ -141,7 +141,8 @@ plot_alluvial <- function(alluv_dt,
   if(minimize_crossing){
     alluv_dt <- minimize_crossing_alluvial(alluv_dt = alluv_dt,
                                            intertemporal_cluster_column = intertemporal_cluster_column,
-                                           node_id = node_id)
+                                           node_id = node_id,
+                                           verbose = FALSE)
   }
 
   if(prepare_label){

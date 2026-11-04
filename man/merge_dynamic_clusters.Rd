@@ -8,8 +8,10 @@ merge_dynamic_clusters(
   list_graph,
   cluster_id,
   node_id,
-  threshold_similarity = 0.5001,
-  similarity_type = c("complete", "partial")
+  method = c("majority", "jaccard"),
+  threshold_similarity,
+  similarity_type = c("complete", "partial"),
+  verbose = TRUE
 )
 }
 \arguments{
@@ -23,12 +25,20 @@ each window (e.g. \code{"cluster_leiden"}).}
 \item{node_id}{Character scalar, the node column with an identifier that
 is stable across windows (e.g. \code{"source_id"}).}
 
-\item{threshold_similarity}{Number in \eqn{(0.5, 1]}, the threshold
-\eqn{\tau}. Higher values require more similar clusters and create more
-distinct dynamic clusters.}
+\item{method}{\code{"majority"} (double majority) or \code{"jaccard"} (overlap
+matching with a Jaccard threshold), see the description. Required.}
+
+\item{threshold_similarity}{The threshold of the rule. For
+\code{method = "majority"}, \eqn{\tau} in \eqn{(0.5, 1]}: a cluster is linked
+when the share is \emph{above} it. For \code{method = "jaccard"}, \eqn{\theta} in
+\eqn{(0, 1]}: two clusters can be linked when their Jaccard index is \emph{at
+least} it. Higher values require more similar clusters and create more
+distinct dynamic clusters. Required.}
 
 \item{similarity_type}{\code{"complete"} or \code{"partial"}, see the description.
-Required: there is no default, as the choice changes the results.}
+Required.}
+
+\item{verbose}{Logical. If \code{TRUE} (default), says which rule is applied.}
 }
 \value{
 The list of graphs, with the same names, where nodes have a new
@@ -50,49 +60,84 @@ persist and disappear. This is the step that turns a series of networks
 into a history of research communities, in the spirit of the alluvial
 maps of \insertCite{rosvall2010;textual}{networkflow}.
 
-The rule is a double majority. Let \eqn{V_a} be the nodes of cluster
-\eqn{a} in window \eqn{t-1} and \eqn{V_b} those of cluster \eqn{b} in
-window \eqn{t}. Cluster \eqn{b} inherits the identifier of \eqn{a} when
-most nodes of \eqn{a} go to \eqn{b} \emph{and} most nodes of \eqn{b} come from
-\eqn{a}:
+Two rules are available, chosen with \code{method}. Let \eqn{V_a} be the nodes
+of cluster \eqn{a} in window \eqn{t-1} and \eqn{V_b} those of cluster
+\eqn{b} in window \eqn{t}.
+\itemize{
+\item \code{method = "majority"}, a \strong{double majority}. Cluster \eqn{b} inherits
+the identifier of \eqn{a} when most nodes of \eqn{a} go to \eqn{b} \emph{and}
+most nodes of \eqn{b} come from \eqn{a}:
 \deqn{\frac{|V_a \cap V_b|}{D_a} > \tau \quad \text{and} \quad
-\frac{|V_a \cap V_b|}{D_b} > \tau,}
-with \eqn{\tau} the \code{threshold_similarity}. The denominators depend on
-\code{similarity_type}: with \code{"complete"}, \eqn{D_a = |V_a|} and
-\eqn{D_b = |V_b|}; with \code{"partial"}, only the nodes present in both
-windows count, \eqn{D_a = |V_a \cap V_t|} and \eqn{D_b = |V_b \cap V_{t-1}|},
-\eqn{V_t} being all the nodes of window \eqn{t}. Since \eqn{\tau > 0.5},
-a cluster can inherit at most one identifier, and an identifier passes to
-at most one cluster. A cluster that meets no match gets a new identifier.
+  \frac{|V_a \cap V_b|}{D_b} > \tau,}
+with \eqn{\tau} the \code{threshold_similarity}, strictly above 0.5. Since
+\eqn{\tau > 0.5}, a cluster can inherit at most one identifier, and an
+identifier passes to at most one cluster.
+\item \code{method = "jaccard"}, an \strong{overlap matching with a Jaccard threshold},
+as in the tracking of dynamic communities of
+\insertCite{greene2010;textual}{networkflow}. The Jaccard index of two
+clusters is the share of their union that they have in common,
+\deqn{J(a, b) = \frac{|V_a \cap V_b|}{|V_a \cup V_b|}.}
+The pairs with \eqn{J(a, b) \geq \theta}, \eqn{\theta} being the
+\code{threshold_similarity}, are candidate matches. They are taken one by one,
+by decreasing \eqn{J} (then by decreasing number of shared nodes),
+skipping the pairs where \eqn{a} or \eqn{b} has already been matched:
+each past identifier goes to the present cluster that resembles it most,
+and each cluster inherits at most one identifier. \eqn{\theta} can be
+below 0.5: a cluster that loses a large part of its members to
+another cluster, or that doubles with newcomers, can keep its identity
+if it stays the best match of its predecessor.
+}
+
+In both rules, a cluster that meets no match gets a new identifier. The
+sets \eqn{V} depend on \code{similarity_type}: with \code{"complete"}, they are all
+the nodes of the clusters (\eqn{D_a = |V_a|}, \eqn{D_b = |V_b|}); with
+\code{"partial"}, only the nodes present in both windows count
+(\eqn{D_a = |V_a \cap V_t|}, \eqn{D_b = |V_b \cap V_{t-1}|}, and the union
+of the Jaccard index is restricted to them), \eqn{V_t} being all the nodes
+of window \eqn{t}.
+
+There is no default \code{method}, \code{threshold_similarity} or \code{similarity_type}:
+they change the dynamic clusters, so the choice must be explicit, and
+\code{verbose = TRUE} reports the rule that is applied.
 }
 \details{
-\strong{Which windows?} The rule needs nodes present in successive windows.
+\strong{Which windows?} The rules need nodes present in successive windows.
 In a network of documents (e.g. bibliographic coupling), each document has
-a single date, so successive windows (the default of \code{build_dynamic_networks()}) share no node and no cluster can be matched:
-use sliding windows. Successive windows work when nodes persist over
-time, as cited references (co-citation), authors or journals do; two
-windows may still share no node when the literature changed completely.
+a single date, so windows that do not overlap (\code{window_step} equal to
+\code{time_window}, the default of \code{build_dynamic_networks()}) share no node
+and no cluster can be matched: the windows must overlap
+(\code{window_step} smaller than \code{time_window}). Non-overlapping windows work
+when nodes persist over time, as cited references (co-citation), authors or
+journals do; two windows may still share no node when the literature
+changed completely.
 
-\strong{Complete or partial?} With sliding windows, the network of window
-\eqn{t} loses the documents of the first year of window \eqn{t-1} and
-gains those of a new year; in a growing literature, newcomers can be
+\strong{Complete or partial?} With overlapping windows, the network of window
+\eqn{t} loses the documents of the first years of window \eqn{t-1} and
+gains those of new years; in a growing literature, newcomers can be
 numerous. With \code{"complete"}, a cluster that keeps all its past members but
-doubles with newcomers cannot inherit the identifier, because its
-members coming from \eqn{a} are less than half of it: the cluster is
-considered new because its composition changed. With \code{"partial"}, the
-newcomers are ignored and the same cluster keeps its identifier. Which
-one is right depends on what a cluster is taken to be: a group of
-documents (complete), or a structure that recruits new documents
+doubles with newcomers cannot inherit the identifier under the double
+majority, because its members coming from \eqn{a} are less than half of it:
+the cluster is considered new because its composition changed. With
+\code{"partial"}, the newcomers are ignored and the same cluster keeps its
+identifier. Which one is right depends on what a cluster is taken to be: a
+group of documents (complete), or a structure that recruits new documents
 (partial).
 
-\strong{What the rule does not do.} Clusters are compared only with the
+\strong{Majority or Jaccard?} The double majority is demanding and
+transparent: two clusters are the same if each is mostly made of the
+other, and the identifier is never ambiguous. The Jaccard matching is more
+flexible: with a low \eqn{\theta}, it follows a cluster that splits (the
+largest piece, the best match, keeps the identifier) or that merges with
+another. Both use the nodes of consecutive windows only; compare them
+with \code{\link[=merge_diagnostics]{merge_diagnostics()}}.
+
+\strong{What the rules do not do.} Clusters are compared only with the
 previous window: a cluster that vanishes for one window and comes back
-gets a new identifier. Splits and merges are not recorded as such: the
-part that meets the double majority keeps the identifier, the others are
-new. With \eqn{\tau} close to 0.5, small fluctuations of the partition (a
-stochastic algorithm, a resolution change) may break or create
-continuities; it is good practice to compare the results for a few
-thresholds and seeds.
+gets a new identifier. Splits and merges are not recorded as such: one
+part keeps the identifier, the others are new. With a threshold close to
+its minimum, small fluctuations of the partition (a stochastic algorithm,
+a resolution change) may break or create continuities; it is good practice
+to compare the results for a few thresholds and seeds.
 }
 \examples{
 networks <- build_dynamic_networks(
@@ -118,17 +163,28 @@ networks <- merge_dynamic_clusters(
   networks,
   cluster_id = "cluster_leiden",
   node_id = "source_id",
+  method = "majority",
   threshold_similarity = 0.51,
   similarity_type = "partial"
 )
 networks[[2]]
+
+# The same windows, with the Jaccard matching
+merge_dynamic_clusters(
+  networks,
+  cluster_id = "cluster_leiden",
+  node_id = "source_id",
+  method = "jaccard",
+  threshold_similarity = 0.3,
+  similarity_type = "partial"
+)
 
 }
 \references{
 \insertAllCited{}
 }
 \seealso{
-\code{\link[=name_clusters]{name_clusters()}} with \code{name_merged_clusters = TRUE} to label the
+\code{\link[=name_clusters]{name_clusters()}} with \code{name_dynamic_clusters = TRUE} to label the
 dynamic clusters; \code{\link[=networks_to_alluv]{networks_to_alluv()}} and \code{\link[=plot_alluvial]{plot_alluvial()}} to draw
 their evolution.
 }

@@ -31,12 +31,12 @@ linked by the references they share) map the research fronts of a
 literature ([Kessler 1963](#ref-kessler1963); [Boyack and Klavans
 2010](#ref-boyack2010)). Its central feature is the *dynamic* workflow:
 one network per time window, clusters in each window, and a rule that
-links the clusters of successive windows (building “intertemporal”
-clusters), so that a literature can be seen being born, growing,
-splitting and fading. Each step is a documented function whose choices
-(similarity measure, threshold, time window, clustering algorithm,
-resolution, matching rule) are explicit arguments that can be varied and
-reported. Everything returns `tbl_graph` objects from
+links the clusters of successive windows (building “intertemporal” or
+“dynamic” clusters), so that a literature can be seen being born,
+growing, splitting and fading. Each step is a documented function whose
+choices (similarity measure, threshold, time window, clustering
+algorithm, resolution, matching rule) are explicit arguments that can be
+varied and reported. Everything returns `tbl_graph` objects from
 [`tidygraph`](https://tidygraph.data-imaginist.com/), or lists of them,
 which can be manipulated with [`dplyr`](https://dplyr.tidyverse.org/)
 and drawn with [`ggraph`](https://ggraph.data-imaginist.com/).
@@ -210,7 +210,9 @@ those of the former version, except for the intended changes listed in
   Macroeconomics](https://www.digitalhistoryofscience.org/dhm/) project
   ([Goutsmedt and Truc 2025](#ref-goutsmedt2025dhm)), which maps the
   macroeconomics literature since the 1970s and whose deliverable is
-  archived on Zenodo.
+  archived on Zenodo;
+- Boucher and Fan ([2025](#ref-boucher2025)) on productivity and
+  citations in the field of contemporary China studies.
 
 ## Authors
 
@@ -225,13 +227,22 @@ maintained by Thomas Delcey and Aurélien Goutsmedt.
 If you use `networkflow` in your research, please cite it:
 
     Goutsmedt A, Truc A, Delcey T (2026). _networkflow: A Research Pipeline
-    for Projected and Dynamic Networks_. R package version 0.0.9.9003,
+    for Projected and Dynamic Networks_. R package version 0.0.9.9004,
     <https://agoutsmedt.github.io/networkflow/>.
 
 ## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"
 data-entry-spacing="0">
+
+<div id="ref-boucher2025" class="csl-entry">
+
+Boucher, Aurélien, and Xiaoguang Fan. 2025. “Scholars Like Any Other? An
+Inquiry into Productivity and Citations in the Field of Contemporary
+China Studies.” *Chinese Journal of Sociology* 11 (3): 349–73.
+<https://doi.org/10.1177/2057150X251345124>.
+
+</div>
 
 <div id="ref-boyack2010" class="csl-entry">
 

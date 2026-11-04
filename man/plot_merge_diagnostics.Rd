@@ -62,7 +62,7 @@ networks <- add_clusters(
   verbose = FALSE
 )
 diagnostics <- merge_diagnostics(
-  networks, "cluster_leiden", "source_id",
+  networks, "cluster_leiden", "source_id", method = "majority",
   thresholds = c(0.51, 0.6, 0.75), similarity_types = "partial", verbose = FALSE
 )
 plot_merge_diagnostics(diagnostics)
