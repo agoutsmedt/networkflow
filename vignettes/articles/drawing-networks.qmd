@@ -71,6 +71,11 @@ $p_i \in \mathbb{R}^2$. Most layouts used in bibliometrics are
 tied nodes attract each other and all nodes repel each other, and look for
 positions where the forces balance. The clusters of a network, which are
 dense regions, then appear as groups of nodes close to each other.
+@venturini2019 insist that such a layout does not project the network on
+a space that exists beforehand: it *creates* the space, and they call the
+operation a "spatialisation". Their guide to *visual network analysis* is
+the background of this one; @boullier2016 is a discussion in French that
+they cite on the visual structures a network can take.
 
 `layout_networks()` computes the coordinates and adds them to the node
 table, in columns `x` and `y`. The layouts of
@@ -79,13 +84,32 @@ table, in columns `x` and `y`. The layouts of
 available through `ggraph::create_layout()`; `"forceatlas2"` and
 `"umap"` are added by `networkflow`.
 
-Two cautions apply to all of them. First, layouts are *stochastic* (they
-start from random positions) and sensitive to their starting point:
+Three cautions apply to all of them. First, layouts are *stochastic*
+(they start from random positions) and sensitive to their starting point:
 another seed gives another, equally valid picture, so set a seed before
-calling the function to reproduce a figure. Second, distances in the
-picture are only roughly interpretable. Two clusters drawn side by side
-are more tied than two clusters at opposite ends, but distances should not
-be measured, and a layout is a compromise between many constraints.
+calling the function to reproduce a figure.
+
+Second, distances in the picture are only roughly interpretable: nodes
+with more direct or indirect neighbours in common *tend to* be closer
+[@venturini2019]. Two clusters drawn side by side are more tied than two
+clusters at opposite ends, but distances should not be measured. On their
+network of jazz musicians, @venturini2019 find that the distance between
+two nodes in a ForceAtlas2 layout is only loosely correlated with the length
+of the shortest path between them ($R^2 = 0.17$). Squeezing a network into
+two dimensions distorts it: four nodes all tied to each other cannot be
+drawn at equal distances on a plane. What should be read is not the
+position of a node, nor the distance between two nodes, but the *density*
+of nodes and its variations: dense regions (clusters), empty spaces between
+them (structural holes), and shapes that are not circular (polarisation).
+
+Third, a force-directed layout has no axes. Unlike a correspondence
+analysis, it treats space as the same in every direction: there is no
+"top" or "left", and a variable that varies from left to right in one
+cluster may vary from top to bottom in another [@venturini2019]. With a
+few hundred nodes or more, a network is not read as a diagram, by
+following paths from node to node, but as a map of its structure: clusters,
+centres, margins and bridges. This is the reading that the layouts below
+are meant to serve.
 
 ## Force-directed layouts
 
@@ -152,11 +176,26 @@ a more compact layout), `linlog = TRUE` replaces the attraction by a
 logarithm of the distance, which separates clusters more, and
 `strong_gravity = TRUE` keeps disconnected components close to the centre.
 
+@venturini2019 show, on their jazz network, how much these settings
+matter: a network that looks like a "hairball" with Fruchterman-Reingold
+acquires a clearer structure with ForceAtlas2, especially with the LinLog
+mode and a lower gravity. Gravity prevents disconnected nodes from drifting
+away, but too much of it packs all the nodes in the centre; the LinLog mode
+with no gravity makes clusters more visible, but scatters the network and
+takes longer to converge. There is no setting that suits all networks: what
+first looks like a homogeneous tangle may come from an unfortunate choice
+of algorithm or settings, and the settings are to be adjusted to the
+network at hand.
+
 ## UMAP
 
 UMAP (Uniform Manifold Approximation and Projection) is not a graph
 layout: it is a method to embed points in a low-dimensional space while
-preserving their neighbourhoods [@mcinnes2018]. It often gives nice
+preserving their neighbourhoods [@mcinnes2018]. The two families are not as
+far apart as they seem: @venturini2019 note that dimensionality reduction
+methods such as t-SNE and UMAP implicitly build a network of neighbours and
+spatialise it, by an iterative relaxation that resembles force-directed
+layouts. It often gives nice
 visualisations, with compact and well separated clusters. It needs
 distances between points, which a network does not provide directly, so
 `layout_networks()` builds them from the network: the distance between two
@@ -216,13 +255,54 @@ None of them is the right one: they answer different questions.
 | `"forceatlas2"` | as `"fr"`, with a repulsion that grows with degrees | as attraction | square of the number of nodes | networks with hubs, which need space |
 | `"umap"` | preserves the neighbourhood of each node | through the shortest paths | light | networks of clusters one wants to see apart |
 
-A practical rule: try a force-directed layout first, and a UMAP to check
-whether the clusters found by Leiden also appear as separate groups of
-nodes. When a cluster is split or scattered in all the layouts, it is
-worth reading its documents again.
+How to tell whether a layout is good? There is no accepted measure of the
+quality of a spatialisation [@venturini2019]. They suggest a simple
+heuristic: a good layout should give a visual partition of the network
+that roughly corresponds to its structural clustering. They cut the
+picture into groups with the k-means algorithm, with as many groups as
+Louvain finds clusters, and compare the two partitions. We do the same
+with the Leiden clusters, measuring the agreement with the adjusted Rand
+index (1 for identical partitions, about 0 for no more than chance;
+@venturini2019 use a Jaccard index of the pairs of nodes, in the same
+spirit).
+
+```{r}
+#| label: layout-check
+cluster_ids <- as.integer(factor(as_tibble(network, active = "nodes")$cluster_leiden))
+layout_check <- do.call(rbind, lapply(c("fr", "kk", "forceatlas2", "umap"), function(layout) {
+  set.seed(1)
+  laid_out <- if (layout == "kk") {
+    layout_networks(network, node_id = "source_id", layout = layout, weights = NA)
+  } else {
+    layout_networks(network, node_id = "source_id", layout = layout)
+  }
+  coordinates <- as_tibble(laid_out, active = "nodes")[c("x", "y")]
+  set.seed(1)
+  groups <- kmeans(coordinates, centers = max(cluster_ids), nstart = 20)$cluster
+  data.frame(
+    layout = layout,
+    agreement_with_leiden = igraph::compare(groups, cluster_ids, method = "adjusted.rand")
+  )
+}))
+layout_check[order(-layout_check$agreement_with_leiden), ]
+```
+
+On this network, `r layout_check$layout[which.max(layout_check$agreement_with_leiden)]`
+gives the picture whose regions best match the Leiden clusters. The
+heuristic has limits that @venturini2019 point out: it works on clearly
+clustered networks, less on networks with polarisations but no clear-cut
+clusters, and a layout is also valuable for what a partition cannot show,
+the gradients and the uncertain borders between groups. A practical rule:
+try a force-directed layout first, and a UMAP to check whether the clusters
+found by Leiden also appear as separate groups of nodes. When a cluster is
+split or scattered in all the layouts, it is worth reading its documents
+again.
 
 ## Colours and labels
 
+Position is the first visual variable of a network map; @venturini2019
+describe two others, size and colour, which by convention follow the
+importance of a node and its category. Here, the category is the cluster.
 `color_networks()` gives each cluster a colour, in the order of decreasing
 size of the clusters, and each edge a mix of the colours of its two ends. The colours are the ones of
 a palette that you can choose, here the perceptually uniform `batlow`

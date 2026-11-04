@@ -67,7 +67,7 @@ check_method <- function(method, call = rlang::caller_env()) {
 }
 
 # The former arguments (projection_method, cooccurrence_method, model) were
-# replaced by `method` in 0.0.9.9003: say how to translate the call.
+# replaced by `method` in 0.0.9.9001: say how to translate the call.
 check_former_arguments <- function(argument_names, call = rlang::caller_env()) {
   former <- intersect(argument_names, c("projection_method", "cooccurrence_method", "model"))
   if (length(former) == 0) {

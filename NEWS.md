@@ -3,9 +3,9 @@
 Development versions are numbered 0.0.9.900x, from the first step (rewrite)
 to the latest; the steps are listed from the most recent to the oldest.
 
-# networkflow 0.0.9.9004 (2026-11-05)
+# networkflow 0.0.9.9002 (2026-11-05)
 
-Fifth step: a second rule to follow clusters across windows, a clearer name
+Third step: a second rule to follow clusters across windows, a clearer name
 for the naming of dynamic clusters, and a better order for alluvial plots.
 
 ## Breaking changes
@@ -55,174 +55,86 @@ for the naming of dynamic clusters, and a better order for alluvial plots.
   `window_step = 1`) for documents to be matched, and presents the
   multislice community detection and the significance-clustered alluvial maps
   as possible future methods.
+- The guide "Following clusters over time" draws three windows with
+  `layout_networks(compute_dynamic_coordinates = TRUE)` and the colours of the
+  alluvial.
+- The guide "Drawing networks" draws on Venturini, Jacomy and Jensen on visual
+  network analysis (reading densities rather than distances, no axes, the
+  settings of ForceAtlas2) and checks the layouts against the clusters with
+  k-means, as they suggest.
 - The README lists the study of Boucher and Fan (2025) among those that used
   the package.
 
-# networkflow 0.0.9.9003 (2026-11-04)
+# networkflow 0.0.9.9001 (2026-11-01 to 2026-11-04)
 
-Fourth step: one `method` to build networks, and the Shiny application moves
-to its own package.
+Second step: the pipeline goes beyond bibliographic coupling, networks are
+built with one explicit `method`, time windows are reworked, and the
+package is lighter. The changes are given with respect to 0.0.9.9000.
 
 ## Breaking changes
 
-- `build_network()` and `build_dynamic_networks()`: a single argument,
+- `build_network()` and `build_dynamic_networks()`: one required argument,
   `method`, replaces `projection_method`, `cooccurrence_method` and `model`.
-  There is no default, so that the choice stays explicit. The similarity
-  measures of biblionetwork are `"angle"`, `"strength"`, `"similarity"`,
-  `"jaccard"` and `"vladutz"` (formerly `"coupling_angle"`...); the
-  statistical backbones of the backbone package are `"sdsm"`, `"fdsm"`,
-  `"fixedfill"`, `"fixedrow"` and `"fixedcol"` (with `alpha`). Using the
-  former arguments gives an error that shows the translation, for example
-  `projection_method = "structured", cooccurrence_method = "coupling_angle"`
-  becomes `method = "angle"`.
-- `launch_network_app()` is removed from networkflow: the application moves
-  to the package networkflowapp. `shiny`, `DT`, `ggiraph` and
-  `shinycssloaders` are no longer suggested.
+  It is either one of the five similarity measures of biblionetwork
+  (`"angle"`, `"strength"`, `"similarity"`, `"jaccard"`, `"vladutz"`) or one
+  of the null models of the statistical backbones of the backbone package
+  (`"sdsm"`, `"fdsm"`, `"fixedfill"`, `"fixedrow"`, `"fixedcol"`, with
+  `alpha`). There is no default. The former arguments give an error that
+  shows the translation (`projection_method = "structured",
+  cooccurrence_method = "coupling_angle"` becomes `method = "angle"`).
+- `build_dynamic_networks()` needs `time_variable` and `time_window`, and
+  points to `build_network()` otherwise (it used to build the single network
+  silently).
+- `overlapping_window` is replaced by `window_step`, the number of units
+  between the starts of two windows (`window_step = 1` replaces
+  `overlapping_window = TRUE`). The arguments are reordered, and `...` only
+  accepts the arguments of `filter_components()`. Windows of a single time
+  unit are named after the unit (`"1990"` instead of `"1990-1990"`).
+- `plot_networks()` returns a named list of ggplot objects for a list of
+  graphs.
+- `launch_network_app()` is removed: the Shiny application moves to the
+  package networkflowapp.
+- biblionetwork >= 0.2.0 is required.
 
 ## New features
 
-- `layout_networks()` has two new layouts: `"forceatlas2"` (the layout of
-  Gephi, Jacomy et al., 2014, in a compact implementation) and `"umap"`
-  (UMAP of McInnes et al., 2018, computed with uwot on the shortest-path
-  distances of the network). The package uwot is suggested.
-- A new guide, "Drawing networks", explains what a layout does, compares
-  the layouts, and covers colours, labels and `plot_networks()`; this part
-  of "Finding and reading clusters" is moved there. In "Finding and reading
-  clusters", the table of cluster sizes is a labelled tibble, the CPM
-  example uses the density of the network as the scale of the resolution,
-  `name_clusters()` is shown with a centrality (`"tidygraph_functions"`), and
-  the interpretation of clusters cites Delcey et al.
-- With `verbose = TRUE` (now also the default of `build_network()`), the
-  functions say which method they apply, what it measures and where it comes
-  from (Sen and Gan, Shen et al., Neal...). The details of
-  `build_dynamic_networks()` document the origin of each method.
-
-# networkflow 0.0.9.9002 (2026-11-04)
-
-Third step of the development: alignment with biblionetwork 0.2.0, a lighter
-installation, clearer entry functions and documentation, and a new README
-and website theme (changes of 2026-11-02 to 2026-11-04).
-
-## Breaking changes
-
-- `build_dynamic_networks()` now stops when `time_variable` or `time_window`
-  is missing, instead of silently building the single network of
-  `build_network()`: that was not what a user calling a "dynamic" function
-  meant. The error says to use `build_network()` and suggests the columns
-  that look like a time variable (dates, or numbers named like a year).
-  `build_network()` is unchanged.
-
-## New features
-
-- All the similarity measures of biblionetwork 0.2.0 are available in
-  `cooccurrence_method`: `"coupling_jaccard"` and `"coupling_vladutz"` join
-  `"coupling_angle"`, `"coupling_strength"` and `"coupling_similarity"`. The
-  edges are computed with `biblionetwork::biblio_coupling(method = )`, and
-  `document_id` (entity coupling) accepts the five measures through
-  `biblionetwork::entity_network()` (it used to refuse
-  `"coupling_similarity"`).
-- `plot_alluvial()` accepts the list of graphs with dynamic clusters directly
-  (it calls `networks_to_alluv()`), and `min_share_cluster` and
-  `min_windows_cluster` keep the main clusters only: the whole alluvial
-  workflow in one call. The separate functions remain available.
+- Beyond bibliographic coupling: co-citation (`projection_on = "target"`),
+  time carried by the links (`time_in = "edges"`), coupling of entities
+  that publish documents, such as authors or journals (`document_id`,
+  through `biblionetwork::entity_network()`), and a `compute_size` that
+  counts the citing documents of each node.
+- Dates (`Date`, `POSIXct`, ISO dates) and finer time units (`time_unit`:
+  year, quarter, month, week, day).
+- With `verbose = TRUE`, the building functions say which method they
+  apply, what it measures and where it comes from.
+- `merge_diagnostics()` and `plot_merge_diagnostics()` show how the dynamic
+  clusters depend on the threshold of `merge_dynamic_clusters()`.
+- `layout_networks()` has two new layouts, `"forceatlas2"` (Jacomy et al.,
+  2014) and `"umap"` (McInnes et al., 2018).
+- `plot_alluvial()` accepts the list of graphs directly, and keeps the main
+  clusters with `min_share_cluster` and `min_windows_cluster`.
+- Windows without any edge give an empty network that the following steps
+  accept; nodes or links with a missing time are dropped with a warning.
 
 ## Lighter installation
 
-- `ggalluvial` and `tidytext` are moved from Imports to Suggests, with
-  `lifecycle` (only used to write the documentation), and `forcats`,
-  `stringr` and `stopwords`, which the package barely used, are removed: 16
-  packages are imported instead of 22. `plot_alluvial()`, `extract_tfidf()`
-  and `name_clusters(method = "tf-idf")` ask to install `ggalluvial` or
-  `tidytext` when they are needed (`rlang::check_installed()`).
+- 16 packages are imported instead of 22: `forcats`, `stringr` and
+  `stopwords` are removed, and `ggalluvial`, `tidytext` and `lifecycle` are
+  suggested. The functions that need a suggested package
+  (`plot_alluvial()`, `extract_tfidf()`, the statistical backbones, UMAP) ask
+  to install it.
 
 ## Documentation and website
 
-- `build_dynamic_networks()` and `build_network()` document, case by case,
-  which arguments to choose (coupling, backbone, one network per period,
-  co-citation, authors, other two-mode tables) and what each
-  `projection_method` uses and ignores.
-- The five measures are described, with their formulas, in the documentation
-  and in the first guide, and linked to the explanations of biblionetwork.
-  The first guide compares the coupling angle, the Jaccard index and the
-  coupling similarity, and shows how much a statistical backbone prunes a
-  network, with the numbers of nodes and edges of a coupling angle network.
-- The formulas of the function documentation are displayed on the website
-  (KaTeX), and the footer names the two maintainers.
-- The README is written in Quarto (`README.qmd`); its illustration comes in a
-  light and a dark version that follow the theme of the website. It
-  mentions the Digital History of Macroeconomics project.
-- Package names are written in code font, with a link at first mention, in
-  the documentation and the guides.
-- New site theme, logo and favicons.
-
-## Other changes
-
-- biblionetwork >= 0.2.0 is required (`biblio_coupling()` is the general
-  function; `coupling_entity()` is deprecated in favour of `entity_network()`),
-  which also fixes the coupling similarity (the idf-weighted cosine of Shen
-  et al., 2019) and the weights of the coupling strength.
-- The `Authors@R` field of `DESCRIPTION` is fixed (a missing comma).
-
-# networkflow 0.0.9.9001 (2026-11-01)
-
-Second step: the pipeline is generalised beyond bibliographic coupling, and
-time windows are reworked.
-
-## Breaking changes
-
-- `build_dynamic_networks()`: `overlapping_window` is replaced by
-  `window_step`, the number of units between the starts of two windows
-  (`window_step = 1` replaces `overlapping_window = TRUE`; by default, windows
-  follow each other). Using `overlapping_window` gives an error that says so.
-- `build_dynamic_networks()`: the arguments are reordered (data, entities,
-  projection, time, options) and `...` only accepts the arguments of
-  `filter_components()`: a misspelt argument is now an error instead of being
-  ignored. `build_network()` follows the same order.
-- Windows of a single time unit are named after the unit (`"1990"`,
-  `"2001-Q2"`) instead of `"1990-1990"`.
-- `plot_networks()` returns a named list of ggplot objects for a list of
-  graphs (it used to store the plots in the graphs, in an element `plot`).
-- The research scripts that call `build_dynamic_networks(overlapping_window = TRUE)`
-  must use `window_step = 1`.
-
-## New features
-
-- Dates and finer time units: `time_variable` can be a `Date`, a `POSIXct`
-  or an ISO date written as text, and `time_unit` (`"year"`, `"quarter"`,
-  `"month"`, `"week"`, `"day"`) sets the unit in which `time_window` and
-  `window_step` are counted. The time column of the user is not modified.
-- `merge_diagnostics()` and `plot_merge_diagnostics()` show how the
-  dynamic clusters change with the threshold and the type of similarity of
-  `merge_dynamic_clusters()` (number of clusters, lifespans, share of nodes in
-  persistent clusters).
-- `add_node_roles()` documents how to read each role, with examples from the
-  stagflation data, and the guide shows how roles change with the resolution.
-  Running `add_node_roles()` again replaces the earlier roles instead of
-  duplicating the columns.
-- The guides cite the literature on direct citation (Klavans and Boyack,
-  Waltman and van Eck, Rivest et al., Sjögårde and Ahlgren, Kleminski et
-  al.) and discuss other ways to follow clusters over time (Jaccard matching,
-  multislice community detection, significance-clustered alluvial maps).
-- Figures of the guides open in a lightbox.
-- Co-citation: `build_network()` and `build_dynamic_networks()` gain
-  `projection_on = "target"`, which links the `target_id` entities that
-  share `source_id` entities (e.g. cited works linked when cited together).
-- `time_in = "edges"`: the time variable can be a column of the table of
-  links (e.g. the year of the citing document), so that windows follow the
-  citing documents (co-citation) or the documents of entities without a
-  date (authors). Successive windows can then be matched, since nodes persist.
-- `document_id`: coupling of entities that publish documents (authors,
-  journals, institutions), counting the documents that cite each reference,
-  through `biblionetwork::entity_network()`.
-- `compute_size` counts the citing documents of each node when the nodes
-  are linked through their own links (co-citation, `time_in = "edges"`).
-- A fourth guide, "Beyond bibliographic coupling", shows co-citation, author
-  coupling and co-authorship, and explains why the identifiers of
-  references matter.
-- Windows without any edge give an empty network (with a warning) that
-  `filter_components()`, `add_clusters()` and the following steps accept;
-  nodes or links with a missing time are dropped with a warning (they used
-  to make the function fail).
+- Five guides on the website: "From references to networks", "Finding and
+  reading clusters", "Drawing networks", "Following clusters over time" and
+  "Beyond bibliographic coupling", with the methods, their formulas and the
+  literature behind them.
+- The documentation of each function explains its method and its choices,
+  with formulas displayed on the website and the origin of each measure.
+- The README is written in Quarto, with an illustration in a light and a
+  dark version, and the studies that used the package.
+- New theme, logo and favicons.
 
 # networkflow 0.0.9.9000 (2026-11-01)
 

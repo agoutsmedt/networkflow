@@ -132,10 +132,10 @@ name_clusters <- function(graphs,
                           name_merged_clusters = NULL,
                           ...) {
   term <- NULL
-  # `name_merged_clusters` was renamed `name_dynamic_clusters` in 0.0.9.9004
+  # `name_merged_clusters` was renamed `name_dynamic_clusters` in 0.0.9.9002
   if (!is.null(name_merged_clusters)) {
     cli::cli_warn(c(
-      "{.arg name_merged_clusters} is deprecated since networkflow 0.0.9.9004.",
+      "{.arg name_merged_clusters} is deprecated since networkflow 0.0.9.9002.",
       "i" = "Use {.arg name_dynamic_clusters} instead."
     ))
     name_dynamic_clusters <- name_merged_clusters
