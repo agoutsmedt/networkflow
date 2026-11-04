@@ -25,7 +25,7 @@ can be copied and adapted."><meta property="og:image" content="https://agoutsmed
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,7 @@ can be copied and adapted.</p>
 <span>  color_column <span class="op">=</span> <span class="st">"color"</span>,</span>
 <span>  color_networks <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  color <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  max_arcs <span class="op">=</span> <span class="fl">20000</span>,</span>
 <span>  print_plot_code <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -126,6 +127,15 @@ with <code>cluster_label_column</code> as the categories.</p></dd>
 <code><a href="color_networks.html">color_networks()</a></code>.</p></dd>
 
 
+<dt id="arg-max-arcs">max_arcs<a class="anchor" aria-label="anchor" href="#arg-max-arcs"></a></dt>
+<dd><p>Whole number. Edges are drawn as arcs whose width follows
+their weight, unless a graph has more than <code>max_arcs</code> edges (20,000 by
+default): they are then drawn as straight lines of constant width, which
+is much faster (on a network of 140,000 edges, about 2 seconds and 1 GB
+of memory to draw, against 100 seconds and 11 GB with arcs). Set it to
+<code>Inf</code> to always draw arcs.</p></dd>
+
+
 <dt id="arg-print-plot-code">print_plot_code<a class="anchor" aria-label="anchor" href="#arg-print-plot-code"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, prints the <a href="https://ggplot2.tidyverse.org/" class="external-link"><code>ggplot2</code></a>/<code>ggraph</code> code
 of the plot.</p></dd>
@@ -158,7 +168,8 @@ must be installed.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Coupling (`biblionetwork::biblio_coupling()`) with <span style="color: #0000BB;">"similarity"</span>: ties</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   weighted by the idf-weighted cosine of the two lists of targets, after Shen</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   et al. (2019), between <span style="color: #00BB00;">source_id</span> entities sharing <span style="color: #00BB00;">target_id</span> entities.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Pairs sharing fewer than 1 <span style="color: #00BB00;">target_id</span> are dropped (`edges_threshold`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Two <span style="color: #00BB00;">source_id</span> are linked when they share at least 1 <span style="color: #00BB00;">target_id</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   (`edges_threshold`).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes without any edge are removed (`keep_singleton = FALSE`).</span>
 <span class="r-in"><span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="add_clusters.html">add_clusters</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">network</span>,</span></span>

@@ -1,83 +1,12 @@
 # Changelog
 
-## networkflow 0.0.9.9002 (2026-11-05)
-
-Third step: a second rule to follow clusters across windows, a clearer
-name for the naming of dynamic clusters, and a better order for alluvial
-plots.
-
-### Breaking changes
-
-- [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
-  has a required `method`: `"majority"` (the double majority, the only
-  rule so far) or `"jaccard"` (new, see below). `threshold_similarity`
-  has no default any more (it used to be 0.5001): the rule, its
-  threshold and the type of similarity change the dynamic clusters, so
-  all three must be given. Calls of earlier versions need
-  `method = "majority"` and a threshold.
-- [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
-  has a required `method` too, and `thresholds` is `NULL` by default (a
-  grid for each rule); its result has a `method` column.
-- [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
-  returns `window` as a factor whose levels follow the order of the
-  list: windows with numeric names (“2”, “10”) are no longer sorted
-  alphabetically in the table and in the plot.
-
-### New features
-
-- `merge_dynamic_clusters(method = "jaccard")`: overlap matching with a
-  Jaccard threshold, as in the tracking of dynamic communities of Greene
-  et al. (2010). Candidate pairs have a Jaccard index of at least the
-  threshold (which can be well below 0.5); they are taken by decreasing
-  index, each past identifier going to one cluster at most.
-  `similarity_type = "partial"` restricts the union to the nodes present
-  in both windows. With `verbose = TRUE`, the function says which rule
-  it applies.
-  [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
-  and
-  [`plot_merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.md)
-  work with both rules, and the guide “Following clusters over time”
-  compares them.
-- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
-  refines its order against the crossings of the flows themselves
-  (`refine = TRUE`, `max_passes`): on the stagflation data, the weighted
-  crossings fall from about 380 to 90. It reports the crossings before
-  and after (`verbose`).
-- [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md):
-  `name_merged_clusters` is renamed `name_dynamic_clusters` (the old
-  name still works, with a deprecation warning).
-
-### Bug fixes
-
-- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
-  pasted the numbers of the components into a string to sort the
-  clusters, which mixed “1” “10” and “11” “0” as soon as there were ten
-  components or more.
-
-### Documentation
-
-- The guide “Following clusters over time” discusses the risk of
-  building communities of documents of the same years rather than
-  thematic communities on a long period (coupling, and possibly
-  co-citation), says that windows must overlap (`window_step` smaller
-  than `time_window`, not only `window_step = 1`) for documents to be
-  matched, and presents the multislice community detection and the
-  significance-clustered alluvial maps as possible future methods.
-- The guide “Following clusters over time” draws three windows with
-  `layout_networks(compute_dynamic_coordinates = TRUE)` and the colours
-  of the alluvial.
-- The guide “Drawing networks” draws on Venturini, Jacomy and Jensen on
-  visual network analysis (reading densities rather than distances, no
-  axes, the settings of ForceAtlas2) and checks the layouts against the
-  clusters with k-means, as they suggest.
-- The README lists the study of Boucher and Fan (2025) among those that
-  used the package.
-
-## networkflow 0.0.9.9001 (2026-11-01 to 2026-11-04)
+## networkflow 0.0.9.9001 (2026-11-01 to 2026-11-05)
 
 Second step: the pipeline goes beyond bibliographic coupling, networks
-are built with one explicit `method`, time windows are reworked, and the
-package is lighter. The changes are given with respect to 0.0.9.9000.
+are built with one explicit `method`, time windows and dynamic clusters
+are reworked, the package is lighter and faster, and it was checked on
+samples of the Scopus and Web of Science databases of the authors. The
+changes are given with respect to 0.0.9.9000.
 
 ### Breaking changes
 
@@ -104,8 +33,19 @@ package is lighter. The changes are given with respect to 0.0.9.9000.
   [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md).
   Windows of a single time unit are named after the unit (`"1990"`
   instead of `"1990-1990"`).
+- [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md)
+  and
+  [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+  have a required `method`: `"majority"` (the former double majority) or
+  `"jaccard"` (new). `threshold_similarity` has no default any more:
+  calls of earlier versions need `method = "majority"` and a threshold.
+- [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md):
+  `name_merged_clusters` is renamed `name_dynamic_clusters` (the old
+  name still works, with a deprecation warning).
 - [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
   returns a named list of ggplot objects for a list of graphs.
+- [`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md)
+  returns `window` as a factor in the order of the list of graphs.
 - `launch_network_app()` is removed: the Shiny application moves to the
   package networkflowapp.
 - biblionetwork \>= 0.2.0 is required.
@@ -122,29 +62,67 @@ package is lighter. The changes are given with respect to 0.0.9.9000.
   (`time_unit`: year, quarter, month, week, day).
 - With `verbose = TRUE`, the building functions say which method they
   apply, what it measures and where it comes from.
+- `merge_dynamic_clusters(method = "jaccard")`: overlap matching with a
+  Jaccard threshold (Greene et al., 2010), each past identifier going to
+  one cluster at most.
 - [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
   and
   [`plot_merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/plot_merge_diagnostics.md)
-  show how the dynamic clusters depend on the threshold of
-  [`merge_dynamic_clusters()`](https://agoutsmedt.github.io/networkflow/reference/merge_dynamic_clusters.md).
+  show how the dynamic clusters depend on the rule and the threshold.
 - [`layout_networks()`](https://agoutsmedt.github.io/networkflow/reference/layout_networks.md)
   has two new layouts, `"forceatlas2"` (Jacomy et al.,
   2014. and `"umap"` (McInnes et al., 2018).
+- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
+  reduces the crossings of the flows themselves (a local search, or the
+  barycentre heuristic for large alluvials) and reports them.
 - [`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md)
   accepts the list of graphs directly, and keeps the main clusters with
   `min_share_cluster` and `min_windows_cluster`.
+- [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
+  with tf-idf skips the terms that overlap a better one (“business”
+  after “business cycle”).
 - Windows without any edge give an empty network that the following
-  steps accept; nodes or links with a missing time are dropped with a
-  warning.
+  steps accept; nodes or links with a missing time or identifier are
+  dropped with a warning; a target linked to more than half of the
+  sources (such as a code for unmatched references) is reported.
 
-### Lighter installation
+### Speed and memory
 
+Measured on samples of 30,000 documents of Scopus and of the Web of
+Science:
+
+- [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
+  is three times faster (24 s instead of 83 s for 11 windows of the Web
+  of Science sample).
+- [`merge_diagnostics()`](https://agoutsmedt.github.io/networkflow/reference/merge_diagnostics.md)
+  is about seven times faster (8 s instead of 63 s).
+- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
+  takes about a second instead of 5 to 35 minutes on alluvials of 250 to
+  550 clusters, with bounded memory.
+- On the whole pipeline, the peak of memory falls from 13.9 GB to 3.9 GB
+  on the Web of Science sample.
+- [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
+  draws straight edges on graphs of more than `max_arcs` edges (20,000):
+  2 seconds and 1 GB instead of 100 seconds and 11 GB for 140,000 edges.
+- UMAP uses the nearest neighbours instead of all the distances (1.4 GB
+  instead of 5.7 GB on 9,600 nodes), and ForceAtlas2 computes its
+  repulsion by blocks.
 - 16 packages are imported instead of 22: `forcats`, `stringr` and
   `stopwords` are removed, and `ggalluvial`, `tidytext` and `lifecycle`
-  are suggested. The functions that need a suggested package
-  ([`plot_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/plot_alluvial.md),
-  [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md),
-  the statistical backbones, UMAP) ask to install it.
+  are suggested. The functions that need a suggested package ask to
+  install it.
+
+### Bug fixes
+
+- [`plot_networks()`](https://agoutsmedt.github.io/networkflow/reference/plot_networks.md)
+  failed on PDF devices where the font of
+  [`ggraph::theme_graph()`](https://ggraph.data-imaginist.com/reference/theme_graph.html)
+  (Arial Narrow) is not installed.
+- [`minimize_crossing_alluvial()`](https://agoutsmedt.github.io/networkflow/reference/minimize_crossing_alluvial.md)
+  sorted the clusters on a string of component numbers, wrong as soon as
+  there were ten components or more.
+- Invalid `edges_threshold` (0, a string) failed deep inside
+  biblionetwork; it is now checked first.
 
 ### Documentation and website
 
@@ -153,8 +131,9 @@ package is lighter. The changes are given with respect to 0.0.9.9000.
   time” and “Beyond bibliographic coupling”, with the methods, their
   formulas and the literature behind them.
 - The documentation of each function explains its method and its
-  choices, with formulas displayed on the website and the origin of each
-  measure.
+  choices, with formulas displayed on the website, the origin of each
+  measure, and the cost of the slow methods (statistical backbones,
+  ForceAtlas2, Kamada-Kawai).
 - The README is written in Quarto, with an illustration in a light and a
   dark version, and the studies that used the package.
 - New theme, logo and favicons.

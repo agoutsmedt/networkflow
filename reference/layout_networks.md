@@ -104,15 +104,17 @@ the others away and clusters separate; a gravity keeps the components
 around the centre. The speed adapts to the stability of the forces. This
 is a compact implementation, not the one of Gephi: the repulsion is
 computed between all the pairs of nodes (no Barnes-Hut approximation),
-so that the cost grows with the square of the number of nodes
-(comfortable up to a few thousand). Arguments: `iterations` (500),
-`scaling_ratio` (2, the strength of the repulsion: smaller values give a
-more compact layout), `gravity` (1), `strong_gravity` (`FALSE`; `TRUE`
-keeps disconnected components close), `linlog` (`FALSE`; `TRUE` uses a
-logarithmic attraction, which separates the clusters more) and `weights`
-(the edge column is used by default, divided by its maximum; `NA`
-ignores it). Isolated components drift away from the rest: keep the main
-component with
+so that the cost grows with the square of the number of nodes: on a Web
+of Science sample, about 1 minute for 1,000 nodes and 4 to 5 minutes for
+2,000, so that `"fr"` or `"umap"` are better choices for larger
+networks. Arguments: `iterations` (500), `scaling_ratio` (2, the
+strength of the repulsion: smaller values give a more compact layout),
+`gravity` (1), `strong_gravity` (`FALSE`; `TRUE` keeps disconnected
+components close), `linlog` (`FALSE`; `TRUE` uses a logarithmic
+attraction, which separates the clusters more) and `weights` (the edge
+column is used by default, divided by its maximum; `NA` ignores it).
+Isolated components drift away from the rest: keep the main component
+with
 [`filter_components()`](https://agoutsmedt.github.io/networkflow/reference/filter_components.md)
 first, or use `strong_gravity = TRUE`.
 
@@ -137,7 +139,12 @@ are not to be measured, and the picture is partly built by the choice of
 For dynamic coordinates, nodes absent from the previous window start at
 (0, 0). The starting positions are passed to the layout as its `coords`
 argument: this works only with layouts that accept it, such as `"fr"`
-and `"kk"` of `igraph`, and `"forceatlas2"`; `"umap"` ignores them.
+and `"kk"` of `igraph`, and `"forceatlas2"`; `"umap"` ignores them. With
+starting positions, `igraph`'s Fruchterman-Reingold no longer uses its
+fast grid approximation: on a Web of Science window of 9,600 nodes,
+about 80 seconds instead of 1. As the positions are already close to the
+result, fewer iterations are often enough (e.g. `niter = 100`, passed to
+[`igraph::layout_with_fr()`](https://r.igraph.org/reference/layout_with_fr.html)).
 
 ## References
 
@@ -175,7 +182,8 @@ network <- build_network(
 #> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
 #>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
 #>   et al. (2019), between source_id entities sharing target_id entities.
-#> ℹ Pairs sharing fewer than 2 target_id are dropped (`edges_threshold`).
+#> ℹ Two source_id are linked when they share at least 2 target_id
+#>   (`edges_threshold`).
 #> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 set.seed(1)
 network <- layout_networks(network, node_id = "source_id", layout = "fr")

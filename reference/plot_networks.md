@@ -32,6 +32,7 @@ plot_networks(
   color_column = "color",
   color_networks = FALSE,
   color = NULL,
+  max_arcs = 20000,
   print_plot_code = FALSE
 )
 ```
@@ -78,6 +79,15 @@ plot_networks(
   With `color_networks = TRUE`, the colours passed to
   [`color_networks()`](https://agoutsmedt.github.io/networkflow/reference/color_networks.md).
 
+- max_arcs:
+
+  Whole number. Edges are drawn as arcs whose width follows their
+  weight, unless a graph has more than `max_arcs` edges (20,000 by
+  default): they are then drawn as straight lines of constant width,
+  which is much faster (on a network of 140,000 edges, about 2 seconds
+  and 1 GB of memory to draw, against 100 seconds and 11 GB with arcs).
+  Set it to `Inf` to always draw arcs.
+
 - print_plot_code:
 
   Logical. If `TRUE`, prints the
@@ -111,7 +121,8 @@ network <- build_network(
 #> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
 #>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
 #>   et al. (2019), between source_id entities sharing target_id entities.
-#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Two source_id are linked when they share at least 1 target_id
+#>   (`edges_threshold`).
 #> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,

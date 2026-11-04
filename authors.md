@@ -19,12 +19,12 @@ Source:
 
 Goutsmedt, A., Truc, A. and Delcey, T. (2026). networkflow: A Research
 Pipeline for Projected and Dynamic Networks. R package version
-0.0.9.9002. https://agoutsmedt.github.io/networkflow/
+0.0.9.9001. https://agoutsmedt.github.io/networkflow/
 
     @Manual{,
       title = {networkflow: A Research Pipeline for Projected and Dynamic Networks},
       author = {Aurélien Goutsmedt and Alexandre Truc and Thomas Delcey},
       year = {2026},
-      note = {R package version 0.0.9.9002},
+      note = {R package version 0.0.9.9001},
       url = {https://agoutsmedt.github.io/networkflow/},
     }

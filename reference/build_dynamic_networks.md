@@ -256,7 +256,7 @@ between them are built:
 | Edges | weighted (`weight`) | unweighted (each edge means "more than expected by chance") |
 | Arguments used | `edges_threshold`, `document_id` | `alpha` (required), `backbone_args` |
 | Ignored | `alpha`, `backbone_args` | `edges_threshold`; `document_id` is an error |
-| Cost | fast, sparse matrices | slow on large corpora (a test for each pair) |
+| Cost | fast, sparse matrices: seconds for tens of thousands of documents | a test for each pair: on a Scopus sample, about 20 seconds and 2 GB for 1,000 documents with `"sdsm"`; `"fdsm"` simulates random networks and needs `backbone_args = list(trials = )` to finish (about a minute for 100 documents with 1,000 trials) |
 | Computed by | [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) | the `backbone` package |
 
 **Where the methods come from.** The names are those of the packages
@@ -579,7 +579,8 @@ author_coupling <- build_network(
 #>   coupling strength, which counts a shared target less when many sources are
 #>   linked to it, after Shen et al. (2019), between author_name entities sharing
 #>   target_id entities.
-#> ℹ Pairs sharing fewer than 2 target_id are dropped (`edges_threshold`).
+#> ℹ Two author_name are linked when they share at least 2 target_id
+#>   (`edges_threshold`).
 #> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 author_coupling
 #> # A tbl_graph: 120 nodes and 2365 edges

@@ -417,69 +417,48 @@ cluster_stats <- unique(alluv_dt[, c("dynamic_cluster_leiden", "cluster_label",
 cluster_stats[order(-cluster_stats$length_cluster), ]
 ```
 
-        dynamic_cluster_leiden
-                        <char>
-     1:                  cl_50
-     2:                  cl_53
-     3:                   cl_4
-     4:                   cl_1
-     5:                  cl_62
-     6:                  cl_43
-     7:                   cl_2
-     8:                  cl_80
-     9:                  cl_12
-    10:                  cl_15
-    11:                  cl_99
-    12:                   cl_3
-    13:                   cl_6
-    14:                  cl_38
-    15:                   cl_5
-    16:                  cl_29
-    17:                  cl_34
-    18:                 cl_103
-    19:                 cl_107
-                                                  cluster_label share_cluster_max
-                                                         <char>             <num>
-     1:                    oil price, oil, monetary alternative             37.50
-     2:                    rise, peacetime, peacetime inflation             40.74
-     3:             policy revisit, shock wage, wage stickiness             42.86
-     4:               productivity, productivity growth, growth             35.71
-     5:                       rule, trap hypothesis, hypothesis             30.56
-     6:                           north, north america, america            100.00
-     7:                       control, control program, program             22.22
-     8:                          origin, great inflation, great             24.49
-     9:      acceleration, acceleration evidence, postwar unite             18.03
-    10:        unemployment, employment, stagflation persistent             21.43
-    11:                          great inflation, great, origin             54.76
-    12:             unemployment, inflation unemployment, model             24.59
-    13:                employment, inflation employment, import             14.75
-    14: comparative, comparative macroeconomics, macroeconomics             33.33
-    15:                               acceleration, wage, price             10.94
-    16:                  international, world inflation, energy             12.50
-    17:                             world inflation, oil, world             22.22
-    18:                              rule, policy rule, natural             15.91
-    19:                               rule, taylor, taylor rule             31.58
-        length_cluster
-                 <int>
-     1:             18
-     2:             17
-     3:             11
-     4:             10
-     5:             10
-     6:              9
-     7:              7
-     8:              5
-     9:              4
-    10:              4
-    11:              4
-    12:              2
-    13:              2
-    14:              2
-    15:              1
-    16:              1
-    17:              1
-    18:              1
-    19:              1
+        dynamic_cluster_leiden                                      cluster_label
+                        <char>                                             <char>
+     1:                  cl_50 oil price, monetary alternative, great stagflation
+     2:                  cl_53                              rise, peacetime, poor
+     3:                   cl_4        policy revisit, shock wage, wage stickiness
+     4:                   cl_1                     productivity, growth, slowdown
+     5:                  cl_62                       rule, trap hypothesis, shift
+     6:                  cl_43                            north, america, genesis
+     7:                   cl_2                      control, program, price level
+     8:                  cl_80                   origin, great inflation, history
+     9:                  cl_12              acceleration, postwar unite, practice
+    10:                  cl_15   unemployment, employment, stagflation persistent
+    11:                  cl_99                   great inflation, origin, history
+    12:                   cl_3                  unemployment, model, inflationary
+    13:                   cl_6                 employment, import, macro economic
+    14:                  cl_38             comparative, macroeconomics, condition
+    15:                   cl_5                          acceleration, wage, price
+    16:                  cl_29             international, world inflation, energy
+    17:                  cl_34                        world inflation, oil, price
+    18:                 cl_103                            rule, natural, monetary
+    19:                 cl_107                              rule, taylor, natural
+        share_cluster_max length_cluster
+                    <num>          <int>
+     1:             37.50             18
+     2:             40.74             17
+     3:             42.86             11
+     4:             35.71             10
+     5:             30.56             10
+     6:            100.00              9
+     7:             22.22              7
+     8:             24.49              5
+     9:             18.03              4
+    10:             21.43              4
+    11:             54.76              4
+    12:             24.59              2
+    13:             14.75              2
+    14:             33.33              2
+    15:             10.94              1
+    16:             12.50              1
+    17:             22.22              1
+    18:             15.91              1
+    19:             31.58              1
 
 Clusters that exist in one or two windows, or remain small, clutter the
 plot. We keep the clusters that last at least three windows, give each a

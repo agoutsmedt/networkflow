@@ -279,16 +279,11 @@ names(clusters)[3:4] <- c("documents", "median_year")
 clusters[order(clusters$median_year), ]
 ```
 
-      cluster_leiden                                        cluster_label documents
-    3             01                     productivity, unemployment, wage        69
-    4             04                       stagflation, inflation, change         9
-    2             03                    oil, oil price, great stagflation        18
-    1             02 great inflation, stabilization, stabilization policy        51
-      median_year
-    3        1980
-    4        1995
-    2        2002
-    1        2005
+      cluster_leiden                        cluster_label documents median_year
+    3             01     productivity, unemployment, wage        69        1980
+    4             04       stagflation, inflation, change         9        1995
+    2             03  oil, great stagflation, price shock        18        2002
+    1             02 great inflation, stabilization, rule        51        2005
 
 The labels and the median years already sketch a history. Clusters of
 the late 1970s and early 1980s talk about productivity, oil, wages and
@@ -414,11 +409,11 @@ roles |>
     2 The supply-shock explanation of the great stagflation revisited
     3            America<92>s peacetime inflation: the 1970s: comment
     4                 Energy price increases and macroeconomic policy
-                                cluster    z participation
-    1    stagflation, inflation, change -0.2          0.71
-    2 oil, oil price, great stagflation  0.1          0.70
-    3    stagflation, inflation, change -0.2          0.66
-    4  productivity, unemployment, wage  2.7          0.21
+                                  cluster    z participation
+    1      stagflation, inflation, change -0.2          0.71
+    2 oil, great stagflation, price shock  0.1          0.70
+    3      stagflation, inflation, change -0.2          0.66
+    4    productivity, unemployment, wage  2.7          0.21
 
 How to read them depends on what the nodes and the ties are. Here, nodes
 are explanations of the stagflation and ties are shared references:

@@ -29,7 +29,7 @@ what distinguishes them from neighbouring clusters
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -151,7 +151,9 @@ abstracts, keywords), passed to <code><a href="extract_tfidf.html">extract_tfidf
 
 <dt id="arg-nb-terms-label">nb_terms_label<a class="anchor" aria-label="anchor" href="#arg-nb-terms-label"></a></dt>
 <dd><p>For <code>"tf-idf"</code>, the number of terms in each label (3
-by default), separated by commas.</p></dd>
+by default), separated by commas. A term that is part of a term already
+in the label, or contains one, is skipped ("business" after "business
+cycle").</p></dd>
 
 
 <dt id="arg-name-merged-clusters">name_merged_clusters<a class="anchor" aria-label="anchor" href="#arg-name-merged-clusters"></a></dt>
@@ -224,7 +226,8 @@ cited article.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Coupling (`biblionetwork::biblio_coupling()`) with <span style="color: #0000BB;">"similarity"</span>: ties</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   weighted by the idf-weighted cosine of the two lists of targets, after Shen</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   et al. (2019), between <span style="color: #00BB00;">source_id</span> entities sharing <span style="color: #00BB00;">target_id</span> entities.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Pairs sharing fewer than 1 <span style="color: #00BB00;">target_id</span> are dropped (`edges_threshold`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Two <span style="color: #00BB00;">source_id</span> are linked when they share at least 1 <span style="color: #00BB00;">target_id</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   (`edges_threshold`).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes without any edge are removed (`keep_singleton = FALSE`).</span>
 <span class="r-in"><span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu"><a href="add_clusters.html">add_clusters</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">network</span>,</span></span>
@@ -257,12 +260,12 @@ cited article.</p>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cluster_leiden"</span>, <span class="st">"cluster_label"</span>, <span class="st">"central_article"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster_leiden cluster_label                                   central_article</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 02             great inflation, stabilization, stabilization … VELDE-F_2004   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 01             productivity, unemployment, prices              WACHTER-M_1978 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 04             stagflation, inflation, 1970s                   DELONG-B_1997  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 03             oil, oil price, great stagflation               BARSKY-R_2002  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cluster_leiden cluster_label                            central_article</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 02             great inflation, stabilization, monetary VELDE-F_2004   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 01             productivity, unemployment, prices       WACHTER-M_1978 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 04             stagflation, inflation, 1970s            DELONG-B_1997  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 03             oil, great stagflation, price shocks     BARSKY-R_2002  </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

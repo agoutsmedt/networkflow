@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,42 +40,8 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.9.9002" id="networkflow-0099002-2026-11-05">networkflow 0.0.9.9002 (2026-11-05)<a class="anchor" aria-label="anchor" href="#networkflow-0099002-2026-11-05"></a></h2>
-<p>Third step: a second rule to follow clusters across windows, a clearer name for the naming of dynamic clusters, and a better order for alluvial plots.</p>
-<div class="section level3">
-<h3 id="breaking-changes-0-0-9-9002">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9002"></a></h3>
-<ul><li>
-<code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code> has a required <code>method</code>: <code>"majority"</code> (the double majority, the only rule so far) or <code>"jaccard"</code> (new, see below). <code>threshold_similarity</code> has no default any more (it used to be 0.5001): the rule, its threshold and the type of similarity change the dynamic clusters, so all three must be given. Calls of earlier versions need <code>method = "majority"</code> and a threshold.</li>
-<li>
-<code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> has a required <code>method</code> too, and <code>thresholds</code> is <code>NULL</code> by default (a grid for each rule); its result has a <code>method</code> column.</li>
-<li>
-<code><a href="../reference/networks_to_alluv.html">networks_to_alluv()</a></code> returns <code>window</code> as a factor whose levels follow the order of the list: windows with numeric names (“2”, “10”) are no longer sorted alphabetically in the table and in the plot.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="new-features-0-0-9-9002">New features<a class="anchor" aria-label="anchor" href="#new-features-0-0-9-9002"></a></h3>
-<ul><li>
-<code>merge_dynamic_clusters(method = "jaccard")</code>: overlap matching with a Jaccard threshold, as in the tracking of dynamic communities of Greene et al. (2010). Candidate pairs have a Jaccard index of at least the threshold (which can be well below 0.5); they are taken by decreasing index, each past identifier going to one cluster at most. <code>similarity_type = "partial"</code> restricts the union to the nodes present in both windows. With <code>verbose = TRUE</code>, the function says which rule it applies. <code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> work with both rules, and the guide “Following clusters over time” compares them.</li>
-<li>
-<code><a href="../reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> refines its order against the crossings of the flows themselves (<code>refine = TRUE</code>, <code>max_passes</code>): on the stagflation data, the weighted crossings fall from about 380 to 90. It reports the crossings before and after (<code>verbose</code>).</li>
-<li>
-<code><a href="../reference/name_clusters.html">name_clusters()</a></code>: <code>name_merged_clusters</code> is renamed <code>name_dynamic_clusters</code> (the old name still works, with a deprecation warning).</li>
-</ul></div>
-<div class="section level3">
-<h3 id="bug-fixes-0-0-9-9002">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-9-9002"></a></h3>
-<ul><li>
-<code><a href="../reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> pasted the numbers of the components into a string to sort the clusters, which mixed “1” “10” and “11” “0” as soon as there were ten components or more.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="documentation-0-0-9-9002">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-0-9-9002"></a></h3>
-<ul><li>The guide “Following clusters over time” discusses the risk of building communities of documents of the same years rather than thematic communities on a long period (coupling, and possibly co-citation), says that windows must overlap (<code>window_step</code> smaller than <code>time_window</code>, not only <code>window_step = 1</code>) for documents to be matched, and presents the multislice community detection and the significance-clustered alluvial maps as possible future methods.</li>
-<li>The guide “Following clusters over time” draws three windows with <code>layout_networks(compute_dynamic_coordinates = TRUE)</code> and the colours of the alluvial.</li>
-<li>The guide “Drawing networks” draws on Venturini, Jacomy and Jensen on visual network analysis (reading densities rather than distances, no axes, the settings of ForceAtlas2) and checks the layouts against the clusters with k-means, as they suggest.</li>
-<li>The README lists the study of Boucher and Fan (2025) among those that used the package.</li>
-</ul></div>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.9.9001" id="networkflow-0099001-2026-11-01-to-2026-11-04">networkflow 0.0.9.9001 (2026-11-01 to 2026-11-04)<a class="anchor" aria-label="anchor" href="#networkflow-0099001-2026-11-01-to-2026-11-04"></a></h2>
-<p>Second step: the pipeline goes beyond bibliographic coupling, networks are built with one explicit <code>method</code>, time windows are reworked, and the package is lighter. The changes are given with respect to 0.0.9.9000.</p>
+<h2 class="pkg-version" data-toc-text="0.0.9.9001" id="networkflow-0099001-2026-11-01-to-2026-11-05">networkflow 0.0.9.9001 (2026-11-01 to 2026-11-05)<a class="anchor" aria-label="anchor" href="#networkflow-0099001-2026-11-01-to-2026-11-05"></a></h2>
+<p>Second step: the pipeline goes beyond bibliographic coupling, networks are built with one explicit <code>method</code>, time windows and dynamic clusters are reworked, the package is lighter and faster, and it was checked on samples of the Scopus and Web of Science databases of the authors. The changes are given with respect to 0.0.9.9000.</p>
 <div class="section level3">
 <h3 id="breaking-changes-0-0-9-9001">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-0-9-9001"></a></h3>
 <ul><li>
@@ -85,7 +51,13 @@
 <li>
 <code>overlapping_window</code> is replaced by <code>window_step</code>, the number of units between the starts of two windows (<code>window_step = 1</code> replaces <code>overlapping_window = TRUE</code>). The arguments are reordered, and <code>...</code> only accepts the arguments of <code><a href="../reference/filter_components.html">filter_components()</a></code>. Windows of a single time unit are named after the unit (<code>"1990"</code> instead of <code>"1990-1990"</code>).</li>
 <li>
+<code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code> and <code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> have a required <code>method</code>: <code>"majority"</code> (the former double majority) or <code>"jaccard"</code> (new). <code>threshold_similarity</code> has no default any more: calls of earlier versions need <code>method = "majority"</code> and a threshold.</li>
+<li>
+<code><a href="../reference/name_clusters.html">name_clusters()</a></code>: <code>name_merged_clusters</code> is renamed <code>name_dynamic_clusters</code> (the old name still works, with a deprecation warning).</li>
+<li>
 <code><a href="../reference/plot_networks.html">plot_networks()</a></code> returns a named list of ggplot objects for a list of graphs.</li>
+<li>
+<code><a href="../reference/networks_to_alluv.html">networks_to_alluv()</a></code> returns <code>window</code> as a factor in the order of the list of graphs.</li>
 <li>
 <code>launch_network_app()</code> is removed: the Shiny application moves to the package networkflowapp.</li>
 <li>biblionetwork &gt;= 0.2.0 is required.</li>
@@ -96,23 +68,48 @@
 <li>Dates (<code>Date</code>, <code>POSIXct</code>, ISO dates) and finer time units (<code>time_unit</code>: year, quarter, month, week, day).</li>
 <li>With <code>verbose = TRUE</code>, the building functions say which method they apply, what it measures and where it comes from.</li>
 <li>
-<code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> show how the dynamic clusters depend on the threshold of <code><a href="../reference/merge_dynamic_clusters.html">merge_dynamic_clusters()</a></code>.</li>
+<code>merge_dynamic_clusters(method = "jaccard")</code>: overlap matching with a Jaccard threshold (Greene et al., 2010), each past identifier going to one cluster at most.</li>
+<li>
+<code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> and <code><a href="../reference/plot_merge_diagnostics.html">plot_merge_diagnostics()</a></code> show how the dynamic clusters depend on the rule and the threshold.</li>
 <li>
 <code><a href="../reference/layout_networks.html">layout_networks()</a></code> has two new layouts, <code>"forceatlas2"</code> (Jacomy et al.,
 <ol start="2014" style="list-style-type: decimal"><li>and <code>"umap"</code> (McInnes et al., 2018).</li>
 </ol></li>
 <li>
+<code><a href="../reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> reduces the crossings of the flows themselves (a local search, or the barycentre heuristic for large alluvials) and reports them.</li>
+<li>
 <code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code> accepts the list of graphs directly, and keeps the main clusters with <code>min_share_cluster</code> and <code>min_windows_cluster</code>.</li>
-<li>Windows without any edge give an empty network that the following steps accept; nodes or links with a missing time are dropped with a warning.</li>
+<li>
+<code><a href="../reference/name_clusters.html">name_clusters()</a></code> with tf-idf skips the terms that overlap a better one (“business” after “business cycle”).</li>
+<li>Windows without any edge give an empty network that the following steps accept; nodes or links with a missing time or identifier are dropped with a warning; a target linked to more than half of the sources (such as a code for unmatched references) is reported.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="lighter-installation-0-0-9-9001">Lighter installation<a class="anchor" aria-label="anchor" href="#lighter-installation-0-0-9-9001"></a></h3>
-<ul><li>16 packages are imported instead of 22: <code>forcats</code>, <code>stringr</code> and <code>stopwords</code> are removed, and <code>ggalluvial</code>, <code>tidytext</code> and <code>lifecycle</code> are suggested. The functions that need a suggested package (<code><a href="../reference/plot_alluvial.html">plot_alluvial()</a></code>, <code><a href="../reference/extract_tfidf.html">extract_tfidf()</a></code>, the statistical backbones, UMAP) ask to install it.</li>
+<h3 id="speed-and-memory-0-0-9-9001">Speed and memory<a class="anchor" aria-label="anchor" href="#speed-and-memory-0-0-9-9001"></a></h3>
+<p>Measured on samples of 30,000 documents of Scopus and of the Web of Science:</p>
+<ul><li>
+<code><a href="../reference/build_dynamic_networks.html">build_dynamic_networks()</a></code> is three times faster (24 s instead of 83 s for 11 windows of the Web of Science sample).</li>
+<li>
+<code><a href="../reference/merge_diagnostics.html">merge_diagnostics()</a></code> is about seven times faster (8 s instead of 63 s).</li>
+<li>
+<code><a href="../reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> takes about a second instead of 5 to 35 minutes on alluvials of 250 to 550 clusters, with bounded memory.</li>
+<li>On the whole pipeline, the peak of memory falls from 13.9 GB to 3.9 GB on the Web of Science sample.</li>
+<li>
+<code><a href="../reference/plot_networks.html">plot_networks()</a></code> draws straight edges on graphs of more than <code>max_arcs</code> edges (20,000): 2 seconds and 1 GB instead of 100 seconds and 11 GB for 140,000 edges.</li>
+<li>UMAP uses the nearest neighbours instead of all the distances (1.4 GB instead of 5.7 GB on 9,600 nodes), and ForceAtlas2 computes its repulsion by blocks.</li>
+<li>16 packages are imported instead of 22: <code>forcats</code>, <code>stringr</code> and <code>stopwords</code> are removed, and <code>ggalluvial</code>, <code>tidytext</code> and <code>lifecycle</code> are suggested. The functions that need a suggested package ask to install it.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-0-9-9001">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-0-9-9001"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_networks.html">plot_networks()</a></code> failed on PDF devices where the font of <code><a href="https://ggraph.data-imaginist.com/reference/theme_graph.html" class="external-link">ggraph::theme_graph()</a></code> (Arial Narrow) is not installed.</li>
+<li>
+<code><a href="../reference/minimize_crossing_alluvial.html">minimize_crossing_alluvial()</a></code> sorted the clusters on a string of component numbers, wrong as soon as there were ten components or more.</li>
+<li>Invalid <code>edges_threshold</code> (0, a string) failed deep inside biblionetwork; it is now checked first.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-and-website-0-0-9-9001">Documentation and website<a class="anchor" aria-label="anchor" href="#documentation-and-website-0-0-9-9001"></a></h3>
 <ul><li>Five guides on the website: “From references to networks”, “Finding and reading clusters”, “Drawing networks”, “Following clusters over time” and “Beyond bibliographic coupling”, with the methods, their formulas and the literature behind them.</li>
-<li>The documentation of each function explains its method and its choices, with formulas displayed on the website and the origin of each measure.</li>
+<li>The documentation of each function explains its method and its choices, with formulas displayed on the website, the origin of each measure, and the cost of the slow methods (statistical backbones, ForceAtlas2, Kamada-Kawai).</li>
 <li>The README is written in Quarto, with an illustration in a light and a dark version, and the studies that used the package.</li>
 <li>New theme, logo and favicons.</li>
 </ul></div>

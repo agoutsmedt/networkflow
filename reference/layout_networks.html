@@ -51,7 +51,7 @@ that the nodes present in both windows tend to stay in the same region.'><meta p
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -189,7 +189,9 @@ components around the centre. The speed adapts to the stability of the
 forces. This is a compact implementation, not the one of Gephi: the
 repulsion is computed between all the pairs of nodes (no Barnes-Hut
 approximation), so that the cost grows with the square of the number of
-nodes (comfortable up to a few thousand). Arguments: <code>iterations</code> (500),
+nodes: on a Web of Science sample, about 1 minute for 1,000 nodes and
+4 to 5 minutes for 2,000, so that <code>"fr"</code> or <code>"umap"</code> are better choices
+for larger networks. Arguments: <code>iterations</code> (500),
 <code>scaling_ratio</code> (2, the strength of the repulsion: smaller values give a
 more compact layout), <code>gravity</code> (1), <code>strong_gravity</code> (<code>FALSE</code>; <code>TRUE</code>
 keeps disconnected components close), <code>linlog</code> (<code>FALSE</code>; <code>TRUE</code> uses a
@@ -216,7 +218,12 @@ are not to be measured, and the picture is partly built by the choice of
 <p>For dynamic coordinates, nodes absent from the previous window start at
 (0, 0). The starting positions are passed to the layout as its <code>coords</code>
 argument: this works only with layouts that accept it, such as <code>"fr"</code> and
-<code>"kk"</code> of <code>igraph</code>, and <code>"forceatlas2"</code>; <code>"umap"</code> ignores them.</p>
+<code>"kk"</code> of <code>igraph</code>, and <code>"forceatlas2"</code>; <code>"umap"</code> ignores them. With
+starting positions, <code>igraph</code>'s Fruchterman-Reingold no longer uses its fast
+grid approximation: on a Web of Science window of 9,600 nodes, about 80
+seconds instead of 1. As the positions are already close to the result,
+fewer iterations are often enough (e.g. <code>niter = 100</code>, passed to
+<code><a href="https://r.igraph.org/reference/layout_with_fr.html" class="external-link">igraph::layout_with_fr()</a></code>).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -252,7 +259,8 @@ argument: this works only with layouts that accept it, such as <code>"fr"</code>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Coupling (`biblionetwork::biblio_coupling()`) with <span style="color: #0000BB;">"similarity"</span>: ties</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   weighted by the idf-weighted cosine of the two lists of targets, after Shen</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   et al. (2019), between <span style="color: #00BB00;">source_id</span> entities sharing <span style="color: #00BB00;">target_id</span> entities.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Pairs sharing fewer than 2 <span style="color: #00BB00;">target_id</span> are dropped (`edges_threshold`).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Two <span style="color: #00BB00;">source_id</span> are linked when they share at least 2 <span style="color: #00BB00;">target_id</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   (`edges_threshold`).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nodes without any edge are removed (`keep_singleton = FALSE`).</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">network</span> <span class="op">&lt;-</span> <span class="fu">layout_networks</span><span class="op">(</span><span class="va">network</span>, node_id <span class="op">=</span> <span class="st">"source_id"</span>, layout <span class="op">=</span> <span class="st">"fr"</span><span class="op">)</span></span></span>

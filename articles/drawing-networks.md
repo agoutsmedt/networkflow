@@ -169,11 +169,13 @@ laid_out_fa2 <- layout_networks(network, node_id = "source_id", layout = "forcea
 
 The implementation of `networkflow` is compact: it computes the
 repulsion between all the pairs of nodes, instead of the approximation
-of Gephi, so that its cost grows with the square of the number of nodes.
-It is comfortable up to a few thousand nodes. Three arguments change the
-picture: `scaling_ratio` is the strength of the repulsion k_r (smaller
-values give a more compact layout), `linlog = TRUE` replaces the
-attraction by a logarithm of the distance, which separates clusters
+of Gephi, so that its cost grows with the square of the number of nodes:
+on a sample of the Web of Science, about a minute for 1,000 nodes and
+four to five minutes for 2,000, when Fruchterman-Reingold and UMAP take
+a few seconds. For larger networks, prefer them. Three arguments change
+the picture: `scaling_ratio` is the strength of the repulsion k_r
+(smaller values give a more compact layout), `linlog = TRUE` replaces
+the attraction by a logarithm of the distance, which separates clusters
 more, and `strong_gravity = TRUE` keeps disconnected components close to
 the centre.
 
@@ -266,7 +268,7 @@ None of them is the right one: they answer different questions.
 |----|----|----|----|----|
 | `"fr"` | attraction along edges, repulsion between all nodes | as attraction | light | a first look at a network of a few hundred nodes |
 | `"kk"` | geometric distances reproduce graph distances | as distances (see above) | grows fast with size | small networks, unweighted or with `weights = NA` |
-| `"forceatlas2"` | as `"fr"`, with a repulsion that grows with degrees | as attraction | square of the number of nodes | networks with hubs, which need space |
+| `"forceatlas2"` | as `"fr"`, with a repulsion that grows with degrees | as attraction | square of the number of nodes: networks up to about 1,000 nodes | networks with hubs, which need space |
 | `"umap"` | preserves the neighbourhood of each node | through the shortest paths | light | networks of clusters one wants to see apart |
 
 How to tell whether a layout is good? There is no accepted measure of
@@ -304,7 +306,7 @@ layout_check[order(-layout_check$agreement_with_leiden), ]
 
            layout agreement_with_leiden
     3 forceatlas2             0.5645819
-    4        umap             0.5115954
+    4        umap             0.5502986
     1          fr             0.3762415
     2          kk             0.3311174
 

@@ -142,7 +142,8 @@ network <- build_network(
 #> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
 #>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
 #>   et al. (2019), between source_id entities sharing target_id entities.
-#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Two source_id are linked when they share at least 1 target_id
+#>   (`edges_threshold`).
 #> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,

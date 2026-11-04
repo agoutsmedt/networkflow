@@ -91,7 +91,9 @@ name_clusters(
 - nb_terms_label:
 
   For `"tf-idf"`, the number of terms in each label (3 by default),
-  separated by commas.
+  separated by commas. A term that is part of a term already in the
+  label, or contains one, is skipped ("business" after "business
+  cycle").
 
 - name_merged_clusters:
 
@@ -168,7 +170,8 @@ network <- build_network(
 #> ℹ Coupling (`biblionetwork::biblio_coupling()`) with "similarity": ties
 #>   weighted by the idf-weighted cosine of the two lists of targets, after Shen
 #>   et al. (2019), between source_id entities sharing target_id entities.
-#> ℹ Pairs sharing fewer than 1 target_id are dropped (`edges_threshold`).
+#> ℹ Two source_id are linked when they share at least 1 target_id
+#>   (`edges_threshold`).
 #> ℹ Nodes without any edge are removed (`keep_singleton = FALSE`).
 network <- add_clusters(
   network,
@@ -201,10 +204,10 @@ unique(tidygraph::as_tibble(network, active = "nodes")[
   c("cluster_leiden", "cluster_label", "central_article")
 ])
 #> # A tibble: 4 × 3
-#>   cluster_leiden cluster_label                                   central_article
-#>   <chr>          <chr>                                           <chr>          
-#> 1 02             great inflation, stabilization, stabilization … VELDE-F_2004   
-#> 2 01             productivity, unemployment, prices              WACHTER-M_1978 
-#> 3 04             stagflation, inflation, 1970s                   DELONG-B_1997  
-#> 4 03             oil, oil price, great stagflation               BARSKY-R_2002  
+#>   cluster_leiden cluster_label                            central_article
+#>   <chr>          <chr>                                    <chr>          
+#> 1 02             great inflation, stabilization, monetary VELDE-F_2004   
+#> 2 01             productivity, unemployment, prices       WACHTER-M_1978 
+#> 3 04             stagflation, inflation, 1970s            DELONG-B_1997  
+#> 4 03             oil, great stagflation, price shocks     BARSKY-R_2002  
 ```

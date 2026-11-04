@@ -16,7 +16,10 @@ between windows, with a cosine weight \\n\_{ab} / \sqrt{\bar{s}\_a
 removes the ties one by one, from the weakest to the strongest, and
 records at each step the connected component of each cluster. Clusters
 are ordered by this sequence of components: clusters that stay together
-until the strongest ties are removed end up side by side. This groups
+until the strongest ties are removed end up side by side (this is the
+order of the leaves of a single-linkage hierarchical clustering of the
+clusters, computed with
+[`stats::hclust()`](https://rdrr.io/r/stats/hclust.html)). This groups
 clusters that exchange nodes, but it does not count the crossings.
 
 Second (`refine = TRUE`, the default), the order is improved against the
@@ -27,7 +30,13 @@ and the order of their destinations are opposite, and the pair is
 weighted by the product of the two flows. Each cluster in turn is moved
 to the position that minimises the total, until no move helps. This is a
 local search, which can end in a local optimum, and which costs more
-with many clusters and flows.
+with many clusters and flows. For large alluvials (more than 100
+clusters, or more than two million pairs of flows), the barycentre
+heuristic is used instead: each cluster is placed at the mean position
+of the clusters it exchanges nodes with, as long as this reduces the
+crossings. Filtering the small clusters first (see
+[`networks_to_alluv()`](https://agoutsmedt.github.io/networkflow/reference/networks_to_alluv.md))
+gives faster and more readable alluvials.
 
 ## Usage
 
