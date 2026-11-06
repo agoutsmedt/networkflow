@@ -21,7 +21,7 @@ follow the nodes from one window to the next. It can colour the clusters
 
     <a class="navbar-brand me-2" href="../index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -214,13 +214,15 @@ table on <code>share_cluster_max</code> or <code>length_cluster</code> (see
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #00BB00;">color</span> column in the graphs: no colour kept (see `color_alluvial()`).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No <span style="color: #00BB00;">cluster_label</span> column in the graphs: no label kept (see `name_clusters()`).</span>
-<span class="r-in"><span><span class="fu">plot_alluvial</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">alluv_dt</span>,</span></span>
-<span class="r-in"><span>  cluster_id <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
-<span class="r-in"><span>  node_id <span class="op">=</span> <span class="st">"source_id"</span>,</span></span>
-<span class="r-in"><span>  color_alluvial <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  minimize_crossing <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggalluvial"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu">plot_alluvial</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">alluv_dt</span>,</span></span>
+<span class="r-in"><span>    cluster_id <span class="op">=</span> <span class="st">"dynamic_cluster_leiden"</span>,</span></span>
+<span class="r-in"><span>    node_id <span class="op">=</span> <span class="st">"source_id"</span>,</span></span>
+<span class="r-in"><span>    color_alluvial <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    minimize_crossing <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>15 categories but 14 default colours: colours are recycled.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Give a palette in `color` (e.g. `scico::scico(15, palette = "batlow")`).</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no non-missing arguments to max; returning -Inf</span>

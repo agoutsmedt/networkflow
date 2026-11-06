@@ -1,27 +1,33 @@
 # From references to networks
 
 This guide covers the first step of the `networkflow` pipeline: building
-the network. It explains what a projected network is, how the similarity
-between two documents is measured, and which choices (measure,
-threshold, time windows) shape the network before any cluster is
-detected. The next guides cover [finding and reading
+the network. The examples are about bibliographic coupling (documents
+linked by the references they share), but the logic applies to any table
+of links between two kinds of entities. The guide explains what a
+projected network is, how the similarity between two documents is
+measured, and which choices (measure, threshold, time windows) shape the
+network before any cluster is detected. The next guides cover [finding
+and reading
 clusters](https://agoutsmedt.github.io/networkflow/articles/finding-and-reading-clusters.md)
 and [following clusters over
 time](https://agoutsmedt.github.io/networkflow/articles/following-clusters-over-time.md).
 
 ## Why networks?
 
-Since the 1970s, the number of articles published in most disciplines
-has grown so much that no historian or sociologist of science can read a
-whole literature. Citation data offer another entry point: by citing,
-authors say which works they build on, and the references that articles
-share reveal groups of works addressing similar questions with similar
-tools. Mapping these groups, their size and their evolution, has become
-a common tool of the history and sociology of science, including the
-history of economics ([Claveau and Gingras 2016](#ref-claveau2016);
-[Edwards et al. 2018](#ref-edwards2018); [Cherrier and Svorenčík
-2018](#ref-cherrier2018); [Goutsmedt, Claveau, et al.
-2023](#ref-goutsmedt2023quantitative)).
+The volume of documents produced, in science as elsewhere, has grown so
+much that no researcher can read a whole corpus. It has become necessary
+to group documents on the basis of quantitative measures of their
+relations, and to map these groups, their size and their evolution.
+Networks are a natural format for this: documents are nodes, linked when
+they are related, and clusters of densely linked nodes are the groups.
+Citation data are one such measure: by citing, authors say which works
+they build on, and the references that articles share reveal groups of
+works addressing similar questions with similar tools. Mapping these
+groups has become a common tool of the history and sociology of science,
+including the history of economics ([Claveau and Gingras
+2016](#ref-claveau2016); [Edwards et al. 2018](#ref-edwards2018);
+[Cherrier and Svorenčík 2018](#ref-cherrier2018); [Goutsmedt, Claveau,
+et al. 2023](#ref-goutsmedt2023quantitative)).
 
 `networkflow` was written for this kind of research. It organises the
 analysis as a *pipeline*: building networks from tabular data, detecting
@@ -37,9 +43,11 @@ livestock ([Duluins et al. 2026](#ref-duluins2026)).
 
 ## The example data
 
-The examples use the corpus of Goutsmedt ([2021](#ref-goutsmedt2021)):
-the books and articles that tried to explain the US stagflation of the
-1970s, published between 1975 and 2013, and the references they cite.
+The examples use a corpus for coupling analysis from Goutsmedt
+([2021](#ref-goutsmedt2021)): the books and articles that tried to
+explain the US stagflation of the 1970s, published between 1975 and
+2013, and the references they cite (the citation data from which
+coupling is computed).
 
 ``` r
 
@@ -91,9 +99,14 @@ the citing documents, we *project* this relation onto them: two
 documents are linked when they cite the same references. The raw
 strength of the tie is the number of shared references,
 
-c\_{ik} = \sum_j a\_{ij} a\_{kj} = \|R_i \cap R_k\|,
+c\_{ik} = \sum_j a\_{ij} a\_{kj} = \|R_i \cap R_k\|, \tag{1}
 
-with R_i the bibliography of document i. In matrix form, C = A A^\top.
+with R_i the bibliography of document i. In matrix form
+([Equation 2](#eq-matrix)), C is the square matrix of the documents
+whose entry c\_{ik} is the number of references shared by i and k:
+
+C = A A^\top. \tag{2}
+
 This is **bibliographic coupling** ([Kessler 1963](#ref-kessler1963)):
 two articles are coupled when their bibliographies overlap. Projecting
 on the other set gives **co-citation** ([Small 1973](#ref-small1973)):
@@ -192,10 +205,12 @@ any shared reference are dropped (`keep_singleton = FALSE`).
 
 ### Measuring similarity
 
-Raw counts are a poor measure of similarity. An article with 150
-references shares some with almost every other article; two short notes
-sharing three references may be much closer. Normalised measures correct
-for this. [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
+Raw counts are a poor measure of similarity because they ignore the
+length of the reference lists: the fewer references documents have, the
+more each shared reference should count. Normalised measures correct for
+this (for instance, in bibliographic coupling, two short notes sharing
+three references are probably closer than two long articles sharing
+three). [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/)
 ([Goutsmedt, Truc, et al. 2023](#ref-goutsmedt2023biblionetwork)), which
 computes the ties, offers five of them, all available as a `method`.
 With R_i the set of references of i, L_i = \|R_i\| the length of its
@@ -204,13 +219,14 @@ documents citing reference j, they fall into two families.
 
 **Measures that only count the shared references.**
 
-- `"angle"`, the **coupling angle**, the cosine of the two
-  bibliographies ([Sen and Gan 1983](#ref-sen1983)): w\_{ik} =
-  \frac{\|R_i \cap R_k\|}{\sqrt{L_i L_k}};
+- `"angle"`, the **coupling angle**, the cosine of the angle between the
+  two bibliographies seen as vectors of 0 and 1 ([Sen and Gan
+  1983](#ref-sen1983)): w\_{ik} = \frac{\|R_i \cap R_k\|}{\sqrt{L_i
+  L_k}}; \tag{3}
 - `"jaccard"`, the **relative coupling strength** ([Sen and Gan
   1983](#ref-sen1983)), a Jaccard index: the references shared over all
   the references cited by at least one of the two documents, w\_{ik} =
-  \frac{\|R_i \cap R_k\|}{\|R_i \cup R_k\|}. If a note cites 5
+  \frac{\|R_i \cap R_k\|}{\|R_i \cup R_k\|}. \tag{4} If a note cites 5
   references, all cited by an article that cites 50, the cosine is 5 /
   \sqrt{250} \approx 0.32 and the Jaccard index 5/50 = 0.1: the Jaccard
   index sees that the article reads much more than the note. It is never
@@ -221,18 +237,27 @@ cites**, in the spirit of the inverse document frequency of text mining.
 
 - `"strength"`, the **coupling strength** ([Shen et al.
   2019](#ref-shen2019)): w\_{ik} = \frac{\sum\_{j \in R_i \cap R_k}
-  \log(N / f_j)}{L_i L_k};
+  \log(N / f_j)}{L_i L_k}; \tag{5}
 - `"similarity"`, the **coupling similarity**, the idf-weighted cosine
   of Shen et al. ([2019](#ref-shen2019)), which normalises the same
   weighted sum by the weighted length of each bibliography, S_i =
   \sum\_{j \in R_i} \log(N / f_j), as a cosine, so that it lies between
   0 and 1 like the angle: w\_{ik} = \frac{\sum\_{j \in R_i \cap R_k}
-  \log(N / f_j)}{\sqrt{S_i S_k}};
+  \log(N / f_j)}{\sqrt{S_i S_k}}; \tag{6}
 - `"vladutz"`, the **Vladutz-Cook formula** ([Vladutz and Cook
   1984](#ref-vladutz1984)), the ancestor of the coupling strength, whose
   discount is much steeper (1/f_j instead of \log(N/f_j)), so that it is
   almost driven by the rarest references: w\_{ik} = \frac{4}{L_i + L_k}
-  \sum\_{j \in R_i \cap R_k} \frac{1}{f_j}.
+  \sum\_{j \in R_i \cap R_k} \frac{1}{f_j}. \tag{7}
+
+The numerator of the coupling strength deserves an explanation. A shared
+reference j does not add 1 to the sum but \log(N/f_j): the logarithm of
+the inverse of the share of documents citing it. A reference cited by
+every document (f_j = N) adds \log(1) = 0, whereas a reference cited by
+only two documents adds \log(N/2), a lot. The sum thus counts shared
+references weighted by their rarity, and the denominator L_i L_k then
+divides it by the lengths of the two bibliographies, as for the other
+measures.
 
 Sharing a citation of Taylor’s 1993 article on policy rules, cited by 22
 documents of the corpus, says less about two explanations of the
@@ -357,7 +382,11 @@ few references, 1 may be the only option.
 
 ### A statistical alternative: backbones
 
-A threshold is the same for every pair. Yet sharing two references means
+There is a trade-off with computational cost. The backbone approach is,
+we think, better, both conceptually a priori and in the networks it
+produces a posteriori, but it is very costly and infeasible for large
+networks, for which thresholds remain the practical solution. A
+threshold is the same for every pair, yet sharing two references means
 little for two articles with 150 references each, and a lot for two
 notes with five. The *backbone* approach replaces the fixed threshold
 with a test ([Neal 2014](#ref-neal2014)): for each pair, is the number
@@ -412,13 +441,17 @@ of the second, and drops the documents that no longer have any
 significant tie. It is a much sparser network than the one obtained with
 a threshold of two references, which is itself already pruned.
 
-The backbone keeps the ties that are unlikely under the null model at
-the 5% level. Its edges are unweighted: each edge means “more shared
-references than expected”, whatever the number. The approach is slower
-on large corpora, and with many pairs tested, multiple-test corrections
-(`backbone_args = list(mtc = "holm")`) remove many more edges. It is a
-useful check of a threshold-based network, and the better option when
-the lengths of the target lists vary a lot.
+Three things should be kept in mind when reading a backbone.
+
+- The edges are unweighted: an edge only means “more shared references
+  than expected under the null model at the 5% level”, whatever the
+  number.
+- Testing many pairs raises the risk of false positives. A multiple-test
+  correction (`backbone_args = list(mtc = "holm")`) addresses it, but
+  removes many more edges.
+- The backbone is a useful check of a threshold-based network, and the
+  better option when the lengths of the reference lists vary a lot, if
+  the corpus is small enough to compute it.
 
 ### Components
 
@@ -450,7 +483,15 @@ marginal literature that matters to the story.
 
 ## Time windows
 
-A network of the whole period mixes literatures that did not coexist.
+A network of the whole period is not always what a study needs. Cutting
+the corpus into time windows serves three purposes: to study history,
+that is the evolution of a literature; to counter the growth of the
+corpus, since recent periods contain many more documents and would
+dominate a single network; and to avoid detecting communities whose main
+trait is having been published at the same period rather than sharing
+content or a cognitive relationship. Old works are not irrelevant to
+recent ones (a physicist citing Newton is related to him), so this is a
+choice of the analysis rather than a necessity.
 [`build_dynamic_networks()`](https://agoutsmedt.github.io/networkflow/reference/build_dynamic_networks.md)
 builds one network per time window (it needs a `time_variable` and a
 `time_window`: without time,

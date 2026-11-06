@@ -8,28 +8,30 @@ media accounts and what they share. `networkflow` turns such tables into
 networks, finds the communities they contain, follows these communities
 over time, and helps name, draw and explore them.
 
+The package was written for, and used in, research on the history and
+sociology of sciences, where bibliographic coupling networks (articles
+linked by the references they share) map the research fronts of a
+literature ([Kessler 1963](#ref-kessler1963); [Boyack and Klavans
+2010](#ref-boyack2010)).
+
+Its central feature is the *dynamic* workflow: one network per time
+window, clusters in each window, and a rule that links the clusters of
+successive windows (building “intertemporal” or “dynamic” clusters), so
+that a literature can be seen being born, growing, splitting and fading.
+Each step is a documented function whose choices (similarity measure,
+threshold, time window, clustering algorithm, resolution, matching rule)
+are explicit arguments that can be varied and reported. Everything
+returns `tbl_graph` objects from
+[`tidygraph`](https://tidygraph.data-imaginist.com/), or lists of them,
+which can be manipulated with [`dplyr`](https://dplyr.tidyverse.org/)
+and drawn with [`ggraph`](https://ggraph.data-imaginist.com/).
+
 The pipeline is not specific to citations: any table of links between
 two kinds of entities can be projected onto one of them. Besides
 bibliographic coupling, the guides show co-citation (cited works linked
 when they are cited together), the coupling of authors instead of
 articles, and co-authorship; the same logic applies to accounts and the
 hashtags they use, or to members and the boards they sit on.
-
-The package was written for, and used in, research on the history and
-sociology of sciences, where bibliographic coupling networks (articles
-linked by the references they share) map the research fronts of a
-literature ([Kessler 1963](#ref-kessler1963); [Boyack and Klavans
-2010](#ref-boyack2010)). Its central feature is the *dynamic* workflow:
-one network per time window, clusters in each window, and a rule that
-links the clusters of successive windows (building “intertemporal” or
-“dynamic” clusters), so that a literature can be seen being born,
-growing, splitting and fading. Each step is a documented function whose
-choices (similarity measure, threshold, time window, clustering
-algorithm, resolution, matching rule) are explicit arguments that can be
-varied and reported. Everything returns `tbl_graph` objects from
-[`tidygraph`](https://tidygraph.data-imaginist.com/), or lists of them,
-which can be manipulated with [`dplyr`](https://dplyr.tidyverse.org/)
-and drawn with [`ggraph`](https://ggraph.data-imaginist.com/).
 
 ## Installation
 
@@ -229,6 +231,8 @@ those of the former version, except for the intended changes listed in
   1970s US stagflation, whose data are the examples of the package;
 - Goutsmedt and Truc ([2023](#ref-goutsmedt2023eer)) on European
   macroeconomics and the *European Economic Review*;
+- Delcey ([forthcoming](#ref-delcey2027dissemination)) on the
+  bibliometric analysis of the dissemination of Fama (1970);
 - Delcey, Goutsmedt, and Truc ([2026](#ref-delcey2026)) on the history
   of rationality in economic thought;
 - Duluins et al. ([2026](#ref-duluins2026)) on the scientific reception
@@ -273,6 +277,10 @@ Bibliographic Coupling, and Direct Citation: Which Citation Approach
 Represents the Research Front Most Accurately?” *Journal of the American
 Society for Information Science and Technology* 61 (12): 2389–2404.
 <https://doi.org/10.1002/asi.21419>.
+
+Delcey, Thomas. forthcoming. “The Dissemination of Fama (1970): A
+Bibliometric Analysis.” *Journal of the History of Economic Thought*,
+forthcoming.
 
 Delcey, Thomas, Aurélien Goutsmedt, and Alexandre Truc. 2026. “One
 Sentence at a Time: A Quantitative History of Rationality in Economic

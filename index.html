@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="index.html">networkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,8 +74,9 @@
 <!-- badges: start -->
 
 <p><code>networkflow</code> is a research pipeline for studying networks built from tabular data. Research data rarely come as networks: they come as tables of links between two kinds of entities, such as articles and the references they cite, authors and the papers they sign, or even social media accounts and what they share. <code>networkflow</code> turns such tables into networks, finds the communities they contain, follows these communities over time, and helps name, draw and explore them.</p>
+<p>The package was written for, and used in, research on the history and sociology of sciences, where bibliographic coupling networks (articles linked by the references they share) map the research fronts of a literature (<a href="#ref-kessler1963">Kessler 1963</a>; <a href="#ref-boyack2010">Boyack and Klavans 2010</a>).</p>
+<p>Its central feature is the <em>dynamic</em> workflow: one network per time window, clusters in each window, and a rule that links the clusters of successive windows (building “intertemporal” or “dynamic” clusters), so that a literature can be seen being born, growing, splitting and fading. Each step is a documented function whose choices (similarity measure, threshold, time window, clustering algorithm, resolution, matching rule) are explicit arguments that can be varied and reported. Everything returns <code>tbl_graph</code> objects from <a href="https://tidygraph.data-imaginist.com/" class="external-link"><code>tidygraph</code></a>, or lists of them, which can be manipulated with <a href="https://dplyr.tidyverse.org/" class="external-link"><code>dplyr</code></a> and drawn with <a href="https://ggraph.data-imaginist.com/" class="external-link"><code>ggraph</code></a>.</p>
 <p>The pipeline is not specific to citations: any table of links between two kinds of entities can be projected onto one of them. Besides bibliographic coupling, the guides show co-citation (cited works linked when they are cited together), the coupling of authors instead of articles, and co-authorship; the same logic applies to accounts and the hashtags they use, or to members and the boards they sit on.</p>
-<p>The package was written for, and used in, research on the history and sociology of sciences, where bibliographic coupling networks (articles linked by the references they share) map the research fronts of a literature (<a href="#ref-kessler1963">Kessler 1963</a>; <a href="#ref-boyack2010">Boyack and Klavans 2010</a>). Its central feature is the <em>dynamic</em> workflow: one network per time window, clusters in each window, and a rule that links the clusters of successive windows (building “intertemporal” or “dynamic” clusters), so that a literature can be seen being born, growing, splitting and fading. Each step is a documented function whose choices (similarity measure, threshold, time window, clustering algorithm, resolution, matching rule) are explicit arguments that can be varied and reported. Everything returns <code>tbl_graph</code> objects from <a href="https://tidygraph.data-imaginist.com/" class="external-link"><code>tidygraph</code></a>, or lists of them, which can be manipulated with <a href="https://dplyr.tidyverse.org/" class="external-link"><code>dplyr</code></a> and drawn with <a href="https://ggraph.data-imaginist.com/" class="external-link"><code>ggraph</code></a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -160,6 +161,7 @@
 <ul>
 <li>Goutsmedt (<a href="#ref-goutsmedt2021">2021</a>) on the explanations of the 1970s US stagflation, whose data are the examples of the package;</li>
 <li>Goutsmedt and Truc (<a href="#ref-goutsmedt2023eer">2023</a>) on European macroeconomics and the <em>European Economic Review</em>;</li>
+<li>Delcey (<a href="#ref-delcey2027dissemination">forthcoming</a>) on the bibliometric analysis of the dissemination of Fama (1970);</li>
 <li>Delcey, Goutsmedt, and Truc (<a href="#ref-delcey2026">2026</a>) on the history of rationality in economic thought;</li>
 <li>Duluins et al. (<a href="#ref-duluins2026">2026</a>) on the scientific reception of the <em>Livestock’s Long Shadow</em> report;</li>
 <li>the <a href="https://www.digitalhistoryofscience.org/dhm/" class="external-link">Digital History of Macroeconomics</a> project (<a href="#ref-goutsmedt2025dhm">Goutsmedt and Truc 2025</a>), which maps the macroeconomics literature since the 1970s and whose deliverable is archived on Zenodo;</li>
@@ -188,6 +190,9 @@ Boucher, Aurélien, and Xiaoguang Fan. 2025. “Scholars Like Any Other? An Inqu
 </div>
 <div id="ref-boyack2010" class="csl-entry">
 Boyack, Kevin W., and Richard Klavans. 2010. “Co-Citation Analysis, Bibliographic Coupling, and Direct Citation: Which Citation Approach Represents the Research Front Most Accurately?” <em>Journal of the American Society for Information Science and Technology</em> 61 (12): 2389–2404. <a href="https://doi.org/10.1002/asi.21419" class="external-link uri">https://doi.org/10.1002/asi.21419</a>.
+</div>
+<div id="ref-delcey2027dissemination" class="csl-entry">
+Delcey, Thomas. forthcoming. “The Dissemination of Fama (1970): A Bibliometric Analysis.” <em>Journal of the History of Economic Thought</em>, forthcoming.
 </div>
 <div id="ref-delcey2026" class="csl-entry">
 Delcey, Thomas, Aurélien Goutsmedt, and Alexandre Truc. 2026. “One Sentence at a Time: A Quantitative History of Rationality in Economic Thought.” <em>European Journal of the History of Economic Thought</em>.

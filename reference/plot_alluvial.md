@@ -172,13 +172,15 @@ alluv_dt <- networks_to_alluv(
 )
 #> ℹ No color column in the graphs: no colour kept (see `color_alluvial()`).
 #> ℹ No cluster_label column in the graphs: no label kept (see `name_clusters()`).
-plot_alluvial(
-  alluv_dt,
-  cluster_id = "dynamic_cluster_leiden",
-  node_id = "source_id",
-  color_alluvial = TRUE,
-  minimize_crossing = TRUE
-)
+if (requireNamespace("ggalluvial", quietly = TRUE)) {
+  plot_alluvial(
+    alluv_dt,
+    cluster_id = "dynamic_cluster_leiden",
+    node_id = "source_id",
+    color_alluvial = TRUE,
+    minimize_crossing = TRUE
+  )
+}
 #> Warning: 15 categories but 14 default colours: colours are recycled.
 #> ℹ Give a palette in `color` (e.g. `scico::scico(15, palette = "batlow")`).
 #> Warning: no non-missing arguments to max; returning -Inf
