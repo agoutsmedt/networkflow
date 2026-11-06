@@ -19,7 +19,11 @@ knitr:
 # networkflow <img src="man/figures/logo.png" align="right" alt="" width="120" />
 
 <!-- badges: start -->
+<a href="https://cran.r-project.org/package=networkflow"><img src="https://www.r-pkg.org/badges/version-last-release/networkflow" alt="CRAN Status"></a>
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<a href="https://github.com/agoutsmedt/networkflow/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/agoutsmedt/networkflow/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a>
+<a href="https://cran.r-project.org/package=networkflow"><img src="https://cranlogs.r-pkg.org/badges/networkflow" alt="downloads"></a>
+<a href="https://cran.r-project.org/package=networkflow"><img src="https://cranlogs.r-pkg.org/badges/grand-total/networkflow" alt="downloads-total"></a>
 <!-- badges: end -->
 
 `networkflow` is a research pipeline for studying networks built from

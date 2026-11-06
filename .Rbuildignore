@@ -17,3 +17,5 @@
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^\.posit$
+^to_do\.html$
+^to_do_files$

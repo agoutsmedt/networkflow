@@ -1,0 +1,232 @@
+---
+title: "To do (private)"
+---
+
+Working file: pushed to GitHub, but not built into the package (see `.Rbuildignore`) nor the website.
+
+## Methods to follow clusters over time, not implemented yet
+
+Presented in the guide "Following clusters over time" as possible future
+methods. `merge_dynamic_clusters()` has the double majority
+(`method = "majority"`) and the Jaccard matching (`method = "jaccard"`).
+
+- **Multislice community detection** (Mucha et al., 2010): detect communities
+  in all the windows at once, in a network where each node is tied to itself
+  in adjacent windows with a coupling weight $\omega$. Identifiers are shared
+  by construction; $\omega$ plays the role of the threshold. Needs nodes
+  present in several windows (co-citation, authors, journals rather than
+  documents).
+- **Significance-clustered alluvial maps** (Rosvall and Bergstrom, 2010):
+  bootstrap the network to find which clusters are robust, then draw the flows
+  between robust clusters. Addresses the instability of each partition rather
+  than the matching rule.
+- Record splits and merges as events (one cluster matched to several), which
+  the two current rules do not do.
+- Compare a cluster with windows older than the previous one (a cluster that
+  vanishes for one window and comes back gets a new identifier).
+
+## Alluvial
+
+- `minimize_crossing_alluvial()` is a local search (insertion moves). Ideas:
+  several starting orders, simulated annealing, or an order per window
+  (barycentre heuristic) instead of one order for all the windows; a measure of
+  the crossings in `plot_alluvial()`.
+
+## Layouts and the hairball (notes of 2026-11-06)
+
+Sources read: Peixoto (2024, blog post, skewed.de/lab/posts/hairball/),
+Jacomy (2020, blog post "Hidden structures in hairballs, and how to see them",
+Reticular, 2020-10-26), Dianati (2016, *Phys. Rev. E* 93, 012304, accepted
+manuscript read up to the start of the GLF section). Other references below
+were only checked through a search (title, venue, year), not read: read them
+before citing, and add to `inst/REFERENCES.bib` and `references.bib` only then.
+
+### The three positions
+
+- **Jacomy: the hairball is a perception problem, not (only) a layout failure.**
+  Gestalt proximity and closure: we see groups because there are *gaps*; a
+  force-directed layout puts same-cluster nodes close (a *locality* principle)
+  but does not care about gaps (the eye looks at borders, the algorithm at
+  barycentres). With a planted partition, the groups are correctly placed but
+  touch when P_in approaches P_out (about 60% against 50% in his example): the
+  structure is there, not visible. Advice: colour nodes by cluster (or by an
+  attribute) and check that colours form coherent localities; look at the
+  contour of the map (*poles*: dense zones on the sides pulling the shape);
+  rerun a non-deterministic clustering several times: poles are stable,
+  boundaries are not, and the ambiguity of the middle is a feature of the data.
+  Test on a random network (500 nodes, p = 5%): clusters then map no area.
+  Caveat: visual argument only, he states it is not proved; and "high gravity
+  produces a hairball whatever the structure" (check the ForceAtlas2 gravity).
+- **Peixoto: visualisation second, not first.** A force layout sees only
+  assortative structure (random bipartite and tripartite graphs look
+  structureless), invites apophenia, and modularity maximisation overfits
+  (finds modules in random networks). Proposal: infer the partition with a
+  stochastic block model (nested, by description length), then *constrain* the
+  layout (extra attraction inside groups with a weight `gamma`, one force per
+  hierarchy level, convex hulls); ranked/ordered SBM for networks with a
+  latent order (vertical axis = rank). The post says nothing on edge pruning.
+  Note the disagreement with Jacomy: for Jacomy the layout is a better
+  reduction than hard clusters because it keeps their ambiguity; for Peixoto
+  the clusters must come from inference and the layout must obey them.
+- **Dianati: prune the edges.** Thresholding on weight discounts low-degree
+  nodes. Marginal Likelihood Filter: p-value of each edge weight under a
+  null model preserving strengths on average (binomial with
+  p = k_i k_j / (2T^2)), keep the smallest p-values: sorting problem, almost
+  linear in the number of edges. Global Likelihood Filter (maximum-entropy
+  ensemble, Monte Carlo, costly). Distinguishes *pruning* (remove noise to
+  reveal an unknown core) from *sparsification* (approximate the graph keeping
+  a property). Integer weights only (counts of events).
+
+### What already exists in the package, and how it relates
+
+- `build_network(method = "sdsm" | "fdsm" | "fixed*")` (backbone package)
+  already prunes **at construction**, through the bipartite projection null
+  models, with `alpha`. This is close to Dianati's logic (null model preserving
+  degrees) but applies to projections of a bipartite table. What is missing is
+  pruning of an **existing weighted graph** (angle, jaccard... weights are not
+  counts, so MLF does not apply directly).
+- `layout_networks()`: `"fr"`, `"kk"`, `"forceatlas2"`, `"umap"`, igraph
+  layouts, and dynamic coordinates. No gravity/scaling exposed for FA2? (check
+  `R/layout_custom.R`), no layout based on a sparsified graph, no layout
+  constrained by clusters.
+- `add_clusters()` is a single Leiden run (`leiden_workflow`): no stability
+  check, no SBM.
+
+### Possible changes to the package (to prioritise with the user)
+
+1. **Layout on a backbone, edges put back for the drawing.** An argument
+   `layout_on = "full" | "backbone"` (or a `prune` argument) in
+   `layout_networks()`; `graphlayouts::layout_backbone()` and
+   `backbone::sparsify.with.quadrilateral()` (Nocaj et al. 2015) already do the
+   Simmelian version and `graphlayouts` is an ggraph dependency, so cheap to
+   try. Other filters to expose: disparity filter (Serrano et al. 2009),
+   MLF (Dianati 2016, easy to write for count weights), maximum spanning tree
+   plus top-k edges per node (simple, keeps low-degree nodes).
+2. **Cluster-constrained layout** (Peixoto): add an attraction between nodes of
+   the same `cluster_id` (strength `gamma`), possibly one level per hierarchy
+   level; our own FA2 makes this easy (extra attractive term on same-cluster
+   pairs, or extra edges between same-cluster nodes with a small weight, which
+   works with any igraph layout). Add hulls around clusters in `plot_networks()`
+   (ggforce is already a plausible dependency, check).
+3. **Gaps diagnostic.** Quantify Jacomy's point: a measure of how well a layout
+   separates clusters visually (e.g. silhouette of the 2D coordinates by
+   cluster, or the ratio between within-cluster and nearest-other-cluster
+   distances, border to border rather than centroid to centroid), returned with
+   `layout_networks()` or by a `check_layout()` helper; useful to compare `fr`,
+   `forceatlas2`, `umap`. The guide "Drawing networks" already compares three
+   layouts by eye.
+4. **Clustering stability** (Jacomy's reruns; Rosvall and Bergstrom bootstrap,
+   see above): `add_clusters()` option to rerun n times with different seeds
+   (`withr::local_seed()`) and return a co-assignment frequency per node, or a
+   per-node "ambiguity" (how often it changes cluster); draw ambiguous nodes
+   differently (transparency, or pie-like colours). Fits the "poles" idea:
+   core nodes versus in-between nodes. Related to `merge_diagnostics()`.
+5. **Inferential clustering as an alternative to Leiden.** SBM is in
+   graph-tool (Python) in Peixoto's work; check whether an R option exists
+   (packages to look up: `blockmodels`, `greed`, `randnet`, or the `sbm`
+   package; none verified here) before promising anything. Python only if
+   justified (see global conventions). At least document in the clustering
+   guide that Leiden/modularity is descriptive and has a resolution limit and
+   overfits (Peixoto 2023 on descriptive versus inferential).
+6. **Null-model check of the map.** Peixoto/Jacomy both warn about seeing
+   structure in noise: a helper drawing the same layout for a degree-preserving
+   randomisation (`igraph::rewire()`, `keeping_degseq()`) beside the real
+   network, to compare the visual clustering. Cheap and pedagogical.
+7. **Standard of presentation.** Jacomy's blog "A standard for presenting
+   network visualizations" and "Stop stretching your T-SNE, UMAP, and
+   networks!" (titles only, not read): ideas for a caption helper (layout,
+   parameters, size and colour meaning, filter applied, number of nodes and
+   edges kept) and caution on our UMAP layout (distances not comparable
+   between maps, no stretching).
+
+### Ideas for the guide "Drawing networks" (`vignettes/articles/drawing-networks.qmd`)
+
+The guide ends with a short "What comes next". Add a section **"The hairball
+and what to do about it"** between "Comparing the layouts" and "Colours and
+labels":
+
+- What the layout encodes: locality, not groups (Jacomy; Venturini et al. 2021
+  is already cited in the bib), gaps and Gestalt proximity, with a planted
+  partition example (toy network with P_in decreasing, our own FR/FA2/UMAP).
+- Three remedies, with the same network: (i) look with colours and reruns
+  (Jacomy), (ii) prune before drawing (backbone, Nocaj, Dianati), (iii) make
+  the layout obey a clustering (Peixoto).
+- What a layout cannot show: disassortative structure (bipartite example),
+  and the risk of apophenia: draw a randomised version.
+- Say clearly that the three authors disagree (see above) and that the choice
+  depends on whether the map is exploratory (Jacomy) or a figure for a paper
+  (Peixoto: state the model).
+- Link with `build_network(method = "sdsm")`: backbones can be applied before
+  the layout through the projection itself.
+
+### Literature to look up (checked by search only, not read)
+
+- Jacomy, Venturini, Heymann, Bastian (2014), ForceAtlas2, *PLoS ONE* 9(6):
+  e98679, doi:10.1371/journal.pone.0098679 (already in the bib as `jacomy2014`).
+- Venturini, Jacomy, Jensen (2021), What do we see when we look at networks,
+  *Big Data & Society* 8(1), doi:10.1177/20539517211018488; arXiv:1905.02202
+  (check which entry the bib has, line about 586).
+- Serrano, Boguñá, Vespignani (2009), Extracting the multiscale backbone of
+  complex weighted networks, *PNAS* 106: 6483-6488,
+  doi:10.1073/pnas.0808904106 (disparity filter; R package `disparityfilter`
+  on CRAN, to check).
+- Nocaj, Ortmann, Brandes (2015), Untangling the hairballs of multi-centered,
+  small-world online social media networks, *JGAA* 19(2): 595-618,
+  doi:10.7155/jgaa.00370.
+- Edge, Larson, Mobius, White (2018), Trimming the hairball: edge cutting
+  strategies for making dense graphs usable, IEEE Big Data, pp. 3951-3958
+  (as cited by Jacomy; not searched).
+- Peixoto (2023), Descriptive vs. inferential community detection in networks,
+  Cambridge Elements, doi:10.1017/9781009118897; Peixoto (2019), Bayesian
+  stochastic blockmodeling, in *Advances in Network Clustering and
+  Blockmodeling*, Wiley, doi:10.1002/9781119483298.ch11; Peixoto (2022),
+  Ordered community detection in directed networks, *Phys. Rev. E* 106,
+  024305 (all as cited in the post).
+- Noack (2007), Energy models for graph clustering, *JGAA* 11(2): 453-480 (as
+  cited by Jacomy: LinLog, display of nodes only).
+- Wagemans et al. (2012), A century of Gestalt psychology in visual
+  perception I, *Psychological Bulletin* 138(6): 1172; Kobourov, McHedlidze,
+  Vonessen (2015), Gestalt principles in graph drawing (as cited by Jacomy).
+- Nick et al. (2013), Simmelian backbones (search result only, title and
+  authors to verify); Chari and Pachter (2023), The specious art of
+  single-cell genomics, *PLOS Comput. Biol.* 19, e1011288 (cited by Peixoto
+  against UMAP/t-SNE embeddings: relevant to our `"umap"` layout).
+
+## From the verification on real data (2026-11-04)
+
+Samples: Scopus (Journal of Monetary Economics, 1,865 documents; random
+30,000 documents) and Web of Science (30,000 economics articles, 1990-2004).
+Scripts in `bench/verification/`.
+
+### To decide
+
+- (Done 2026-11-05: `cluster_id` and `graphs` everywhere, `extract_tfidf()` keeps `data`. `weights` and `roles` in `add_node_roles()`.)
+
+### Speed and memory
+
+- ForceAtlas2 in pure R: all pairs at each iteration, about 1 minute for 1,000
+  nodes and 4-5 for 2,000. A Barnes-Hut version needs compiled code (Rcpp) or an
+  existing package (none on CRAN).
+- UMAP: the shortest paths from every node (igraph::distances by blocks)
+  dominate (75 s on 9,600 nodes): a k-nearest-neighbour search with a cutoff
+  (Dijkstra stopped after k nodes) would be much faster.
+- `layout_networks(compute_dynamic_coordinates = TRUE)` with `"fr"`: igraph
+  drops its grid approximation when coordinates are given (80 s instead of 1 s
+  on 9,600 nodes). Lower `niter` by default when coordinates are given?
+- Backbones: `"sdsm"` about 20 s and 2 GB for 1,000 documents; `"fdsm"` does
+  not finish with the default trials of backbone (documented, and a message).
+- biblionetwork: `methods::as()` conversions take 20% of a coupling
+  (`sparse_pairs()`), see biblionetwork.
+- `merge_dynamic_clusters()`: about 20 ms per window of small data.table
+  operations (one thread); a vectorised matching over all windows would
+  make `merge_diagnostics()` faster.
+- walktrap and infomap: minutes on networks of 10,000 nodes, with hundreds of
+  clusters per window: document as such?
+
+### Messages and checks
+
+- Windows with very few nodes at the start or the end of the period (Scopus has
+  documents dated 1892 or 2026): a message listing the number of nodes per
+  window, or a warning for windows of fewer than n nodes.
+- `layout_networks()` without `node_id`: R error ("argument missing"), could
+  be a cli message.
