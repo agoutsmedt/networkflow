@@ -17,3 +17,6 @@ TODOLIST_DEV.md
 .vscode/
 .quarto/
 to_do.qmd
+
+/.quarto/
+**/*.quarto_ipynb

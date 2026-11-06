@@ -10,15 +10,23 @@ tidytext, scico, lifecycle) are in Suggests and are used conditionally (`require
 ## Test environments
 
 * Local: Fedora, R 4.6.1
+* Windows: win-builder, R-devel (2026-11-05 r90840)
 * GitHub Actions (`R-CMD-check`): macOS (R release), Windows (R release),
   Ubuntu (R release and oldrel-1)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes on all the environments above.
+0 errors | 0 warnings | 0 notes on the local and GitHub Actions
+environments.
 
-* This is a new submission, so CRAN incoming checks will report
-  "New submission".
+On win-builder (R-devel): 0 errors | 0 warnings | 1 note, the CRAN incoming
+feasibility check:
+
+* "New submission": this is the first submission of the package.
+* "Possibly misspelled words in DESCRIPTION": Infomap, Louvain (names of
+  community detection algorithms), bibliometric, and tf and idf (from
+  tf-idf, term frequency-inverse document frequency). All are correctly
+  spelled technical terms.
 
 ## Downstream dependencies
 
