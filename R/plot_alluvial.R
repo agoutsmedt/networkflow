@@ -84,13 +84,15 @@
 #'   cluster_id = "dynamic_cluster_leiden",
 #'   node_id = "source_id"
 #' )
-#' plot_alluvial(
-#'   alluv_dt,
-#'   cluster_id = "dynamic_cluster_leiden",
-#'   node_id = "source_id",
-#'   color_alluvial = TRUE,
-#'   minimize_crossing = TRUE
-#' )
+#' if (requireNamespace("ggalluvial", quietly = TRUE)) {
+#'   plot_alluvial(
+#'     alluv_dt,
+#'     cluster_id = "dynamic_cluster_leiden",
+#'     node_id = "source_id",
+#'     color_alluvial = TRUE,
+#'     minimize_crossing = TRUE
+#'   )
+#' }
 #' }
 #'
 #' @export

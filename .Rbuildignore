@@ -14,3 +14,6 @@
 ^\.vscode$
 ^bench$
 ^to_do\.qmd$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^\.posit$

@@ -1,7 +1,7 @@
-# networkflow (development version, to be released on CRAN as 0.1.0)
+# networkflow 0.1.0 (first CRAN release)
 
-Development versions are numbered 0.0.9.900x, from the first step (rewrite)
-to the latest; the steps are listed from the most recent to the oldest.
+Earlier development steps are numbered 0.0.9.900x, from the first step
+(rewrite) to the latest; they are listed from the most recent to the oldest.
 
 # networkflow 0.0.9.9001 (2026-11-01 to 2026-11-05)
 

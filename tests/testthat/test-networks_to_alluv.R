@@ -32,6 +32,7 @@ test_that("minimize_crossing_alluvial ranks every cluster", {
 })
 
 test_that("plot_alluvial returns a ggplot built on the table", {
+  skip_if_not_installed("ggalluvial")
   alluv <- suppressMessages(networks_to_alluv(toy_alluvial(), "dynamic_cluster", "id"))
   plot <- plot_alluvial(alluv, "dynamic_cluster", "id", color_alluvial = TRUE,
                         minimize_crossing = TRUE)
