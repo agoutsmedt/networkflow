@@ -155,7 +155,7 @@ merge_diagnostics <- function(graphs,
   data.table::setnames(all_nodes, c("node", "cluster"), c(node_id, cluster_id))
 
   settings <- expand.grid(similarity_type = similarity_types, threshold = thresholds, stringsAsFactors = FALSE)
-  if (verbose) cli::cli_progress_bar("Matching clusters ({method})", total = nrow(settings))
+  if (verbose) cli::cli_progress_bar(paste0("Matching clusters (", method, ")"), total = nrow(settings))
   new_col <- paste0("dynamic_", cluster_id)
   results <- vector("list", nrow(settings))
   lifespans <- vector("list", nrow(settings))

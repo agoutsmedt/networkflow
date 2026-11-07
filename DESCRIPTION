@@ -18,9 +18,10 @@ Description: Organises the study of networks built from tabular research
     bibliometric similarity measures or filtered by statistical backbones,
     for a whole corpus or one network per time window; detects communities with the
     'igraph' algorithms (Leiden, Louvain, Infomap...); links the communities
-    of successive windows into dynamic clusters; names them with tf-idf or
-    central nodes; characterises the roles of nodes; and draws networks and
-    alluvial plots. Networks are 'tidygraph' objects.
+    of successive windows into dynamic clusters; names them with tf-idf,
+    central nodes or, optionally, a language model reached through 'ellmer'
+    (a local model or an online service); characterises the roles of nodes;
+    and draws networks and alluvial plots. Networks are 'tidygraph' objects.
 License: MIT + file LICENSE
 URL: https://github.com/agoutsmedt/networkflow,
     https://agoutsmedt.github.io/networkflow/
@@ -49,6 +50,7 @@ Suggests:
     backbone,
     DBI,
     duckdb,
+    ellmer (>= 0.4.1),
     ggalluvial,
     lifecycle,
     scico,

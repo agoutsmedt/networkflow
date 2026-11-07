@@ -64,7 +64,8 @@ one asks to install it:
 for the tf-idf names of `name_clusters()` and `extract_tfidf()`,
 [`textstem`](https://github.com/trinker/textstem) to lemmatise terms,
 [`backbone`](https://github.com/zpneal/backbone) for the statistical
-backbones (`method = "sdsm"`…).
+backbones (`method = "sdsm"`…), [`ellmer`](https://ellmer.tidyverse.org)
+for the labels of a language model (`name_clusters(method = "llm")`).
 
 ## A first look
 

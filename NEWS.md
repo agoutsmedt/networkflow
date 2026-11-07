@@ -1,6 +1,24 @@
 # networkflow (development version)
 
-* No change yet since 0.1.0.
+## New features
+
+- `name_clusters(method = "llm")` asks a language model for a label of each
+  cluster. The model is a chat object of 'ellmer' (suggested, only needed
+  for this method), configured by the user: a model running on their
+  computer (`ellmer::chat_ollama()`, `chat_lmstudio()`, `chat_vllm()`...) or
+  an online service. The model reads a description of each cluster written
+  from the node columns given in the new `prompt_columns`: its `nb_nodes`
+  main nodes, ranked by `order_by` (e.g. `within_module_degree` from
+  `add_node_roles()`), and the columns with one value per cluster (a tf-idf
+  label computed before), plus an optional `context`. `prompt_columns`,
+  `order_by` and `nb_nodes` have no default. The system prompt is the new
+  `instructions` (2 or 3 words by default), and the answer is structured.
+  `preview = TRUE` returns the descriptions without calling a model.
+- `name_clusters()` warns when `name_dynamic_clusters = TRUE` is used with
+  clusters numbered within each window (those of `add_clusters()`), which
+  would be named as one cluster across windows, and refuses arguments it
+  does not use (a misspelt argument was ignored silently), except for the
+  arguments of `extract_tfidf()` with `method = "tf-idf"`.
 
 # networkflow 0.1.0 (first CRAN release)
 

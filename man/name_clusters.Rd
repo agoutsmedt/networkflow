@@ -6,7 +6,7 @@
 \usage{
 name_clusters(
   graphs,
-  method = c("tidygraph_functions", "given_column", "tf-idf"),
+  method = c("tidygraph_functions", "given_column", "tf-idf", "llm"),
   name_dynamic_clusters = FALSE,
   cluster_id,
   label_columns,
@@ -15,6 +15,12 @@ name_clusters(
   order_by = NULL,
   text_columns = NULL,
   nb_terms_label = 3,
+  prompt_columns = NULL,
+  nb_nodes = NULL,
+  llm = NULL,
+  instructions = NULL,
+  context = NULL,
+  preview = FALSE,
   name_merged_clusters = NULL,
   ...
 )
@@ -23,7 +29,7 @@ name_clusters(
 \item{graphs}{A \code{tbl_graph} or a list of \code{tbl_graph}s.}
 
 \item{method}{\code{"tf-idf"} (chosen when no method is given),
-\code{"tidygraph_functions"} or \code{"given_column"} (see the details).}
+\code{"tidygraph_functions"}, \code{"given_column"} or \code{"llm"} (see the details).}
 
 \item{name_dynamic_clusters}{Logical. \code{TRUE} when \code{cluster_id} identifies
 clusters across a list of graphs (the dynamic clusters of
@@ -45,9 +51,18 @@ node column(s) used to build the label of the chosen node, joined by
 centrality function of \href{https://tidygraph.data-imaginist.com/}{\code{tidygraph}}, such as
 \code{tidygraph::centrality_pagerank()} (see \link[tidygraph:centrality]{tidygraph::centrality}).}
 
-\item{order_by}{For \code{"given_column"}, the numeric node column used to
-choose the node (e.g. \code{"node_size"} from \code{\link[=build_network]{build_network()}} with
-\code{compute_size = TRUE}, i.e. the most cited document of the cluster).}
+\item{order_by}{Character scalar, a numeric node column used to rank the
+nodes of each cluster, for two methods (ignored by the others):
+\itemize{
+\item \code{"given_column"}: the node with the highest value names the cluster,
+e.g. \code{"node_size"} from \code{\link[=build_network]{build_network()}} with \code{compute_size = TRUE}
+(the most cited document of the cluster);
+\item \code{"llm"} (required): the \code{nb_nodes} nodes with the highest values are
+shown to the model, e.g. \code{"within_module_degree"} from
+\code{\link[=add_node_roles]{add_node_roles()}} (the nodes most tied to their own cluster). For
+dynamic clusters, a node present in several windows is ranked by its
+highest value.
+}}
 
 \item{text_columns}{For \code{"tf-idf"}, the node column(s) with text (titles,
 abstracts, keywords), passed to \code{\link[=extract_tfidf]{extract_tfidf()}}.}
@@ -57,25 +72,64 @@ by default), separated by commas. A term that is part of a term already
 in the label, or contains one, is skipped ("business" after "business
 cycle").}
 
+\item{prompt_columns}{For \code{"llm"} (required), character vector, the node
+column(s) written in the description of each cluster sent to the model: what the model
+knows about the nodes (e.g. \code{c("source_title", "source_year", "cluster_label")}). A column with one value per cluster (a label
+computed before, e.g. with \code{method = "tf-idf"}) is given once for the
+cluster.}
+
+\item{nb_nodes}{For \code{"llm"} (required), whole number, the number of nodes
+listed for each cluster, highest \code{order_by} first. \code{0} lists none: the model then
+reads only the \code{context} and the columns with one value per cluster.}
+
+\item{llm}{For \code{"llm"}, the model: a chat object of
+\href{https://ellmer.tidyverse.org}{\code{ellmer}}, configured as you would for any
+other use, e.g. \code{ellmer::chat_ollama(model = "mistral", params = ellmer::params(temperature = 0, seed = 123))} (see the details). Not
+needed with \code{preview = TRUE}.}
+
+\item{instructions}{For \code{"llm"}, character scalar, the system prompt sent
+before the description of each cluster. \code{NULL} (default) uses the
+instructions given in the details. Change them to ask for longer
+labels, another language, another vocabulary... To start from the
+default, get it with \code{preview = TRUE} (column \code{instructions}), e.g.
+\code{instructions = paste(prompts$instructions[1], "Answer in French.")}.}
+
+\item{context}{For \code{"llm"}, optional character scalar describing the
+network to the model: what the nodes are, the field, the period, the
+question (e.g. \code{"Economics articles on stagflation, 1970-2010, linked by their shared references"}), written at the top of each description.}
+
+\item{preview}{For \code{"llm"}, logical. If \code{TRUE}, returns what the model
+would receive, without calling it (no model needed): a tibble with one
+row per cluster, its identifier, the \code{instructions} (the system prompt)
+and the \code{description} of the cluster (the user message), plus a \code{graph}
+column for a list of graphs named separately. Print a
+description with \code{cat()}. \code{FALSE} (default) names the clusters.}
+
 \item{name_merged_clusters}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Former name
 of \code{name_dynamic_clusters}.}
 
 \item{...}{For \code{"tf-idf"}, other arguments of \code{\link[=extract_tfidf]{extract_tfidf()}} (e.g.
-\code{clean_word_method}, \code{n_gram}, \code{ngrams_filter}).}
+\code{clean_word_method}, \code{n_gram}, \code{ngrams_filter}). Must be empty for the
+other methods (a misspelt argument is an error).}
 }
 \value{
 The same object as \code{graphs}, with a new node column \code{label_name},
-also joined to the edges through their cluster column.
+also joined to the edges through their cluster column. With
+\code{method = "llm"} and \code{preview = TRUE}, a tibble of the messages that
+would be sent to the model (see \code{preview}).
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 A cluster identifier ("01", "cl_12") says nothing about its content.
 \code{name_clusters()} gives each cluster a provisional label that helps
-reading plots and tables, with one of three methods: the words that
-distinguish the cluster from the others (\code{"tf-idf"}), or the metadata of
+reading plots and tables, with one of four methods: the words that
+distinguish the cluster from the others (\code{"tf-idf"}), the metadata of
 its most central node (\code{"tidygraph_functions"}) or of its node with the
-highest value of a given column (\code{"given_column"}). These labels are
+highest value of a given column (\code{"given_column"}), or a label written by
+a language model from a description of the cluster (\code{"llm"}, optional,
+through the \href{https://ellmer.tidyverse.org}{\code{ellmer}} package: a model on
+your computer or an online service). These labels are
 starting points for interpretation, not the result of it: naming a
 cluster requires reading its documents, the references they share, and
 what distinguishes them from neighbouring clusters
@@ -104,6 +158,54 @@ This method needs a network structure and therefore cannot be used with
 \strong{Given column.} \code{"given_column"} labels each cluster with its node with
 the highest \code{order_by} value: for an article network, typically its most
 cited article.
+
+\strong{Language model.} \code{"llm"} writes a description of each cluster and asks
+the model given in \code{llm} for a label. The model is a chat object of the
+\href{https://ellmer.tidyverse.org}{\code{ellmer}} package (only needed for this
+method), so any model ellmer reaches can be used:
+\itemize{
+\item a model running on your computer, so that the content of the nodes
+stays on it: \code{ellmer::chat_ollama()} (\href{https://ollama.com}{Ollama}),
+\code{chat_lmstudio()}, \code{chat_vllm()}, or \code{chat_openai_compatible()} for
+another local server (e.g. llama.cpp);
+\item an online service (\code{chat_openai()}, \code{chat_anthropic()}...): the
+descriptions of the clusters are then sent to it.
+}
+
+Configure the chat object as for any other use of ellmer; for more stable
+labels, set \code{params = ellmer::params(temperature = 0, seed = 123)} (this
+does not guarantee the same labels on another computer, and some online
+services ignore \code{seed}). Each cluster is sent alone
+to a copy of \code{llm} (its earlier conversation is not sent), with
+\code{instructions} as the system prompt, and the answer is constrained to one
+label (\code{chat_structured()}). The label is cleaned: no quotes or final
+period, words separated by spaces ("Asset_Pricing" becomes "Asset
+Pricing"). The default instructions are: "You label the clusters of a network for a researcher. A cluster is a group of nodes more linked to each other than to the rest of the network. From the description of one cluster, give a short label of 2 or 3 words naming what its nodes have in common, written as ordinary words separated by spaces. Use only the information given. Do not add quotes or a final period."
+
+The description of a cluster gathers, when available:
+\itemize{
+\item the \code{context} you give;
+\item the number of nodes of the cluster (and of windows, for dynamic
+clusters);
+\item the columns of \code{prompt_columns} with one value per cluster (e.g. a
+tf-idf label computed before with \code{method = "tf-idf"}), given once;
+\item its \code{nb_nodes} main nodes (highest \code{order_by}), described by the other
+columns of \code{prompt_columns}.
+}
+
+Everything comes from the node tables of \code{graphs}. The value of a node
+longer than 300 characters (an abstract) is cut, and its line breaks are
+removed; columns with one value per cluster are written in full. Use
+\code{preview = TRUE} to read the descriptions before running the model.
+
+If the model fails on the first cluster, \code{name_clusters()} stops: the
+problem is likely its configuration (try \code{llm$chat("Hello")}). A later
+cluster whose label fails is labelled "no_name" with a warning. By
+default, each answer may take up to 300 seconds, with up to 3 tries (the options
+\code{ellmer_timeout_s} and \code{ellmer_max_tries} of ellmer): raise
+\code{options(ellmer_timeout_s = )} for a slow model. A warning is given when
+a description exceeds about 4000 tokens: some local servers cut longer
+prompts without warning (Ollama has a context of 4096 tokens by default).
 
 Nodes of an unnamed cluster get "no_name".
 }
@@ -146,6 +248,40 @@ network <- name_clusters(
 unique(tidygraph::as_tibble(network, active = "nodes")[
   c("cluster_leiden", "cluster_label", "central_article")
 ])
+
+# What a language model would read for each cluster (no model needed):
+# titles, years and the tf-idf label, for the 10 nodes most tied to their
+# own cluster
+network <- add_node_roles(network, cluster_id = "cluster_leiden")
+prompts <- name_clusters(
+  network,
+  method = "llm",
+  cluster_id = "cluster_leiden",
+  prompt_columns = c("source_title", "source_year", "cluster_label"),
+  order_by = "within_module_degree",
+  nb_nodes = 10,
+  context = "Economics articles on stagflation, linked by their shared references.",
+  preview = TRUE
+)
+cat(prompts$instructions[1])
+cat(prompts$description[1])
+
+\dontrun{
+# A label written by a model running on your computer, here with Ollama
+# (install Ollama, then `ollama pull mistral` in a terminal)
+network <- name_clusters(
+  network,
+  method = "llm",
+  cluster_id = "cluster_leiden",
+  prompt_columns = c("source_title", "source_year", "cluster_label"),
+  order_by = "within_module_degree",
+  nb_nodes = 10,
+  label_name = "llm_label",
+  llm = ellmer::chat_ollama(model = "mistral",
+                            params = ellmer::params(temperature = 0, seed = 123)),
+  context = "Economics articles on stagflation, linked by their shared references."
+)
+}
 
 }
 \references{

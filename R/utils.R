@@ -91,7 +91,7 @@ inform_method <- function(method, source_id, target_id, edges_threshold, alpha,
     what <- if (!is.null(document_id)) {
       "Coupling of entities through their documents ({.fn biblionetwork::entity_network})"
     } else if (projection_on == "target") {
-      "Co-citation ({.fn biblionetwork::biblio_coupling} on the swapped links)"
+      "Projection on the targets, e.g. co-citation or co-authorship ({.fn biblionetwork::biblio_coupling} on the swapped links)"
     } else {
       "Coupling ({.fn biblionetwork::biblio_coupling})"
     }
@@ -183,10 +183,15 @@ mixcolor <- function(col1, col2, amount1 = 0.5) {
   grDevices::rgb(mix[1, ], mix[2, ], mix[3, ], mix[4, ], maxColorValue = 255)
 }
 
-# A target linked to most sources is often a code for a missing identifier
-# (e.g. 0 for the references that a database could not match): it would tie
-# almost every pair of sources. Warn when one target is linked to more than
-# half of the sources (with at least 20 sources).
+# Values that databases use for a missing identifier (e.g. 0 for the
+# references they could not match).
+placeholder_values <- c("0", "-1", "", "na", "nan", "null", "none", "unknown", "missing")
+
+# A target shared by many sources ties every pair of them: a code for a
+# missing identifier does it by accident, and a target that defines the corpus
+# (a corpus of the works citing it) does it by construction. Warn about a
+# placeholder-like target linked to at least 1% of the sources, and about any
+# target linked to more than half of them (with at least 20 sources).
 check_placeholder_target <- function(edges, target_id) {
   # counted with hashing (match/tabulate), much faster than grouping
   links <- if ("document" %in% names(edges)) unique(edges[, c("from", "to")]) else edges
@@ -196,12 +201,21 @@ check_placeholder_target <- function(edges, target_id) {
   }
   targets <- unique(links$to)
   counts <- tabulate(match(links$to, targets), length(targets))
-  top <- data.frame(to = targets[which.max(counts)], n = max(counts))
-  if (nrow(top) == 1 && top$n / n_sources > 0.5) {
-    share <- round(100 * top$n / n_sources)
+  share <- counts / n_sources
+  placeholder <- tolower(trimws(as.character(targets))) %in% placeholder_values & share >= 0.01
+  if (any(placeholder)) {
+    i <- which(placeholder)[which.max(share[placeholder])]
     cli::cli_warn(c(
-      "The {.field {target_id}} {.val {top$to}} is linked to {share}% of the sources.",
-      "i" = "Is it a code for a missing identifier (e.g. an unmatched reference)? It ties almost every pair of sources: set it to {.code NA} or remove its rows."
+      "The {.field {target_id}} {.val {targets[i]}} is linked to {round(100 * share[i])}% of the sources ({counts[i]}): it looks like a code for a missing identifier.",
+      "i" = "It ties every pair of these sources as if they shared a target: set it to {.code NA} or remove its rows."
+    ))
+  }
+  top <- which.max(replace(share, placeholder, 0))
+  if (share[top] > 0.5) {
+    cli::cli_warn(c(
+      "The {.field {target_id}} {.val {targets[top]}} is linked to {round(100 * share[top])}% of the sources: it ties most pairs of sources.",
+      "i" = "If it is a code for a missing identifier, set it to {.code NA} or remove its rows.",
+      "i" = "If the corpus was built from it (e.g. the works citing it), it says nothing about the differences between sources: consider removing its rows."
     ))
   }
   invisible()

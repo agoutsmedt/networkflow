@@ -534,3 +534,26 @@ test_that("a target linked to most sources is reported", {
   expect_warning(build_network(data.frame(doc = paste0("d", 1:30)), citations, "doc", "ref", method = "angle", verbose = FALSE),
                  "linked to 100%")
 })
+
+test_that("a placeholder target is reported even when it is not linked to most sources", {
+  # 0 for 25% of the sources, as the unmatched references of a database.
+  docs <- data.frame(doc = paste0("d", 1:40))
+  citations <- data.frame(doc = paste0("d", 1:40), ref = paste0("r", rep(1:10, 4)))
+  citations <- rbind(citations, data.frame(doc = paste0("d", 1:10), ref = 0))
+  expect_warning(build_network(docs, citations, "doc", "ref", method = "angle", verbose = FALSE),
+                 "looks like a code for a missing identifier")
+})
+
+test_that("a real target linked to most sources is reported, with the case of a corpus built from it", {
+  docs <- data.frame(doc = paste0("d", 1:40))
+  citations <- data.frame(doc = paste0("d", 1:40), ref = paste0("r", rep(1:10, 4)))
+  # Most of the corpus cites "fama1970" (the works citing it), 30% cite "big".
+  citations <- rbind(citations, data.frame(doc = paste0("d", 1:30), ref = "fama1970"),
+                     data.frame(doc = paste0("d", 1:12), ref = "big"))
+  warnings <- character()
+  withCallingHandlers(build_network(docs, citations, "doc", "ref", method = "angle", verbose = FALSE),
+                      warning = function(w) { warnings <<- c(warnings, conditionMessage(w)); invokeRestart("muffleWarning") })
+  expect_length(warnings, 1)
+  expect_match(warnings, "fama1970.*75%")
+  expect_match(warnings, "corpus was built from it")
+})

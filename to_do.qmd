@@ -32,6 +32,26 @@ methods. `merge_dynamic_clusters()` has the double majority
   (barycentre heuristic) instead of one order for all the windows; a measure of
   the crossings in `plot_alluvial()`.
 
+## Naming clusters with a language model
+
+- Reread the documentation of `name_clusters()` (method `"llm"` and its
+  arguments) and the code of `R/name_clusters.R` and
+  `R/name_clusters_llm.R`.
+- Guide "Finding and reading clusters"
+  (`vignettes/articles/finding-and-reading-clusters.qmd`): add
+  `name_clusters(method = "llm")` to the section "Naming clusters with
+  tf-idf", with a chunk `preview = TRUE` (runs without a model) and the call
+  with a model in a chunk not evaluated. Place it after "The role of
+  documents: hubs and bridges", or point to it, to explain
+  `order_by = "within_module_degree"`. What worked on coupling networks
+  (Econometrica and Journal of Finance, 27 clusters, `mistral` and
+  `ministral-3`): titles, years and the tf-idf label of the 10 nodes with
+  the highest within-module degree, about 350 tokens per cluster, right
+  cluster found by a judge model for about 6 labels out of 10 (1 out of 13
+  by chance); `nb_nodes = 5` almost as good; total degree, PageRank,
+  citations or random order worse; abstracts and `nb_nodes = 20` no better;
+  the tf-idf label alone about as good.
+
 ## Layouts and the hairball (notes of 2026-11-06)
 
 Sources read: Peixoto (2024, blog post, skewed.de/lab/posts/hairball/),
