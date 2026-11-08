@@ -69,7 +69,7 @@ The package imports only what the core pipeline needs. Some steps use
 packages that are suggested, not imported, and the function that needs one
 asks to install it: [`ggalluvial`](https://corybrunson.github.io/ggalluvial/) for `plot_alluvial()`, [`tidytext`](https://juliasilge.github.io/tidytext/) for the
 tf-idf names of `name_clusters()` and `extract_tfidf()`, [`textstem`](https://github.com/trinker/textstem) to
-lemmatise terms, [`backbone`](https://github.com/zpneal/backbone) for the statistical backbones (`method = "sdsm"`...).
+lemmatise terms, [`backbone`](https://github.com/zpneal/backbone) for the statistical backbones (`method = "sdsm"`...), [`ellmer`](https://ellmer.tidyverse.org) for the labels of a language model (`name_clusters(method = "llm")`).
 
 ## A first look
 
