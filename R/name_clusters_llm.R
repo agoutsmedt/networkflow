@@ -6,10 +6,16 @@
 # of each cluster (inserted in the documentation of name_clusters()).
 llm_default_instructions <- paste(
   "You label the clusters of a network for a researcher.",
-  "A cluster is a group of nodes more linked to each other than to the rest of the network.",
-  "From the description of one cluster, give a short label of 2 or 3 words naming what its nodes have in common,",
-  "written as ordinary words separated by spaces.",
-  "Use only the information given. Do not add quotes or a final period."
+  "A cluster is a group of nodes (e.g. documents) more linked to each other than to the rest of the network.",
+  "You receive the description of one cluster, with its most central nodes.",
+  "",
+  "Rules:",
+  "- Name the topic the nodes share, in 2 to 4 words of ordinary language, e.g. \"Protein folding\", \"Urban heat islands\", \"Medieval trade routes\".",
+  "- Be as specific as the information allows: prefer \"Coral bleaching\" to \"Marine biology\". Avoid empty words (studies, analysis, issues, research) and the name of a whole field when the nodes share a narrower topic.",
+  "- Base the label on what most nodes have in common, not on one odd node; if the topics are mixed, name the dominant one.",
+  "- Use only the information given.",
+  "- Answer with the label alone: no quotes, no final period.",
+  sep = "\n"
 )
 
 # `llm` must be a chat object of ellmer.

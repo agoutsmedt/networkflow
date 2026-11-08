@@ -95,7 +95,7 @@ test_that("method = 'llm' labels each cluster with the answer of the model", {
   call <- fake$record$calls[[1]]
   # The instructions replace the system prompt of the user, and the earlier
   # conversation is not sent.
-  expect_match(call$system, "2 or 3 words", fixed = TRUE)
+  expect_match(call$system, "2 to 4 words", fixed = TRUE)
   expect_length(call$turns, 0)
   expect_match(call$prompt, "Context of the network: A toy network.", fixed = TRUE)
   # The chat object of the user is not modified.
@@ -244,4 +244,15 @@ test_that("the labels of the model are cleaned", {
   expect_equal(clean_label("IPO Underpricing McKenzie"), "IPO Underpricing McKenzie")
   expect_error(clean_label(""), "no label")
   expect_error(clean_label(NULL), "no label")
+})
+
+test_that("a message reminds the user to give a context, and only then", {
+  expect_message(
+    name_llm(clustered_toy_llm(), preview = TRUE),
+    class = "networkflow_no_context"
+  )
+  expect_no_message(
+    name_llm(clustered_toy_llm(), context = "Toy.", preview = TRUE),
+    class = "networkflow_no_context"
+  )
 })

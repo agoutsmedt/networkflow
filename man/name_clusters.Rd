@@ -96,7 +96,10 @@ default, get it with \code{preview = TRUE} (column \code{instructions}), e.g.
 
 \item{context}{For \code{"llm"}, optional character scalar describing the
 network to the model: what the nodes are, the field, the period, the
-question (e.g. \code{"Economics articles on stagflation, 1970-2010, linked by their shared references"}), written at the top of each description.}
+question (e.g. \code{"Economics articles on stagflation, 1970-2010, linked by their shared references"}), written at the top of each description.
+Strongly recommended: in our tests on three corpora and three local
+models, it raised the quality of the labels more than any other change
+to the description (see the details).}
 
 \item{preview}{For \code{"llm"}, logical. If \code{TRUE}, returns what the model
 would receive, without calling it (no model needed): a tibble with one
@@ -180,7 +183,36 @@ to a copy of \code{llm} (its earlier conversation is not sent), with
 \code{instructions} as the system prompt, and the answer is constrained to one
 label (\code{chat_structured()}). The label is cleaned: no quotes or final
 period, words separated by spaces ("Asset_Pricing" becomes "Asset
-Pricing"). The default instructions are: "You label the clusters of a network for a researcher. A cluster is a group of nodes more linked to each other than to the rest of the network. From the description of one cluster, give a short label of 2 or 3 words naming what its nodes have in common, written as ordinary words separated by spaces. Use only the information given. Do not add quotes or a final period."
+Pricing"). The default instructions are:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{`r llm_default_instructions`
+}\if{html}{\out{</div>}}
+
+\strong{Writing the prompt.} We compared nine prompts, with three local models
+(\verb{gemma3:4b}, \verb{gemma3:12b}, \verb{qwen3:14b}) on 21 clusters of three corpora
+(articles of economics), the labels being scored blind by another model
+(accuracy and specificity, from 1 to 5; a small test, to be taken as an
+indication). What mattered most, in order:
+\enumerate{
+\item The instructions. Short ones ("a label of 2 or 3 words") give generic
+labels ("Monetary policy analysis"); the default above, which asks for
+the specific topic, forbids empty words and gives examples, raised the
+scores by 0.5 to 0.8 points whatever the model.
+\item The \code{context}: one sentence on what the nodes are, the field and the
+period raised the scores by a further 0.25 to 0.5 points. It helps the
+model most where it cannot tell the cluster apart by itself.
+\item Little else: 10 nodes are enough (25 did not help, 5 was a bit worse);
+year and journal in \code{prompt_columns} changed little; and a column of
+key terms (tf-idf) did not help and produced more repeated labels.
+A larger model did not systematically beat a small one once the prompt was
+good. If you change \code{instructions}, keep the rules asking for a specific
+topic and keep the \code{context}.
+}
+
+With \code{ellmer::chat_ollama()}, a model that thinks before answering (e.g.
+\code{qwen3}) can take minutes per cluster or time out, because ellmer reaches
+Ollama through its OpenAI-compatible endpoint, where \code{think = FALSE} is
+ignored: use \code{api_args = list(reasoning_effort = "none")}.
 
 The description of a cluster gathers, when available:
 \itemize{

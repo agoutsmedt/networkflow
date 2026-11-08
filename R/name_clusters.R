@@ -75,6 +75,9 @@
 #'   network to the model: what the nodes are, the field, the period, the
 #'   question (e.g. `"Economics articles on stagflation, 1970-2010, linked
 #'   by their shared references"`), written at the top of each description.
+#'   Strongly recommended: in our tests on three corpora and three local
+#'   models, it raised the quality of the labels more than any other change
+#'   to the description (see the details).
 #' @param preview For `"llm"`, logical. If `TRUE`, returns what the model
 #'   would receive, without calling it (no model needed): a tibble with one
 #'   row per cluster, its identifier, the `instructions` (the system prompt)
@@ -130,7 +133,35 @@
 #' `instructions` as the system prompt, and the answer is constrained to one
 #' label (`chat_structured()`). The label is cleaned: no quotes or final
 #' period, words separated by spaces ("Asset_Pricing" becomes "Asset
-#' Pricing"). The default instructions are: "`r llm_default_instructions`"
+#' Pricing"). The default instructions are:
+#'
+#' ```
+#' `r llm_default_instructions`
+#' ```
+#'
+#' **Writing the prompt.** We compared nine prompts, with three local models
+#' (`gemma3:4b`, `gemma3:12b`, `qwen3:14b`) on 21 clusters of three corpora
+#' (articles of economics), the labels being scored blind by another model
+#' (accuracy and specificity, from 1 to 5; a small test, to be taken as an
+#' indication). What mattered most, in order:
+#' 1. The instructions. Short ones ("a label of 2 or 3 words") give generic
+#'    labels ("Monetary policy analysis"); the default above, which asks for
+#'    the specific topic, forbids empty words and gives examples, raised the
+#'    scores by 0.5 to 0.8 points whatever the model.
+#' 2. The `context`: one sentence on what the nodes are, the field and the
+#'    period raised the scores by a further 0.25 to 0.5 points. It helps the
+#'    model most where it cannot tell the cluster apart by itself.
+#' 3. Little else: 10 nodes are enough (25 did not help, 5 was a bit worse);
+#'    year and journal in `prompt_columns` changed little; and a column of
+#'    key terms (tf-idf) did not help and produced more repeated labels.
+#' A larger model did not systematically beat a small one once the prompt was
+#' good. If you change `instructions`, keep the rules asking for a specific
+#' topic and keep the `context`.
+#'
+#' With `ellmer::chat_ollama()`, a model that thinks before answering (e.g.
+#' `qwen3`) can take minutes per cluster or time out, because ellmer reaches
+#' Ollama through its OpenAI-compatible endpoint, where `think = FALSE` is
+#' ignored: use `api_args = list(reasoning_effort = "none")`.
 #'
 #' The description of a cluster gathers, when available:
 #' * the `context` you give;
@@ -341,6 +372,13 @@ name_clusters <- function(graphs,
     }
     if (!is.null(context) && !rlang::is_string(context) || rlang::is_string(context, "")) {
       cli::cli_abort("{.arg context} must be one character string describing the network (or {.code NULL}).")
+    }
+    if (is.null(context)) {
+      cli::cli_inform(
+        c("!" = "No {.arg context} given: the model only sees the cluster columns and the main nodes.",
+          "i" = "A one-sentence {.arg context} (what the nodes are, the field, the period) usually improves the labels."),
+        class = "networkflow_no_context"
+      )
     }
     if (is.null(instructions)) instructions <- llm_default_instructions
     if (!rlang::is_string(instructions) || !nzchar(trimws(instructions))) {

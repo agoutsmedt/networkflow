@@ -19,3 +19,5 @@ TODOLIST_DEV.md
 
 /.quarto/
 **/*.quarto_ipynb
+
+notes/
