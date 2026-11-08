@@ -55,7 +55,8 @@ and
 [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md),
 [`textstem`](https://github.com/trinker/textstem) to lemmatise terms,
 [`backbone`](https://github.com/zpneal/backbone) for the statistical
-backbones (`method = "sdsm"`…).
+backbones (`method = "sdsm"`…), [`ellmer`](https://ellmer.tidyverse.org)
+for the labels of a language model (`name_clusters(method = "llm")`).
 
 ## A first look
 

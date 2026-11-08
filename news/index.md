@@ -2,7 +2,36 @@
 
 ## networkflow (development version)
 
-- No change yet since 0.1.0.
+### New features
+
+- `name_clusters(method = "llm")` asks a language model for a label of
+  each cluster. The model is a chat object of ‘ellmer’ (suggested, only
+  needed for this method), configured by the user: a model running on
+  their computer
+  ([`ellmer::chat_ollama()`](https://ellmer.tidyverse.org/reference/chat_ollama.html),
+  `chat_lmstudio()`, `chat_vllm()`…) or an online service. The model
+  reads a description of each cluster written from the node columns
+  given in the new `prompt_columns`: its `nb_nodes` main nodes, ranked
+  by `order_by` (e.g. `within_module_degree` from
+  [`add_node_roles()`](https://agoutsmedt.github.io/networkflow/reference/add_node_roles.md)),
+  and the columns with one value per cluster (a tf-idf label computed
+  before), plus an optional `context` (a message reminds you when it is
+  empty). `prompt_columns`, `order_by` and `nb_nodes` have no default.
+  The system prompt is the new `instructions` (specific labels of 2 to 4
+  words by default, chosen after a comparison of nine prompts on three
+  local models: see the details of
+  [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)),
+  and the answer is structured. `preview = TRUE` returns the
+  descriptions without calling a model.
+- [`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
+  warns when `name_dynamic_clusters = TRUE` is used with clusters
+  numbered within each window (those of
+  [`add_clusters()`](https://agoutsmedt.github.io/networkflow/reference/add_clusters.md)),
+  which would be named as one cluster across windows, and refuses
+  arguments it does not use (a misspelt argument was ignored silently),
+  except for the arguments of
+  [`extract_tfidf()`](https://agoutsmedt.github.io/networkflow/reference/extract_tfidf.md)
+  with `method = "tf-idf"`.
 
 ## networkflow 0.1.0 (first CRAN release)
 

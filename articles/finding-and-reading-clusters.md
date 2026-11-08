@@ -334,6 +334,100 @@ column that you provide, such as the number of citations received within
 the corpus (`order_by = "node_size"`, with `compute_size = TRUE` in
 [`build_network()`](https://agoutsmedt.github.io/networkflow/reference/build_network.md)).
 
+### Naming clusters with a language model (development version: 0.1.0.9000)
+
+`method = "llm"` asks a language model to read a short description of
+each cluster and to write its label. The description gathers the
+`context` you give, the columns of the node table that characterise the
+cluster, and its main nodes (`nb_nodes` of them, the highest `order_by`
+first, described by `prompt_columns`). The model is an
+[`ellmer`](https://ellmer.tidyverse.org) chat object, so it can run on
+your computer (Ollama, LM Studio…), which keeps the content of your
+nodes on it, or be a remote service. Set `temperature = 0` and a `seed`
+for more stable labels.
+
+The `context` is one sentence saying what the nodes are, the field and
+the period. In our tests, it improved the labels more than any other
+change of the prompt, which is why
+[`name_clusters()`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
+reminds you when it is empty. `preview = TRUE` returns the descriptions
+without calling any model, to check what the model would receive.
+
+``` r
+
+network <- mutate(network, pagerank = centrality_pagerank())
+
+llm <- ellmer::chat_ollama(
+  model = "gemma3:12b",
+  params = ellmer::params(temperature = 0, seed = 123)
+)
+network_llm <- name_clusters(
+  network,
+  method = "llm",
+  cluster_id = "cluster_leiden",
+  prompt_columns = "source_title",
+  nb_nodes = 10,
+  order_by = "pagerank",
+  llm = llm,
+  context = paste(
+    "Economics articles on the explanations of the 1970s stagflation,",
+    "linked by their shared references."
+  )
+)
+as_tibble(network_llm, active = "nodes") |>
+  count(cluster_leiden, cluster_label)
+```
+
+This chunk is not run when the site is built, since it needs a model.
+Here is the result obtained on a laptop CPU with `gemma3:12b` (about
+five minutes for the four clusters):
+
+      cluster_leiden            cluster_label  n
+    1             01   1970s inflation causes 69
+    2             02    US inflation dynamics 51
+    3             03      Oil and stagflation 18
+    4             04 1970s stagflation causes  9
+
+The labels are readable but generic: they repeat the topic of the whole
+corpus more than they say what distinguishes a cluster. The `context`
+can do more than describe the nodes: it can say what the reader wants to
+learn. Here, everything is about 1970s inflation, and what matters is
+the causes the articles put forward, so we say it:
+
+``` r
+
+network_llm <- name_clusters(
+  network,
+  method = "llm",
+  cluster_id = "cluster_leiden",
+  prompt_columns = "source_title",
+  nb_nodes = 10,
+  order_by = "pagerank",
+  llm = llm,
+  context = paste(
+    "Economics articles linked by their shared references. The whole corpus",
+    "is about the inflation and stagflation of the 1970s, so labels must not",
+    "simply say so: what matters is to understand the causes of stagflation",
+    "and inflation, and each label should say which cause or explanation the",
+    "cluster puts forward."
+  )
+)
+```
+
+      cluster_leiden                cluster_label  n
+    1             01     Supply shocks and policy 69
+    2             02 Inflation targeting mistakes 51
+    3             03       Monetary policy's role 18
+    4             04      Expectations and policy  9
+
+The labels now point to explanations (supply shocks, monetary policy,
+expectations) and are much closer to the histories told above. They
+remain a first guess, to be checked against the documents, as with
+tf-idf. Adding columns to `prompt_columns` (abstracts, for instance) or
+using a larger model are the other things to try. See the details of
+[`?name_clusters`](https://agoutsmedt.github.io/networkflow/reference/name_clusters.md)
+for the prompts we compared.
+
 ### The role of documents: hubs and bridges
 
 Within a cluster, documents do not play the same role. Guimerà and Nunes
