@@ -212,6 +212,30 @@ labels":
   single-cell genomics, *PLOS Comput. Biol.* 19, e1011288 (cited by Peixoto
   against UMAP/t-SNE embeddings: relevant to our `"umap"` layout).
 
+## Approximate kNN projection (UMAP-like) for very large corpora, to test before any integration
+
+Noted 2026-11-12. Nothing implemented.
+
+- **Idea.** Instead of enumerating all coupled pairs as
+  `biblio_coupling()` does (cost about $\sum_k n_k^2$, with $n_k$ the number
+  of documents citing reference $k$), build a graph of the k nearest
+  neighbours in cosine on the sparse document × reference incidence matrix
+  (`uwot::similarity_graph()` or `rnndescent`), then compute the exact
+  biblionetwork measure (coupling angle / strength / similarity) only on the
+  pairs kept. Leiden and the rest of networkflow do not change.
+- **Speed test.** Time and memory of `biblio_coupling()` against kNN on
+  corpora of increasing size (10k, 50k, 200k, 800k documents); find the size
+  at which exact coupling becomes impractical.
+- **Quality test.** Compare the Leiden clusters of the two networks (adjusted
+  Rand index, overlap of clusters) and their stability across seeds (kNN is
+  not deterministic with several threads).
+- **Caveats.** kNN caps degrees and removes isolated nodes, so it changes the
+  nature of the network, not only the cost. On discrete data such as JEL
+  codes, documents with the same set of codes make the choice of neighbours
+  arbitrary (deduplicate first).
+- **Criterion.** Add this layer to the package only if kNN is clearly faster
+  at comparable cluster quality.
+
 ## From the verification on real data (2026-11-04)
 
 Samples: Scopus (Journal of Monetary Economics, 1,865 documents; random
